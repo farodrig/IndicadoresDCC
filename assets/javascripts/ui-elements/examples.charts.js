@@ -16,7 +16,7 @@ Theme Version: 	1.4.0
 			series: {
 				lines: {
 					show: true,
-					fill: true,
+					fill: false,
 					lineWidth: 1,
 					fillColor: {
 						colors: [{
@@ -62,7 +62,7 @@ Theme Version: 	1.4.0
 	/*
 	Flot: Real-Time
 	*/
-	(function() {
+	/*(function() {
 		var data = [],
 			totalPoints = 300;
 
@@ -178,12 +178,12 @@ Theme Version: 	1.4.0
 				defaultTheme: false
 			}
 		});
-	})();
+	})()}).apply( this, [ jQuery ]);
 
 	/*
 	Flot: Pie
 	*/
-	(function() {
+	/*(function() {
 		var plot = $.plot('#flotPie', flotPieData, {
 			series: {
 				pie: {
@@ -208,7 +208,7 @@ Theme Version: 	1.4.0
 	/*
 	Morris: Line
 	*/
-	Morris.Line({
+	/*Morris.Line({
 		resize: true,
 		element: 'morrisLine',
 		data: morrisLineData,
@@ -222,7 +222,7 @@ Theme Version: 	1.4.0
 	/*
 	Morris: Donut
 	*/
-	Morris.Donut({
+	/*Morris.Donut({
 		resize: true,
 		element: 'morrisDonut',
 		data: morrisDonutData,
@@ -232,7 +232,7 @@ Theme Version: 	1.4.0
 	/*
 	Morris: Bar
 	*/
-	Morris.Bar({
+	/*Morris.Bar({
 		resize: true,
 		element: 'morrisBar',
 		data: morrisBarData,
@@ -246,7 +246,7 @@ Theme Version: 	1.4.0
 	/*
 	Morris: Area
 	*/
-	Morris.Area({
+	/*Morris.Area({
 		resize: true,
 		element: 'morrisArea',
 		data: morrisAreaData,
@@ -261,7 +261,7 @@ Theme Version: 	1.4.0
 	/*
 	Morris: Stacked
 	*/
-	Morris.Bar({
+	/*Morris.Bar({
 		resize: true,
 		element: 'morrisStacked',
 		data: morrisStackedData,
@@ -278,7 +278,7 @@ Theme Version: 	1.4.0
 	/*
 	Gauge: Basic
 	*/
-	(function() {
+	/*(function() {
 		var target = $('#gaugeBasic'),
 			opts = $.extend(true, {}, {
 				lines: 12, // The number of lines to draw
@@ -307,7 +307,7 @@ Theme Version: 	1.4.0
 	/*
 	Gauge: Alternative
 	*/
-	(function() {
+	/*(function() {
 		var target = $('#gaugeAlternative'),
 			opts = $.extend(true, {}, {
 				lines: 12, // The number of lines to draw
@@ -336,7 +336,7 @@ Theme Version: 	1.4.0
 	/*
 	Liquid Meter
 	*/
-	$('#meter').liquidMeter({
+	/*$('#meter').liquidMeter({
 		shape: 'circle',
 		color: '#0088CC',
 		background: '#F9F9F9',
@@ -353,7 +353,7 @@ Theme Version: 	1.4.0
 	/*
 	Liquid Meter Dark
 	*/
-	$('#meterDark').liquidMeter({
+	/*$('#meterDark').liquidMeter({
 		shape: 'circle',
 		color: '#0088CC',
 		background: '#272A31',
@@ -370,7 +370,7 @@ Theme Version: 	1.4.0
 	/*
 	Sparkline: Line
 	*/
-	$("#sparklineLine").sparkline(sparklineLineData, {
+	/*$("#sparklineLine").sparkline(sparklineLineData, {
 		type: 'line',
 		width: '80',
 		height: '30',
@@ -380,7 +380,7 @@ Theme Version: 	1.4.0
 	/*
 	Sparkline: Bar
 	*/
-	$("#sparklineBar").sparkline(sparklineBarData, {
+	/*$("#sparklineBar").sparkline(sparklineBarData, {
 		type: 'bar',
 		width: '80',
 		height: '30',
@@ -391,7 +391,7 @@ Theme Version: 	1.4.0
 	/*
 	Sparkline: Tristate
 	*/
-	$("#sparklineTristate").sparkline(sparklineTristateData, {
+	/*$("#sparklineTristate").sparkline(sparklineTristateData, {
 		type: 'tristate',
 		width: '80',
 		height: '30',
@@ -402,7 +402,7 @@ Theme Version: 	1.4.0
 	/*
 	Sparkline: Discrete
 	*/
-	$("#sparklineDiscrete").sparkline(sparklineDiscreteData, {
+	/*$("#sparklineDiscrete").sparkline(sparklineDiscreteData, {
 		type: 'discrete',
 		width: '80',
 		height: '30',
@@ -412,7 +412,7 @@ Theme Version: 	1.4.0
 	/*
 	Sparkline: Bullet
 	*/
-	$("#sparklineBullet").sparkline(sparklineBulletData, {
+	/*$("#sparklineBullet").sparkline(sparklineBulletData, {
 		type: 'bullet',
 		width: '80',
 		height: '30',
@@ -423,7 +423,7 @@ Theme Version: 	1.4.0
 	/*
 	Sparkline: Pie
 	*/
-	$("#sparklinePie").sparkline(sparklinePieData, {
+	/*$("#sparklinePie").sparkline(sparklinePieData, {
 		type: 'pie',
 		height: '30',
 		barColor: '#0088cc'
@@ -432,7 +432,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Line Chart - Simple Chart
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Line('#ChartistSimpleLineChart', {
 			labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
 			series: [
@@ -446,7 +446,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Line Chart - Scatter Diagram With Responsive Settings
 	*/
-	(function() {
+	/*(function() {
 		var times = function(n) {
 			return Array.apply(null, new Array(n));
 		};
@@ -490,7 +490,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Line Chart - With Tooltips
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Line('#ChartistLineChartWithTooltips', {
 			labels: ['1', '2', '3', '4', '5', '6'],
 			series: [{
@@ -531,7 +531,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Line Chart - With Area
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Line('#ChartistLineChartWithArea', {
 			labels: [1, 2, 3, 4, 5, 6, 7, 8],
 			series: [
@@ -546,7 +546,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Line Chart - Bi-Polar Chart With Area Only
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Line('#ChartistBiPolarLineChartWithAreaOnly', {
 			labels: [1, 2, 3, 4, 5, 6, 7, 8],
 			series: [
@@ -572,7 +572,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Line Chart - Using Events to Replace Graphics
 	*/
-	(function() {
+	/*(function() {
 		var chart = new Chartist.Line('#ChartistEventsToReplaceGraphics', {
 			labels: [1, 2, 3, 4, 5],
 			series: [
@@ -609,7 +609,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Line Chart - Interpolation / Smoothing
 	*/
-	(function() {
+	/*(function() {
 		var chart = new Chartist.Line('#ChartistLineInterpolationSmoothing', {
 			labels: [1, 2, 3, 4, 5],
 			series: [
@@ -630,7 +630,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Bar Chart - Bi-Polar Chart
 	*/
-	(function() {
+	/*(function() {
 		var data = {
 			labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10'],
 			series: [
@@ -654,7 +654,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Bar Chart - Overlapping On Mobile
 	*/
-	(function() {
+	/*(function() {
 		var data = {
 			labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 			series: [
@@ -684,7 +684,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Bar Chart - Add Peak Circles Using Draw Events
 	*/
-	(function() {
+	/*(function() {
 		// Create a simple bi-polar bar chart
 		var chart = new Chartist.Bar('#ChartistAddPeakCirclesUsingDrawEvents', {
 			labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10'],
@@ -718,7 +718,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Bar Chart - Multi-Line Labels
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Bar('#ChartistMultiLineLabels', {
 			labels: ['First quarter of the year', 'Second quarter of the year', 'Third quarter of the year', 'Fourth quarter of the year'],
 			series: [
@@ -744,7 +744,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Bar Chart - Stacked Chart
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Bar('#ChartistStackedChart', {
 			labels: ['Q1', 'Q2', 'Q3', 'Q4'],
 			series: [
@@ -771,7 +771,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Bar Chart - Horizontal Chart
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Bar('#ChartistHorizontalChart', {
 			labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
 			series: [
@@ -791,7 +791,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist:
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Bar('#ChartistExtremeResponsiveConfiguration', {
 			labels: ['Quarter 1', 'Quarter 2', 'Quarter 3', 'Quarter 4'],
 			series: [
@@ -843,7 +843,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Pie Chart - Simple Chart
 	*/
-	(function() {
+	/*(function() {
 		var data = {
 			series: [5, 3, 4]
 		};
@@ -862,7 +862,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Pie Chart - With Custom Labels
 	*/
-	(function() {
+	/*(function() {
 		var data = {
 			labels: ['Bananas', 'Apples', 'Grapes'],
 			series: [20, 15, 40]
@@ -892,7 +892,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: Gauge Chart
 	*/
-	(function() {
+	/*(function() {
 		new Chartist.Pie('#ChartistGaugeChart', {
 			series: [20, 10, 30, 40]
 		}, {
@@ -907,7 +907,7 @@ Theme Version: 	1.4.0
 	/*
 	Chartist: CSS Animation
 	*/
-	(function() {
+	/*(function() {
 		var data = {
 			labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 			series: [
@@ -937,4 +937,4 @@ Theme Version: 	1.4.0
 		new Chartist.Line('#ChartistCSSAnimation', data, null, responsiveOptions);
 	})();
 
-}).apply( this, [ jQuery ]);
+}).apply( this, [ jQuery ]);*/

@@ -5,7 +5,7 @@
 		<!-- Basic -->
 		<meta charset="UTF-8">
 
-		<title>Configurar dashboard</title>
+		<title>U-Dashboard</title>
 		<meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
 		<meta name="author" content="okler.net">
@@ -24,8 +24,6 @@
 		<link rel="stylesheet" href="assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
 
 		<!-- Specific Page Vendor CSS -->
-		<link rel="stylesheet" href="assets/vendor/pnotify/pnotify.custom.css" />
-		<link rel="stylesheet" href="assets/vendor/lineicons/css/lineicons.css" />
 		<link rel="stylesheet" href="assets/vendor/elusive-icons/css/elusive-webfont.css" />
 
 		<!-- Theme CSS -->
@@ -46,7 +44,7 @@
 			<!-- start: header -->
 			<header class="header">
 				<div class="logo-container">
-					<a href="index.html" class="logo">
+					<a href="../" class="logo">
 						<img src="assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
 					</a>
 					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
@@ -128,32 +126,29 @@
 										</a>
 									</li>
 									<li>
-										<a href="configurar-areas-unidades.html">
+										<a href="index.html">
 											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-th-large" aria-hidden="true"></i>
-											<span>Configurar Áreas y Unidades</span>
+											<i class="fa fa-university" aria-hidden="true"></i>
+											<span>Negocio</span>
 										</a>
 									</li>
 									<li>
-										<a href="configurar-metricas.html">
+										<a href="index.html">
 											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-server" aria-hidden="true"></i>
-											<span>Añadir y Borrar Métricas</span>
+											<i class="el-icon-group" aria-hidden="true"></i>
+											<span>Soporte</span>
 										</a>
 									</li>
 								</ul>
 							</nav>
-				
 						</div>
-				
 					</div>
-				
 				</aside>
 				<!-- end: sidebar -->
 
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Configurar Dashboard</h2>
+						<h2>U-Dashboard</h2>
 					
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
@@ -162,55 +157,82 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<li><span>Configurar</span></li>
-								<li><span>Dashboard</span></li>
+								<li><span>Negocio</span></li>
 							</ol>
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</div>
 					</header>
-
-					<!-- start: page -->
-					<div class="row">
-						<div class="col-md-6">
-							<section class="panel-warning">
-								<header class="panel-heading">
-									<h2 class="panel-title">
-										<form id="conf-dash">
-											<div class="form-group mt-lg">
-												<div class="btn-group-horizontal text-center">
-													<select class="form-control btn btn-warning">
-														<option value="a1">Área 1</option>
-														<option value="a2">Área 2</option>
-														<option value="a3">Área 3</option>
-														<option value="a4">Área 4</option>
-													</select>
-													<select class="form-control btn btn-warning">
-														<option value="--">--</option>
-														<option value="u1">Unidad 1</option>
-														<option value="u2">Unidad 2</option>
-														<option value="u3">Unidad 3</option>
-														<option value="u4">Unidad 4</option>
-													</select>
-												</div>
+					<div class="pane panel-transparent">
+						<header class="panel-heading">
+							<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block">DCC</button></h2>
+						</header>
+						<div class="panel-body">
+							<div class ="row">
+								<div class="col-md-6">
+									<section class="panel panel-info">
+										<header class="panel-heading">
+											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 1</button></h2>
+										</header>
+										<div class="panel-body">
+											<div class="btn-group-vertical col-md-12">
+												<button type="button" class="btn btn-default">Unidad 1</button>
+												<button type="button" class="btn btn-default" onclick="changePage()">Unidad 2</button>
+												<button type="button" class="btn btn-default">Unidad 3</button>
 											</div>
-										</form>
-									</h2>
-
-								</header>
-								<div class="panel-body">
-									<div class="btn-group-vertical col-md-12">
-									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 1</button>
-									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 2</button>
-									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 3</button>
-									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 4</button>
-									</div>
+										</div>
+									</section>	
 								</div>
-							</section>
+								<div class="col-md-6">
+									<section class="panel panel-info">
+										<header class="panel-heading">
+											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 2</button></h2>
+										</header>
+										<div class="panel-body">
+											<div class="btn-group-vertical col-md-12">
+												<button type="button" class="btn btn-default">Unidad 1</button>
+												<button type="button" class="btn btn-default">Unidad 2</button>
+												<button type="button" class="btn btn-default">Unidad 3</button>
+											</div>
+										</div>
+									</section>	
+								</div>
+							</div>
+							<div class ="row">
+								<div class="col-md-6">
+									<section class="panel panel-info">
+										<header class="panel-heading">
+											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 3</button></h2>
+										</header>
+										<div class="panel-body">
+											<div class="btn-group-vertical col-md-12">
+												<button type="button" class="btn btn-default">Unidad 1</button>
+												<button type="button" class="btn btn-default">Unidad 2</button>
+												<button type="button" class="btn btn-default">Unidad 3</button>
+											</div>
+										</div>
+									</section>	
+								</div>
+								<div class="col-md-6">
+									<section class="panel panel-info">
+										<header class="panel-heading">
+											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 4</button></h2>
+										</header>
+										<div class="panel-body">
+											<div class="btn-group-vertical col-md-12">
+												<button type="button" class="btn btn-default">Unidad 1</button>
+												<button type="button" class="btn btn-default">Unidad 2</button>
+												<button type="button" class="btn btn-default">Unidad 3</button>
+											</div>
+										</div>
+									</section>	
+								</div>
+							</div>
 						</div>
 					</div>
 					<!-- end: page -->
 				</section>
 			</div>
+
 		</section>
 
 		<!-- Vendor -->
@@ -221,6 +243,11 @@
 		<script src="assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 		<script src="assets/vendor/magnific-popup/magnific-popup.js"></script>
 		<script src="assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+		<script type="text/javascript">
+			function changePage(){
+      			window.location.href = "dashboard.html";
+    		}
+		</script>
 		
 		<!-- Theme Base, Components and Settings -->
 		<script src="assets/javascripts/theme.js"></script>
