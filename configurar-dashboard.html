@@ -5,7 +5,7 @@
 		<!-- Basic -->
 		<meta charset="UTF-8">
 
-		<title>Modals | Porto Admin - Responsive HTML5 Template 1.4.0</title>
+		<title>Alerts | Porto Admin - Responsive HTML5 Template 1.4.0</title>
 		<meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
 		<meta name="author" content="okler.net">
@@ -444,7 +444,7 @@
 													 Buttons
 												</a>
 											</li>
-											<li>
+											<li class="nav-active">
 												<a href="ui-elements-alerts.html">
 													 Alerts
 												</a>
@@ -454,7 +454,7 @@
 													 Notifications
 												</a>
 											</li>
-											<li class="nav-active">
+											<li>
 												<a href="ui-elements-modals.html">
 													 Modals
 												</a>
@@ -801,7 +801,7 @@
 
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Añadir y Borrar métricas</h2>
+						<h2>Configurar Dashboard</h2>
 					
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
@@ -811,8 +811,8 @@
 									</a>
 								</li>
 								<li><span>U-Dashboard</span></li>
-								<li><span>Cofigurar</span></li>
-								<li><span>Métricas</span></li>
+								<li><span>Configurar</span></li>
+								<li><span>Dashboard</span></li>
 							</ol>
 					
 							<a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fa fa-chevron-left"></i></a>
@@ -820,248 +820,44 @@
 					</header>
 
 					<!-- start: page -->
-					<section class="panel panel-transparent">
-						<div class="panel-body">
-							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Área 1</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
+					<div class="row">
+						<div class="col-md-6">
+							<section class="panel-warning">
+								<header class="panel-heading">
+									<h2 class="panel-title">
+										<form id="conf-dash">
+											<div class="form-group mt-lg">
+												<div class="btn-group-horizontal text-center">
+													<select class="form-control btn btn-warning">
+														<option value="a1">Área 1</option>
+														<option value="a2">Área 2</option>
+														<option value="a3">Área 3</option>
+														<option value="a4">Área 4</option>
+													</select>
+													<select class="form-control btn btn-warning">
+														<option value="--">--</option>
+														<option value="u1">Unidad 1</option>
+														<option value="u2">Unidad 2</option>
+														<option value="u3">Unidad 3</option>
+														<option value="u4">Unidad 4</option>
+													</select>
 												</div>
 											</div>
-										</div>
-									</section>	
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Área 2</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-											</div>
-										</div>
-									</section>	
-								</div>
-							</div>
-							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Área 3</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-											</div>
-										</div>
-									</section>	
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Área 4</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus"></i>
-													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-											</div>
-										</div>
-									</section>	
-								</div>
-							</div>
-							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
-										<section class="panel">
-											<header class="panel-heading">
-												<h2 class="panel-title">Añadir métrica</h2>
-												<p class="panel-subtitle">Área 1: Unidad 1</p>
-											</header>
-											<div class="panel-body">
-												<form role="form" id="demo-form" class="form-horizontal mb-lg">
-													<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Nombre:</label>
-														<div class="col-sm-9">
-															<input type="text" name="name" class="form-control" placeholder="nombre de la métrica..." required/>
-														</div>
-													</div>
-													<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Tipo:</label>
-														<div class="btn-group dropdown col-sm-9">
-															<select class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle"> 
-															<option value="--">Tipo</option>
-															<option value="INT">Entero</option>
-															<option value="DOUBLE">Punto flotante</option>
-															<option value="TEXT">Texto</option>
-															<option value="DATE">Fecha</option>
-														</select>
-														</div>
-													</div>
-													<!--<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Periodo:</label>
-														<div class="btn-group dropdown col-sm-9">
-															<button type="button" class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle" data-toggle="dropdown">Periodo <span class="caret"></span></button>
-														<ul class="dropdown-menu" role="menu" id="periodo">
-															<li value="anual">Anual</li>
-															<li value="mensual">Mensual</li>
-															<li value="semestral">Semestral</li>
-														</ul>
-														</div>
-													</div>-->
-												</form>
-											</div>
-											<footer class="panel-footer">
-												<div class="row">
-													<div class="col-md-12 text-right">
-														<button class="btn btn-primary modal-confirm">Añadir</button>
-														<button class="btn btn-default modal-dismiss">Cancelar</button>
-													</div>
-												</div>
-											</footer>
-										</section>
+										</form>
+									</h2>
+
+								</header>
+								<div class="panel-body">
+									<div class="btn-group-vertical col-md-12">
+									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 1</button>
+									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 2</button>
+									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 3</button>
+									<button type="button" class="btn btn-default" data-toggle="popover" data-container="body" data-placement="right" data-content="Example of right popover, click again to close :)">Métrica 4</button>
 									</div>
+								</div>
+							</section>
 						</div>
-					</section>
-					
+					</div>
 					<!-- end: page -->
 				</section>
 			</div>
@@ -1144,9 +940,6 @@
 		<script src="assets/vendor/magnific-popup/magnific-popup.js"></script>
 		<script src="assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
 		
-		<!-- Specific Page Vendor -->
-		<script src="assets/vendor/pnotify/pnotify.custom.js"></script>
-		
 		<!-- Theme Base, Components and Settings -->
 		<script src="assets/javascripts/theme.js"></script>
 		
@@ -1156,8 +949,5 @@
 		<!-- Theme Initialization Files -->
 		<script src="assets/javascripts/theme.init.js"></script>
 
-
-		<!-- Examples -->
-		<script src="assets/javascripts/ui-elements/examples.modals.js"></script>
 	</body>
 </html>
