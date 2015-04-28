@@ -5,18 +5,18 @@ Ingenieria de Software 2
 https://www.apachefriends.org/index.html
 
 2.- abrir php.ini (C:\xampp\php\php.ini)
-linea 535 dejar: error_reporting=E_ALL (asi reporta todas los errores sirve para debugear)
-linea 552: display_errors=On
-linea 564: display_startup_errors=On
-linea 574: log_errors=On
-linea 608: track_errors=On
-linea 626: html_errors=On
-linea 1046: date.timezone=America/Santiago (para que la hora si invocan alguna funcion php estilo date() la hora de bn)
-linea 990-1021: son los drivers a cargar revisen que extension=php_mysql.dll este descomentada (driver mysql)
+* linea 535 dejar: error_reporting=E_ALL (asi reporta todas los errores sirve para debugear)
+* linea 552: display_errors=On
+* linea 564: display_startup_errors=On
+* linea 574: log_errors=On
+* linea 608: track_errors=On
+* linea 626: html_errors=On
+* linea 1046: date.timezone=America/Santiago (para que la hora si invocan alguna funcion php estilo date() la hora de bn)
+* linea 990-1021: son los drivers a cargar revisen que extension=php_mysql.dll este descomentada (driver mysql)
 
 3.- abrir httpd.conf (C:\xampp\apache\conf\httpd.conf)
-linea 264: AllowOverride All (esto es para lograr re-escribir la url a un formato user friendly, ojo que si no modifican esto el proyecto actual no les va a funcionar)
-linea 304: LogLevel debug (para debugear)
+*linea 264: AllowOverride All (esto es para lograr re-escribir la url a un formato user friendly, ojo que si no modifican esto el proyecto actual no les va a funcionar)
+*linea 304: LogLevel debug (para debugear)
 
 partir xamp
 
