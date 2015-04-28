@@ -45,37 +45,37 @@
 			<!-- start: header -->
 			<header class="header">
 				<div class="logo-container">
-					<a href="../" class="logo">
+					<a href="<?php echo base_url();?>inicio" class="logo">
 						<img src="assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
 					</a>
 					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
 						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
 					</div>
 				</div>
-			
+
 				<!-- start: search & user box -->
 				<div class="header-right">
-			
+
 					<ul class="notifications">
 						<li>
 							<label>Configurar</label>
-							<a href="menu-configurar.html" class="notification-icon">
+							<a href="<?php echo base_url();?>configurar" class="notification-icon">
 								<i class="fa fa-gear"></i>
 							</a>
 							<span class="separator"></span>
 						</li>
 						<li>
 							<label>Validar</label>
-							<a href="validar.html" class="notification-icon">
+							<a href="<?php echo base_url();?>validar" class="notification-icon">
 								<i class="fa fa-check-circle" style="color:green"></i>
 								<span class="badge">1</span>
 							</a>
-			
+
 						</li>
 					</ul>
-			
+
 					<span class="separator"></span>
-			
+
 					<div id="userbox" class="userbox">
 						<a href="#" data-toggle="dropdown">
 							<figure class="profile-picture">
@@ -85,10 +85,10 @@
 								<span class="name">John Doe Junior</span>
 								<span class="role">administrator</span>
 							</div>
-			
+
 							<i class="fa custom-caret"></i>
 						</a>
-			
+
 						<div class="dropdown-menu">
 							<ul class="list-unstyled">
 								<li class="divider"></li>
@@ -106,7 +106,7 @@
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
 				<aside id="sidebar-left" class="sidebar-left">
-				
+
 					<div class="sidebar-header">
 						<div class="sidebar-title">
 							Navegación
@@ -115,34 +115,34 @@
 							<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
 						</div>
 					</div>
-				
+
 					<div class="nano">
 						<div class="nano-content">
 							<nav id="menu" class="nav-main" role="navigation">
 								<ul class="nav nav-main">
 									<li>
-										<a href="index.html">
+										<a href="<?php echo base_url();?>inicio">
 											<i class="fa fa-home" aria-hidden="true"></i>
 											<span>U-Dashboard</span>
 										</a>
 									</li>
-									
+
 								</ul>
 							</nav>
 						</div>
 					</div>
-				
+
 				</aside>
 				<!-- end: sidebar -->
 
 				<section role="main" class="content-body">
 					<header class="page-header">
 						<h2>Validar entrada</h2>
-					
+
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
 								<li>
-									<a href="index.html">
+									<a href="<?php echo base_url();?>inicio">
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
@@ -159,7 +159,7 @@
 									<a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
 									<a href="#" class="panel-action panel-action-dismiss" data-panel-dismiss></a>
 								</div>
-						
+
 								<h2 class="panel-title">Validar</h2>
 							</header>
 							<div class="panel-body">
@@ -217,18 +217,18 @@
 		<script src="assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 		<script src="assets/vendor/magnific-popup/magnific-popup.js"></script>
 		<script src="assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
-		
+
 		<!-- Specific Page Vendor -->
 		<script src="assets/vendor/select2/select2.js"></script>
 		<script src="assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
 		<script src="assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
-		
+
 		<!-- Theme Base, Components and Settings -->
 		<script src="assets/javascripts/theme.js"></script>
-		
+
 		<!-- Theme Custom -->
 		<script src="assets/javascripts/theme.custom.js"></script>
-		
+
 		<!-- Theme Initialization Files -->
 		<script src="assets/javascripts/theme.init.js"></script>
 
