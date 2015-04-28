@@ -15,8 +15,8 @@ https://www.apachefriends.org/index.html
 * linea 990-1021: son los drivers a cargar revisen que extension=php_mysql.dll este descomentada (driver mysql)
 
 3.- abrir httpd.conf (C:\xampp\apache\conf\httpd.conf)
-*linea 264: AllowOverride All (esto es para lograr re-escribir la url a un formato user friendly, ojo que si no modifican esto el proyecto actual no les va a funcionar)
-*linea 304: LogLevel debug (para debugear)
+* linea 264: AllowOverride All (esto es para lograr re-escribir la url a un formato user friendly, ojo que si no modifican esto el proyecto actual no les va a funcionar)
+* linea 304: LogLevel debug (para debugear)
 
 partir xamp
 
