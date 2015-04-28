@@ -74,11 +74,11 @@ Theme Version: 	1.4.0
 
 					_self.rowCancel( $(this).closest( 'tr' ) );
 				})
-				.on('click', 'a.edit-row', function( e ) {
-					e.preventDefault();
+				//.on('click', 'a.edit-row', function( e ) {
+				//	e.preventDefault();
 
-					_self.rowEdit( $(this).closest( 'tr' ) );
-				})
+				//	_self.rowEdit( $(this).closest( 'tr' ) );
+				//})
 				.on( 'click', 'a.remove-row', function( e ) {
 					e.preventDefault();
 
@@ -138,13 +138,13 @@ Theme Version: 	1.4.0
 				'<a href="#" class="on-default remove-row"><i class="fa fa-trash-o"></i></a>'
 			].join(' ');
 
-			data = this.datatable.row.add([ '', '', '', actions ]);
+			data = this.datatable.row.add([ '', '', '', '' ]);
 			$row = this.datatable.row( data[0] ).nodes().to$();
 
-			$row
-				.addClass( 'adding' )
-				.find( 'td:last' )
-				.addClass( 'actions' );
+			//$row
+			//	.addClass( 'adding' )
+				//.find( 'td:last' )
+				//.addClass( 'actions' );
 
 			this.rowEdit( $row );
 
@@ -182,11 +182,11 @@ Theme Version: 	1.4.0
 			$row.children( 'td' ).each(function( i ) {
 				var $this = $( this );
 
-				if ( $this.hasClass('actions') ) {
+				/*if ( $this.hasClass('actions') ) {
 					_self.rowSetActionsEditing( $row );
-				} else {
+				} else {*/
 					$this.html( '<input type="text" class="form-control input-block" value="' + data[i] + '"/>' );
-				}
+				//}
 			});
 		},
 

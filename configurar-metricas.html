@@ -26,6 +26,9 @@
 		<!-- Specific Page Vendor CSS -->
 		<link rel="stylesheet" href="assets/vendor/pnotify/pnotify.custom.css" />
 		<link rel="stylesheet" href="assets/vendor/lineicons/css/lineicons.css" />
+		<link rel="stylesheet" href="assets/vendor/select2/select2.css" />
+		<link rel="stylesheet" href="assets/vendor/jquery-datatables-bs3/assets/css/datatables.css" />
+
 
 		<!-- Theme CSS -->
 		<link rel="stylesheet" href="assets/stylesheets/theme.css" />
@@ -177,7 +180,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Área 1</label>
@@ -189,7 +192,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 1</label>
@@ -198,7 +201,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 2</label>
@@ -207,7 +210,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 3</label>
@@ -223,7 +226,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Área 2</label>
@@ -235,7 +238,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 1</label>
@@ -244,7 +247,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center" aria-hidden="true"> Unidad 2</label>
@@ -253,7 +256,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 3</label>
@@ -271,7 +274,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Área 3</label>
@@ -283,7 +286,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 1</label>
@@ -292,7 +295,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 2</label>
@@ -301,7 +304,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 3</label>
@@ -317,7 +320,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Área 4</label>
@@ -329,7 +332,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 1</label>
@@ -338,7 +341,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 2</label>
@@ -347,7 +350,7 @@
 													<a class="btn modal-with-form" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#modalForm" style="color: red">
+													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
 														<i class="licon-close" aria-hidden="true"></i>
 													</a>
 													<label class="text-center"> Unidad 3</label>
@@ -358,54 +361,77 @@
 								</div>
 							</div>
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
-										<section class="panel">
-											<header class="panel-heading">
-												<h2 class="panel-title">Añadir métrica</h2>
-												<p class="panel-subtitle">Área 1: Unidad 1</p>
-											</header>
-											<div class="panel-body">
-												<form role="form" id="demo-form" class="form-horizontal mb-lg">
-													<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Nombre:</label>
+									<section class="panel">
+										<header class="panel-heading">
+											<h2 class="panel-title">Añadir métrica</h2>
+											<p class="panel-subtitle">Área 1: Unidad 1</p>
+										</header>
+										<div class="panel-body">
+											<form role="form" id="demo-form" class="form-horizontal mb-lg">
+												<div class="form-group mt-lg">
+													<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
 															<input type="text" name="name" class="form-control" placeholder="nombre de la métrica..." required/>
 														</div>
-													</div>
-													<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Tipo:</label>
+												</div>
+												<div class="form-group mt-lg">
+													<label class="col-sm-3 control-label">Tipo:</label>
 														<div class="btn-group dropdown col-sm-9">
 															<select class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle"> 
-															<option value="--">Tipo</option>
-															<option value="INT">Entero</option>
-															<option value="DOUBLE">Punto flotante</option>
-															<option value="TEXT">Texto</option>
-															<option value="DATE">Fecha</option>
-														</select>
+																<option value="--">Tipo</option>
+																<option value="INT">Entero</option>
+																<option value="DOUBLE">Punto flotante</option>
+																<option value="TEXT">Texto</option>
+																<option value="DATE">Fecha</option>
+															</select>
 														</div>
-													</div>
-													<!--<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Periodo:</label>
-														<div class="btn-group dropdown col-sm-9">
-															<button type="button" class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle" data-toggle="dropdown">Periodo <span class="caret"></span></button>
-														<ul class="dropdown-menu" role="menu" id="periodo">
-															<li value="anual">Anual</li>
-															<li value="mensual">Mensual</li>
-															<li value="semestral">Semestral</li>
-														</ul>
-														</div>
-													</div>-->
-												</form>
-											</div>
-											<footer class="panel-footer">
-												<div class="row">
-													<div class="col-md-12 text-right">
-														<button class="btn btn-primary modal-confirm">Añadir</button>
-														<button class="btn btn-default modal-dismiss">Cancelar</button>
-													</div>
 												</div>
-											</footer>
-										</section>
-									</div>
+											</form>
+										</div>
+										<footer class="panel-footer">
+											<div class="row">
+												<div class="col-md-12 text-right">
+													<button class="btn btn-primary modal-confirm">Añadir</button>
+													<button class="btn btn-default modal-dismiss">Cancelar</button>
+												</div>
+											</div>
+										</footer>
+									</section>
+								</div>
+								<div id="deleteMetrica" class="modal-block modal-block-primary mfp-hide">
+									<section class="panel">
+										<header class="panel-heading">
+											<h2 class="panel-title">Borrar métricas</h2>
+										</header>
+									<div class="panel-body">
+										<table class="table table-bordered table-striped mb-none text-center" id="borrar-metricas">
+											<thead>
+												<tr>
+													<th>Métrica</th>
+													<th>Tipo</th>
+													<th>Borrar</th>
+												</tr>
+											</thead>
+											<tbody> 
+												<tr class="">
+													<td>Métrica 1</td>
+													<td>INT</td>
+													<td>
+														<input id="borrar" value="" type="checkbox" name="validar" />
+													</td>
+												</tr>
+											</tbody>
+										</table>
+										<footer class="panel-footer">
+											<div class="row">
+												<div class="col-md-12 text-right">
+													<button class="btn btn-danger modal-confirm ">Borrar</button>
+													<button class="btn btn-default modal-dismiss">Cancelar</button>
+												</div>
+											</div>
+										</footer>
+									</section>
+								</div>		
 						</div>
 					</section>
 					
@@ -425,6 +451,9 @@
 		
 		<!-- Specific Page Vendor -->
 		<script src="assets/vendor/pnotify/pnotify.custom.js"></script>
+		<script src="assets/vendor/select2/select2.js"></script>
+		<script src="assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
+		<script src="assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
 		
 		<!-- Theme Base, Components and Settings -->
 		<script src="assets/javascripts/theme.js"></script>
