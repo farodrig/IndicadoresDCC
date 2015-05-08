@@ -35,8 +35,11 @@ cree una libraria, controlador y modelo de metricas a modo de ejemplo a demas de
 
 
 para acceder a una funcion especifica de un controlador
+
 http://localhost/IndicadoresDCC/Nomnbre del controlador/nombre de la funcion
+
 ejemplo:
+
 http://localhost/IndicadoresDCC/Metricas/listAllMetrics (esto funciona copienlo y peguenlo en su navegador)
 
 como aun no esta arriba la bd en el servidor orion y ademas solo se puede acceder a ella dentro de la red local
