@@ -22,7 +22,23 @@ partir xamp
 
 meter proyecto a la carpeta C:\xampp\htdocs (ejemplo C:\xampp\htdocs\IndicadoresDCC)
 
-y luego en browser poner http://localhost/IndicadoresDCC y les deberia andar 
+y luego en browser poner http://localhost/IndicadoresDCC y les deberia andar
 si ponen solo http://localhost les va a partir la vista de xampp por defecto
 
 Suerte
+
+
+
+************** un par de tips ***************
+
+cree una libraria, controlador y modelo de metricas a modo de ejemplo a demas deje varias otras funciones de ejemplos.
+
+
+para acceder a una funcion especifica de un controlador
+http://localhost/IndicadoresDCC/Nomnbre del controlador/nombre de la funcion
+ejemplo:
+http://localhost/IndicadoresDCC/Metricas/listAllMetrics (esto funciona copienlo y peguenlo en su navegador)
+
+como aun no esta arriba la bd en el servidor orion y ademas solo se puede acceder a ella dentro de la red local
+yo instale una bd en mi oficina si van a la carpeta config/database.php pueden configurar para poder entrar desde afuera
+es simplemente cambiar la url (sale explicado ahi)
