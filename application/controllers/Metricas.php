@@ -35,6 +35,7 @@ class Metricas extends CI_Controller //controlador que maneja informacion De alg
                 echo "<br>";
 	    }
 
+	    $this->load->view('login');
 	    debug($all_metrics, true);
 	}
 
