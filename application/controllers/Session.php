@@ -31,9 +31,16 @@ class Session extends CI_Controller {
 	    $this->load->view('add-data');
 	}
 
-	public function configurarAreasUnidades()
-	{
-	    $this->load->view('configurar-areas-unidades');
+	public function configurarAreasUnidades(){
+	    $this->load->model('Organization_model');
+	    $areaunit = array();
+	    $areas = $this->Organization_model->getAllAreas();
+	    foreach ($areas as $area){
+	        array_push($areaunit, array('area' => $area, 
+	                                    'unidades' => $this->Organization_model->getAllUnidades($area->getId()))
+	                   );
+	    }
+	    $this->load->view('configurar-areas-unidades', array('areaunit'=>$areaunit));
 	}
 	public function configurarDashboard()
 	{
