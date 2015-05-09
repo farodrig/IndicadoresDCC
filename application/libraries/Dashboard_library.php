@@ -2,15 +2,15 @@
 
 class Dashboard_library
 {
-	private $id;
-    private $name;
-	/*private $met_org;
-	private $stat;
+	private $id_met;
+    private $name_met;
+	private $id_measurement;
+	private $metorg;
 	private $value;
 	private $target;
 	private $expected;
 	private $year;
-	private $updater;
+	/*private $updater;
 	private $dateup;
 	private $validator;
 	private $dateval;*/
@@ -18,26 +18,53 @@ class Dashboard_library
 
 	function initialize($parameters)
 	{
-		$this->id = element('id', $parameters);
-		$this->name = element('name', $parameters);
+		$this->id_met = element('id', $parameters);
+		$this->name_met = element('name', $parameters);
 		return $this;
 	}
+
+    function initializeMeasurement($parameters)
+    {
+        $this->id_measurement = element('id', $parameters);
+        $this->metorg = element('metorg', $parameters);
+        $this->value = element('value', $parameters);
+        $this->target = element('target', $parameters);
+        $this->expected = element('expected', $parameters);
+        $this->year = element('year', $parameters);
+        return $this;
+    }
+
  /**
-     * @return the $id
+     * @return the $id_met
      */
     public function getId()
     {
-        return $this->id;
+        return $this->id_met;
     }
 
  /**
-     * @return the $met_org
+     * @return the $name
      */
     public function getName()
     {
-        return $this->name;
+        return $this->name_met;
     }
 
+/**
+     * @return the $id_measurement
+     */
+    public function getIdMeasurement()
+    {
+        return $this->id_measurement;
+    }
+
+ /**
+     * @return the $metorg
+     */
+    public function getMetOrg()
+    {
+        return $this->metorg;
+    }
 
  /**
      * @return the $state
@@ -50,7 +77,7 @@ class Dashboard_library
  /**
      * @return the $value
      */
-   /* public function getValue()
+    public function getValue()
     {
         return $this->value;
     }
@@ -58,7 +85,7 @@ class Dashboard_library
  /**
      * @return the $target
      */
-   /* public function getTarget()
+    public function getTarget()
     {
         return $this->target;
     }
@@ -66,7 +93,7 @@ class Dashboard_library
  /**
      * @return the $expected
      */
-   /* public function getExpected()
+    public function getExpected()
     {
         return $this->expected;
     }
@@ -74,7 +101,7 @@ class Dashboard_library
  /**
      * @return the $year
      */
-   /* public function getYear()
+    public function getYear()
     {
         return $this->year;
     }

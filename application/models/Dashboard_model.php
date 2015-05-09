@@ -16,7 +16,7 @@ class Dashboard_model extends CI_Model
 
     function getAllMeasurements($id)
     {
-        $query = "SELECT mo.metorg AS id FROM MetOrg AS mo WHERE mo.org=".$id;
+        $query = "SELECT mo.id AS id FROM MetOrg AS mo WHERE mo.org=".$id;
         $q = $this->db->query($query);
         if(($size=$q->num_rows()) > 0)
             $rows = $q->result();
@@ -28,7 +28,15 @@ class Dashboard_model extends CI_Model
         }
         $morgs = $morgs."metorg =".$rows[$size-1]->id;
 
-        $query = "SELECT "
+        $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
+                    FROM Measure AS m
+                    WHERE m.state=1 AND ".$morgs;
+
+        $q = $this->db->query($query);
+        if($q->num_rows() > 0)
+            return $this->buildAllMeasuresments($q);
+        else
+            return false;
     }
 
     function getRoute($id){
@@ -71,6 +79,30 @@ class Dashboard_model extends CI_Model
         }
 
         return $metrica_array;
+    }
+
+    function buildAllMeasuresments($q)  // Contruye y retorna el objeto persona
+    {
+        $this->load->library('Dashboard_library');
+        $row = $q->result();
+        foreach ($q->result() as $row)
+        {
+            $parameters = array
+            (
+                'id' => $row->id,
+                'metorg' => $row->org,
+                'value' => $row->val,
+                'target' => $row->target,
+                'expected' => $row->expected,
+                'year' => $row->year
+            );
+
+            $measurement = new Dashboard_library();
+            $measurement_array[] = $measurement->initializeMeasurement($parameters);
+
+        }
+
+        return $measurement_array;
     }
 
 

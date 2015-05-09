@@ -171,7 +171,7 @@
 											<label class="control-label">Año:</label>
 										</div>
 										<div class="col-md-3">
-											<input type="text" name="year" class="form-control">
+											<input type="text" id="year" class="form-control" onkeyup ="selectYear();">
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -182,7 +182,7 @@
 											<label class="control-label"><u><b>Valor</b></u></label>
 										</div>
 										<div class="col-md-3">
-											<label class="control-label"><u><b>Mínimo</b></u></label>
+											<label class="control-label"><u><b>Esperado</b></u></label>
 										</div>
 										<div class="col-md-3">
 											<label class="control-label"><u><b>Meta</b></u></label>
@@ -227,6 +227,40 @@
 
 		<!-- Theme Initialization Files -->
 		<script src="<?php echo base_url();?>assets/javascripts/theme.init.js"></script>
+		<script type="text/javascript">
+			function selectYear(){
+			
+				var year = document.getElementById("year").value;
+				var jArray= <?php echo json_encode($measurements[0]); ?>;
+				var years = <?php echo json_encode($measurements[1]); ?>;
+				var size = <?php echo sizeof($measurements[0]); ?> ;
+				if(year=="" || years.indexOf(year)==-1){
+					var last_metorg = -1;
+					for(i=0;i<size; i++){
+						var metorg = jArray[i]['metorg'];
+						if(metorg==last_metorg)
+							continue;
+						last_metorg = metorg;
+						loadValues(metorg,"","",""); 
+					}	
+				}
+				
+				else{
+					for (i=0; i<size; i++) {
+						var aux_year = jArray[i]['year'];
+						if(aux_year==year){
+							loadValues(jArray[i]['metorg'],jArray[i]['value'],jArray[i]['target'],jArray[i]['expected']);
+						}              
+	    			}
+				}
+			}
 
+			function loadValues(metorg_id, value, target, expected){
+				document.getElementById("value".concat(metorg_id)).value=value;
+				document.getElementById("target".concat(metorg_id)).value=target;
+				document.getElementById("expected".concat(metorg_id)).value=expected;
+			
+			}
+		</script>
 	</body>
 </html>
