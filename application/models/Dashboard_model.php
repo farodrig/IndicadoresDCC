@@ -2,14 +2,55 @@
 class Dashboard_model extends CI_Model
 {
 
-    function getAllMetrics()
+    function getAllMetrics($id)
     {
-        $query = "SELECT mo.id AS id, met.name AS name FROM MetOrg AS mo, Metric AS met WHERE mo.metric=met.id";
+        $query = "SELECT mo.id AS id, met.name AS name
+                    FROM MetOrg AS mo, Metric AS met, Organization AS org 
+                    WHERE mo.metric=met.id AND mo.org =".$id." AND org.id =".$id;
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
             return $this->buildAllMetrics($q);
         else
             return false;
+    }
+
+    function getAllMeasurements($id)
+    {
+        $query = "SELECT mo.metorg AS id FROM MetOrg AS mo WHERE mo.org=".$id;
+        $q = $this->db->query($query);
+        if(($size=$q->num_rows()) > 0)
+            $rows = $q->result();
+        
+        $morgs = "";
+        for($i=0; $i<$size-1; $i++){
+            $id = $rows[i]->id;
+            $morgs = $morgs."metorg= ".$id." OR ";
+        }
+        $morgs = $morgs."metorg =".$rows[$size-1]->id;
+
+        $query = "SELECT "
+    }
+
+    function getRoute($id){
+
+        $aux_id = 0;
+        $i = 1;
+        while($aux_id!=$id){
+            $query = "SELECT org.name AS name, org.parent AS parent FROM Organization AS org WHERE org.id =".$id;
+            $q = $this->db->query($query);
+
+            if($q->num_rows() > 0){
+                $row = $q->result()[0];
+            }
+
+            $route[$i] = $row->name;
+            $aux_id = $id;
+            $id = $row->parent;
+            $i++;
+        }
+
+        return $route;
+
     }
 
     function buildAllMetrics($q)  // Contruye y retorna el objeto persona

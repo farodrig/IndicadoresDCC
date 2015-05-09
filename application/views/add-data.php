@@ -142,8 +142,11 @@
 									</a>
 								</li>
 								<li><span>Negocio</span></li>
-								<li><span>Área 1</span></li>
-								<li><span>Unidad 2</span></li>
+								<?php 
+									for($i=sizeof($route);$i>0;$i--)
+										echo "<li><span>".$route[$i]."</span></li>";
+								?>
+								
 								<li><span>Añadir Datos</span></li>
 							</ol>
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -168,7 +171,7 @@
 											<label class="control-label">Año:</label>
 										</div>
 										<div class="col-md-3">
-											<input type="text" name="firstname" class="form-control">
+											<input type="text" name="year" class="form-control">
 										</div>
 									</div>
 									<div class="row mb-md">
