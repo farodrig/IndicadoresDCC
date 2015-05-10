@@ -34,8 +34,9 @@ class Organization_model extends CI_Model{
         $this->db->where(array('id!='=>1));
         $query = $this->db->get('OrgType');
         $result = array();
+        $colores = array('#47a447', '#ed9c28');
         foreach ($query->result() as $row){
-            array_push($result, array('id'=>$row->id, 'name'=>$row->name));
+            array_push($result, array('id'=>$row->id, 'name'=>$row->name, 'color'=> $colores[count($result)]));
         }
         return $result;
     }

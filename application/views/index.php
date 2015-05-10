@@ -37,6 +37,21 @@
 
 		<!-- Head Libs -->
 		<script src="assets/vendor/modernizr/modernizr.js"></script>
+		<style type="text/css">
+            <?php 
+            foreach ($types as $type){
+                $color = dechex(hexdec($type['color']) + 60);
+                echo('body .btn-info:hover.'.$type['name'].'{');
+                echo('background-color: #'.$color.';');
+                echo('border-color: #'.$color.' !important;}');
+                
+                echo('body .btn-info.'.$type['name'].'{');
+                echo('background-color: '.$type['color'].';');
+                echo('border-color: '.$type['color'].' !important;}');
+            }
+            ?>
+            
+        </style>
 	</head>
 	<body>
 		<section class="body">
@@ -164,69 +179,38 @@
 					</header>
 					<div class="pane panel-transparent">
 						<header class="panel-heading">
-							<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block">DCC</button></h2>
+							<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block"><?php echo($department->getName());?></button></h2>
 						</header>
 						<div class="panel-body">
-							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 1</button></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<button type="button" class="btn btn-default">Unidad 1</button>
-												<button type="button" class="btn btn-default" onclick="changePage()">Unidad 2</button>
-												<button type="button" class="btn btn-default">Unidad 3</button>
-											</div>
-										</div>
-									</section>
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 2</button></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<button type="button" class="btn btn-default">Unidad 1</button>
-												<button type="button" class="btn btn-default">Unidad 2</button>
-												<button type="button" class="btn btn-default">Unidad 3</button>
-											</div>
-										</div>
-									</section>
-								</div>
-							</div>
-							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 3</button></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<button type="button" class="btn btn-default">Unidad 1</button>
-												<button type="button" class="btn btn-default">Unidad 2</button>
-												<button type="button" class="btn btn-default">Unidad 3</button>
-											</div>
-										</div>
-									</section>
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block">Área 4</button></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<button type="button" class="btn btn-default">Unidad 1</button>
-												<button type="button" class="btn btn-default">Unidad 2</button>
-												<button type="button" class="btn btn-default">Unidad 3</button>
-											</div>
-										</div>
-									</section>
-								</div>
-							</div>
+						    <?php 
+						    $counter = 0;
+						    foreach ($areaunit as $au){
+						        $kind = false;
+						        $color = false;
+						        foreach ($types as $type){
+						            if ($type['id']==$au['area']->getType()){
+						                $kind = $type['name'];
+						                $color = $type['color'];
+						            }
+						        }
+						        if ($counter % 2 == 0 && $counter!=0)
+						            echo ('</div>');
+						        if ($counter % 2 == 0)
+						            echo ('<div class ="row">');
+						        echo ('<div class="col-md-6">');
+						        echo ('<section class="panel panel-info">');
+						        echo ('<header class="panel-heading" style="background-color: '.$color.'">');
+						        echo ('<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block '.$kind.'">'.ucwords($au['area']->getName()).'</button></h2>');
+						        echo ('<p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
+						        echo ('<div class="panel-body">');
+						        echo ('<div class="btn-group-vertical col-md-12">');
+						        foreach ($au['unidades'] as $unidad){
+						            echo('<button type="button" class="btn btn-default" onclick="changePage()">'.ucwords($unidad->getName()).'</button>');
+						        }
+						        echo ('</div></div></section></div>');
+						        $counter++;
+						    }						    
+						    ?>
 						</div>
 					</div>
 					<!-- end: page -->

@@ -8,9 +8,20 @@ class Session extends CI_Controller {
 		$this->load->view('login');
 	}
 
-	public function inicio()
+    public function inicio()
 	{
-	    $this->load->view('index');
+	    $this->load->model('Organization_model');
+	    $department = $this->Organization_model->getDepartment();
+	    $areaunit = array();
+	    $areas = $this->Organization_model->getAllAreas();
+	    foreach ($areas as $area){
+	        array_push($areaunit, array('area' => $area,
+	                                    'unidades' => $this->Organization_model->getAllUnidades($area->getId()))
+	        );
+	    }
+	    $this->load->view('index', array('department'=> $department,
+	                                     'areaunit'=>$areaunit,
+	                                     'types'=>$this->Organization_model->getTypes()));
 	}
 
 	public function dashboard()

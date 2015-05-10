@@ -204,7 +204,7 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<li><span>Cofigurar</span></li>
+								<li><span>Configurar</span></li>
 								<li><span>Áreas y Unidades</span></li>
 							</ol>
 
@@ -216,21 +216,30 @@
 					<!-- start: page -->
 					<section class="panel panel-transparent">
 						<div class="panel-body">
-							    <?php
+							    <?php							    
 							        $counter = 0;
 							        foreach ($areaunit as $au){
+							            $kind = false;
+							            $color = false;
+							            foreach ($types as $type){
+							                if ($type['id']==$au['area']->getType()){
+							                    $kind = $type['name'];
+							                    $color = $type['color'];
+							                }							                 
+							            }
 							            if ($counter % 2 == 0 && $counter!=0)
 							                echo ('</div>');
 							            if ($counter % 2 == 0)
 							                echo ('<div class ="row">');
 							            echo ('<div class="col-md-6">');
 							            echo ('<section class="panel panel-info">');
-							            echo ('<header class="panel-heading">');
+							            echo ('<header class="panel-heading" style="background-color: '.$color.'">');
 							            echo ('<h2 class="panel-title text-center">');
 							            echo ('<div class="btn-group-horizontal text-center">');
 							            echo ('<label class="text-center">'.ucwords($au['area']->getName()).'</label>');
 							            echo ('<a class="btn modal-with-form" href="#deleteArea" onclick = "delArea(\''.ucwords($au['area']->getName()).'\')" style="color: red"><i class="licon-close"></i></a>');
-							            echo ('</div></h2></header>');
+							            echo ('</div></h2>');
+							            echo ('<p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
 							            echo ('<div class="panel-body">');
 							            echo ('<div class="btn-group-vertical col-md-12">');
 							            foreach ($au['unidades'] as $unidad){
