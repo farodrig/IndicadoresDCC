@@ -361,14 +361,15 @@
 								</div>
 							</div>
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
+									<?php echo form_open('session/agregarMetrica');?>
 									<section class="panel">
-										<?php echo form_open('site/create');?>
+										
 										<header class="panel-heading">
 											<h2 class="panel-title">Añadir métrica</h2>
 											<p class="panel-subtitle">Área 1: Unidad 1</p>
 										</header>
 										<div class="panel-body">
-											<form role="form" id="demo-form" class="form-horizontal mb-lg">
+										
 												<div class="form-group mt-lg">
 													<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
@@ -387,18 +388,19 @@
 															</select>
 														</div>
 												</div>
-											</form>
 										</div>
 										<footer class="panel-footer">
 											<div class="row">
 												<div class="col-md-12 text-right">
-													<button class="btn btn-primary modal-confirm">Añadir</button>
+													
+													<input type="submit" button class="btn btn-primary modal-confirm" value='Añadir' >
 													<button class="btn btn-default modal-dismiss">Cancelar</button>
 												</div>
 											</div>
 										</footer>
-										<?php echo form_close();?>
+										
 									</section>
+									<?php echo form_close();?>
 								</div>
 								<div id="deleteMetrica" class="modal-block modal-block-primary mfp-hide">
 									<section class="panel">

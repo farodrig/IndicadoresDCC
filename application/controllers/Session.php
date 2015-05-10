@@ -55,14 +55,13 @@ class Session extends CI_Controller {
 	
 	public function agregarMetrica(){
 		$data= array(
-			'category' => $this->input->post('type'), 
+			'category' => $this->input->post('tipo'), 
 			'unit' => '1',
 			'name' => $this->input->post('name'), 		
 		);
      $this->load->model('Metrics_model');
    	 $this->Metrics_model->addMetric($data);
-   	 $this->index();
-		
+    $this->configurarMetricas();
 		
 		
 	}

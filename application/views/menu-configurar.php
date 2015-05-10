@@ -159,7 +159,7 @@
 								</div>
 								<div class="panel-body">
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-success btn-lg btn-block"
-										onclick="changePage('<?php echo base_url();?>cmetrica')">Añadir y Borrar Métricas</button>
+										onclick="changePage('<?php echo base_url();?>cmetrica/')">Añadir y Borrar Métricas</button>
 								</div>
 								<div class="panel-body">
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-warning btn-lg btn-block"
