@@ -10,9 +10,9 @@ class Dashboard_library
 	private $expected;
 	private $year;
     private $graph_type;
-	/*private $updater;
-	private $dateup;
-	private $validator;
+	private $id_org;
+	private $name_org;
+	/*private $validator;
 	private $dateval;*/
 
 
@@ -23,6 +23,11 @@ class Dashboard_library
 		return $this;
 	}
 
+    function initializeOrg($parameters){
+        $this->id_org = element('id', $parameters);
+        $this->name_org = element('name', $parameters);
+        return $this;
+    }
     function initializeIds($parameters)
     {
         $this->metorg = element('id', $parameters);
@@ -85,6 +90,22 @@ class Dashboard_library
     public function getMetOrg()
     {
         return $this->metorg;
+    }
+
+     /**
+     * @return the $id_org
+     */
+    public function getIdOrg()
+    {
+        return $this->id_org;
+    }
+
+     /**
+     * @return the $name_org
+     */
+    public function getNameOrg()
+    {
+        return $this->name_org;
     }
 
  /**

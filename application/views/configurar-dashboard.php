@@ -17,26 +17,26 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
 
 		<!-- Vendor CSS -->
-		<link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap/css/bootstrap.css" />
 
-		<link rel="stylesheet" href="assets/vendor/font-awesome/css/font-awesome.css" />
-		<link rel="stylesheet" href="assets/vendor/magnific-popup/magnific-popup.css" />
-		<link rel="stylesheet" href="assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/font-awesome/css/font-awesome.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/magnific-popup/magnific-popup.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
 
 		<!-- Specific Page Vendor CSS -->
-		<link rel="stylesheet" href="assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
 
 		<!-- Theme CSS -->
-		<link rel="stylesheet" href="assets/stylesheets/theme.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/stylesheets/theme.css" />
 
 		<!-- Skin CSS -->
-		<link rel="stylesheet" href="assets/stylesheets/skins/default.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/stylesheets/skins/default.css" />
 
 		<!-- Theme Custom CSS -->
-		<link rel="stylesheet" href="assets/stylesheets/theme-custom.css">
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/stylesheets/theme-custom.css">
 
 		<!-- Head Libs -->
-		<script src="assets/vendor/modernizr/modernizr.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/modernizr/modernizr.js"></script>
 	</head>
 	<body>
 		<section class="body">
@@ -45,7 +45,7 @@
 			<header class="header">
 				<div class="logo-container">
 					<a href="<?php echo base_url();?>inicio" class="logo">
-						<img src="assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
+						<img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
 					</a>
 					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
 						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
@@ -78,7 +78,7 @@
 					<div id="userbox" class="userbox">
 						<a href="#" data-toggle="dropdown">
 							<figure class="profile-picture">
-								<img src="assets/images/!logged-user.jpg" alt="Joseph Doe" class="img-circle" data-lock-picture="assets/images/!logged-user.jpg" />
+								<img src="<?php echo base_url();?>assets/images/!logged-user.jpg" alt="Joseph Doe" class="img-circle" data-lock-picture="assets/images/!logged-user.jpg" />
 							</figure>
 							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
 								<span class="name">John Doe Junior</span>
@@ -176,18 +176,21 @@
 											<div class="form-group mt-lg">
 												<div class="btn-group-horizontal text-center">
 													<form>
-													<select class="form-control btn btn-warning">
-														<option value="a1">Área 1</option>
-														<option value="a2">Área 2</option>
-														<option value="a3">Área 3</option>
-														<option value="a4">Área 4</option>
+													<?php $first_area_key = array_keys($areas)[0];
+														$first_area_unidades = $areas[$first_area_key]['unidades'];?>
+													<select name="area" id= "area" class="form-control btn btn-warning" onchange= "selectUnidades();">
+													<?php 
+														foreach ($areas as $area) {
+															echo "<option value='".$area['id']."'>".$area['name']."</option>";
+														}
+													?>
 													</select>
-													<select class="form-control btn btn-warning">
-														<option value="--">--</option>
-														<option value="u1">Unidad 1</option>
-														<option value="u2">Unidad 2</option>
-														<option value="u3">Unidad 3</option>
-														<option value="u4">Unidad 4</option>
+													<select name="unidad" id="unidad" class="form-control btn btn-warning">
+													<?php
+														foreach ($first_area_unidades as $unidad) {
+															echo "<option value='".$unidad['id']."'>".$unidad['name']."</option>";
+														}
+													?>
 													</select>
 													</form>
 												</div>
@@ -198,7 +201,8 @@
 								</header>
 								<div class="panel-body">
 									<div class="btn-group-vertical col-md-12">
-										<a href="#" id="popover" class="btn btn-default"> Métrica 1 </a>
+									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>	 
+
 										<div id="popover-head" class="hide">Configurar métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
 											<form>
@@ -213,15 +217,14 @@
 												</div>
 												<p class="output2">Desde <b class="min">2008</b> a <b class="max">2012</b></p>
 												<label>Mostrar:</label>
-												<input id="for-website" value="" type="checkbox" name="mostrar" />
+												<input id="for-website" value="" type="checkbox" name="mostrar"/>
 												</br>
 												</br>
 												<button onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
 											</form>
 										</div>
-										<a href="#" id="popover2" class="btn btn-default"> Métrica 2 </a>
-										<a href="#" id="popover3" class="btn btn-default"> Métrica 3 </a>
-										<a href="#" id="popover4" class="btn btn-default"> Métrica 4 </a>
+
+									
 									</div>
 								</div>
 							</section>
@@ -231,32 +234,44 @@
 				</section>
 
 		<!-- Vendor -->
-		<script src="assets/vendor/jquery/jquery.js"></script>
-		<script src="assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
-		<script src="assets/vendor/bootstrap/js/bootstrap.js"></script>
-		<script src="assets/vendor/nanoscroller/nanoscroller.js"></script>
-		<script src="assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-		<script src="assets/vendor/magnific-popup/magnific-popup.js"></script>
-		<script src="assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/jquery/jquery.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/bootstrap/js/bootstrap.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/nanoscroller/nanoscroller.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/magnific-popup/magnific-popup.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
 
 		<!-- Specific Page Vendor -->
-		<script src="assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
-		<script src="assets/vendor/jquery-ui-touch-punch/jquery.ui.touch-punch.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/jquery-ui-touch-punch/jquery.ui.touch-punch.js"></script>
 
 		<!-- Theme Base, Components and Settings -->
-		<script src="assets/javascripts/theme.js"></script>
+		<script src="<?php echo base_url();?>assets/javascripts/theme.js"></script>
 
 		<!-- Theme Custom -->
-		<script src="assets/javascripts/theme.custom.js"></script>
+		<script src="<?php echo base_url();?>assets/javascripts/theme.custom.js"></script>
 
 		<!-- Theme Initialization Files -->
-		<script src="assets/javascripts/theme.init.js"></script>
+		<script src="<?php echo base_url();?>assets/javascripts/theme.init.js"></script>
 
 		<!-- Examples -->
-		<script src="assets/javascripts/ui-elements/popover.js"></script>
+		<script src="<?php echo base_url();?>assets/javascripts/ui-elements/popover.js"></script>
 
 		<!-- Demo Purpose Only -->
 		<script>
+			var metricas = <?php echo json_encode($metricas); ?>; 
+
+			var unidad_value = $( "#unidad" ).val();
+				$('#metricas').empty();
+				var metricas_unidad = metricas[unidad_value]; 
+  				for (i in metricas_unidad) {
+  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg']);
+  					var popover = "<a href='#' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
+  					$(val).appendTo($('#metricas'));
+    				$(popover).appendTo($('#metricas'));
+  				}
+  				
 			(function() {
 				$('#listenSlider').change(function() {
 					$('.output b').text( this.value );
@@ -270,6 +285,35 @@
 					$('.output2 b.max').text( max );
 				});
 			})();
+
+
+			function selectUnidades(){
+			
+				var id_area = document.getElementById("area").value;
+				var areas = <?php echo json_encode($areas); ?>;
+				var unidades = areas[id_area]['unidades'];
+
+				var select_unidad = document.getElementById('unidad');
+
+				select_unidad.options.length = 0; //Resetear select
+				
+				for(i in unidades){
+ 					select_unidad.options[select_unidad.options.length] = new Option(unidades[i]['name'], unidades[i]['id']);
+				}
+			}
+
+			$('#unidad').change(function() {
+				var unidad_value = $( "#unidad" ).val();
+				$('#metricas').empty();
+				var metricas_unidad = metricas[unidad_value]; 
+  				for (i in metricas_unidad) {
+  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg']);
+  					var popover = "<a href='#' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
+  					$(val).appendTo($('#metricas'));
+    				$(popover).appendTo($('#metricas'));
+  				}
+			});
+
 		</script>
 	</body>
 </html>

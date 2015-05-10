@@ -139,7 +139,14 @@ class Dashboard extends CI_Controller
 				1 => $valid_years);
 	}
 
+
 	function showDashboard(){
+
+		function cmpPairs($p1, $p2)
+		{
+    		return $p1[0]>$p2[0];
+		}
+
 		$id = 2; //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 	    $this->load->model('Dashboard_model');
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id);
@@ -192,6 +199,8 @@ class Dashboard extends CI_Controller
 
 	    			}
 	    			
+	    			
+	    			usort($metrics[$id_met]['vals'], "cmpPairs");
 	    			$metrics[$id_met]['measure_number'] = max($years)-min($years);
 	    			$min = min($values);
 

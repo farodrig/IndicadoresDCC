@@ -200,14 +200,14 @@
 											</script>
 										</div>
 									</section>
-								</div>
+							</div>
 							<div class='col-md-6'>
 								<section class='panel'>
 									<header class='panel-heading'>
 										<h2 class='panel-title'><?php echo $metric['name']; ?></h2>
 									</header>
 									<div class='panel-body'>
-										<table class='table table-bordered table-striped' id='<?php echo $metric['name']; ?>'>
+										<table class="table table-bordered table-striped mb-none" id='datatable-default'>
 											<thead>
 												<tr>
 													<th>#</th>
@@ -273,6 +273,8 @@
 		<!-- Examples -->
 		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.row.with.details.js"></script>
 		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.tabletools.js"></script>
+		<script src="assets/javascripts/tables/examples.datatables.default.js"></script>
+
 		<script type="text/javascript">
 			var names = <?php echo json_encode($names); ?>;
 			var size = names.length;
@@ -284,6 +286,16 @@
 					(function( $ ) {
 
 						'use strict';
+						var datatableInit = function() {
+
+						$('#datatable-default').dataTable();
+
+						};
+
+						$(function() {
+							datatableInit();
+						});
+
 						(function() {
 							var plot = $.plot('#'.concat(names[i]), data[i], {
 								series: {
@@ -337,6 +349,17 @@
 					(function( $ ) {
 
 						'use strict';
+
+						var datatableInit = function() {
+
+						$('#datatable-default').dataTable();
+
+						};
+
+						$(function() {
+							datatableInit();
+						});
+
 						(function() {
 							var plot = $.plot('#'.concat(names[i]), [data[i][0]['data']], {
 								colors: ['#8CC9E8'],
@@ -372,22 +395,7 @@
 						})()}).apply( this, [ jQuery ]);
 
 				}
-
-				(function( $ ) {
-
-					'use strict';
-
-					var datatableInit = function() {
-
-						$('#'.concat(names[i])).dataTable();
-
-					};
-
-					$(function() {
-						datatableInit();
-					});
-
-				}).apply( this, [ jQuery ]);		
+		
 			}
 		</script>
 	</body>

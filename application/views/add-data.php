@@ -200,6 +200,30 @@
 								<footer class="panel-footer">
 									<input type="submit" class="btn btn-primary" value="Añadir">
 								</footer>
+
+								<div id="deleteArea" class="modal-block mfp-hide">
+										<section class="panel">
+											<header class="panel-heading">
+												<h2 class="panel-title">¿Está seguro?</h2>
+											</header>
+											<div class="panel-body">
+												<div class="modal-wrapper">
+													<div class="modal-text">
+														<p>¿Está seguro de que quiere eliminar esta área?</p>
+														<p id="delArea">area 1</p>
+													</div>
+												</div>
+											</div>
+											<footer class="panel-footer">
+												<div class="row">
+													<div class="col-md-12 text-right">
+														<button class="btn btn-primary" onclick="postDelArea()">Confirmar</button>
+														<button class="btn btn-default modal-dismiss">Cancelar</button>
+													</div>
+												</div>
+											</footer>
+										</section>
+									</div>
 							</section>
 							<?php echo form_close(); ?>
 						</div>
@@ -299,7 +323,7 @@
 
 	    		for(i=0; i<ids.length; i++){
 	    			if(!validate('value'.concat(ids[i])) || !validate('target'.concat(ids[i])) || !validate('expected'.concat(id[i]))){
-	    				alert("Debe ingresar números");
+	    				alert("Los valores ingresados deben ser numéricos");
 	    				return false;
 	    			}
 	    		}
