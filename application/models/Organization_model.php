@@ -16,16 +16,28 @@ class Organization_model extends CI_Model{
         return $this->addChild($root->getId(), $data);
     }
     
-    function addUnidad($parent, $data){
-        return $this->addChild($parent, $data);
+    function addUnidad($parentName, $data){
+        $parent = $this->getByName($parentName);
+        $data['type']=$parent->getType();
+        return $this->addChild($parent->getId(), $data);
     }
     
-    function addChild($parent, $data){
+    private function addChild($parent, $data){
         $data['parent'] = $parent;
         if ($this->db->insert("Organization", $data))
             return true;
         else
             return false;           
+    }
+    
+    function getTypes(){
+        $this->db->where(array('id!='=>1));
+        $query = $this->db->get('OrgType');
+        $result = array();
+        foreach ($query->result() as $row){
+            array_push($result, array('id'=>$row->id, 'name'=>$row->name));
+        }
+        return $result;
     }
     
     function getAllUnidades($area){
@@ -37,11 +49,39 @@ class Organization_model extends CI_Model{
         return $this->getAllChilds($root->getId());
     }
     
-    function getAllChilds($id){
+    private function getAllChilds($id){
         $this->db->where(array('parent'=>$id));
         $this->db->where('id!=parent');
         $query = $this->db->get('Organization');
-        return $this->buildAllOrganization($query);        
+        return $this->buildAllOrganization($query);
+    }
+    
+    function delByName($name){
+        $this->db->where(array('name'=>$name));
+        $query = $this->db->delete('Organization');
+        $val = $this->db->affected_rows();
+        if($val==0)
+            return false;
+        else
+            return True;
+    }
+    
+    function getByID($id){
+        $this->db->where(array('id'=>$id));
+        $query = $this->db->get('Organization');
+        if ($query->num_rows() != 1)
+            return false;
+        else
+            return  $this->buildOrganization($query->row());
+    }
+    
+    function getByName($name){
+        $this->db->where(array('name'=>$name));
+        $query = $this->db->get('Organization');
+        if ($query->num_rows() != 1)
+            return false;
+        else
+            return  $this->buildOrganization($query->row());
     }
     
     function buildAllOrganization($q){
