@@ -155,8 +155,8 @@
 
 					<!-- start: page -->
 						<div class="col-md-12">
-							<form id="form1" class="form-horizontal form-bordered">
-							<section class="panel">
+						<?php echo form_open('Dashboard/addData'); ?>
+							<section class="panel form-horizontal form-bordered">
 								<header class="panel-heading">
 
 									<h2 class="panel-title">Añadir Datos</h2>
@@ -171,7 +171,7 @@
 											<label class="control-label">Año:</label>
 										</div>
 										<div class="col-md-3">
-											<input type="text" id="year" class="form-control" onkeyup ="selectYear();">
+											<input type="text" name="year" id="year" class="form-control" onkeyup ="selectYear();">
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -196,12 +196,12 @@
 
 									?>
 									
-								</div>
+								</div> 
 								<footer class="panel-footer">
-									<button class="btn btn-primary">Añadir</button>
+									<input type="submit" class="btn btn-primary" value="Añadir">
 								</footer>
 							</section>
-							</form>
+							<?php echo form_close(); ?>
 						</div>
 
 
@@ -246,6 +246,7 @@
 				}
 				
 				else{
+					console.log(jArray);
 					for (i=0; i<size; i++) {
 						var aux_year = jArray[i]['year'];
 						if(aux_year==year){

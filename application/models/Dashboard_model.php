@@ -23,14 +23,14 @@ class Dashboard_model extends CI_Model
         
         $morgs = "";
         for($i=0; $i<$size-1; $i++){
-            $id = $rows[i]->id;
+            $id = $rows[$i]->id;
             $morgs = $morgs."metorg= ".$id." OR ";
         }
-        $morgs = $morgs."metorg =".$rows[$size-1]->id;
+        $morgs = $morgs."metorg =".$rows[$size-1]->id.")";
 
         $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE m.state=1 AND ".$morgs;
+                    WHERE m.state=1 AND (".$morgs;
 
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
@@ -58,6 +58,25 @@ class Dashboard_model extends CI_Model
         }
 
         return $route;
+
+    }
+
+    function getAllMetricOrgIds($id){
+        $this->load->library('Dashboard_library');
+        $query = "SELECT metorg.id AS id FROM MetOrg AS metorg WHERE metorg.org =".$id;
+        $q = $this->db->query($query);
+
+        if($q->num_rows() > 0){
+            foreach ($q->result() as $row){
+                $parameters=  array(
+                                'id' => $row->id
+                            );  
+            
+            $id = new Dashboard_library();
+            $id_array[] = $id->initializeIds($parameters);
+            }
+        }
+        return $id_array;
 
     }
 
@@ -105,6 +124,25 @@ class Dashboard_model extends CI_Model
         return $measurement_array;
     }
 
+    function insertData($id_met, $year, $value, $target, $expected, $user){ //Inserta datos en la tabla de mediciones
+
+        $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup) 
+                    VALUES (?, 0, ?, ?, ? ,?, ?, NOW())";
+
+        $q = $this->db->query($query, array($id_met, $value, $target, $expected, $year, $user)); 
+
+        return $q;
+    }
+
+    function updateData($id_met, $year, $value, $target, $expected, $user){ //Aqui hay que guardar datos antiguos
+
+        $query = " UPDATE Measure SET state = 0, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()  
+        WHERE metorg = ? AND year = ?";
+
+        $q = $this->db->query($query, array($value, $target, $expected, $user, $id_met, $year)); 
+
+        return $q;
+    }
 
 
 

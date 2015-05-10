@@ -76,7 +76,7 @@ $autoload['libraries'] = array('database');
 |	$autoload['drivers'] = array('cache');
 */
 
-$autoload['drivers'] = array();
+$autoload['drivers'] = array('');
 
 
 /*
@@ -88,7 +88,7 @@ $autoload['drivers'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('debug','url','array');
+$autoload['helper'] = array('debug','url','array','form');
 
 
 /*

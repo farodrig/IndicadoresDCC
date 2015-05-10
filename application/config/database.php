@@ -64,9 +64,9 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'statoom.cl', //fuera de st ---->'statoom.cl' dentro de st ---> 'mongodb.statoom.cl'
-	'username' => 'sw',
-	'password' => 'Wsxd-098',
+	'hostname' => 'localhost', //fuera de st ---->'statoom.cl' dentro de st ---> 'mongodb.statoom.cl'
+	'username' => 'root',
+	'password' => '',
 	'database' => 'Udashboard',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

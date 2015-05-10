@@ -23,6 +23,12 @@ class Dashboard_library
 		return $this;
 	}
 
+    function initializeIds($parameters)
+    {
+        $this->id_met = element('id', $parameters);
+        return $this;
+    }
+
     function initializeMeasurement($parameters)
     {
         $this->id_measurement = element('id', $parameters);
