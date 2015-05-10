@@ -56,7 +56,7 @@ $route['dashboard'] = 'session/dashboard';
 $route['validar'] = 'session/validar';
 $route['configurar'] = 'session/menuConfigurar';
 $route['dato'] = 'session/agregarDato';
-$route['careaunidad'] = 'session/configurarAreasUnidades';
+$route['careaunidad'] = 'ModifyOrg/modifyAreaUnidad';
 $route['cdashboard'] = 'session/configurarDashboard';
 $route['cmetrica'] = 'session/configurarMetricas';
 

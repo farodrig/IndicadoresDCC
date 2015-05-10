@@ -39,13 +39,16 @@ class Dashboard extends CI_Controller
 				"<label class='text'>".$metrics->getName()."</label>".
 				"</div>".
 				"<div class='col-md-3'>".
-				"<input type='text' name='value".$metrics->getId()."' id='value".$metrics->getId()."' class='form-control'>".
+				"<input type='text' name='value".$metrics->getId()."' id='value".$metrics->getId()."' class='form-control' onkeyup =\"validate('value".$metrics->getId()."')\"
+				 onfocus =\"validate('value".$metrics->getId()."')\">".
 				"</div>".
 				"<div class='col-md-3'>".
-				"<input type='text' name='target".$metrics->getId()."' id='target".$metrics->getId()."' class='form-control'>".
+				"<input type='text' name='target".$metrics->getId()."' id='target".$metrics->getId()."' class='form-control' onkeyup =\"validate('target".$metrics->getId()."')\"
+				 onfocus =\"validate('target".$metrics->getId()."')\">".
 				"</div>".
 				"<div class='col-md-3'>".
-				"<input type='text' name='expected".$metrics->getId()."' id='expected".$metrics->getId()."' class='form-control'>".
+				"<input type='text' name='expected".$metrics->getId()."' id='expected".$metrics->getId()."' class='form-control' onkeyup =\"validate('expected".$metrics->getId()."')\"
+				 onfocus =\"validate('target".$metrics->getId()."')\">".
 				"</div>".
 				"</div>";
 				$data[$metrics->getId()] = $s;
@@ -78,15 +81,19 @@ class Dashboard extends CI_Controller
 
 
 		if(!$this->form_validation->run())
-			$this->load->view('index');
+			return $this->load->view('index');
 
 		$year = $this->input->post('year');
 
-
-		
 		foreach ($all_measurements as $measure) {
-			if($measure->getYear()==$year)
-				$data[]=$measure->getMetOrg();
+			if($measure->getYear()==$year){
+				$data[] = $measure->getMetOrg();
+				$vals[ $measure->getMetOrg()] = array(
+													'value' => $measure->getValue(),
+													'target' => $measure->getTarget(),
+													'expected' => $measure->getExpected()
+												);
+			}
 		}
 		$data[] = -1; // Asi el arreglo nunca sera null
 
@@ -100,10 +107,10 @@ class Dashboard extends CI_Controller
 				continue;
 			}
 
-			if(in_array($id_met, $data)==1){
+			if(in_array($id_met, $data)==1 && ($value!=$vals[$id_met]['value'] || $target!=$vals[$id_met]['target'] || $expected!=$vals[$id_met]['expected'])){
 				$q = $this->Dashboard_model->updateData($id_met, $year, $value, $target, $expected, $user);
 			}
-			else{
+			else if(in_array($id_met, $data)!=1){
 				$q = $this->Dashboard_model->insertData($id_met, $year, $value, $target, $expected, $user); // si $q es falso significa que fallo la query
 			}
 		}

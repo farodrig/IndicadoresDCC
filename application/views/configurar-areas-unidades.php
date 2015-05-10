@@ -38,6 +38,51 @@
 
 		<!-- Head Libs -->
 		<script src="assets/vendor/modernizr/modernizr.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+		<script type="text/javascript">
+		
+		   function addUnidad(area){
+			   $("#addUni").html(area);
+		   }
+
+		   function delUnidad(unidad){
+			   $("#delUni").html(unidad);
+		   }
+
+		   function delArea(area){
+			   $("#delArea").html(area);
+		   }
+
+		   function redirectPost(location, args){
+			   var form = '';
+		        $.each( args, function( key, value ) {
+		            form += '<input type="hidden" name="'+key+'" value="'+value+'">';
+		        });
+		        $('<form action="'+location+'" method="POST">'+form+'</form>').appendTo('body').submit();
+		   }
+
+		   function postAddArea(){
+			    var n = $("#AreaName").val();
+			    var segment = $("#segment").val();
+			    redirectPost('<?php echo base_url();?>ModifyOrg/addArea', {'name': n, 'type': segment});
+		   }
+		   
+		   function postDelArea(){
+			   var n = $("#delArea").html();
+			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'name': n});
+		   }
+
+		   function postAddUni(){
+			   var area = $("#addUni").html();
+			   var name = $("#UniName").val();
+			   redirectPost('<?php echo base_url();?>ModifyOrg/addUni', {'area': area, 'name': name});
+		   }
+
+		   function postDelUni(){
+			   var n = $("#delUni").html();
+			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'name': n});
+		   }			   
+		</script>
 	</head>
 	<body>
 		<section class="body">
@@ -171,27 +216,33 @@
 					<!-- start: page -->
 					<section class="panel panel-transparent">
 						<div class="panel-body">
-							<div class ="row">
 							    <?php
+							        $counter = 0;
 							        foreach ($areaunit as $au){
+							            if ($counter % 2 == 0 && $counter!=0)
+							                echo ('</div>');
+							            if ($counter % 2 == 0)
+							                echo ('<div class ="row">');
 							            echo ('<div class="col-md-6">');
 							            echo ('<section class="panel panel-info">');
 							            echo ('<header class="panel-heading">');
 							            echo ('<h2 class="panel-title text-center">');
 							            echo ('<div class="btn-group-horizontal text-center">');
 							            echo ('<label class="text-center">'.ucwords($au['area']->getName()).'</label>');
-							            echo ('<a class="btn modal-with-form" href="#deleteArea" style="color: red"><i class="licon-close"></i></a>');
+							            echo ('<a class="btn modal-with-form" href="#deleteArea" onclick = "delArea(\''.ucwords($au['area']->getName()).'\')" style="color: red"><i class="licon-close"></i></a>');
 							            echo ('</div></h2></header>');
 							            echo ('<div class="panel-body">');
 							            echo ('<div class="btn-group-vertical col-md-12">');
 							            foreach ($au['unidades'] as $unidad){
 							                echo('<div class="btn btn-default btn-group-horizontal text-center">');
-							                echo ('<a class="btn modal-with-form" href="#deleteUnidad" style="color: red"><i class="licon-close"></i></a>');
+							                echo ('<a class="btn modal-with-form" href="#deleteUnidad" onclick = "delUnidad(\''.ucwords($unidad->getName()).'\')" style="color: red"><i class="licon-close"></i></a>');
 							                echo ('<label class="text-center">'.ucwords($unidad->getName()).'</label></div>');
 							            }
-							            echo ('<a class="btn modal-with-form" href="#modalForm" style="color: green"><i class="licon-plus"></i></a>');
-							            echo ('</div></div></section></div>');											
-							        }							    
+							            echo ('<a class="btn modal-with-form" href="#agregarUnidad" onclick = "addUnidad(\''.ucwords($au['area']->getName()).'\')" style="color: green"><i class="licon-plus"></i></a>');
+							            echo ('</div></div></section></div>');
+							            $counter++;
+							        }
+							     
 							    ?>
 							<div class="row col-md-12 text-center">
 								<a class="btn modal-with-form" href="#agregarArea" style="color: green">
@@ -208,33 +259,45 @@
 													<div class="form-group mt-lg">
 														<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
-															<input type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
+															<input id = "AreaName"type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
+															
 														</div>
+													</div>
+													<div class="form-group mt-lg">
+														<label class="col-sm-3 control-label">Segmento:</label>
+														<div class="col-sm-9">
+                                                            <select class="form-control" id="segment">
+                                                              <?php 
+                                                                foreach ($types as $type){
+                                                                    echo('<option value="'.$type['id'].'">'.ucwords($type['name']).'</option>');
+                                                                }
+                                                              ?>
+                                                            </select>														</div>
 													</div>
 												</form>
 											</div>
 											<footer class="panel-footer">
 												<div class="row">
 													<div class="col-md-12 text-right">
-														<button class="btn btn-primary modal-confirm">Añadir</button>
+														<button class="btn btn-primary" onclick="postAddArea()">Añadir</button>
 														<button class="btn btn-default modal-dismiss">Cancelar</button>
 													</div>
 												</div>
 											</footer>
 										</section>
-									</div>
-								<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
+							</div>
+								<div id="agregarUnidad" class="modal-block modal-block-primary mfp-hide">
 										<section class="panel">
 											<header class="panel-heading">
 												<h2 class="panel-title">Agregar unidad</h2>
-												<p class="panel-subtitle">Área 1</p>
+												<p class="panel-subtitle" id = "addUni">Área 1</p>
 											</header>
 											<div class="panel-body">
 												<form id="demo-form" class="form-horizontal mb-lg" novalidate="novalidate">
 													<div class="form-group mt-lg">
 														<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
-															<input type="text" name="name" class="form-control" placeholder="nombre de la nueva unidad..." required/>
+															<input id = "UniName" type="text" name="name" class="form-control" placeholder="nombre de la nueva unidad..." required/>
 														</div>
 													</div>
 												</form>
@@ -242,7 +305,7 @@
 											<footer class="panel-footer">
 												<div class="row">
 													<div class="col-md-12 text-right">
-														<button class="btn btn-primary modal-confirm">Añadir</button>
+														<button class="btn btn-primary" onclick="postAddUni()">Añadir</button>
 														<button class="btn btn-default modal-dismiss">Cancelar</button>
 													</div>
 												</div>
@@ -258,13 +321,14 @@
 												<div class="modal-wrapper">
 													<div class="modal-text">
 														<p>¿Está seguro de que quiere eliminar esta área?</p>
+														<p id="delArea">area 1</p>
 													</div>
 												</div>
 											</div>
 											<footer class="panel-footer">
 												<div class="row">
 													<div class="col-md-12 text-right">
-														<button class="btn btn-primary modal-confirm">Confirmar</button>
+														<button class="btn btn-primary" onclick="postDelArea()">Confirmar</button>
 														<button class="btn btn-default modal-dismiss">Cancelar</button>
 													</div>
 												</div>
@@ -280,13 +344,14 @@
 												<div class="modal-wrapper">
 													<div class="modal-text">
 														<p>¿Está seguro de que quiere eliminar esta unidad?</p>
+														<p id="delUni">unidad 1</p>
 													</div>
 												</div>
 											</div>
 											<footer class="panel-footer">
 												<div class="row">
 													<div class="col-md-12 text-right">
-														<button class="btn btn-primary modal-confirm">Confirmar</button>
+														<button class="btn btn-primary" onclick="postDelUni()">Confirmar</button>
 														<button class="btn btn-default modal-dismiss">Cancelar</button>
 													</div>
 												</div>
@@ -325,6 +390,23 @@
 
 		<!-- Examples -->
 		<script src="assets/javascripts/ui-elements/examples.modals.js"></script>
-		
+		<script type="text/javascript">
+		   var success = <?php echo($success);?>;
+
+		   if (success==1){
+			   new PNotify({
+					title: 'Success!',
+					text: 'Su solicitud ha sido realizada con éxito.',
+					type: 'success'
+				});
+			   }
+		   if (success==0){
+			   new PNotify({
+					title: 'error!',
+					text: 'Ha ocurrido un error con su solicitud, porfavor intentelo de nuevo más tarde.',
+					type: 'error'
+				});
+			}
+		</script>
     </body>
 </html>
