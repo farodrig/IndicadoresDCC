@@ -172,160 +172,27 @@
 					<section class="panel panel-transparent">
 						<div class="panel-body">
 							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center">
-												<div class="btn-group-horizontal text-center">
-													<label class="text-center"> Área 1</label>
-													<a class="btn modal-with-form" href="#deleteArea" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-												<a class="btn modal-with-form" href="#modalForm" style="color: green">
-													<i class="licon-plus"></i>
-												</a>
-											</div>
-										</div>
-									</section>
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center">
-												<div class="btn-group-horizontal text-center">
-													<label class="text-center"> Área 2</label>
-													<a class="btn modal-with-form" href="#deleteArea" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-												<a class="btn modal-with-form" href="#modalForm" style="color: green">
-													<i class="licon-plus"></i>
-												</a>
-											</div>
-										</div>
-									</section>
-								</div>
-							</div>
-							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center">
-												<div class="btn-group-horizontal text-center">
-													<label class="text-center"> Área 3</label>
-													<a class="btn modal-with-form" href="#deleteArea" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-												<a class="btn modal-with-form" href="#modalForm" style="color: green">
-													<i class="licon-plus"></i>
-												</a>
-											</div>
-										</div>
-									</section>
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<label class="text-center"> Área 4</label>
-													<a class="btn modal-with-form" href="#deleteArea" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#deleteUnidad" style="color: red">
-														<i class="licon-close"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-												<a class="btn modal-with-form" href="#modalForm" style="color: green">
-													<i class="licon-plus"></i>
-												</a>
-											</div>
-										</div>
-									</section>
-								</div>
-							</div>
+							    <?php
+							        foreach ($areaunit as $au){
+							            echo ('<div class="col-md-6">');
+							            echo ('<section class="panel panel-info">');
+							            echo ('<header class="panel-heading">');
+							            echo ('<h2 class="panel-title text-center">');
+							            echo ('<div class="btn-group-horizontal text-center">');
+							            echo ('<label class="text-center">'.ucwords($au['area']->getName()).'</label>');
+							            echo ('<a class="btn modal-with-form" href="#deleteArea" style="color: red"><i class="licon-close"></i></a>');
+							            echo ('</div></h2></header>');
+							            echo ('<div class="panel-body">');
+							            echo ('<div class="btn-group-vertical col-md-12">');
+							            foreach ($au['unidades'] as $unidad){
+							                echo('<div class="btn btn-default btn-group-horizontal text-center">');
+							                echo ('<a class="btn modal-with-form" href="#deleteUnidad" style="color: red"><i class="licon-close"></i></a>');
+							                echo ('<label class="text-center">'.ucwords($unidad->getName()).'</label></div>');
+							            }
+							            echo ('<a class="btn modal-with-form" href="#modalForm" style="color: green"><i class="licon-plus"></i></a>');
+							            echo ('</div></div></section></div>');											
+							        }							    
+							    ?>
 							<div class="row col-md-12 text-center">
 								<a class="btn modal-with-form" href="#agregarArea" style="color: green">
 								<h1><i class="licon-plus"></i></h1>
@@ -458,5 +325,6 @@
 
 		<!-- Examples -->
 		<script src="assets/javascripts/ui-elements/examples.modals.js"></script>
-	</body>
+		
+    </body>
 </html>
