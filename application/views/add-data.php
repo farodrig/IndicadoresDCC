@@ -142,8 +142,11 @@
 									</a>
 								</li>
 								<li><span>Negocio</span></li>
-								<li><span>Área 1</span></li>
-								<li><span>Unidad 2</span></li>
+								<?php 
+									for($i=sizeof($route);$i>0;$i--)
+										echo "<li><span>".$route[$i]."</span></li>";
+								?>
+								
 								<li><span>Añadir Datos</span></li>
 							</ol>
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -152,8 +155,8 @@
 
 					<!-- start: page -->
 						<div class="col-md-12">
-							<form id="form1" class="form-horizontal form-bordered">
-							<section class="panel">
+						<?php echo form_open('Dashboard/addData'); ?>
+							<section class="panel form-horizontal form-bordered">
 								<header class="panel-heading">
 
 									<h2 class="panel-title">Añadir Datos</h2>
@@ -168,7 +171,7 @@
 											<label class="control-label">Año:</label>
 										</div>
 										<div class="col-md-3">
-											<input type="text" name="firstname" class="form-control">
+											<input type="text" name="year" id="year" class="form-control" onkeyup ="selectYear();">
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -179,7 +182,7 @@
 											<label class="control-label"><u><b>Valor</b></u></label>
 										</div>
 										<div class="col-md-3">
-											<label class="control-label"><u><b>Mínimo</b></u></label>
+											<label class="control-label"><u><b>Esperado</b></u></label>
 										</div>
 										<div class="col-md-3">
 											<label class="control-label"><u><b>Meta</b></u></label>
@@ -193,12 +196,12 @@
 
 									?>
 									
-								</div>
+								</div> 
 								<footer class="panel-footer">
-									<button class="btn btn-primary">Añadir</button>
+									<input type="submit" class="btn btn-primary" value="Añadir">
 								</footer>
 							</section>
-							</form>
+							<?php echo form_close(); ?>
 						</div>
 
 
@@ -224,6 +227,41 @@
 
 		<!-- Theme Initialization Files -->
 		<script src="<?php echo base_url();?>assets/javascripts/theme.init.js"></script>
+		<script type="text/javascript">
+			function selectYear(){
+			
+				var year = document.getElementById("year").value;
+				var jArray= <?php echo json_encode($measurements[0]); ?>;
+				var years = <?php echo json_encode($measurements[1]); ?>;
+				var size = <?php echo sizeof($measurements[0]); ?> ;
+				if(year=="" || years.indexOf(year)==-1){
+					var last_metorg = -1;
+					for(i=0;i<size; i++){
+						var metorg = jArray[i]['metorg'];
+						if(metorg==last_metorg)
+							continue;
+						last_metorg = metorg;
+						loadValues(metorg,"","",""); 
+					}	
+				}
+				
+				else{
+					console.log(jArray);
+					for (i=0; i<size; i++) {
+						var aux_year = jArray[i]['year'];
+						if(aux_year==year){
+							loadValues(jArray[i]['metorg'],jArray[i]['value'],jArray[i]['target'],jArray[i]['expected']);
+						}              
+	    			}
+				}
+			}
 
+			function loadValues(metorg_id, value, target, expected){
+				document.getElementById("value".concat(metorg_id)).value=value;
+				document.getElementById("target".concat(metorg_id)).value=target;
+				document.getElementById("expected".concat(metorg_id)).value=expected;
+			
+			}
+		</script>
 	</body>
 </html>

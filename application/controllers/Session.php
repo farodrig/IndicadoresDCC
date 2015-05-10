@@ -38,7 +38,23 @@ class Session extends CI_Controller {
 	}
 	public function configurarMetricas()
 	{
-	    $this->load->view('configurar-metricas');
+		$this->load->model('Metrics_model');
+		$data['metrics'] = $this->Metrics_model->getAllMetrics();
+	    $this->load->view('configurar-metricas',$data);
+	}
+	
+	public function agregarMetrica(){
+		$data= array(
+			'category' => $this->input->post('type'), 
+			'unit' => '1',
+			'name' => $this->input->post('name'), 		
+		);
+     $this->load->model('Metrics_model');
+   	 $this->Metrics_model->addMetric($data);
+   	 $this->index();
+		
+		
+		
 	}
 
 }

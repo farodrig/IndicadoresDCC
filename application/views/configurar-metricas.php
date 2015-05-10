@@ -362,6 +362,7 @@
 							</div>
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
 									<section class="panel">
+										<?php echo form_open('site/create');?>
 										<header class="panel-heading">
 											<h2 class="panel-title">Añadir métrica</h2>
 											<p class="panel-subtitle">Área 1: Unidad 1</p>
@@ -371,13 +372,13 @@
 												<div class="form-group mt-lg">
 													<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
-															<input type="text" name="name" class="form-control" placeholder="nombre de la métrica..." required/>
+															<input type="text" name="name" id='name' class="form-control" placeholder="nombre de la métrica..." required/>
 														</div>
 												</div>
 												<div class="form-group mt-lg">
 													<label class="col-sm-3 control-label">Tipo:</label>
 														<div class="btn-group dropdown col-sm-9">
-															<select class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
+															<select name='tipo' class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
 																<option value="--">Tipo</option>
 																<option value="INT">Entero</option>
 																<option value="DOUBLE">Punto flotante</option>
@@ -396,6 +397,7 @@
 												</div>
 											</div>
 										</footer>
+										<?php echo form_close();?>
 									</section>
 								</div>
 								<div id="deleteMetrica" class="modal-block modal-block-primary mfp-hide">
