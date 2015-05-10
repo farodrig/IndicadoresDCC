@@ -9,7 +9,6 @@ class Dashboard extends CI_Controller
 
 	}
 
-
 	function formAddData() // funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
 	                           // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
@@ -131,6 +130,77 @@ class Dashboard extends CI_Controller
 		return array(
 				0 => $result,
 				1 => $valid_years);
+	}
+
+	function showDashboard(){
+		$id = 2; //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+	    $this->load->model('Dashboard_model');
+	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id);
+
+	    $route = $this->Dashboard_model->getRoute($id);
+	    $all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
+
+	    if(!$dashboard_metrics){
+	    	$metrics=[];
+	    	$names=[];
+	    }
+	    else{
+	    	foreach($dashboard_metrics as $metric){
+	    		$metrics[$metric->getId()]= array(
+	    										'vals' => [],
+	    										'name' => "",
+	    										'table' => "",
+	    										'graph_type' => $metric->getGraphType(),
+	    										'max_y' => 0,
+	    										'min_y' => 0,
+	    										'measure_number' => 0
+	    										);
+
+	    	}
+	    
+
+	    	if(!!$all_measurements){ //Doble !! deberia ser true si el arreglo tiene elementos
+	    		
+	    		foreach ($all_measurements as $measure) {
+	    			$count = 1;
+	    			$id_met = $measure['id'];
+	    			$names[]= $measure['name'];
+	    			$metrics[$id_met]['name'] = $measure['name'];
+	    			
+	    			$values=[];
+	    			$years=[];
+	    			foreach ($measure['measurements'] as $m){
+	    				$s = "<tr>
+	    				  <td>".$count."</td>
+	    			  	  <td>".$m->getYear()."</td>
+	    			      <td>".$m->getValue()."</td>
+	    			      <td>".$m->getTarget()."</td>
+	    			      <td>".$m->getExpected()."</td>
+	    			      </tr>";
+	    			    $values[] = $m->getValue();
+	    			    $years[] = $m->getYear();
+	    				$metrics[$id_met]['table'] = $metrics[$id_met]['table'].$s; 
+	    				$metrics[$id_met]['vals'][] = array($m->getYear(), $m->getValue());
+	    				$count++;
+
+	    			}
+	    			
+	    			$metrics[$id_met]['measure_number'] = max($years)-min($years);
+	    			$min = min($values);
+
+	    			$metrics[$id_met]['min_y'] = $min>0 ? floor(0.85*$min) : floor(1.15*$min);
+	    			$metrics[$id_met]['max_y'] = ceil(1.15*max($values));
+
+	    			
+	    		}
+	    	}
+		}
+	    $result['data'] = $metrics; 
+	    $result['route'] = $route;
+	    $result['names'] = $names;
+
+	    $this->load->view('dashboard', $result);
+
 	}
 
 }

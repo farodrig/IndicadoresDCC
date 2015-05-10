@@ -145,58 +145,96 @@ class Dashboard_model extends CI_Model
     }
 
 
-
-    //////////////////////////// Funciones de ejemplo///////////////////////////////
-
-    // Inserta todos los componentes de una persona a la base de datos
-    function insertUserInfo($user) // busca el id de un usuario en base a su username y password
+    function getDashboardMetrics($id)
     {
-        $query = "INSERT INTO stm_user_info";
-        $query .= " (names, lastnames, nationality, home_address, company, birthdate,";
-        $query .= " country, personal_email, home_phone, office_phone, mobile_phone, district, company_email, state,";
-        $query .= " city, user_id, position, national_id)";
-
-        $query .= " VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $q = $this->db->query($query, array($user->getNames(), $user->getLastnames(),$user->getNationality(),$user->getHomeAddress(),$user->getCompany(),
-            $user->getBirthDate(), $user->getCountry(), $user->getPersonalEmail(), $user->getHomePhone(), $user->getOfficePhone(),
-            $user->getMobilePhone(), $user->getDistrict(), $user->getCompanyEmail(), $user->getState(), $user->getCity(),
-            $user->getUserId(), $user->getPosition(), $user->getNationalId()));
-
-        return $q;
-    }
-
-    // Retorna todo los componentes asociados a una persona basado en el id de persona
-    function getUser($user_id)
-    {
-        $query = "SELECT * FROM stm_user_info WHERE user_id = ?";
-        $q = $this->db->query($query, $user_id);
+        $query = "SELECT d.id AS id FROM Dashboard AS d WHERE d.org=".$id;
+        $q = $this->db->query($query);
         if($q->num_rows() > 0)
-            return $this->buildUser($q);
+            $dashboard = $q->result()[0]->id;
+        else
+            return false;
+
+        $query = "SELECT gd.graphic AS graph FROM GraphDash AS gd WHERE gd.dashboard=".$dashboard;
+        $q = $this->db->query($query);
+        if(($size=$q->num_rows()) > 0)
+            $graphs = $q->result();
+        else
+            return false;
+        
+        $g_id = "";
+        for($i=0; $i<$size-1; $i++){
+            $id = $graphs[$i]->graph;
+            $g_id = $g_id."g.id= ".$id." OR ";
+        }
+        $g_id = $g_id."g.id =".$graphs[$size-1]->graph;
+
+        $query = "SELECT g.metorg AS org, g.type AS type
+                    FROM Graphic AS g 
+                    WHERE ".$g_id;
+
+        $q = $this->db->query($query);
+        if($q->num_rows() > 0)
+            return $this->buildDashboardMetrics($q);
         else
             return false;
     }
 
-    //actualiza en la base de datos el registro de una persona basado en el parametro $person
-    function updateUserInfo($user_info)
+    function buildDashboardMetrics($q)  // Contruye y retorna el objeto persona
     {
+        $this->load->library('Dashboard_library');
+        $row = $q->result();
+        foreach ($q->result() as $row)
+        {
+            $parameters = array
+            (
+                'met_org' => $row->org,
+                'type' => $row->type
+            );
 
-        $query = "UPDATE stm_user_info SET ";
-        $query .= " names = ?, lastnames = ?, birthdate = ?, ";
-        $query .= " national_id = ?, personal_email = ?, ";
-        $query .= " company_email = ?, country = ?, ";
-        $query .= " state = ?, city = ?, district = ?, ";
-        $query .= " home_address = ?, home_phone = ?, mobile_phone = ?, ";
-        $query .= " office_phone = ?, company = ?, nationality = ?, position = ? ";
-        $query .= " WHERE id = ?";
-        $q = $this->db->query($query, array($user_info->getNames(),$user_info->getLastNames(),$user_info->getBirthDate(),$user_info->getNationalId(),
-            $user_info->getPersonalEmail(), $user_info->getCompanyEmail(), $user_info->getCountry(),
-            $user_info->getState(), $user_info->getCity(), $user_info->getDistrict(), $user_info->getHomeAddress(),
-            $user_info->getHomePhone(), $user_info->getMobilePhone(), $user_info->getOfficePhone(), $user_info->getCompany(),
-            $user_info->getNationality(), $user_info->getPosition(), $user_info->getId()));
+            $metrica = new Dashboard_library();
+            $metrica_array[] = $metrica->initializeDashboardMetrics($parameters);
 
+        }
+
+        return $metrica_array;
     }
+   
+    function getDashboardMeasurements($metorgs)
+    {   
+        foreach ($metorgs as $met) {
+            $query = "SELECT m.metric AS metric FROM MetOrg AS m WHERE m.id= ".$met->getMetOrg();
+            $q = $this->db->query($query);
+            if(($size=$q->num_rows()) > 0)
+                $metric = $q->result()[0]->metric;
+            else 
+                return false;
 
+            $query = "SELECT m.name AS name FROM Metric AS m WHERE m.id=".$metric;
+            $q = $this->db->query($query);
+            if(($size=$q->num_rows()) > 0)
+                $name = $q->result()[0]->name;
+            else 
+                return false;
 
+            $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
+                    FROM Measure AS m
+                    WHERE m.state=1 AND m.metorg=".$met->getMetOrg();
+            $q = $this->db->query($query);
+            if(($size=$q->num_rows()) > 0)
+                $rows = $this->buildAllMeasuresments($q);
+            else 
+                return false;
+
+            $result[] = array(
+                                'id' => $met->getMetOrg(),
+                                'name' => $name,
+                                'measurements' => $rows
+                                );
+            
+            
+        }
+        
+        return $result;
+    }
 
 }

@@ -2,7 +2,6 @@
 
 class Dashboard_library
 {
-	private $id_met;
     private $name_met;
 	private $id_measurement;
 	private $metorg;
@@ -10,6 +9,7 @@ class Dashboard_library
 	private $target;
 	private $expected;
 	private $year;
+    private $graph_type;
 	/*private $updater;
 	private $dateup;
 	private $validator;
@@ -18,14 +18,21 @@ class Dashboard_library
 
 	function initialize($parameters)
 	{
-		$this->id_met = element('id', $parameters);
+		$this->metorg = element('id', $parameters);
 		$this->name_met = element('name', $parameters);
 		return $this;
 	}
 
     function initializeIds($parameters)
     {
-        $this->id_met = element('id', $parameters);
+        $this->metorg = element('id', $parameters);
+        return $this;
+    }
+
+    function initializeDashboardMetrics($parameters)
+    {
+        $this->metorg = element('met_org', $parameters);
+        $this->graph_type = element('type', $parameters);
         return $this;
     }
 
@@ -45,7 +52,15 @@ class Dashboard_library
      */
     public function getId()
     {
-        return $this->id_met;
+        return $this->metorg;
+    }
+
+     /**
+     * @return the $graph_type
+     */
+    public function getGraphType()
+    {
+        return $this->graph_type;
     }
 
  /**

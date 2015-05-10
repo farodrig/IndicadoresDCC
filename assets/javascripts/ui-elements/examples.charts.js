@@ -12,7 +12,7 @@ Theme Version: 	1.4.0
 	Flot: Basic
 	*/
 	(function() {
-		var plot = $.plot('#flotBasic', flotBasicData, {
+		var plot = $.plot('#flotBasic', getVals(), {
 			series: {
 				lines: {
 					show: true,
