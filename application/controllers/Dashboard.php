@@ -82,11 +82,14 @@ class Dashboard extends CI_Controller
 			$this->load->view('index');
 
 		$year = $this->input->post('year');
+
+
 		
 		foreach ($all_measurements as $measure) {
 			if($measure->getYear()==$year)
 				$data[]=$measure->getMetOrg();
 		}
+		$data[] = -1; // Asi el arreglo nunca sera null
 
 		foreach($metrics_id as $i){
 			$id_met = $i->getId();
@@ -94,7 +97,7 @@ class Dashboard extends CI_Controller
 			$target = $this->input->post('target'.$id_met);
 			$expected = $this->input->post('expected'.$id_met);
 
-			if($value=="" and $target=="" and $expected==""){
+			if($value=="" && $target=="" && $expected==""){
 				continue;
 			}
 
