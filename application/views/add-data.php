@@ -155,7 +155,7 @@
 
 					<!-- start: page -->
 						<div class="col-md-12">
-						<?php echo form_open('Dashboard/addData'); ?>
+						<?php echo form_open('Dashboard/addData', array('onSubmit' => "return pageValidate();")); ?>
 							<section class="panel form-horizontal form-bordered">
 								<header class="panel-heading">
 
@@ -171,7 +171,7 @@
 											<label class="control-label">Año:</label>
 										</div>
 										<div class="col-md-3">
-											<input type="text" name="year" id="year" class="form-control" onkeyup ="selectYear();">
+											<input type="text" name="year" id="year" class="form-control" onkeyup ="selectYear(); validate_year('year')">
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -246,7 +246,6 @@
 				}
 				
 				else{
-					console.log(jArray);
 					for (i=0; i<size; i++) {
 						var aux_year = jArray[i]['year'];
 						if(aux_year==year){
@@ -262,6 +261,50 @@
 				document.getElementById("expected".concat(metorg_id)).value=expected;
 			
 			}
+
+			function validate(id){
+				var opt = document.getElementById(id).value;
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) || opt.length ==0));  
+			}
+
+			function validate_year(id){
+				var opt = document.getElementById(id).value;
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4));  
+			}
+
+			function changeOnValidation(id, validator){
+				if(validator){
+					document.getElementById(id).style.borderColor="green";
+					return true;
+				}
+				else{
+					document.getElementById(id).style.borderColor="red";
+					document.getElementById(id).focus();
+					return false;
+				}
+			}
+
+			function pageValidate(){
+				var jArray= <?php echo json_encode($measurements[0]); ?>;
+				var size = <?php echo sizeof($measurements[0]); ?> ;
+
+				var ids =[];
+
+				for (i=0; i<size; i++) {
+						var metorg = jArray[i]['metorg'];
+						if(ids.indexOf(metorg)==-1){
+							ids.push(metorg);
+						}              
+	    		}
+
+	    		for(i=0; i<ids.length; i++){
+	    			if(!validate('value'.concat(ids[i])) || !validate('target'.concat(ids[i])) || !validate('expected'.concat(id[i]))){
+	    				alert("Debe ingresar números");
+	    				return false;
+	    			}
+	    		}
+	    		return true;
+	    	}
 		</script>
 	</body>
 </html>
