@@ -44,9 +44,10 @@ class Dashboard_model extends CI_Model
 
     function getRoute($id){
 
+        $aux=$id;
         $aux_id = 0;
         $i = 1;
-        while($aux_id!=$id){
+        while(1){
             $query = "SELECT org.name AS name, org.parent AS parent FROM Organization AS org WHERE org.id =".$id;
             $q = $this->db->query($query);
 
@@ -55,10 +56,24 @@ class Dashboard_model extends CI_Model
             }
 
             $route[$i] = $row->name;
+
             $aux_id = $id;
             $id = $row->parent;
+
+            if($aux_id==$id)
+                break;
+            
             $i++;
         }
+
+        $query = "SELECT type.name AS name FROM Organization AS org, OrgType AS type WHERE org.type=type.id AND org.id =".$aux;
+        $q = $this->db->query($query);
+
+        if($q->num_rows() > 0){
+            $row = $q->result()[0];
+        }
+        if($row->name!="")
+            $route[$i]=$row->name;
 
         return $route;
 

@@ -156,7 +156,6 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<li><span>Negocio</span></li>
 								<?php 
 									for($i=sizeof($route);$i>0;$i--)
 										echo "<li><span>".$route[$i]."</span></li>";

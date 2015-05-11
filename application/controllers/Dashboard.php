@@ -14,6 +14,10 @@ class Dashboard extends CI_Controller
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	{
 		$id = $this->input->get('var'); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+
+		if(!$id)
+			redirect('Session/inicio');
+		
 	    $this->load->model('Dashboard_model');
 
 	    $all_metrics = $this->Dashboard_model->getAllMetrics($id);
@@ -148,7 +152,10 @@ class Dashboard extends CI_Controller
 		}
 
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
-		
+
+		if(!$id)
+			redirect('Session/inicio');
+
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id);
