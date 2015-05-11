@@ -5,7 +5,7 @@
 		<!-- Basic -->
 		<meta charset="UTF-8">
 
-		<title>Configurar Dashboard</title>
+		<title>Configurar Dashboard Áreas</title>
 		<meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
 		<meta name="author" content="okler.net">
@@ -150,7 +150,7 @@
 				<!-- end: sidebar -->
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Configurar Dashboard</h2>
+						<h2>Configurar Dashboard Áreas</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">

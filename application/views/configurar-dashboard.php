@@ -5,7 +5,7 @@
 		<!-- Basic -->
 		<meta charset="UTF-8">
 
-		<title>Configurar Dashboard</title>
+		<title>Configurar Dashboard Unidades</title>
 		<meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
 		<meta name="author" content="okler.net">
@@ -150,7 +150,7 @@
 				<!-- end: sidebar -->
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Configurar Dashboard</h2>
+						<h2>Configurar Dashboard Unidades</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
@@ -278,7 +278,7 @@
 				$('#metricas').empty();
 				var metricas_unidad = metricas[unidad_value]; 
   				for (i in metricas_unidad) {
-  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg']);
+  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
   					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
   					$(val).appendTo($('#metricas'));
     				$(popover).appendTo($('#metricas'));
@@ -319,7 +319,7 @@
 				$('#metricas').empty();
 				var metricas_unidad = metricas[unidad_value]; 
   				for (i in metricas_unidad) {
-  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg']);
+  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
   					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
   					$(val).appendTo($('#metricas'));
     				$(popover).appendTo($('#metricas'));

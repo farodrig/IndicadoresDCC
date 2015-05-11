@@ -12,11 +12,19 @@ class Dashboard extends CI_Controller
 	function formAddData() // funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
 	                           // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
-	{
-		$id = $this->input->get('var'); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+	{	
+		$this->load->library('session');
+	    $val = $this->session->flashdata('id');
 
-		if(!$id)
-			redirect('Session/inicio');
+	    if(!is_null($val)){
+	    	$id=$val;
+	    }
+	    else{
+	    	$id = $this->input->get('var'); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+
+			if(!$id)
+				redirect('Session/inicio');
+	    }
 		
 	    $this->load->model('Dashboard_model');
 
@@ -25,7 +33,7 @@ class Dashboard extends CI_Controller
 	    $all_measurements = $this->Dashboard_model->getAllMeasurements($id);
 
 	    if(!$all_measurements){
-	    	$res['measurements']=[];
+	    	$res['measurements']=[[],[]];
 	    }
 	    else{
 	    	$res['measurements']=$this->_parseMeasurements($all_measurements);
@@ -62,13 +70,17 @@ class Dashboard extends CI_Controller
 	    }
 	    
 	    $res['route'] = $route;
-	    
+	    $res['id_location'] = $id;
 	    $this->load->view('add-data', $res);
 	    //debug($all_metrics, true);
 	}
 
 	function addData(){
-		$id = 2;
+		$id = $this->input->post("id_location");
+
+		if(!$id)
+			redirect('Session/inicio');
+
 		$user = "18.292.316-8";
 
 		$this->load->model('Dashboard_model');
@@ -83,21 +95,26 @@ class Dashboard extends CI_Controller
 			$this->form_validation->set_rules('expected'.$i->getId(), 'Expected'.$i->getId(), 'numeric');
 		}
 
-
-		if(!$this->form_validation->run())
-			return $this->load->view('index');
+		if(!$this->form_validation->run()){
+			redirect('Session/inicio');
+		}
 
 		$year = $this->input->post('year');
 
-		foreach ($all_measurements as $measure) {
-			if($measure->getYear()==$year){
-				$data[] = $measure->getMetOrg();
-				$vals[ $measure->getMetOrg()] = array(
+		if($all_measurements){
+			foreach ($all_measurements as $measure) {
+				if($measure->getYear()==$year){
+					$data[] = $measure->getMetOrg();
+					$vals[ $measure->getMetOrg()] = array(
 													'value' => $measure->getValue(),
 													'target' => $measure->getTarget(),
 													'expected' => $measure->getExpected()
 												);
+				}
 			}
+		}
+		else{
+			$vals[] = [];
 		}
 		$data[] = -1; // Asi el arreglo nunca sera null
 
@@ -119,7 +136,8 @@ class Dashboard extends CI_Controller
 			}
 		}
 		
-		
+		$this->load->library('session');
+		$this->session->set_flashdata('id', $id);
 		return $this->formAddData();
 
 	}
