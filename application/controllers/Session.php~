@@ -76,4 +76,3 @@ class Session extends CI_Controller {
    	 $this->Metrics_model->deleteMetric($data);
     $this->configurarMetricas();
 }
-}

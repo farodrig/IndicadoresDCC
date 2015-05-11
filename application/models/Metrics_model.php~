@@ -7,11 +7,6 @@ class Metrics_model extends CI_Model{
 		
 	}
 
-	function deleteMetric($data){
-		$this->db->where('Metric', $data); 
-		$this->db->delete('Metric'); 
-		
-	}
 
 
 	function getAllMetrics(){

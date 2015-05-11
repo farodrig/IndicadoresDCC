@@ -155,7 +155,7 @@
 								</header>
 								<div class="panel-body">
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block"
-										onclick="changePage('<?php echo base_url();?>DashboardConfig/configUnidad')">Configurar Dashboard</button>
+										onclick="changePage('<?php echo base_url();?>cdashboard')">Configurar Dashboard</button>
 								</div>
 								<div class="panel-body">
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-success btn-lg btn-block"
