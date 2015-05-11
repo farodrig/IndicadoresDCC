@@ -177,10 +177,10 @@
 					</div>
 					<div class="row">
 						<div class="col-md-6">
+							<?php echo form_open('configurar-dashboard') ?>
 							<section class="panel-warning">
 								<header class="panel-heading">
 									<h2 class="panel-title">
-										<form id="conf-dash">
 											<div class="form-group mt-lg">
 												<div class="btn-group-horizontal text-center">
 													<form>
@@ -213,7 +213,6 @@
 
 										<div id="popover-head" class="hide">Configurar métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
-											<form>
 												<label>Tipo de gráfico:</label>
 												<select class="form-control btn btn-default">
 														<option value="g1">Líneas</option>
@@ -228,14 +227,14 @@
 												<input id="for-website" value="" type="checkbox" name="mostrar"/>
 												</br>
 												</br>
-												<button onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
-											</form>
+												<button type="submit" onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
 										</div>
 
 									
 									</div>
 								</div>
 							</section>
+							<?php echo form_close(); ?>
 						</div>
 					</div>
 					<!-- end: page -->
@@ -275,14 +274,14 @@
 			var metricas = <?php echo json_encode($metricas); ?>; 
 
 			var unidad_value = $( "#unidad" ).val();
-				$('#metricas').empty();
-				var metricas_unidad = metricas[unidad_value]; 
-  				for (i in metricas_unidad) {
-  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
-  					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
-  					$(val).appendTo($('#metricas'));
-    				$(popover).appendTo($('#metricas'));
-  				}
+			$('#metricas').empty();
+			var metricas_unidad = metricas[unidad_value]; 
+  			for (i in metricas_unidad) {
+  				var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
+  				var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</button>"); 
+  				$(val).appendTo($('#metricas'));
+    			$(popover).appendTo($('#metricas'));
+  			}
   				
 			(function() {
 				$('#listenSlider').change(function() {
@@ -306,12 +305,22 @@
 				var unidades = areas[id_area]['unidades'];
 
 				var select_unidad = document.getElementById('unidad');
+				$('#metricas').empty();
 
 				select_unidad.options.length = 0; //Resetear select
 				
 				for(i in unidades){
  					select_unidad.options[select_unidad.options.length] = new Option(unidades[i]['name'], unidades[i]['id']);
 				}
+				var unidad_value = $( "#unidad" ).val();
+				$('#metricas').empty();
+				var metricas_unidad = metricas[unidad_value]; 
+  				for (i in metricas_unidad) {
+  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
+  					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
+  					$(val).appendTo($('#metricas'));
+    				$(popover).appendTo($('#metricas'));
+  				}
 			}
 
 			$('#unidad').change(function() {
