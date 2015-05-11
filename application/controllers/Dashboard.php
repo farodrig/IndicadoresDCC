@@ -13,7 +13,7 @@ class Dashboard extends CI_Controller
 	                           // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	{
-		$id = 2; //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+		$id = $this->input->get('var'); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 	    $this->load->model('Dashboard_model');
 
 	    $all_metrics = $this->Dashboard_model->getAllMetrics($id);
@@ -147,18 +147,20 @@ class Dashboard extends CI_Controller
     		return $p1[0]>$p2[0];
 		}
 
-		$id = 2; //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+		
 	    $this->load->model('Dashboard_model');
+	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id);
 
-	    $route = $this->Dashboard_model->getRoute($id);
-	    $all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
+	    
 
 	    if(!$dashboard_metrics){
 	    	$metrics=[];
 	    	$names=[];
 	    }
 	    else{
+	    	$all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
 	    	foreach($dashboard_metrics as $metric){
 	    		$metrics[$metric->getId()]= array(
 	    										'vals' => [],
@@ -214,6 +216,7 @@ class Dashboard extends CI_Controller
 	    $result['data'] = $metrics; 
 	    $result['route'] = $route;
 	    $result['names'] = $names;
+	    $result['id_location'] = $id;
 
 	    $this->load->view('dashboard', $result);
 

@@ -184,19 +184,10 @@
 											<div class="form-group mt-lg">
 												<div class="btn-group-horizontal text-center">
 													<form>
-													<?php $first_area_key = array_keys($areas)[0];
-														$first_area_unidades = $areas[$first_area_key]['unidades'];?>
-													<select name="area" id= "area" class="form-control btn btn-warning" onchange= "selectUnidades();">
+													<select name="area" id= "area" class="form-control btn btn-warning">
 													<?php 
 														foreach ($areas as $area) {
 															echo "<option value='".$area['id']."'>".$area['name']."</option>";
-														}
-													?>
-													</select>
-													<select name="unidad" id="unidad" class="form-control btn btn-warning">
-													<?php
-														foreach ($first_area_unidades as $unidad) {
-															echo "<option value='".$unidad['id']."'>".$unidad['name']."</option>";
 														}
 													?>
 													</select>
@@ -208,7 +199,7 @@
 
 								</header>
 								<div class="panel-body">
-									<div class="btn-group-vertical col-md-12" name="popover">
+									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
 									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>	 
 
 										<div id="popover-head" class="hide">Configurar métrica</div>
@@ -216,10 +207,14 @@
 											<form>
 												<label>Tipo de gráfico:</label>
 												<select class="form-control btn btn-default">
-														<option value="g1">Líneas</option>
-														<option value="g2">Barra</option>
+														<option value=2>Líneas</option>
+														<option value=1>Barra</option>
 												</select>
 												<label>Periodo</label>
+												<div id="rangedval">
+	Range Value: <span id="rangeval">90 - 290</span>
+  </div>
+												<div id="slider"></div>
 												<div class="mt-lg mb-lg slider-primary" data-plugin-slider data-plugin-options='{ "values": [ 25, 75 ], "range": true, "max": 100 }' data-plugin-slider-output="#listenSlider2">
 													<input id="listenSlider2" type="hidden" value="25, 75" />
 												</div>
@@ -271,19 +266,19 @@
 			function changePage(page){
       			window.location.href = "<?php echo base_url();?>".concat(page);
     		}
+			var metricas = <?php echo json_encode($metricas); ?>;
+			var areas = <?php echo json_encode($areas); ?>; 
 
-			var metricas = <?php echo json_encode($metricas); ?>; 
+			var area_value = $( "#area" ).val();
+			$('#metricas').empty();
+			var metricas_area = metricas[area_value]; 
+  			for (i in metricas_area) {
+  				var val ="<input type='hidden' id='".concat(metricas_area[i]['name'], "' value=", metricas_area[i]['metorg'],">");
+  				var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "'class='btn btn-default'>", metricas_area[i]['name'], "</a>"); 
+  				$(val).appendTo($('#metricas'));
+    			$(popover).appendTo($('#metricas'));
+  			}
 
-			var unidad_value = $( "#unidad" ).val();
-				$('#metricas').empty();
-				var metricas_unidad = metricas[unidad_value]; 
-  				for (i in metricas_unidad) {
-  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg']);
-  					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
-  					$(val).appendTo($('#metricas'));
-    				$(popover).appendTo($('#metricas'));
-  				}
-  				
 			(function() {
 				$('#listenSlider').change(function() {
 					$('.output b').text( this.value );
@@ -298,33 +293,51 @@
 				});
 			})();
 
-
-			function selectUnidades(){
-			
-				var id_area = document.getElementById("area").value;
-				var areas = <?php echo json_encode($areas); ?>;
-				var unidades = areas[id_area]['unidades'];
-
-				var select_unidad = document.getElementById('unidad');
-
-				select_unidad.options.length = 0; //Resetear select
-				
-				for(i in unidades){
- 					select_unidad.options[select_unidad.options.length] = new Option(unidades[i]['name'], unidades[i]['id']);
-				}
-			}
-
-			$('#unidad').change(function() {
-				var unidad_value = $( "#unidad" ).val();
+			$('#area').change(function() {
+				var area_value = $( "#area" ).val();
 				$('#metricas').empty();
-				var metricas_unidad = metricas[unidad_value]; 
-  				for (i in metricas_unidad) {
-  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg']);
-  					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
+				var metricas_area = metricas[area_value]; 
+  				for (i in metricas_area) {
+  					var val ="<input type='hidden' id='".concat(areas[area_value]['name'],"/",metricas_area[i]['name'], "' value=", metricas_area[i]['metorg'],">");
+  					var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "'class='btn btn-default'>", metricas_area[i]['name'], "</a>"); 
   					$(val).appendTo($('#metricas'));
     				$(popover).appendTo($('#metricas'));
   				}
+  				var unidades = areas[area_value]['unidades'];
+  				for(i in unidades){
+  					var unidad_id = unidades[i]['id'];
+  					var unidad_name = unidades[i]['name'];
+  					var metricas_unidad = metricas[unidad_id];
+
+  					for(j in metricas_unidad){
+  						var val ="<input type='hidden' id='".concat(unidad_name, "/", metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],">");
+  						var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
+  						$(val).appendTo($('#metricas'));
+    					$(popover).appendTo($('#metricas'));
+  					}
+  				}
 			});
+
+			$(function(){
+  $('#defaultslide').slider({ 
+    max: 1000,
+    min: 0,
+    value: 500,
+    slide: function(e,ui) {
+      $('#currentval').html(ui.value);
+    }
+  });
+  
+  $('#slider').slider({
+    range: true,
+    min: 0,
+    max: 1000,
+    values: [ 90, 290 ],
+    slide: function( event, ui ) {
+      $('#rangeval').html(ui.values[0]+" - "+ui.values[1]);
+    }
+  });
+});
 
 		</script>
 	</body>

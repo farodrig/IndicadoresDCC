@@ -130,7 +130,7 @@
 										</a>
 									</li>
 									<li>
-										<a href="<?php echo base_url();?>dato">
+										<a href="<?php echo base_url();?>Dashboard/formAddData?var=<?php echo $id_location ?>">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-plus-square" aria-hidden="true"></i>
 											<span>Añadir Datos</span>

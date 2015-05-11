@@ -18,8 +18,9 @@ class Dashboard_model extends CI_Model
     {
         $query = "SELECT mo.id AS id FROM MetOrg AS mo WHERE mo.org=".$id;
         $q = $this->db->query($query);
-        if(($size=$q->num_rows()) > 0)
+        if(($size=$q->num_rows()) > 0){
             $rows = $q->result();
+        
         
         $morgs = "";
         for($i=0; $i<$size-1; $i++){
@@ -37,6 +38,8 @@ class Dashboard_model extends CI_Model
             return $this->buildAllMeasuresments($q);
         else
             return false;
+        }
+        return false;
     }
 
     function getRoute($id){

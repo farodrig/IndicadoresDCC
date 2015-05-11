@@ -25,8 +25,11 @@ class Session extends CI_Controller {
 	}
 
 	public function dashboard()
-	{
-	    $this->load->view('dashboard');
+	{	
+		
+		$id_unidad = $this->input->post("unidad");
+	    $this->session->set_flashdata("unidad", $id_unidad);
+	    //redirect('Dashboard/showDashboard');
 	}
 
 	public function validar()

@@ -141,10 +141,10 @@
 										</a>
 									</li>
 									<li>
-										<a href="<?php echo base_url();?>">
+										<a href="<?php echo base_url();?>inicio">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-university" aria-hidden="true"></i>
-											<span>Negocio</span>
+											<span>Operación</span>
 										</a>
 									</li>
 									<li>
@@ -172,17 +172,18 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<li><span>Negocio</span></li>
+								<li><span>Operación</span></li>
 							</ol>
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</div>
 					</header>
-					<div class="pane panel-transparent">
-						<header class="panel-heading">
-							<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block"><?php echo($department->getName());?></button></h2>
-						</header>
-						<div class="panel-body">
-						    <?php 
+					<?php echo form_open('Dashboard/showDashboard'); 
+					   echo ('<div class="pane panel-transparent">');
+					   echo ('<header class="panel-heading">');
+						echo ('<h2 class="panel-title"><button type="submit" name="direccion" value='.$department->getId().' class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block">'.$department->getName().'</button></h2>');
+						echo('</header>');
+						echo('<div class="panel-body">');
+						    
 						    $counter = 0;
 						    foreach ($areaunit as $au){
 						        $kind = false;
@@ -200,13 +201,15 @@
 						        echo ('<div class="col-md-6">');
 						        echo ('<section class="panel panel-info">');
 						        echo ('<header class="panel-heading" style="background-color: '.$color.'">');
-						        echo ('<h2 class="panel-title"><button type="button" class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block '.$kind.'">'.ucwords($au['area']->getName()).'</button></h2>');
+						        echo ('<h2 class="panel-title"><button type="submit" name="direccion" value='.$au['area']->getId().' class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block '.$kind.'">'.ucwords($au['area']->getName()).'</button></h2>');
 						        echo ('<p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
 						        echo ('<div class="panel-body">');
+						        
 						        echo ('<div class="btn-group-vertical col-md-12">');
 						        foreach ($au['unidades'] as $unidad){
-						            echo('<button type="button" class="btn btn-default" onclick="changePage()">'.ucwords($unidad->getName()).'</button>');
+						            echo('<button type="submit" name="direccion" class="btn btn-default" value='.$unidad->getId().'>'.ucwords($unidad->getName()).'</button>');
 						        }
+						        echo form_close();
 						        echo ('</div></div></section></div>');
 						        $counter++;
 						    }						    

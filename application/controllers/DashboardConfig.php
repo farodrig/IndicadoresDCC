@@ -13,7 +13,6 @@ class DashboardConfig extends CI_Controller
 	                           // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	{
-		$route = ['Dashboard', 'Configurar'];
 	    $this->load->model('DashboardConfig_model');
 	    $all_metrics = $this->DashboardConfig_model->getAllMetricsUnidades(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
 	    															          //Si all_metrics es falso es porque no hay areas
@@ -32,8 +31,61 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
+
 	    $this->load->view('configurar-dashboard', $result);
-	    //debug($all_areas[2]['unidades'], true);
+	    //debug($result, true);
+	}
+
+	function configArea(){
+
+		$this->load->model('DashboardConfig_model');
+	    $all_metrics = $this->DashboardConfig_model->getAllMetricsArea(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
+	    															      //Si all_metrics es falso es porque no hay areas
+
+	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
+
+	    if($all_metrics==false){
+	    	$result['metricas'] = [];
+	    }
+	    else{
+	    	$result['metricas'] = $all_metrics;   
+	    }
+
+	    if(!$all_areas)
+	    	$result['areas'] = [];
+	    else{
+	    	$result['areas'] = $all_areas;
+	    }
+
+	    $this->load->view('configurar-dashboard-areas', $result);
+	    //debug($result, true);
+
+	}
+
+	function configDCC(){ //Distinguir negocio y soporte?
+
+		$this->load->model('DashboardConfig_model');
+	    $all_metrics = $this->DashboardConfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
+	    															      //Si all_metrics es falso es porque no hay areas
+
+	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
+
+	    if($all_metrics==false){
+	    	$result['metricas'] = [];
+	    }
+	    else{
+	    	$result['metricas'] = $all_metrics;   
+	    }
+
+	    if(!$all_areas)
+	    	$result['areas'] = [];
+	    else{
+	    	$result['areas'] = $all_areas;
+	    }
+
+	    $this->load->view('configurar-dashboard-areas', $result);
+	    //debug($result, true);
+
 	}
 
 	
