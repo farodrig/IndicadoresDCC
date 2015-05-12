@@ -265,7 +265,7 @@
 											<div class="row">
 												<div class="col-md-12 text-right">
 													<input class="btn btn-success" type="submit" value="Agregar" id="submit">
-													<button class="btn modal-dismiss" data-dismiss="modal" onClick="borrarDatos()">Cancelar.</a>
+													<button class="btn modal-dismiss" data-dismiss="modal" onClick="borrarDatos()">Cancelar</button>
 												</div>
 											</div>
 										</footer>
@@ -287,29 +287,9 @@
 											<input type='hidden' name='metrica' id='metrica' value='' />
 											<input type='hidden' name='unidad' id='unidad' value='' />
 											<input type='hidden' name='tipo' id='tipo' value='' />
-										<table class="table table-bordered table-striped mb-none text-center" id="config-metricas">
-											<thead>
-												<tr>
-													<th>Métrica</th>
-													<th>Categoria</th>
-													<th>Unidad de medida</th>
-													<th>Acciones</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr class="">
-													<td>Métrica 1</td>
-													<td>INT</td>
-													<td>Número de alumnos</td>
-													<td class="actions" title="metrica">
-														<a href="#" class="hidden on-editing save-row" ><i class="fa fa-save"></i></a>
-														<a href="#" class="hidden on-editing cancel-row" ><i class="fa fa-times"></i></a>
-														<a href="#" class="on-default edit-row" title="id_unidad"><i class="fa fa-pencil"></i></a>
-														<a href="#" class="on-default remove-row" title="id_unidad"><i class="fa fa-trash-o"></i></a>
-													</td>
-												</tr>
-											</tbody>
-										</table>
+
+											<div id="rows" name="rows"></div>
+
 										<footer class="panel-footer">
 											<div class="row">
 												<div class="col-md-12 text-right">
@@ -386,13 +366,16 @@
 		<!-- Examples -->
 		<script src="<?php echo base_url();?>assets/javascripts/ui-elements/examples.modals.js"></script>
 		<script type="text/javascript">
-
+		var table_metrics = <?php echo json_encode($metrics); ?>;
+			
 		$('a.insert').click(function( e ) {
 			var title = $(this)[0]['attributes']['id'].value;
 			$('#subtitle').empty();
 			$('<p class="panel-subtitle">'.concat(title,'</p>')).appendTo($('#subtitle'));
 			var id = $(this)[0]['attributes']['title'].value;
 			document.getElementById('id_insert').value= id;
+
+			
 	
 		})
 
@@ -401,9 +384,8 @@
 			$('#subtitle2').empty();
 			$('<p class="panel-subtitle">'.concat(title,'</p>')).appendTo($('#subtitle2'));
 			var id = $(this)[0]['attributes']['title'].value;
-			document.getElementById('id_insert').value= id;
-			
-			console.log(id);
+			$('#rows').empty();
+			$(table_metrics[id]).appendTo($('#rows'));
 		})
 
 		function borrarDatos(){
@@ -412,71 +394,100 @@
 			document.getElementById('category').value=1;
 		}
 			
+		$('#rows').click(function(e) {
+			if(e['target']['localName']=="i"){
+			if(e['target']['attributes']['class'].value=="fa fa-pencil"){
+				var id = e['target']['attributes']['id'].value;
+				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
+				var tds = row.find('td');
+				var actions = row.find('td.actions');
 
-		$('a.edit-row').click(function( e ) {
-			var row = $(this).closest( 'tr' );
-			
-			var tds = row.find('td');
-			var actions = row.find('td.actions');
+				var id_location = actions[0]['attributes']['title'].value;
+				var data = [];
 
-			var id_location = actions[0]['attributes']['title'].value;
-			var data = [];
+				for(i=0; i<tds['length'];i++)
+					data[i] = tds[i]['childNodes'][0]['nodeValue'];
 
-			for(i=0; i<tds['length'];i++)
-				data[i] = tds[i]['childNodes'][0]['nodeValue'];
-
-			$(row[0]).children( 'td' ).each(function( i ) {
-				var $this = $( this );
-				if ( $this.hasClass('actions') ) {
-					row.find( '.on-editing' ).removeClass( 'hidden' );
-					row.find( '.on-default' ).addClass( 'hidden' );
-				} else {
-					if(i==1){
-						$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
-							'<select id="tipo" name="tipo"><option value=1>Productividad</option><option value=2>Finanzas</option></select>');
+				$(row[0]).children( 'td' ).each(function( i ) {
+					var $this = $( this );
+					if ( $this.hasClass('actions') ) {
+						row.find( '.on-editing' ).removeClass( 'hidden' );
+						row.find( '.on-default' ).addClass( 'hidden' );
+					} else {
+						if(i==1){
+							if(data[i]=="Productividad")
+								$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
+									'<select id="tipo" name="tipo"><option value=1>Productividad</option><option value=2>Finanzas</option></select>');
+							else
+								$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
+									'<select id="tipo" name="tipo"><option value=2>Finanzas</option><option value=1>Productividad</option></select>');
+						}
+						else{
+							$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
+							'<input type="text" class="form-control input-block" value="' + data[i] + '"/>' );
+						}
 					}
-					else{
-						$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
-						'<input type="text" class="form-control input-block" value="' + data[i] + '"/>' );
-					}
-				}
-			});
-		})
-
-		$('a.cancel-row').click(function( e ) {
-			var row = $(this).closest( 'tr' );
-			var inputs = row.find("input[type='hidden']");
-			var actions = row.find('td.actions');
-			var id_location = actions[0]['attributes']['title'].value;
-			var data = [];
-
-			for(i=0; i<3;i++){
-				data[i] = inputs[i]['value'];
+				});
 			}
+			else if(e['target']['attributes']['class'].value=="fa fa-times"){
+				var id = e['target']['attributes']['id'].value;
+				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
+				var inputs = row.find("input[type='hidden']");
+				var actions = row.find('td.actions');
+				var id_location = actions[0]['attributes']['title'].value;
+				var data = [];
 
-			$(row[0]).children( 'td' ).each(function( i ) {
-				var $this = $( this );
-				if ( $this.hasClass('actions') ) {
-					row.find( '.on-editing' ).addClass( 'hidden' );
-					row.find( '.on-default' ).removeClass( 'hidden' );
-				} else {
-					$this.html( data[i] );
-				}
-			});
-		})
+				for(i=0; i<3; i++)
+					data[i]=inputs[i]['value'];
+
+				$(row[0]).children( 'td' ).each(function( i ) {
+					var $this = $( this );
+					if ( $this.hasClass('actions') ) {
+						row.find( '.on-editing' ).addClass( 'hidden' );
+						row.find( '.on-default' ).removeClass( 'hidden' );
+					} else {
+						$this.html( data[i] );
+					}
+				});
+			}
+			else if(e['target']['attributes']['class'].value=="fa fa-save"){
+				var id = e['target']['attributes']['id'].value;
+				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
+				var inputs = row.find("input[type!='hidden']");
+				var select = row.find('select')[0]['value'];
+
+				var actions = row.find('td.actions');
+				var id_location = actions[0]['attributes']['title'].value;
+				var data = [];
+
+				for(i=0; i<2;i++)
+					if(i==1){
+						data[i]=select;
+						data[i+1]=inputs[i]['value'];
+					}
+					else
+						data[i] = inputs[i]['value'];
+
+				document.getElementById('modificar').value = 1;
+				document.getElementById('id').value = id_location;
+				document.getElementById('metrica').value = data[0];
+				document.getElementById('tipo').value = data[1];
+				document.getElementById('unidad').value = data[2];
+				
+				document.getElementById('modificarMetrica').submit();
+			}
+			else if(e['target']['attributes']['class'].value=="fa fa-trash-o"){
+				var id = e['target']['attributes']['id'].value;
+				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
+				var inputs = row.find('input');
+
+				var actions = row.find('td.actions');
+				var id_location = actions[0]['attributes']['title'].value;
 		
-		$('a.remove-row').click(function( e ) {
-			var row = $(this).closest( 'tr' );
-			var inputs = row.find('input');
+				document.getElementById('modificar').value = 0;
+				document.getElementById('id2').value = id_location;
 
-			var actions = row.find('td.actions');
-			var id_location = actions[0]['attributes']['title'].value;
-		
-			//Enviar info al controlador de alguna manera :( via get creo que es facil
-			document.getElementById('modificar').value = 0;
-			document.getElementById('id2').value = id_location;
-
-			$.magnificPopup.open({
+				$.magnificPopup.open({
 						items: {
 							src: '#dialog',
 							type: 'inline'
@@ -494,32 +505,7 @@
 							}
 						}
 					});
-		});
-
-		$('a.save-row').click(function( e ) {
-			var row = $(this).closest( 'tr' );
-			var inputs = row.find('input');
-			var select = row.find('select')[0]['value'];
-
-			var actions = row.find('td.actions');
-			var id_location = actions[0]['attributes']['title'].value;
-			var data = [];
-
-			for(i=0; i<2;i++)
-				if(i==1){
-					data[i]=select;
-					data[i+1]=inputs[i]['value'];
-				}
-				else
-					data[i] = inputs[i]['value'];
-
-			document.getElementById('modificar').value = 1;
-			document.getElementById('id').value = id_location;
-			document.getElementById('metrica').value = data[0];
-			document.getElementById('tipo').value = data[1];
-			document.getElementById('unidad').value = data[2];
-			
-			document.getElementById('modificarMetrica').submit();
+			}}
 		})
 		</script>
 	</body>

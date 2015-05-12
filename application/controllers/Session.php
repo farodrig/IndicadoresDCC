@@ -82,6 +82,7 @@ class Session extends CI_Controller {
 		$types = $this->getType();
 		$this->load->model('Metrics_model');
 		$metrics= $this->Metrics_model->getAllMetrics();
+		//debug($metrics,true);
 	    $this->load->view('configurar-metricas',array('department'=> $department,
 	                                     				'areaunit'=>$areaunit,
 	                                     				'types'=>$types,
@@ -89,8 +90,9 @@ class Session extends CI_Controller {
 	}
 	
 	public function agregarMetrica(){
-		 $this->load->model('Unit_model');
-	   $Unit = array(		
+
+		$this->load->model('Unit_model');
+	   	$Unit = array(		
 				'name' => ucwords($this->input->post('unidad_medida')),
 		);
     
@@ -102,14 +104,15 @@ class Session extends CI_Controller {
 																	// el nuevo id y se lo asocias a la metrica
 			'name' => ucwords($this->input->post('name')), //Nombre que tendrá la métrica//id de la unidad o area a la que se le quiere ingresar la metrica		
 		);	
-     $this->load->model('Metrics_model');
-   	 $this->Metrics_model->addMetric($Metricdata);
+     	$this->load->model('Metrics_model');
+   	 	$id_metric= $this->Metrics_model->addMetric($Metricdata);
 		$this->load->model('Metorg_model');
 		$metorg = array(
-        'org' => ucwords($this->input->post('id_insert')),
+        	'org' => $this->input->post('id_insert'),
+        	'metric' =>$id_metric
 			);
-		 $this->Metorg_model->addMetOrg($metorg);
-    $this->configurarMetricas();				
+		$this->Metorg_model->addMetOrg($metorg);
+ 	   	redirect('cmetrica');				
 	}
 
 	public function eliminarMetrica(){
@@ -124,11 +127,10 @@ class Session extends CI_Controller {
 			$this->Metrics_model->updateMetric($data);
 		}
 		else{
-			debug($this->input->post('id2'),true);
 			$data = array('id_metorg' => $this->input->post('id2'));
 			$this->Metrics_model->deleteMetric($data);
 		}
    	 	
-    	$this->configurarMetricas();
+    	redirect('cmetrica');
 }
 }
