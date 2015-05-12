@@ -108,7 +108,7 @@ class Session extends CI_Controller {
 		$metorg = array(
         'org' => ucwords($this->input->post('id_insert')),
 			);
-		 $this->Metorg_model->addMetOrg($metorg);
+		 $this->Metorg_model->add($metorg);
     $this->configurarMetricas();				
 	}
 
