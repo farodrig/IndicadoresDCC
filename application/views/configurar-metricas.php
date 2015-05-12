@@ -14,7 +14,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
 		<!-- Web Fonts  -->
-		<link href="<?php echo base_url();?>http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
 
 		<!-- Vendor CSS -->
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap/css/bootstrap.css" />
@@ -40,7 +40,7 @@
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/stylesheets/theme-custom.css">
 
 		<!-- Head Libs -->
-		<script src="assets/vendor/modernizr/modernizr.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/modernizr/modernizr.js"></script>
 	</head>
 	<body>
 		<section class="body">
@@ -49,7 +49,7 @@
 			<header class="header">
 				<div class="logo-container">
 					<a href="inicio" class="logo">
-						<img src="assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
+						<img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
 					</a>
 					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
 						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
@@ -170,221 +170,93 @@
 					</header>
 
 					<!-- start: page -->
-					<section class="panel panel-transparent">
-						<div class="panel-body">
-							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
+					<?php 
+					   echo ('<div class="pane panel-transparent">');
+					   echo ('<header class="panel-heading">');
+						echo ('<section class="panel"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
+							  <a title='.$department->getId().' id="DCC" class="btn modal-with-form insert" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Área 1</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
+													<a title='.$department->getId().' id="DCC" class="btn modal-with-form modify" href="#deleteMetrica" style="color: purple">
+														<i class="fa fa-edit" aria-hidden="true"></i>
+													</a><label class="text-center" style="color:white">'.ucwords($department->getName()).'</label>
+													</div></h2></div></section>');
+						echo('</header>');
+						echo('<div class="panel-body">');
+						    
+						    $counter = 0;
+						    foreach ($areaunit as $au){
+						        $kind = false;
+						        $color = false;
+						        foreach ($types as $type){
+						            if ($type['id']==$au['area']->getType()){
+						                $kind = $type['name'];
+						                $color = $type['color'];
+						            }
+						        }
+						        if ($counter % 2 == 0 && $counter!=0)
+						            echo ('</div>');
+						        if ($counter % 2 == 0)
+						            echo ('<div class ="row">');
+						        echo ('<div class="col-md-6">');
+						        echo ('<section class="panel panel-info">');
+						        echo ('<header class="panel-heading">');
+						        echo ('<h2 class="panel-title"><div class="btn-group-horizontal text-center">
+													<a class="btn modal-with-form insert" id="'.ucwords($au['area']->getName()).'" title='.$au['area']->getId().' href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
+													<a class="btn modal-with-form modify" id="'.ucwords($au['area']->getName()).'" title='.$au['area']->getId().' href="#deleteMetrica" style="color: purple">
+														<i class="fa fa-edit" aria-hidden="true"></i>
 													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
+													<label class="text-center" style="color:white">'.ucwords($au['area']->getName()).'</label>
+												</div></h2></h2></header>');
+						        echo ('<div class="panel-body">');						        
+						        echo ('<div class="btn-group-vertical col-md-12">');
+						        foreach ($au['unidades'] as $unidad){
+										echo(	'<div class="btn btn-default btn-group-horizontal text-center">
+													<a class="btn modal-with-form insert" id="'.ucwords($au['area']->getName()).': '.ucwords($unidad->getName()).'" title='.$unidad->getId().' href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
+													<a class="btn modal-with-form modify" id="'.ucwords($au['area']->getName()).': '.ucwords($unidad->getName()).'" title='.$unidad->getId().' href="#deleteMetrica" style="color: purple">
+														<i class="fa fa-edit" aria-hidden="true"></i>
 													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-											</div>
-										</div>
-									</section>
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Área 2</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center" aria-hidden="true"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-											</div>
-										</div>
-									</section>
-								</div>
-							</div>
-							<div class ="row">
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Área 3</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-											</div>
-										</div>
-									</section>
-								</div>
-								<div class="col-md-6">
-									<section class="panel panel-info">
-										<header class="panel-heading">
-											<h2 class="panel-title text-center"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Área 4</label>
-												</div></h2>
-										</header>
-										<div class="panel-body">
-											<div class="btn-group-vertical col-md-12">
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 1</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 2</label>
-												</div>
-												<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form" href="#deleteMetrica" style="color: red">
-														<i class="licon-close" aria-hidden="true"></i>
-													</a>
-													<label class="text-center"> Unidad 3</label>
-												</div>
-											</div>
-										</div>
-									</section>
-								</div>
-							</div>
+													<label class="text-center">'.ucwords($unidad->getName()).'</label>
+												</div>');
+						        }
+						       
+						        echo ('</div></div></section></div>');
+						        $counter++;
+						    }						    
+						    ?>
+	
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
 									<?php echo form_open('session/agregarMetrica');?>
 									<section class="panel">
 										<form>
 										<header class="panel-heading">
 											<h2 class="panel-title">Añadir métrica</h2>
-											<p class="panel-subtitle">Área 1: Unidad 1</p>
+											<div id="subtitle" name="subtitle"></div>
 										</header>
 										<div class="panel-body">
-										
+												<input type="hidden" name="id_insert" id="id_insert" value="" />
 												<div class="form-group mt-lg">
-													<label class="col-sm-3 control-label">Nombre:</label>
+													<label class="col-sm-3 control-label">Nombre de la métrica:</label>
 														<div class="col-sm-9">
-															<input type="text" name="name" id='name' class="form-control" placeholder="nombre de la métrica..." required/>
+															<input type="text" name="name" id='name' class="form-control" required/>
 														</div>
 												</div>
 												<div class="form-group mt-lg">
-													<label class="col-sm-3 control-label">Tipo:</label>
+													<label class="col-sm-3 control-label">Unidad de Medida:</label>
+														<div class="col-sm-9">
+															<input type="text" name="unidad_medida" id='unidad_medida' class="form-control"  required/>
+														</div>
+												</div>
+												<div class="form-group mt-lg">
+													<label class="col-sm-3 control-label">Categoria:</label> <!-- 1: Productividad 2:Finanzas -->
 														<div class="btn-group dropdown col-sm-9">
-															<select name='tipo' class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
-																<option value="--">Tipo</option>
-																<option value="INT">Entero</option>
-																<option value="DOUBLE">Punto flotante</option>
-																<option value="TEXT">Texto</option>
-																<option value="DATE">Fecha</option>
+															<select name='category' id='category' class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
+																<option value=1 defaultSelected>Productividad</option>
+																<option value=2>Finanzas</option>
 															</select>
 														</div>
 												</div>
@@ -392,9 +264,8 @@
 										<footer class="panel-footer">
 											<div class="row">
 												<div class="col-md-12 text-right">
-													
-														<input class="btn btn-success" type="submit" value="Agregar" id="submit">
-														<a href="#" class="btn" data-dismiss="modal">Cancelar.</a>
+													<input class="btn btn-success" type="submit" value="Agregar" id="submit">
+													<button class="btn modal-dismiss" data-dismiss="modal" onClick="borrarDatos()">Cancelar.</a>
 												</div>
 											</div>
 										</footer>
@@ -402,26 +273,39 @@
 									</section>
 									<?php echo form_close();?>
 								</div>
+								
 								<div id="deleteMetrica" class="modal-block modal-block-primary mfp-hide">
+								<?php echo form_open('session/eliminarMetrica', array('id' => 'modificarMetrica')); ?>
 									<section class="panel">
 										<header class="panel-heading">
-											<h2 class="panel-title">Borrar métricas</h2>
+											<h2 class="panel-title">Modificar métricas</h2>
+											<div id="subtitle2" name="subtitle2"></div>
 										</header>
 									<div class="panel-body">
-										<table class="table table-bordered table-striped mb-none text-center" id="borrar-metricas">
+											<input type='hidden' name='modificar' id='modificar' value='' />
+											<input type='hidden' name='id' id='id' value='' />
+											<input type='hidden' name='metrica' id='metrica' value='' />
+											<input type='hidden' name='unidad' id='unidad' value='' />
+											<input type='hidden' name='tipo' id='tipo' value='' />
+										<table class="table table-bordered table-striped mb-none text-center" id="config-metricas">
 											<thead>
 												<tr>
 													<th>Métrica</th>
-													<th>Tipo</th>
-													<th>Borrar</th>
+													<th>Categoria</th>
+													<th>Unidad de medida</th>
+													<th>Acciones</th>
 												</tr>
 											</thead>
 											<tbody>
 												<tr class="">
 													<td>Métrica 1</td>
 													<td>INT</td>
-													<td>
-														<input id="borrar" value="" type="checkbox" name="validar" />
+													<td>Número de alumnos</td>
+													<td class="actions" title="metrica">
+														<a href="#" class="hidden on-editing save-row" ><i class="fa fa-save"></i></a>
+														<a href="#" class="hidden on-editing cancel-row" ><i class="fa fa-times"></i></a>
+														<a href="#" class="on-default edit-row" title="id_unidad"><i class="fa fa-pencil"></i></a>
+														<a href="#" class="on-default remove-row" title="id_unidad"><i class="fa fa-trash-o"></i></a>
 													</td>
 												</tr>
 											</tbody>
@@ -429,13 +313,14 @@
 										<footer class="panel-footer">
 											<div class="row">
 												<div class="col-md-12 text-right">
-													<button class="btn btn-danger modal-confirm ">Borrar</button>
-													<button class="btn btn-default modal-dismiss">Cancelar</button>
+													<button class="btn btn-default modal-dismiss" data-dismiss="modal">Cerrar</button>
 												</div>
 											</div>
 										</footer>
 									</section>
+									<?php echo form_close(); ?>
 								</div>
+								
 						</div>
 					</section>
 
@@ -443,6 +328,35 @@
 				</section>
 			</div>
 		</section>
+		
+		<div id="dialog" class="modal-block mfp-hide">
+		<?php echo form_open('session/eliminarMetrica', array('id' => 'eliminarMetrica'));?>
+			<section class="panel">
+				<header class="panel-heading">
+					<h2 class="panel-title">Eliminar métrica</h2>
+				</header>
+				<div class="panel-body">
+					<div class="modal-wrapper">
+					<div id="hidden_id"></div>
+						<div class="modal-text">
+							<p>¿Está seguro de eliminar esta métrica?</p>
+						</div>
+					</div>
+				</div>
+				<footer class="panel-footer">
+					<div class="row">
+						<div class="col-md-12 text-right">
+							<input type='hidden' name='modificar' id='modificar' value='' />
+							<input type='hidden' name='id2' id='id2' value='' />
+							<button type="submit" id="dialogConfirm" class="btn btn-primary">Confirm</button>
+							<button id="dialogCancel" class="btn btn-default modal-dismiss">Cancel</button>
+						</div>
+					</div>
+				</footer>
+			</section>
+			<?php echo form_close(); ?>
+		</div>
+		
 
 		<!-- Vendor -->
 		<script src="<?php echo base_url();?>assets/vendor/jquery/jquery.js"></script>
@@ -471,5 +385,142 @@
 
 		<!-- Examples -->
 		<script src="<?php echo base_url();?>assets/javascripts/ui-elements/examples.modals.js"></script>
+		<script type="text/javascript">
+
+		$('a.insert').click(function( e ) {
+			var title = $(this)[0]['attributes']['id'].value;
+			$('#subtitle').empty();
+			$('<p class="panel-subtitle">'.concat(title,'</p>')).appendTo($('#subtitle'));
+			var id = $(this)[0]['attributes']['title'].value;
+			document.getElementById('id_insert').value= id;
+	
+		})
+
+		$('a.modify').click(function( e ) {
+			var title = $(this)[0]['attributes']['id'].value;
+			$('#subtitle2').empty();
+			$('<p class="panel-subtitle">'.concat(title,'</p>')).appendTo($('#subtitle2'));
+			var id = $(this)[0]['attributes']['title'].value;
+			document.getElementById('id_insert').value= id;
+			
+			console.log(id);
+		})
+
+		function borrarDatos(){
+			document.getElementById('name').value="";
+			document.getElementById('unidad_medida').value="";
+			document.getElementById('category').value=1;
+		}
+			
+
+		$('a.edit-row').click(function( e ) {
+			var row = $(this).closest( 'tr' );
+			
+			var tds = row.find('td');
+			var actions = row.find('td.actions');
+
+			var id_location = actions[0]['attributes']['title'].value;
+			var data = [];
+
+			for(i=0; i<tds['length'];i++)
+				data[i] = tds[i]['childNodes'][0]['nodeValue'];
+
+			$(row[0]).children( 'td' ).each(function( i ) {
+				var $this = $( this );
+				if ( $this.hasClass('actions') ) {
+					row.find( '.on-editing' ).removeClass( 'hidden' );
+					row.find( '.on-default' ).addClass( 'hidden' );
+				} else {
+					if(i==1){
+						$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
+							'<select id="tipo" name="tipo"><option value=1>Productividad</option><option value=2>Finanzas</option></select>');
+					}
+					else{
+						$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
+						'<input type="text" class="form-control input-block" value="' + data[i] + '"/>' );
+					}
+				}
+			});
+		})
+
+		$('a.cancel-row').click(function( e ) {
+			var row = $(this).closest( 'tr' );
+			var inputs = row.find("input[type='hidden']");
+			var actions = row.find('td.actions');
+			var id_location = actions[0]['attributes']['title'].value;
+			var data = [];
+
+			for(i=0; i<3;i++){
+				data[i] = inputs[i]['value'];
+			}
+
+			$(row[0]).children( 'td' ).each(function( i ) {
+				var $this = $( this );
+				if ( $this.hasClass('actions') ) {
+					row.find( '.on-editing' ).addClass( 'hidden' );
+					row.find( '.on-default' ).removeClass( 'hidden' );
+				} else {
+					$this.html( data[i] );
+				}
+			});
+		})
+		
+		$('a.remove-row').click(function( e ) {
+			var row = $(this).closest( 'tr' );
+			var inputs = row.find('input');
+
+			var actions = row.find('td.actions');
+			var id_location = actions[0]['attributes']['title'].value;
+		
+			//Enviar info al controlador de alguna manera :( via get creo que es facil
+			document.getElementById('modificar').value = 0;
+			document.getElementById('id2').value = id_location;
+
+			$.magnificPopup.open({
+						items: {
+							src: '#dialog',
+							type: 'inline'
+						},
+						preloader: false,
+						modal: true,
+						callbacks: {
+							change: function() {
+									$('#dialog').$confirm.on( 'click', function( e ) {
+									$.magnificPopup.close();
+								});
+							},
+							close: function() {
+								$('#dialog').$confirm.off( 'click' );
+							}
+						}
+					});
+		});
+
+		$('a.save-row').click(function( e ) {
+			var row = $(this).closest( 'tr' );
+			var inputs = row.find('input');
+			var select = row.find('select')[0]['value'];
+
+			var actions = row.find('td.actions');
+			var id_location = actions[0]['attributes']['title'].value;
+			var data = [];
+
+			for(i=0; i<2;i++)
+				if(i==1){
+					data[i]=select;
+					data[i+1]=inputs[i]['value'];
+				}
+				else
+					data[i] = inputs[i]['value'];
+
+			document.getElementById('modificar').value = 1;
+			document.getElementById('id').value = id_location;
+			document.getElementById('metrica').value = data[0];
+			document.getElementById('tipo').value = data[1];
+			document.getElementById('unidad').value = data[2];
+			
+			document.getElementById('modificarMetrica').submit();
+		})
+		</script>
 	</body>
 </html>

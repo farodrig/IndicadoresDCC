@@ -145,7 +145,7 @@ class Dashboard_model extends CI_Model
     function insertData($id_met, $year, $value, $target, $expected, $user){ //Inserta datos en la tabla de mediciones
 
         $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup) 
-                    VALUES (?, 0, ?, ?, ? ,?, ?, NOW())";
+                    VALUES (?, 1, ?, ?, ? ,?, ?, NOW())";
 
         $q = $this->db->query($query, array($id_met, $value, $target, $expected, $year, $user)); 
 

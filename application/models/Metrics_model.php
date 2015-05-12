@@ -3,16 +3,54 @@ class Metrics_model extends CI_Model{
 
 
 	function addMetric($data){
+		//REcuerda insertar en MetOrg
 		$this->db->insert('Metric', $data); 
 		
 	}
 
 	function deleteMetric($data){
-		$this->db->where('Metric', $data); 
-		$this->db->delete('Metric'); 
-		
+		$query = "SELECT m.metric AS id FROM MetOrg AS m WHERE m.id=".$data['id_metorg'];
+		$q = $this->db->query($query);
+		if($q->num_rows() > 0){
+			$metric_id = $q->result()[0];
+		}
+		else
+			return false;
+		$query = "DELETE FROM Metric id=".$metric_id->id;
+		$q = $this->db->query($query);
+		$query = "DELETE FROM MetOrg WHERE id=".$data['id_metorg']; 
+		$q = $this->db->query($query);
+
+		return $q;
 	}
 
+	function updateMetric($data){
+		$query= "SELECT m.metric AS id FROM MetOrg AS m WHERE m.id=".$data['id_metorg'];
+		$q = $this->db->query($query);
+		if($q->num_rows() > 0){
+			$metric_id = $q->result()[0];
+
+			$query = "SELECT id FROM Unit WHERE name=".$data['unidad_medida'];
+			$q = $this->db->query($query);
+			if($q->num_rows() > 0){
+				$id_unidad = $q->result()[0];
+			}
+			else{
+				$query = "INSERT INTO Unit (name) VALUES (".$data['unidad_medida'].")";
+				$q = $this->db->query($query);
+				$query = "SELECT id FROM Unit WHERE name=".$data['unidad_medida'];
+				if($q->num_rows() > 0){
+					$id_unidad = $q->result()[0];
+				}
+			}
+				$query = "UPDATE Metric SET category=?, unit=?, name=? WHERE id = ?";
+				$q = $this->db->query($query, array($data['category'], $id_unidad->id, $data['name_metrica'], $metric_id->id));
+
+				return $q;
+		}
+        else
+            return false;
+	}
 
 	function getAllMetrics(){
 		$q = $this->db->get('Metric');
