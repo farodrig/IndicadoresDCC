@@ -183,7 +183,6 @@
 						echo ('<h2 class="panel-title"><button type="submit" name="direccion" value='.$department->getId().' class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block">'.$department->getName().'</button></h2>');
 						echo('</header>');
 						echo('<div class="panel-body">');
-						    
 						    $counter = 0;
 						    foreach ($areaunit as $au){
 						        $kind = false;
@@ -237,13 +236,13 @@
 		</script>
 
 		<!-- Theme Base, Components and Settings -->
-		<script src="assets/javascripts/theme.js"></script>
+		<script src="<?php echo base_url();?>assets/javascripts/theme.js"></script>
 
 		<!-- Theme Custom -->
-		<script src="assets/javascripts/theme.custom.js"></script>
+		<script src="<?php echo base_url();?>assets/javascripts/theme.custom.js"></script>
 
 		<!-- Theme Initialization Files -->
-		<script src="assets/javascripts/theme.init.js"></script>
+		<script src="<?php echo base_url();?>assets/javascripts/theme.init.js"></script>
 
 	</body>
 </html>

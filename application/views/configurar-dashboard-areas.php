@@ -129,14 +129,14 @@
 										<a href="<?php echo base_url();?>careaunidad">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-th-large" aria-hidden="true"></i>
-											<span>Configurar Áreas y Unidades</span>
+											<span>Configurar áreas y unidades</span>
 										</a>
 									</li>
 									<li>
 										<a href="<?php echo base_url();?>cmetrica">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-server" aria-hidden="true"></i>
-											<span>Añadir y Borrar Métricas</span>
+											<span>Configurar métricas</span>
 										</a>
 									</li>
 								</ul>
@@ -150,7 +150,7 @@
 				<!-- end: sidebar -->
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Configurar Dashboard Áreas</h2>
+						<h2>Configurar Dashboard áreas</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
@@ -170,8 +170,8 @@
 					<div class="row">
 					<div class="text-center col-sm-12 btn-group-horizontal">
 						<button class= "mb-xs mt-xs mr-xs btn btn-success btn-lg" onclick="changePage('DashboardConfig/configDCC')">Configurar Dashboard DCC</button>
-						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="changePage('DashboardConfig/configArea')">Configurar Dashboard Áreas</button>
-						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('DashboardConfig/configUnidad')">Configurar Dashboard Unidades</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="changePage('DashboardConfig/configArea')">Configurar Dashboard áreas</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('DashboardConfig/configUnidad')">Configurar Dashboard unidades</button>
 
 					</div>
 					</div>

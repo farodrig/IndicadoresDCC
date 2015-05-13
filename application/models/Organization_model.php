@@ -31,7 +31,7 @@ class Organization_model extends CI_Model{
     }
     
     function getTypes(){
-        $this->db->where(array('id!='=>1));
+        $this->db->where(array('name!='=>""));
         $query = $this->db->get('OrgType');
         $result = array();
         $colores = array('#47a447', '#ed9c28');

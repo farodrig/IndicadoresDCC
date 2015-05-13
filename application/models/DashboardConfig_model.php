@@ -1,6 +1,25 @@
 <?php
 class DashboardConfig_model extends CI_Model
 {
+	function getMinMaxYears($id){
+		$query = "SELECT m.year AS year FROM Measure AS m WHERE m.metorg=".$id;
+		$q = $this->db->query($query);
+		if($q->num_rows() > 0){
+			foreach ($q->result() as $row){
+				$years[]=$row->year;
+			}
+
+			return array(
+				'min' => min($years),
+				'max' => max($years)
+				);
+		}
+
+		return array(
+				'min' => 2005, //Si no hay medidas escribimos los ultimos 10 años
+				'max' => 2015
+				);
+	}
 
 	function getAllMetricsUnidades()
 	{
@@ -151,6 +170,40 @@ class DashboardConfig_model extends CI_Model
 		return $org_array;
 	}
 
-   
+	function addGraph($data){
+		//Se agrega a la tabla grafico
+		$query = "INSERT INTO Graphic (type, metorg, min_year, max_year, position) VALUES (?, ?, ? ,? ,?)";
+		$q = $this->db->query($query, array($data['type'], $data['id_met'], $data['from'], $data['to'], $data['position']));
+
+		$query = "SELECT g.id FROM Graphic AS g WHERE g.type=? AND g.metorg=? AND g.min_year=? AND g.max_year=? AND g.position=?";
+		$q = $this->db->query($query, array($data['type'], $data['id_met'], $data['from'], $data['to'], $data['position']));
+		if($q->num_rows() > 0)
+			$id_graph= $q->result()[0];
+
+		//Se ve el id del dashboard
+		$query = "SELECT d.id FROM Dashboard AS d WHERE d.org=".$data['id_org'];
+		$q = $this->db->query($query);
+		if($q->num_rows() > 0)
+			$id_dash= $q->result()[0];
+		else{
+			$query = "SELECT o.name AS name FROM Organization AS o, MetOrg AS mo WHERE o.id=mo.org AND mo.id=".$data['id_met'];
+			$q = $this->db->query($query);
+			if($q->num_rows() > 0)
+				$name= $q->result()[0];
+
+			$query = "INSERT INTO Dashboard (org, title) VALUES (?, ?)";
+			$q = $this->db->query($query, array($data['id_org'], "Dashboard ".$name->name));
+
+			$query = "SELECT d.id FROM Dashboard AS d WHERE d.org=".$data['id_org'];
+			$q = $this->db->query($query);
+			if($q->num_rows() > 0)
+				$id_dash= $q->result()[0];
+		}
+
+		// Se relaciona dashboard y grafico
+
+		$query = "INSERT INTO GraphDash (dashboard, graphic) VALUES (?, ?)";
+		$q = $this->db->query($query, array($id_dash->id, $id_graph->id));
+	}
 
 }

@@ -179,7 +179,7 @@
 											<h2 class='panel-title'><?php echo element('name',$metric); ?></h2>
 										</header>
 										<div class='panel-body'>
-											<div class='chart chart-md' id='<?php echo element('name',$metric); ?>'></div>
+											<div class='chart chart-md' style="width:100%;height:300px;" name='<?php echo element('name',$metric); ?>' id='<?php echo element('name',$metric); ?>'>.</div>
 											<script type='text/javascript'>
 												var info = <?php echo json_encode($metric['vals']) ?>;
 												graph_info[index] = {
@@ -272,28 +272,18 @@
 		<!-- Examples -->
 		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.row.with.details.js"></script>
 		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.tabletools.js"></script>
-		<script src="assets/javascripts/tables/examples.datatables.default.js"></script>
+		<!--<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.default.js"></script>-->
 
 		<script type="text/javascript">
 			var names = <?php echo json_encode($names); ?>;
 			var size = names.length;
+
 			for(i = 0; i<size; i++){
 
-				
-
 				if(graph_info[i]['graph_type']==2){ //Es de linea
-					(function( $ ) {
+					$(document).ready((function( $ ) {
 
 						'use strict';
-						var datatableInit = function() {
-
-						$('#datatable-default').dataTable();
-
-						};
-
-						$(function() {
-							datatableInit();
-						});
 
 						(function() {
 							var plot = $.plot('#'.concat(names[i]), data[i], {
@@ -329,7 +319,7 @@
 									color: 'rgba(0,0,0,0.1)'
 								},
 								xaxis: {
-									ticks: graph_info[i]['measure_number'],
+									ticks: graph_info[i]['measure_number']==0 ? 1 :  graph_info[i]['measure_number']==0,
 									color: 'rgba(0,0,0,0.1)'
 								},
 								tooltip: true,
@@ -342,22 +332,12 @@
 									defaultTheme: false
 								}
 							});
-						})()}).apply( this, [ jQuery ]);
+						})()}).apply( this, [ jQuery ]));
 				}
 				else{
-					(function( $ ) {
+					$(document).ready((function( $ ) {
 
 						'use strict';
-
-						var datatableInit = function() {
-
-						$('#datatable-default').dataTable();
-
-						};
-
-						$(function() {
-							datatableInit();
-						});
 
 						(function() {
 							var plot = $.plot('#'.concat(names[i]), [data[i][0]['data']], {
@@ -391,7 +371,7 @@
 								defaultTheme: false
 								}
 							});
-						})()}).apply( this, [ jQuery ]);
+						})()}).apply( this, [ jQuery ]));
 
 				}
 		

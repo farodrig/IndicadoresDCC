@@ -6,6 +6,47 @@
 		<meta charset="UTF-8">
 
 		<title>Configurar Dashboard Unidades</title>
+		<style type="text/css">
+    		.container {
+        		width: 500px;
+        		clear: both;
+    		}
+    		.container input {
+        		width: 100%;
+        	clear: both;
+    		}
+    		input.rounded {
+
+	    border: 1px solid #ccc;
+
+	    -moz-border-radius: 10px;
+
+	    -webkit-border-radius: 10px;
+
+	    border-radius: 10px;
+
+	    -moz-box-shadow: 2px 2px 3px #666;
+
+	    -webkit-box-shadow: 2px 2px 3px #666;
+
+	    box-shadow: 2px 2px 3px #666;
+
+	    font-size: 20px;
+
+	    padding: 4px 7px;
+
+	    outline: 0;
+
+	    -webkit-appearance: none;
+
+	}
+
+	input.rounded:focus {
+
+	    border-color: #339933;
+
+	}
+    	</style>
 		<meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
 		<meta name="author" content="okler.net">
@@ -129,14 +170,14 @@
 										<a href="<?php echo base_url();?>careaunidad">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-th-large" aria-hidden="true"></i>
-											<span>Configurar Áreas y Unidades</span>
+											<span>Configurar áreas y unidades</span>
 										</a>
 									</li>
 									<li>
 										<a href="<?php echo base_url();?>cmetrica">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-server" aria-hidden="true"></i>
-											<span>Añadir y Borrar Métricas</span>
+											<span>Configurar métricas</span>
 										</a>
 									</li>
 								</ul>
@@ -150,7 +191,7 @@
 				<!-- end: sidebar -->
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Configurar Dashboard Unidades</h2>
+						<h2>Configurar Dashboard unidades</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
@@ -169,15 +210,14 @@
 					<!-- start: page -->
 					<div class="row">
 					<div class="text-center col-sm-12 btn-group-horizontal">
-						<button class= "mb-xs mt-xs mr-xs btn btn-success btn-lg" onclick="changePage('DashboardConfig/configDCC')">Configurar Dashboard DCC</button>
-						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="changePage('DashboardConfig/configArea')">Configurar Dashboard Áreas</button>
-						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('DashboardConfig/configUnidad')">Configurar Dashboard Unidades</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-success btn-lg" onclick="">Configurar Dashboard DCC</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="">Configurar Dashboard áreas</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('DashboardConfig/configUnidad')">Configurar Dashboard unidades</button>
 
 					</div>
 					</div>
 					<div class="row">
 						<div class="col-md-6">
-							<?php echo form_open('configurar-dashboard') ?>
 							<section class="panel-warning">
 								<header class="panel-heading">
 									<h2 class="panel-title">
@@ -189,14 +229,15 @@
 													<select name="area" id= "area" class="form-control btn btn-warning" onchange= "selectUnidades();">
 													<?php 
 														foreach ($areas as $area) {
-															echo "<option value='".$area['id']."'>".$area['name']."</option>";
+															echo "<option class='select' value='".$area['id']."'>".$area['name']."</option>";
 														}
 													?>
 													</select>
 													<select name="unidad" id="unidad" class="form-control btn btn-warning">
 													<?php
+														
 														foreach ($first_area_unidades as $unidad) {
-															echo "<option value='".$unidad['id']."'>".$unidad['name']."</option>";
+															echo "<option class='select' value='".$unidad['id']."'>".$unidad['name']."</option>";
 														}
 													?>
 													</select>
@@ -208,33 +249,45 @@
 
 								</header>
 								<div class="panel-body">
-									<div class="btn-group-vertical col-md-12" name="popover">
+								
+									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
 									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>	 
 
-										<div id="popover-head" class="hide">Configurar métrica</div>
+										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
+										<?php echo form_open('DashboardConfig/addGraph', array('onSubmit' => "return checkInput();")); ?>
 												<label>Tipo de gráfico:</label>
-												<select class="form-control btn btn-default">
-														<option value="g1">Líneas</option>
-														<option value="g2">Barra</option>
+												<input type="hidden" id="id_org" name="id_org" value=""/>
+												<input type="hidden" id="id_met" name="id_met" value=""/>
+												<select class="form-control btn btn-default" id="type" name="type">
+														<option value=2>Líneas</option>
+														<option value=1>Barra</option>
 												</select>
-												<label>Periodo</label>
-												<div class="mt-lg mb-lg slider-primary" data-plugin-slider data-plugin-options='{ "values": [ 25, 75 ], "range": true, "max": 100 }' data-plugin-slider-output="#listenSlider2">
-													<input id="listenSlider2" type="hidden" value="25, 75" />
+												<div class="container btn-group-vertical col-md-12">
+													<br>
+													<label>Desde:</label>
+													<input type="number" class="rounded" id="from" name="from" >
+													<label>Hasta:</label>
+													<input type="number" class="rounded" id="to" name="to" >
+													<hr>
 												</div>
-												<p class="output2">Desde <b class="min">2008</b> a <b class="max">2012</b></p>
-												<label>Mostrar:</label>
-												<input id="for-website" value="" type="checkbox" name="mostrar"/>
+												<br>
+												<br>
+												<label></label>
+												<label>Mostrar en dashboard:</label>
+												<input id="mostrar" type="checkbox" name="mostrar" value="1" />
 												</br>
 												</br>
 												<button type="submit" onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
+											<?php echo form_close(); ?>
 										</div>
 
 									
 									</div>
+									
 								</div>
 							</section>
-							<?php echo form_close(); ?>
+							
 						</div>
 					</div>
 					<!-- end: page -->
@@ -267,6 +320,24 @@
 
 		<!-- Demo Purpose Only -->
 		<script>
+			var years = <?php echo json_encode($years); ?>;
+
+			function checkInput(){
+				if(validate_year('from') && validate_year('to')){
+
+					if(document.getElementById('from').value<=document.getElementById('to').value)
+						return true;
+					else{
+						alert("Año de inicio debe ser menor al año final");
+						return false;
+					}
+				}
+				else{
+					alert("Años inválidos");
+					return false;
+				}
+			}
+
 			function changePage(page){
       			window.location.href = "<?php echo base_url();?>".concat(page);
     		}
@@ -275,28 +346,23 @@
 
 			var unidad_value = $( "#unidad" ).val();
 			$('#metricas').empty();
-			var metricas_unidad = metricas[unidad_value]; 
+			var metricas_unidad = metricas[unidad_value];
+			$('#id_org').attr('value',unidad_value);
   			for (i in metricas_unidad) {
-  				var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
-  				var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</button>"); 
-  				$(val).appendTo($('#metricas'));
+  				var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
+  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
     			$(popover).appendTo($('#metricas'));
   			}
-  				
-			(function() {
-				$('#listenSlider').change(function() {
-					$('.output b').text( this.value );
-				});
 
-				$('#listenSlider2').change(function() {
-					var min = parseInt(this.value.split('/')[0], 10);
-					var max = parseInt(this.value.split('/')[1], 10);
+  			function updateYears(id){
+  				var min_year = years[id]['min'];
+  				var max_year = years[id]['max'];
 
-					$('.output2 b.min').text( min );
-					$('.output2 b.max').text( max );
-				});
-			})();
+  				$('#from').attr('value',new Number(JSON.parse(min_year)));
+  				$('#to').attr('value',new Number(JSON.parse(max_year)));
+				$('#id_met').attr('value',new Number(id));
 
+  			}
 
 			function selectUnidades(){
 			
@@ -310,30 +376,57 @@
 				select_unidad.options.length = 0; //Resetear select
 				
 				for(i in unidades){
- 					select_unidad.options[select_unidad.options.length] = new Option(unidades[i]['name'], unidades[i]['id']);
+ 					opt = new Option(unidades[i]['name'], unidades[i]['id']);
+ 					opt.className="select";
+ 					select_unidad.options[select_unidad.options.length]=opt;
 				}
 				var unidad_value = $( "#unidad" ).val();
+				$('#id_org').attr('value',unidad_value);
 				$('#metricas').empty();
 				var metricas_unidad = metricas[unidad_value]; 
   				for (i in metricas_unidad) {
-  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
-  					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
-  					$(val).appendTo($('#metricas'));
+  					var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
+  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
     				$(popover).appendTo($('#metricas'));
   				}
 			}
 
+
 			$('#unidad').change(function() {
 				var unidad_value = $( "#unidad" ).val();
 				$('#metricas').empty();
+				$('#id_org').attr('value',unidad_value);
 				var metricas_unidad = metricas[unidad_value]; 
   				for (i in metricas_unidad) {
-  					var val ="<input type='hidden' id='".concat(metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],'>');
-  					var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
-  					$(val).appendTo($('#metricas'));
+  					var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
+  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
     				$(popover).appendTo($('#metricas'));
   				}
 			});
+
+			$('section.body').click(function(e){
+				if(!(e['target']['attributes']['class'].value=="btn-group-vertical col-md-12") && 
+					!(e['target']['attributes']['class'].value=="btn btn-default" && e['target']['attributes']['href'].value=="#popover")){
+					$('#popover').popover('hide');
+				}
+			});
+
+			function validate_year(id){
+				var opt = document.getElementById(id).value;
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4 && opt>=1980));  
+			}
+
+			function changeOnValidation(id, validator){
+				if(validator){
+					document.getElementById(id).style.borderColor="green";
+					return true;
+				}
+				else{
+					document.getElementById(id).style.borderColor="red";
+					document.getElementById(id).focus();
+					return false;
+				}
+			}
 
 		</script>
 	</body>

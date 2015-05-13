@@ -186,9 +186,9 @@ class Dashboard_model extends CI_Model
         }
         $g_id = $g_id."g.id =".$graphs[$size-1]->graph;
 
-        $query = "SELECT g.metorg AS org, g.type AS type
+        $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
                     FROM Graphic AS g 
-                    WHERE ".$g_id;
+                    WHERE g.position<>0 AND ".$g_id;
 
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
@@ -206,7 +206,9 @@ class Dashboard_model extends CI_Model
             $parameters = array
             (
                 'met_org' => $row->org,
-                'type' => $row->type
+                'type' => $row->type,
+                'min_year' => $row->min_year,
+                'max_year' => $row->max_year
             );
 
             $metrica = new Dashboard_library();
@@ -236,7 +238,7 @@ class Dashboard_model extends CI_Model
 
             $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE m.state=1 AND m.metorg=".$met->getMetOrg();
+                    WHERE m.state=1 AND m.metorg=".$met->getMetOrg()." AND m.year>=".$met->getMinYear()." AND m.year<=".$met->getMaxYear();
             $q = $this->db->query($query);
             if(($size=$q->num_rows()) > 0)
                 $rows = $this->buildAllMeasuresments($q);

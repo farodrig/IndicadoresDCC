@@ -243,6 +243,7 @@ class Dashboard extends CI_Controller
 	    $result['names'] = $names;
 	    $result['id_location'] = $id;
 
+	    //debug($result);
 	    $this->load->view('dashboard', $result);
 
 	}

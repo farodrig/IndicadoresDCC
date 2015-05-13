@@ -12,6 +12,8 @@ class Dashboard_library
     private $graph_type;
 	private $id_org;
 	private $name_org;
+    private $min_year;
+    private $max_year;
 	/*private $validator;
 	private $dateval;*/
 
@@ -36,6 +38,8 @@ class Dashboard_library
 
     function initializeDashboardMetrics($parameters)
     {
+        $this->min_year = element('min_year', $parameters);
+        $this->max_year = element('max_year', $parameters);
         $this->metorg = element('met_org', $parameters);
         $this->graph_type = element('type', $parameters);
         return $this;
@@ -58,6 +62,22 @@ class Dashboard_library
     public function getId()
     {
         return $this->metorg;
+    }
+
+     /**
+     * @return the $min_year
+     */
+    public function getMinYear()
+    {
+        return $this->min_year;
+    }
+
+     /**
+     * @return the $max_year
+     */
+    public function getMaxYear()
+    {
+        return $this->max_year;
     }
 
      /**

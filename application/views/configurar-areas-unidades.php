@@ -175,7 +175,7 @@
 										<a href="<?php echo base_url();?>cmetrica">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-server" aria-hidden="true"></i>
-											<span>Añadir y Borrar Métricas</span>
+											<span>Configurar métricas</span>
 										</a>
 									</li>
 									<li>
@@ -195,7 +195,7 @@
 
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Configurar Áreas y Unidades</h2>
+						<h2>Configurar áreas y unidades</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">

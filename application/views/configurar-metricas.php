@@ -133,7 +133,7 @@
 										<a href="<?php echo base_url();?>careaunidad">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-th-large" aria-hidden="true"></i>
-											<span>Configurar Áreas y Unidades</span>
+											<span>Configurar áreas y unidades</span>
 										</a>
 									</li>
 									<li>
@@ -152,7 +152,7 @@
 
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Añadir y Borrar métricas</h2>
+						<h2>Configurar métricas</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
