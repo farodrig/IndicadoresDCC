@@ -8,11 +8,21 @@ class Session extends CI_Controller {
 		$this->load->view('login');
 	}
 
-    public function inicio()
-	{
-			$department = $this->getDepartment();
-			$areaunit = $this->showAreaUnit();
-			$types = $this->getType();
+    public function inicio(){
+        $this->load->model('Organization_model');
+        $type = $this->input->get('sector');
+		$department = $this->Organization_model->getDepartment();
+		$areaunit = $this->showAreaUnit();
+		if (!is_null($type)){
+		    $type = $this->Organization_model->getTypeByName($type);
+    		$aus = $areaunit;
+		    $areaunit = array();
+    		foreach ($aus as $au){
+    		    if ($au['area']->getType()==$type['id'])
+    		        array_push($areaunit, $au);
+    		}
+		}
+		$types = $this->Organization_model->getTypes();
 	    $this->load->view('index', array('department'=> $department,
 	                                     'areaunit'=>$areaunit,
 	                                     'types'=>$types));
@@ -31,12 +41,11 @@ class Session extends CI_Controller {
 			$this->load->model('Organization_model');
 			$types = $this->Organization_model->getTypes();
 			return $types;
-
 	}
 
 
 	private function showAreaUnit(){
-			$this->load->model('Organization_model');
+		$this->load->model('Organization_model');
 	    $department = $this->Organization_model->getDepartment();
 	    $areaunit = array();
 	    $areas = $this->Organization_model->getAllAreas();
@@ -45,8 +54,7 @@ class Session extends CI_Controller {
 	                                    'unidades' => $this->Organization_model->getAllUnidades($area->getId()))
 	        );
 	    }
-			return $areaunit;
-	
+		return $areaunit;	
 	}
 
 	public function dashboard()

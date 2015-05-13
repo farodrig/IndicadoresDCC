@@ -161,7 +161,7 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<li><span>Cofigurar</span></li>
+								<li><span>Configurar</span></li>
 								<li><span>Métricas</span></li>
 							</ol>
 
@@ -200,7 +200,7 @@
 						            echo ('<div class ="row">');
 						        echo ('<div class="col-md-6">');
 						        echo ('<section class="panel panel-info">');
-						        echo ('<header class="panel-heading">');
+						        echo ('<header class="panel-heading" style="background-color: '.$color.'">');
 						        echo ('<h2 class="panel-title"><div class="btn-group-horizontal text-center">
 													<a class="btn modal-with-form insert" id="'.ucwords($au['area']->getName()).'" title='.$au['area']->getId().' href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
@@ -209,7 +209,7 @@
 														<i class="fa fa-edit" aria-hidden="true"></i>
 													</a>
 													<label class="text-center" style="color:white">'.ucwords($au['area']->getName()).'</label>
-												</div></h2></h2></header>');
+												</div></h2><p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
 						        echo ('<div class="panel-body">');						        
 						        echo ('<div class="btn-group-vertical col-md-12">');
 						        foreach ($au['unidades'] as $unidad){

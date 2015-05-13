@@ -32,12 +32,26 @@ class Organization_model extends CI_Model{
     
     function getTypes(){
         $this->db->where(array('name!='=>""));
+
+        return $this->getTypesWhere(array());
+    }
+    
+    function getTypeByName($name){
+        return $this->getTypesWhere(array('name'=>$name));
+    }
+    
+    private function getTypesWhere($where){
+        $this->db->where(array('id!='=>3));
+        if(count($where)!=0)
+            $this->db->where($where);
         $query = $this->db->get('OrgType');
         $result = array();
         $colores = array('#47a447', '#ed9c28');
         foreach ($query->result() as $row){
             array_push($result, array('id'=>$row->id, 'name'=>$row->name, 'color'=> $colores[count($result)]));
         }
+        if (count($result)==1)
+            return $result[0];
         return $result;
     }
     
