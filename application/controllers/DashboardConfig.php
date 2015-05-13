@@ -22,22 +22,26 @@ class DashboardConfig extends CI_Controller
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
 	    	$result['years'] = array(
+	    		'id' => -1,
+	    		'type' => 2,
 				'min' => 2005, 
-				'max' => 2015
+				'max' => 2015,
+				'check' => NULL
 				);
 	    }
 	    else{
 	    	$result['metricas'] = $all_metrics;
 	    	foreach ($all_metrics as $met_unidad) {
+	    		$id_org = key($all_metrics);
 	    		foreach ($met_unidad as $met) { //Permite acceder a nombre y id una metrica
 	    			$id=$met['metorg'];
-	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id);
+	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
 	    		
 	    	}
 	    	$result['years'] = $years;
-	    }
+	    }	
 
 	   if(!$all_areas)
 	    	$result['areas'] = [];
@@ -110,6 +114,7 @@ class DashboardConfig extends CI_Controller
 			redirect('Session/inicio');
 		}
 
+		$id_graph = intval($this->input->post('id_graph'));
 		$org_id = intval($this->input->post('id_org'));
 		$graph = $this->input->post('type');
 		$id_met = $this->input->post('id_met');
@@ -122,7 +127,8 @@ class DashboardConfig extends CI_Controller
 						'from' => $from,
 						'to' => $to,
 						'position' => $position,
-						'id_org' => $org_id );
+						'id_org' => $org_id,
+						'id_graph' => $id_graph );
 
 		$this->load->model('DashboardConfig_model');
 		//debug($data);

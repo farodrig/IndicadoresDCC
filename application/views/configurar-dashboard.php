@@ -259,6 +259,7 @@
 												<label>Tipo de gráfico:</label>
 												<input type="hidden" id="id_org" name="id_org" value=""/>
 												<input type="hidden" id="id_met" name="id_met" value=""/>
+												<input type="hidden" id="id_graph" name="id_graph" value=""/>
 												<select class="form-control btn btn-default" id="type" name="type">
 														<option value=2>Líneas</option>
 														<option value=1>Barra</option>
@@ -357,10 +358,27 @@
   			function updateYears(id){
   				var min_year = years[id]['min'];
   				var max_year = years[id]['max'];
+  				var check = years[id]['checked'];
+  				var type = years[id]['type'];
+  				var id_graph = years[id]['id'];
 
   				$('#from').attr('value',new Number(JSON.parse(min_year)));
   				$('#to').attr('value',new Number(JSON.parse(max_year)));
 				$('#id_met').attr('value',new Number(id));
+				$('#id_graph').attr('value',new Number(id_graph));
+				$('#mostrar').attr('checked', check==0 ? null : 1);
+
+				var select_grafico = document.getElementById('type');
+				select_grafico.options.length = 0;
+				
+				if(type=="2"){
+					select_grafico.options[select_grafico.options.length]= new Option('Líneas', 2);
+					select_grafico.options[select_grafico.options.length]= new Option('Barra', 1);
+				}
+				else{
+					select_grafico.options[select_grafico.options.length]= new Option('Barra', 1);
+					select_grafico.options[select_grafico.options.length]= new Option('Líneas', 2);
+				}
 
   			}
 

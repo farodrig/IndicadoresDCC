@@ -136,7 +136,7 @@ class Dashboard extends CI_Controller
 			}
 		}
 		
-		$this->load->library('session');
+		
 		$this->session->set_flashdata('id', $id);
 		return $this->formAddData();
 
@@ -169,15 +169,18 @@ class Dashboard extends CI_Controller
     		return $p1[0]>$p2[0];
 		}
 
+		$this->load->library('session');
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
-		if(!$id)
+		if(!$id && is_null(($id=$this->session->flashdata('id'))))
 			redirect('Session/inicio');
 
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id);
 
+	    
+		$this->session->set_flashdata('id',$id);
 	    
 
 	    if(!$dashboard_metrics){

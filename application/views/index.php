@@ -172,14 +172,7 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<li><span><?php 
-									foreach ($areaunit as $au){
-									foreach ($types as $type){
-						            if ($type['id']==$au['area']->getType()){
-						                $name= $type['name'];
-						            }
-						            }}
-						            echo $name;?></span></li>
+								<li><span><?php echo($name);?></span></li>
 							</ol>
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</div>

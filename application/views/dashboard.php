@@ -179,7 +179,7 @@
 											<h2 class='panel-title'><?php echo element('name',$metric); ?></h2>
 										</header>
 										<div class='panel-body'>
-											<div class='chart chart-md' style="width:100%;height:300px;" name='<?php echo element('name',$metric); ?>' id='<?php echo element('name',$metric); ?>'>.</div>
+											<div class='chart chart-md' style="width:100%;height:300px;" id='<?php echo element('name',$metric); ?>'>.</div>
 											<script type='text/javascript'>
 												var info = <?php echo json_encode($metric['vals']) ?>;
 												graph_info[index] = {
@@ -277,7 +277,6 @@
 		<script type="text/javascript">
 			var names = <?php echo json_encode($names); ?>;
 			var size = names.length;
-
 			for(i = 0; i<size; i++){
 
 				if(graph_info[i]['graph_type']==2){ //Es de linea

@@ -13,9 +13,12 @@ class Session extends CI_Controller {
         $type = $this->input->get('sector');
 		$department = $this->Organization_model->getDepartment();
 		$areaunit = $this->showAreaUnit();
-		if(is_null($type))
+		if(is_null($type)){
 			$type="Operación";
-		if (!is_null($type)){
+			$name=$type;
+		}
+		else{
+			$name = $type;
 		    $type = $this->Organization_model->getTypeByName($type);
     		$aus = $areaunit;
 		    $areaunit = array();
@@ -27,7 +30,8 @@ class Session extends CI_Controller {
 		$types = $this->Organization_model->getTypes();
 	    $this->load->view('index', array('department'=> $department,
 	                                     'areaunit'=>$areaunit,
-	                                     'types'=>$types));
+	                                     'types'=>$types,
+	                                     'name' => $name));
 	}
 
 	
