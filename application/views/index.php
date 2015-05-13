@@ -135,25 +135,25 @@
 							<nav id="menu" class="nav-main" role="navigation">
 								<ul class="nav nav-main">
 									<li>
-										<a href="<?php echo base_url();?>">
+										<a href="<?php echo base_url();?>inicio">
 											<i class="fa fa-home" aria-hidden="true"></i>
 											<span>U-Dashboard</span>
 										</a>
 									</li>
-									<li>
-										<a href="<?php echo base_url();?>inicio">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-university" aria-hidden="true"></i>
-											<span>Operación</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>">
-											<span class="pull-right label label-primary"></span>
-											<i class="el-icon-group" aria-hidden="true"></i>
-											<span>Soporte</span>
-										</a>
-									</li>
+									<?php 
+									$first = true;
+									foreach ($types as $type){
+									    echo ('<li> <a href="'.base_url().'inicio?sector='.$type['name'].'">');
+									    echo ('<span class="pull-right label label-primary"></span>');
+									    if ($first){
+									       echo ('<i class="fa fa-university" aria-hidden="true"></i>');
+									       $first = false;
+									    }
+									    else
+									        echo ('<i class="el-icon-group" aria-hidden="true"></i>');
+									    echo ('<span>'.ucwords($type['name']).'</span></a></li>');
+									}
+									?>
 								</ul>
 							</nav>
 						</div>
