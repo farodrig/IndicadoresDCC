@@ -367,6 +367,11 @@
 		<script src="<?php echo base_url();?>assets/javascripts/ui-elements/examples.modals.js"></script>
 		<script type="text/javascript">
 		var table_metrics = <?php echo json_encode($metrics); ?>;
+		var values_mod = [];
+
+		function setVal(e,id){
+			values_mod[id] = e.value;
+		}
 			
 		function checkInput(){
 			if(document.getElementById('name').value=="" || document.getElementById('unidad_medida').value==""){
@@ -432,7 +437,7 @@
 						}
 						else{
 							$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
-							'<input type="text" class="form-control input-block" value="' + data[i] + '"/>' );
+							'<input type="text" class="form-control input-block" value="' + data[i] + '" onchange="setVal(this, i)" required/>' );
 						}
 					}
 				});
@@ -482,7 +487,13 @@
 				document.getElementById('tipo').value = data[1];
 				document.getElementById('unidad').value = data[2];
 				
-				document.getElementById('modificarMetrica').submit();
+				if(data[0]=="" || data[1]==""){
+					alert("No puede dejar campos en blanco");
+				}
+				else{
+					document.getElementById('modificarMetrica').submit();
+				}	
+				
 			}
 			else if(e['target']['attributes']['class'].value=="fa fa-trash-o"){
 				var id = e['target']['attributes']['id'].value;

@@ -141,7 +141,22 @@ class Session extends CI_Controller {
 
 	public function eliminarMetrica(){
 		$this->load->model('Metrics_model');
+		$this->load->library('form_validation');
+	    $this->form_validation->set_rules('unidad', 'UnidadMedida', 'required');
+	    $this->form_validation->set_rules('tipo', 'Type', 'required|numeric');
+	    $this->form_validation->set_rules('metric', 'Metric', 'required');
+
+	    if(!$this->form_validation->run()){
+			redirect('Session/inicio');
+		}
+
 		if($this->input->post('modificar')){
+			$this->form_validation->set_rules('id', 'Id', 'required|numeric');
+
+	    	if(!$this->form_validation->run()){
+				redirect('Session/inicio');
+			}
+
 			$data= array(
 				'id_metorg' => $this->input->post('id'),
 				'name_metrica' => ucwords($this->input->post('metrica')),
@@ -151,6 +166,12 @@ class Session extends CI_Controller {
 			$this->Metrics_model->updateMetric($data);
 		}
 		else{
+			$this->form_validation->set_rules('id2', 'Id', 'required|numeric');
+
+	    	if(!$this->form_validation->run()){
+				redirect('Session/inicio');
+			}
+			
 			$data = array('id_metorg' => $this->input->post('id2'));
 			$this->Metrics_model->deleteMetric($data);
 		}
