@@ -64,7 +64,13 @@
 		   function postAddArea(){
 			    var n = $("#AreaName").val();
 			    var segment = $("#segment").val();
-			    redirectPost('<?php echo base_url();?>ModifyOrg/addArea', {'name': n, 'type': segment});
+
+			    if(document.getElementById('AreaName').value==""){
+			   		alert("Debe ingresar un nombre para el área");	
+			   	}
+			   	else{
+			    	redirectPost('<?php echo base_url();?>ModifyOrg/addArea', {'name': n, 'type': segment});
+			    }
 		   }
 		   
 		   function postDelArea(){
@@ -75,7 +81,12 @@
 		   function postAddUni(){
 			   var area = $("#addUni").html();
 			   var name = $("#UniName").val();
-			   redirectPost('<?php echo base_url();?>ModifyOrg/addUni', {'area': area, 'name': name});
+			   if(document.getElementById('UniName').value==""){
+			   		alert("Debe ingresar un nombre para la unidad");	
+			   }
+			   else{
+			   		redirectPost('<?php echo base_url();?>ModifyOrg/addUni', {'area': area, 'name': name});
+			   	}
 		   }
 
 		   function postDelUni(){
@@ -404,7 +415,7 @@
 
 		   if (success==1){
 			   new PNotify({
-					title: 'Success!',
+					title: 'Éxito!',
 					text: 'Su solicitud ha sido realizada con éxito.',
 					type: 'success'
 				});
