@@ -32,6 +32,14 @@ class ModifyOrg extends CI_Controller{
 	
 	function addArea() {
 	    $this->load->model('Organization_model');
+	    $this->load->library('form_validation');
+	    $this->form_validation->set_rules('type', 'Type', 'numeric|required');
+	    $this->form_validation->set_rules('name', 'Name', 'required');
+
+	    if(!$this->form_validation->run()){
+			redirect('Session/inicio');
+		}
+
 	    $data = array('type'=>$this->input->post('type'), 'name'=>$this->input->post('name'));
 	    $result = $this->Organization_model->addArea($data);
 	    $this->setRedirect('/careaunidad', array('name'=>'success', 'value'=>$result));
@@ -39,6 +47,13 @@ class ModifyOrg extends CI_Controller{
 	
 	function addUni() {
 	    $this->load->model('Organization_model');
+	    $this->load->library('form_validation');
+	    $this->form_validation->set_rules('area', 'Area', 'required');
+	    $this->form_validation->set_rules('name', 'Name', 'required');
+
+	    if(!$this->form_validation->run()){
+			redirect('Session/inicio');
+		}
 	    $data = array('name'=>$this->input->post('name'));
 	    $result = $this->Organization_model->addUnidad($this->input->post('area'), $data);
 	    $this->setRedirect('/careaunidad', array('name'=>'success', 'value'=>$result));
@@ -46,6 +61,14 @@ class ModifyOrg extends CI_Controller{
 	
 	function delAreaUni() {
 	    $this->load->model('Organization_model');
+	    
+	    $this->load->library('form_validation');
+	    $this->form_validation->set_rules('name', 'Name', 'required');
+
+	    if(!$this->form_validation->run()){
+			redirect('Session/inicio');
+		}
+
 	    $data = $this->input->post('name');
 	    $result = $this->Organization_model->delByName($data);
 	    $this->setRedirect('/careaunidad', array('name'=>'success', 'value'=>$result));

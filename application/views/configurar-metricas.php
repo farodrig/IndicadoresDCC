@@ -230,7 +230,7 @@
 						    ?>
 	
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
-									<?php echo form_open('session/agregarMetrica');?>
+									<?php echo form_open('session/agregarMetrica', array('onsubmit' => "return checkInput();"));?>
 									<section class="panel">
 										<form>
 										<header class="panel-heading">
@@ -368,6 +368,14 @@
 		<script type="text/javascript">
 		var table_metrics = <?php echo json_encode($metrics); ?>;
 			
+		function checkInput(){
+			if(document.getElementById('name').value=="" || document.getElementById('unidad_medida').value==""){
+				alert("Debe ingresar valores para nombre de métrica y unidad de medida");
+				return false;
+			}
+			return true;
+		}
+
 		$('a.insert').click(function( e ) {
 			var title = $(this)[0]['attributes']['id'].value;
 			$('#subtitle').empty();

@@ -275,11 +275,12 @@
 												<h2 class="panel-title">Agregar área</h2>
 											</header>
 											<div class="panel-body">
-												<form id="demo-form" class="form-horizontal mb-lg" novalidate="novalidate">
+												<form id="demo-form" class="form-horizontal mb-lg">
 													<div class="form-group mt-lg">
 														<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
-															<input id = "AreaName"type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
+															
+															<input id = "AreaName" type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
 															
 														</div>
 													</div>
@@ -313,7 +314,7 @@
 												<p class="panel-subtitle" id = "addUni">Área 1</p>
 											</header>
 											<div class="panel-body">
-												<form id="demo-form" class="form-horizontal mb-lg" novalidate="novalidate">
+												<form id="demo-form" class="form-horizontal mb-lg">
 													<div class="form-group mt-lg">
 														<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
