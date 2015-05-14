@@ -267,9 +267,9 @@
 												<div class="container btn-group-vertical col-md-12">
 													<br>
 													<label>Desde:</label>
-													<input type="number" class="rounded" id="from" name="from" >
+													<input type="number" class="rounded" id="from" name="from" onchange ="saveValFrom(this)" onkeyup="validate_year('from',from)" >
 													<label>Hasta:</label>
-													<input type="number" class="rounded" id="to" name="to" >
+													<input type="number" class="rounded" id="to" name="to" onkeyup="saveValTo(this)" onkeyup="validate_year('to',to)"  >
 													<hr>
 												</div>
 												<br>
@@ -322,13 +322,23 @@
 		<!-- Demo Purpose Only -->
 		<script>
 			var years = <?php echo json_encode($years); ?>;
+			var from, to;
+
+			function saveValFrom(e){
+				from = e.value;
+			}
+
+			function saveValTo(e){
+				from = e.value;
+			}
 
 			function checkInput(){
-				if(validate_year('from') && validate_year('to')){
+				if(validate_year('from', from) && validate_year('to', to)){
 
-					if(document.getElementById('from').value<=document.getElementById('to').value)
+					if(from<=to)
 						return true;
 					else{
+						console.log(validate_year(from));
 						alert("Año de inicio debe ser menor al año final");
 						return false;
 					}
@@ -429,9 +439,8 @@
 				}
 			});
 
-			function validate_year(id){
-				var opt = document.getElementById(id).value;
-				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4 && opt>=1980));  
+			function validate_year(id,opt){
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt!="" && opt.length==4 && opt>=1980));  
 			}
 
 			function changeOnValidation(id, validator){

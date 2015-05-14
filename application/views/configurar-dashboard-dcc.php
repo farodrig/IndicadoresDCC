@@ -243,9 +243,9 @@
 												<div class="container btn-group-vertical col-md-12">
 													<br>
 													<label>Desde:</label>
-													<input type="number" class="rounded" id="from" name="from" >
+													<input type="number" class="rounded" id="from" name="from" onchange ="saveValFrom(this)">
 													<label>Hasta:</label>
-													<input type="number" class="rounded" id="to" name="to" >
+													<input type="number" class="rounded" id="to" name="to" onchange ="saveValTo(this)">
 													<hr>
 												</div>
 												<br>
@@ -344,6 +344,31 @@
 		<!-- Demo Purpose Only -->
 		<script>
 			var years = <?php echo json_encode($years); ?>;
+			var from, to;
+
+			function saveValFrom(e){
+				from = e.value;
+			}
+
+			function saveValTo(e){
+				from = e.value;
+			}
+
+			function checkInput(){
+				if(validate_year('from', from) && validate_year('to', to)){
+
+					if(from<=to)
+						return true;
+					else{
+						alert("Año de inicio debe ser menor al año final");
+						return false;
+					}
+				}
+				else{
+					alert("Años inválidos");
+					return false;
+				}
+			}
 
 			function changePage(page){
       			window.location.href = "<?php echo base_url();?>".concat(page);
@@ -399,6 +424,22 @@
 				}
 
   			}
+
+  			function validate_year(id,opt){
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt!="" && opt.length==4 && opt>=1980));  
+			}
+
+			function changeOnValidation(id, validator){
+				if(validator){
+					document.getElementById(id).style.borderColor="green";
+					return true;
+				}
+				else{
+					document.getElementById(id).style.borderColor="red";
+					document.getElementById(id).focus();
+					return false;
+				}
+			}
 
   			$('section.body').click(function(e){
 				if(!(e['target']['attributes']['class'].value=="btn-group-vertical col-md-12") && 

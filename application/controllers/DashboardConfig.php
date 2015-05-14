@@ -155,6 +155,10 @@ class DashboardConfig extends CI_Controller
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('from', 'From', 'required|exact_length[4]|numeric');
 		$this->form_validation->set_rules('to', 'to', 'required|exact_length[4]|numeric');
+		$this->form_validation->set_rules('id_graph', 'Graph', 'required|numeric');
+		$this->form_validation->set_rules('id_org', 'Org', 'required|numeric');
+		$this->form_validation->set_rules('type', 'Type', 'required|numeric');
+		$this->form_validation->set_rules('id_met', 'Metric', 'required|numeric');
 		
 		if(!$this->form_validation->run()){
 			redirect('Session/inicio');
