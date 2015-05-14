@@ -154,7 +154,7 @@
 
 					<!-- start: page -->
 						<div class="col-md-12">
-						<?php echo form_open('Dashboard/addData', array('onSubmit' => "return pageValidate();")); ?>
+						<?php echo form_open('agregarDato', array('onSubmit' => "return pageValidate();")); ?>
 							<section class="panel form-horizontal form-bordered">
 								<header class="panel-heading">
 

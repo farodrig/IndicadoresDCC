@@ -177,7 +177,7 @@
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</div>
 					</header>
-					<?php echo form_open('Dashboard/showDashboard'); 
+					<?php echo form_open('dashboard'); 
 					   echo ('<div class="pane panel-transparent">');
 					   echo ('<header class="panel-heading">');
 						echo ('<h2 class="panel-title"><button type="submit" name="direccion" value='.$department->getId().' class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block">'.$department->getName().'</button></h2>');

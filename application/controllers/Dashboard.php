@@ -22,10 +22,11 @@ class Dashboard extends CI_Controller
 	    else{
 	    	$id = $this->input->get('var'); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
-			if(!$id)
-				redirect('Session/inicio');
+			if(!$id  && is_null(($id=$this->session->flashdata('id'))))
+				redirect('inicio');
 	    }
 		
+		$this->session->set_flashdata('id',$id);
 	    $this->load->model('Dashboard_model');
 
 	    $all_metrics = $this->Dashboard_model->getAllMetrics($id);
@@ -79,7 +80,7 @@ class Dashboard extends CI_Controller
 		$id = $this->input->post("id_location");
 
 		if(!$id)
-			redirect('Session/inicio');
+			redirect('inicio');
 
 		$user = "18.292.316-8";
 
@@ -96,7 +97,7 @@ class Dashboard extends CI_Controller
 		}
 
 		if(!$this->form_validation->run()){
-			redirect('Session/inicio');
+			redirect('inicio');
 		}
 
 		$year = $this->input->post('year');
@@ -173,23 +174,22 @@ class Dashboard extends CI_Controller
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
 		if(!$id && is_null(($id=$this->session->flashdata('id'))))
-			redirect('Session/inicio');
+			redirect('inicio');
 
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id);
 
-	    
 		$this->session->set_flashdata('id',$id);
 	    
-
 	    if(!$dashboard_metrics){
 	    	$metrics=[];
 	    	$names=[];
 	    }
 	    else{
 	    	$all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
-	    	foreach($dashboard_metrics as $metric){
+	    	//debug($all_measurements);
+	    	foreach($dashboard_metrics as $metric){ //Problema AQUIII
 	    		$metrics[$metric->getId()]= array(
 	    										'vals' => [],
 	    										'name' => "",
@@ -201,10 +201,8 @@ class Dashboard extends CI_Controller
 	    										);
 
 	    	}
-	    
-
-	    	if(!!$all_measurements){ //Doble !! deberia ser true si el arreglo tiene elementos
-	    		
+	    	if($all_measurements){ //Doble !! deberia ser true si el arreglo tiene elementos
+	    		//debug($all_measurements);
 	    		foreach ($all_measurements as $measure) {
 	    			$count = 1;
 	    			$id_met = $measure['id'];
@@ -239,6 +237,19 @@ class Dashboard extends CI_Controller
 
 	    			
 	    		}
+	  
+	    		$res=[];
+	    		$id_met = array_keys($metrics);
+	    		foreach ($id_met as $id) {
+	    			if($metrics[$id]['name']=="")
+	    				continue;
+	    			$res[$id]=$metrics[$id];
+	    		}
+	    		$metrics= $res;
+	    	}
+	    	else{
+	    		$metrics=[];  //Si la metrica no tiene mediciones => no se muestra
+	    		$names=[];
 	    	}
 		}
 	    $result['data'] = $metrics; 

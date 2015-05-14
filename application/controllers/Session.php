@@ -113,7 +113,7 @@ class Session extends CI_Controller {
 	    $this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
 
 	    if(!$this->form_validation->run()){
-			redirect('Session/inicio');
+			redirect('inicio');
 		}
 
 	   	$Unit = array(		
@@ -147,14 +147,14 @@ class Session extends CI_Controller {
 	    $this->form_validation->set_rules('metric', 'Metric', 'required');
 
 	    if(!$this->form_validation->run()){
-			redirect('Session/inicio');
+			redirect('inicio');
 		}
 
 		if($this->input->post('modificar')){
 			$this->form_validation->set_rules('id', 'Id', 'required|numeric');
 
 	    	if(!$this->form_validation->run()){
-				redirect('Session/inicio');
+				redirect('inicio');
 			}
 
 			$data= array(
@@ -169,7 +169,7 @@ class Session extends CI_Controller {
 			$this->form_validation->set_rules('id2', 'Id', 'required|numeric');
 
 	    	if(!$this->form_validation->run()){
-				redirect('Session/inicio');
+				redirect('inicio');
 			}
 			
 			$data = array('id_metorg' => $this->input->post('id2'));

@@ -142,13 +142,13 @@ class DashboardConfig extends CI_Controller
 	function addGraphUnidad(){
 
 		$this->addGraph();
-		$this->configUnidad();
+		redirect('cdashboardUnidad');
 	}
 
 	function addGraphArea(){
 
 		$this->addGraph();
-		$this->configArea();
+		redirect('cdashboardArea');
 	}
 
 	function addGraph(){
@@ -161,7 +161,7 @@ class DashboardConfig extends CI_Controller
 		$this->form_validation->set_rules('id_met', 'Metric', 'required|numeric');
 		
 		if(!$this->form_validation->run()){
-			redirect('Session/inicio');
+			redirect('inicio');
 		}
 
 		$id_graph = intval($this->input->post('id_graph'));

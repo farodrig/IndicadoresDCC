@@ -52,12 +52,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'session';
 
 $route['inicio'] = 'session/inicio';
-$route['dashboard'] = 'session/dashboard';
+$route['dashboard'] = 'Dashboard/showDashboard';
 $route['validar'] = 'session/validar';
 $route['configurar'] = 'session/menuConfigurar';
-$route['dato'] = 'session/agregarDato';
+$route['agregarDato'] = 'Dashboard/formAddData';
 $route['careaunidad'] = 'ModifyOrg/modifyAreaUnidad';
-$route['cdashboard'] = 'session/configurarDashboard';
+$route['cdashboardUnidad'] = 'DashboardConfig/configUnidad';
+$route['cdashboardArea'] = 'DashboardConfig/configArea';
+$route['cdashboardDCC'] = 'DashboardConfig/configDCC';
+$route['addGraph'] = 'DashboardConfig/addGraphUnidad';
 $route['cmetrica'] = 'session/configurarMetricas';
 
 

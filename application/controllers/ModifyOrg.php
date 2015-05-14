@@ -37,7 +37,7 @@ class ModifyOrg extends CI_Controller{
 	    $this->form_validation->set_rules('name', 'Name', 'required');
 
 	    if(!$this->form_validation->run()){
-			redirect('Session/inicio');
+			redirect('inicio');
 		}
 
 	    $data = array('type'=>$this->input->post('type'), 'name'=>$this->input->post('name'));
@@ -52,7 +52,7 @@ class ModifyOrg extends CI_Controller{
 	    $this->form_validation->set_rules('name', 'Name', 'required');
 
 	    if(!$this->form_validation->run()){
-			redirect('Session/inicio');
+			redirect('inicio');
 		}
 	    $data = array('name'=>$this->input->post('name'));
 	    $result = $this->Organization_model->addUnidad($this->input->post('area'), $data);
@@ -66,7 +66,7 @@ class ModifyOrg extends CI_Controller{
 	    $this->form_validation->set_rules('name', 'Name', 'required');
 
 	    if(!$this->form_validation->run()){
-			redirect('Session/inicio');
+			redirect('inicio');
 		}
 
 	    $data = $this->input->post('name');

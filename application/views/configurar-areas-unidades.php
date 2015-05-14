@@ -190,7 +190,7 @@
 										</a>
 									</li>
 									<li>
-										<a href="<?php echo base_url();?>DashboardConfig/configUnidad">
+										<a href="<?php echo base_url();?>cdashboardUnidad">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-bar-chart" aria-hidden="true"></i>
 											<span>Configurar Dashboard</span>

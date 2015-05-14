@@ -240,17 +240,14 @@ class Dashboard_model extends CI_Model
                     FROM Measure AS m
                     WHERE m.state=1 AND m.metorg=".$met->getMetOrg()." AND m.year>=".$met->getMinYear()." AND m.year<=".$met->getMaxYear();
             $q = $this->db->query($query);
-            if(($size=$q->num_rows()) > 0)
+            if(($size=$q->num_rows()) > 0){
                 $rows = $this->buildAllMeasuresments($q);
-            else 
-                return false;
-
-            $result[] = array(
+                $result[] = array(
                                 'id' => $met->getMetOrg(),
                                 'name' => $name,
                                 'measurements' => $rows
                                 );
-            
+            }
             
         }
         
