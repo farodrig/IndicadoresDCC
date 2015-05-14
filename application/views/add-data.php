@@ -170,7 +170,7 @@
 											<label class="control-label">Año:</label>
 										</div>
 										<div class="col-md-3">
-											<input type="text" name="year" id="year" class="form-control" onkeyup ="selectYear(); validate_year('year')">
+											<input type="text" name="year" id="year" class="form-control" onkeyup ="selectYear(); validate_year('year')" required>
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -289,6 +289,11 @@
 				var size = <?php echo sizeof($measurements[0]); ?> ;
 
 				var ids =[];
+
+				if(!validate_year('year')){
+					alert("Año ingresado inválido");
+					return false;
+				}
 
 				for (i=0; i<size; i++) {
 						var metorg = jArray[i]['metorg'];
