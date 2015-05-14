@@ -106,6 +106,16 @@ class Session extends CI_Controller {
 	public function agregarMetrica(){
 
 		$this->load->model('Unit_model');
+		$this->load->library('form_validation');
+	    $this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required');
+	    $this->form_validation->set_rules('category', 'Category', 'required|numeric');
+	    $this->form_validation->set_rules('name', 'Name', 'required');
+	    $this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
+
+	    if(!$this->form_validation->run()){
+			redirect('Session/inicio');
+		}
+
 	   	$Unit = array(		
 				'name' => ucwords($this->input->post('unidad_medida')),
 		);
