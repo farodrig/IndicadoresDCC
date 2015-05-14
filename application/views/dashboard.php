@@ -318,7 +318,7 @@
 									color: 'rgba(0,0,0,0.1)'
 								},
 								xaxis: {
-									ticks: graph_info[i]['measure_number']==0 ? 1 :  graph_info[i]['measure_number']==0,
+									ticks: graph_info[i]['measure_number']==0 ? 1 :  graph_info[i]['measure_number'],
 									color: 'rgba(0,0,0,0.1)'
 								},
 								tooltip: true,

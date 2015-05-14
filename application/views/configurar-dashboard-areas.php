@@ -6,6 +6,47 @@
 		<meta charset="UTF-8">
 
 		<title>Configurar Dashboard Áreas</title>
+		<style type="text/css">
+    		.container {
+        		width: 500px;
+        		clear: both;
+    		}
+    		.container input {
+        		width: 100%;
+        	clear: both;
+    		}
+    		input.rounded {
+
+	    border: 1px solid #ccc;
+
+	    -moz-border-radius: 10px;
+
+	    -webkit-border-radius: 10px;
+
+	    border-radius: 10px;
+
+	    -moz-box-shadow: 2px 2px 3px #666;
+
+	    -webkit-box-shadow: 2px 2px 3px #666;
+
+	    box-shadow: 2px 2px 3px #666;
+
+	    font-size: 20px;
+
+	    padding: 4px 7px;
+
+	    outline: 0;
+
+	    -webkit-appearance: none;
+
+	}
+
+	input.rounded:focus {
+
+	    border-color: #339933;
+
+	}
+    	</style>
 		<meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
 		<meta name="author" content="okler.net">
@@ -202,29 +243,34 @@
 									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
 									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>	 
 
-										<div id="popover-head" class="hide">Configurar métrica</div>
+										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
-											<form>
+										<?php echo form_open('DashboardConfig/addGraphArea'); ?>
 												<label>Tipo de gráfico:</label>
-												<select class="form-control btn btn-default">
+												<input type="hidden" id="id_org" name="id_org" value=""/>
+												<input type="hidden" id="id_met" name="id_met" value=""/>
+												<input type="hidden" id="id_graph" name="id_graph" value=""/>
+												<select class="form-control btn btn-default" id="type" name="type">
 														<option value=2>Líneas</option>
 														<option value=1>Barra</option>
 												</select>
-												<label>Periodo</label>
-												<div id="rangedval">
-	Range Value: <span id="rangeval">90 - 290</span>
-  </div>
-												<div id="slider"></div>
-												<div class="mt-lg mb-lg slider-primary" data-plugin-slider data-plugin-options='{ "values": [ 25, 75 ], "range": true, "max": 100 }' data-plugin-slider-output="#listenSlider2">
-													<input id="listenSlider2" type="hidden" value="25, 75" />
+												<div class="container btn-group-vertical col-md-12">
+													<br>
+													<label>Desde:</label>
+													<input type="number" class="rounded" id="from" name="from" >
+													<label>Hasta:</label>
+													<input type="number" class="rounded" id="to" name="to" >
+													<hr>
 												</div>
-												<p class="output2">Desde <b class="min">2008</b> a <b class="max">2012</b></p>
-												<label>Mostrar:</label>
-												<input id="for-website" value="" type="checkbox" name="mostrar"/>
+												<br>
+												<br>
+												<label></label>
+												<label>Mostrar en dashboard:</label>
+												<input id="mostrar" type="checkbox" name="mostrar" value="1" />
 												</br>
 												</br>
-												<button onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
-											</form>
+												<button type="submit" onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
+											<?php echo form_close(); ?>
 										</div>
 
 									
@@ -263,6 +309,8 @@
 
 		<!-- Demo Purpose Only -->
 		<script>
+			var years = <?php echo json_encode($years); ?>;
+
 			function changePage(page){
       			window.location.href = "<?php echo base_url();?>".concat(page);
     		}
@@ -270,37 +318,35 @@
 			var areas = <?php echo json_encode($areas); ?>; 
 
 			var area_value = $( "#area" ).val();
+			$('#id_org').attr('value',area_value);
 			$('#metricas').empty();
 			var metricas_area = metricas[area_value]; 
   			for (i in metricas_area) {
-  				var val ="<input type='hidden' id='".concat(metricas_area[i]['name'], "' value=", metricas_area[i]['metorg'],">");
-  				var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "'class='btn btn-default'>", metricas_area[i]['name'], "</a>"); 
-  				$(val).appendTo($('#metricas'));
+  				var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  					metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>"); 
     			$(popover).appendTo($('#metricas'));
   			}
-
-			(function() {
-				$('#listenSlider').change(function() {
-					$('.output b').text( this.value );
-				});
-
-				$('#listenSlider2').change(function() {
-					var min = parseInt(this.value.split('/')[0], 10);
-					var max = parseInt(this.value.split('/')[1], 10);
-
-					$('.output2 b.min').text( min );
-					$('.output2 b.max').text( max );
-				});
-			})();
+  			var unidades = areas[area_value]['unidades'];
+  			for(i in unidades){
+  				var unidad_id = unidades[i]['id'];
+  				var unidad_name = unidades[i]['name'];
+  				var metricas_unidad = metricas[unidad_id];
+  				for(j in metricas_unidad){
+  					var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
+  						metricas_unidad[j]['metorg'], ")'>", "<b>",
+  						unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>"); 
+    				$(popover).appendTo($('#metricas'));
+  				}
+  			}
 
 			$('#area').change(function() {
 				var area_value = $( "#area" ).val();
+				$('#id_org').attr('value',area_value);
 				$('#metricas').empty();
 				var metricas_area = metricas[area_value]; 
   				for (i in metricas_area) {
-  					var val ="<input type='hidden' id='".concat(areas[area_value]['name'],"/",metricas_area[i]['name'], "' value=", metricas_area[i]['metorg'],">");
-  					var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "'class='btn btn-default'>", metricas_area[i]['name'], "</a>"); 
-  					$(val).appendTo($('#metricas'));
+  					var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "'class='btn btn-default' onclick='updateYears(" 
+  						,metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>"); 
     				$(popover).appendTo($('#metricas'));
   				}
   				var unidades = areas[area_value]['unidades'];
@@ -310,35 +356,47 @@
   					var metricas_unidad = metricas[unidad_id];
 
   					for(j in metricas_unidad){
-  						var val ="<input type='hidden' id='".concat(unidad_name, "/", metricas_unidad[i]['name'], "' value=", metricas_unidad[i]['metorg'],">");
-  						var popover = "<a href='#popover' id='".concat(metricas_unidad[i]['metorg'], "'class='btn btn-default'>", metricas_unidad[i]['name'], "</a>"); 
-  						$(val).appendTo($('#metricas'));
+  						var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
+  							metricas_unidad[j]['metorg'], ")''>", "<b>",
+  						unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>"); 
     					$(popover).appendTo($('#metricas'));
   					}
   				}
 			});
 
-			$(function(){
-  $('#defaultslide').slider({ 
-    max: 1000,
-    min: 0,
-    value: 500,
-    slide: function(e,ui) {
-      $('#currentval').html(ui.value);
-    }
-  });
-  
-  $('#slider').slider({
-    range: true,
-    min: 0,
-    max: 1000,
-    values: [ 90, 290 ],
-    slide: function( event, ui ) {
-      $('#rangeval').html(ui.values[0]+" - "+ui.values[1]);
-    }
-  });
-});
+			function updateYears(id){
+  				var min_year = years[id]['min'];
+  				var max_year = years[id]['max'];
+  				var check = years[id]['checked'];
+  				var type = years[id]['type'];
+  				var id_graph = years[id]['id'];
 
+  				$('#from').attr('value',new Number(JSON.parse(min_year)));
+  				$('#to').attr('value',new Number(JSON.parse(max_year)));
+				$('#id_met').attr('value',new Number(id));
+				$('#id_graph').attr('value',new Number(id_graph));
+				$('#mostrar').attr('checked', check==0 ? null : 1);
+
+				var select_grafico = document.getElementById('type');
+				select_grafico.options.length = 0;
+				
+				if(type=="2"){
+					select_grafico.options[select_grafico.options.length]= new Option('Líneas', 2);
+					select_grafico.options[select_grafico.options.length]= new Option('Barra', 1);
+				}
+				else{
+					select_grafico.options[select_grafico.options.length]= new Option('Barra', 1);
+					select_grafico.options[select_grafico.options.length]= new Option('Líneas', 2);
+				}
+
+  			}
+
+  			$('section.body').click(function(e){
+				if(!(e['target']['attributes']['class'].value=="btn-group-vertical col-md-12") && 
+					!(e['target']['attributes']['class'].value=="btn btn-default" && e['target']['attributes']['href'].value=="#popover")){
+					$('#popover').popover('hide');
+				}
+			});
 		</script>
 	</body>
 </html>

@@ -56,16 +56,33 @@ class DashboardConfig extends CI_Controller
 	function configArea(){
 
 		$this->load->model('DashboardConfig_model');
-	    $all_metrics = $this->DashboardConfig_model->getAllMetricsArea(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
+	    $all_metrics = $this->DashboardConfig_model->getAllMetricsArea(); //Retorna arrglo de arreglos de metricas de las unidades y areas correspondientes
 	    															      //Si all_metrics es falso es porque no hay areas
-
-	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
-
+	    
+	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad(); //arreglo de areas y sus respectivas unidades id_area =>(nombre, id, arreglo_unidades)
+	    
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
+	    	$result['years'] = array(
+	    		'id' => -1,
+	    		'type' => 2,
+				'min' => 2005, 
+				'max' => 2015,
+				'check' => NULL
+				);
 	    }
 	    else{
-	    	$result['metricas'] = $all_metrics;   
+	    	$result['metricas'] = $all_metrics;
+	    	foreach ($all_metrics as $met_unidad) {
+	    		$id_org = key($all_metrics);
+	    		foreach ($met_unidad as $met) { //Permite acceder a nombre y id una metrica
+	    			$id=$met['metorg'];
+	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
+	    			$years[$id] = $min_max_years;
+	    		}
+	    		
+	    	}
+	    	$result['years'] = $years;  
 	    }
 
 	    if(!$all_areas)
@@ -105,6 +122,18 @@ class DashboardConfig extends CI_Controller
 
 	}
 
+	function addGraphUnidad(){
+
+		$this->addGraph();
+		$this->configUnidad();
+	}
+
+	function addGraphArea(){
+
+		$this->addGraph();
+		$this->configArea();
+	}
+
 	function addGraph(){
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('from', 'From', 'required|exact_length[4]|numeric');
@@ -134,7 +163,7 @@ class DashboardConfig extends CI_Controller
 		//debug($data);
 		$this->DashboardConfig_model->addGraph($data);
 
-		$this->configUnidad();
+		
 	}
 
 	

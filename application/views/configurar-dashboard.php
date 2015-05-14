@@ -211,7 +211,7 @@
 					<div class="row">
 					<div class="text-center col-sm-12 btn-group-horizontal">
 						<button class= "mb-xs mt-xs mr-xs btn btn-success btn-lg" onclick="">Configurar Dashboard DCC</button>
-						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="">Configurar Dashboard áreas</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="changePage('DashboardConfig/configArea')">Configurar Dashboard áreas</button>
 						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('DashboardConfig/configUnidad')">Configurar Dashboard unidades</button>
 
 					</div>
@@ -255,7 +255,7 @@
 
 										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
-										<?php echo form_open('DashboardConfig/addGraph', array('onSubmit' => "return checkInput();")); ?>
+										<?php echo form_open('DashboardConfig/addGraphUnidad', array('onSubmit' => "return checkInput();")); ?>
 												<label>Tipo de gráfico:</label>
 												<input type="hidden" id="id_org" name="id_org" value=""/>
 												<input type="hidden" id="id_met" name="id_met" value=""/>

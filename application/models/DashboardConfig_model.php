@@ -34,6 +34,7 @@ class DashboardConfig_model extends CI_Model
 				}
 
 				return array(
+					'id' => -1,
 					'min' => min($years),
 					'max' => max($years),
 					'type' => 2,
