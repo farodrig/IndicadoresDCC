@@ -191,7 +191,7 @@
 				<!-- end: sidebar -->
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Configurar Dashboard áreas</h2>
+						<h2>Configurar Dashboard DCC</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
@@ -219,23 +219,9 @@
 					<div class="row">
 						<div class="col-md-6">
 							<section class="panel-warning">
-								<header class="panel-heading">
+								<header class="panel-heading text-center">
 									<h2 class="panel-title">
-										<form id="conf-dash">
-											<div class="form-group mt-lg">
-												<div class="btn-group-horizontal text-center">
-													<form>
-													<select name="area" id= "area" class="form-control btn btn-warning">
-													<?php 
-														foreach ($areas as $area) {
-															echo "<option class='select' value='".$area['id']."'>".$area['name']."</option>";
-														}
-													?>
-													</select>
-													</form>
-												</div>
-											</div>
-										</form>
+										Operación
 									</h2>
 
 								</header>
@@ -245,6 +231,54 @@
 
 										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
+										<?php echo form_open('DashboardConfig/addGraphArea'); ?>
+												<label>Tipo de gráfico:</label>
+												<input type="hidden" id="id_org" name="id_org" value=""/>
+												<input type="hidden" id="id_met" name="id_met" value=""/>
+												<input type="hidden" id="id_graph" name="id_graph" value=""/>
+												<select class="form-control btn btn-default" id="type" name="type">
+														<option value=2>Líneas</option>
+														<option value=1>Barra</option>
+												</select>
+												<div class="container btn-group-vertical col-md-12">
+													<br>
+													<label>Desde:</label>
+													<input type="number" class="rounded" id="from" name="from" >
+													<label>Hasta:</label>
+													<input type="number" class="rounded" id="to" name="to" >
+													<hr>
+												</div>
+												<br>
+												<br>
+												<label></label>
+												<label>Mostrar en dashboard:</label>
+												<input id="mostrar" type="checkbox" name="mostrar" value="1" />
+												</br>
+												</br>
+												<button type="submit" onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
+											<?php echo form_close(); ?>
+										</div>
+
+									
+									</div>
+								</div>
+							</section>
+						</div>
+
+						<div class="col-md-6">
+							<section class="panel-warning">
+								<header class="panel-heading text-center">
+									<h2 class="panel-title">
+										Soporte
+									</h2>
+
+								</header>
+								<div class="panel-body">
+									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
+									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>	 
+
+										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
+										<div id="popover-content" data-placement="left" class="hide">
 										<?php echo form_open('DashboardConfig/addGraphArea'); ?>
 												<label>Tipo de gráfico:</label>
 												<input type="hidden" id="id_org" name="id_org" value=""/>
@@ -338,31 +372,6 @@
     				$(popover).appendTo($('#metricas'));
   				}
   			}
-
-			$('#area').change(function() {
-				var area_value = $( "#area" ).val();
-				$('#id_org').attr('value',area_value);
-				$('#metricas').empty();
-				var metricas_area = metricas[area_value]; 
-  				for (i in metricas_area) {
-  					var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "'class='btn btn-default' onclick='updateYears(" 
-  						,metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>"); 
-    				$(popover).appendTo($('#metricas'));
-  				}
-  				var unidades = areas[area_value]['unidades'];
-  				for(i in unidades){
-  					var unidad_id = unidades[i]['id'];
-  					var unidad_name = unidades[i]['name'];
-  					var metricas_unidad = metricas[unidad_id];
-
-  					for(j in metricas_unidad){
-  						var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
-  							metricas_unidad[j]['metorg'], ")''>", "<b>",
-  						unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>"); 
-    					$(popover).appendTo($('#metricas'));
-  					}
-  				}
-			});
 
 			function updateYears(id){
   				var min_year = years[id]['min'];

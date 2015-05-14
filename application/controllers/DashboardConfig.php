@@ -50,7 +50,7 @@ class DashboardConfig extends CI_Controller
 	    }
 
 	    $this->load->view('configurar-dashboard', $result);
-	    //debug($result, true);
+	    //debug($all_metrics, true);
 	}
 
 	function configArea(){
@@ -92,23 +92,40 @@ class DashboardConfig extends CI_Controller
 	    }
 
 	    $this->load->view('configurar-dashboard-areas', $result);
-	    //debug($result, true);
+	    //debug($all_metrics, true);
 
 	}
 
 	function configDCC(){ //Distinguir negocio y soporte?
 
 		$this->load->model('DashboardConfig_model');
-	    $all_metrics = $this->DashboardConfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
+	    $all_metrics = $this->DashboardConfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de todas las métricas
 	    															      //Si all_metrics es falso es porque no hay areas
 
 	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
 
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
+	    	$result['years'] = array(
+	    		'id' => -1,
+	    		'type' => 2,
+				'min' => 2005, 
+				'max' => 2015,
+				'check' => NULL
+				);
 	    }
 	    else{
-	    	$result['metricas'] = $all_metrics;   
+	    	$result['metricas'] = $all_metrics;
+	    	foreach ($all_metrics as $met_unidad) {
+	    		$id_org = key($all_metrics);
+	    		foreach ($met_unidad as $met) { //Permite acceder a nombre y id una metrica
+	    			$id=$met['metorg'];
+	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
+	    			$years[$id] = $min_max_years;
+	    		}
+	    		
+	    	}
+	    	$result['years'] = $years;     
 	    }
 
 	    if(!$all_areas)
@@ -116,9 +133,9 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-
-	    $this->load->view('configurar-dashboard-areas', $result);
-	    //debug($result, true);
+		
+	    $this->load->view('configurar-dashboard-dcc',$result);
+	    //debug($all_metrics, true);
 
 	}
 
