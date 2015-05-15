@@ -255,6 +255,9 @@ class Dashboard_model extends CI_Model
                                 'measurements' => $rows
                                 );
             }
+            else{
+                return false;
+            }
             
         }
         

@@ -19,6 +19,7 @@ class DashboardConfig extends CI_Controller
 
 	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
 
+
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
 	    	$result['years'] = array(

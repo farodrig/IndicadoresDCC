@@ -216,24 +216,35 @@
 
 					</div>
 					</div>
+					<?php 
+						$first_area_key = array_keys($areas)[0];
+						if($areas[$first_area_key]['type']=="Operación"){
+							$color_panel="panel-warning";
+							$color_button = "btn-warning";
+						}
+						else{
+							$color_panel="panel-success";
+							$color_button = "btn-success";
+						}
+					?>
 					<div class="row">
 						<div class="col-md-6">
-							<section class="panel-warning">
+							<section name="section" id="section" class="<?php echo $color_panel; ?>">
 								<header class="panel-heading">
 									<h2 class="panel-title">
 											<div class="form-group mt-lg">
 												<div class="btn-group-horizontal text-center">
 													<form>
-													<?php $first_area_key = array_keys($areas)[0];
+													<?php
 														$first_area_unidades = $areas[$first_area_key]['unidades'];?>
-													<select name="area" id= "area" class="form-control btn btn-warning" onchange= "selectUnidades();">
+													<select name="area" id= "area" class="<?php echo("form-control btn ".$color_button);?>" onchange= "selectUnidades();">
 													<?php 
 														foreach ($areas as $area) {
 															echo "<option class='select' value='".$area['id']."'>".$area['name']."</option>";
 														}
 													?>
 													</select>
-													<select name="unidad" id="unidad" class="form-control btn btn-warning">
+													<select name="unidad" id="unidad" class="<?php echo("form-control btn ".$color_button);?>">
 													<?php
 														
 														foreach ($first_area_unidades as $unidad) {
@@ -398,6 +409,11 @@
 				var id_area = document.getElementById("area").value;
 				var areas = <?php echo json_encode($areas); ?>;
 				var unidades = areas[id_area]['unidades'];
+				var color = areas[id_area]['type']=="Operación" ? "warning" : "success";
+
+				$('#section').attr('class',"panel-".concat(color));
+				$('#area').attr('class', "form-control btn btn-".concat(color));
+				$('#unidad').attr('class', "form-control btn btn-".concat(color));
 
 				var select_unidad = document.getElementById('unidad');
 				$('#metricas').empty();

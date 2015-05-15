@@ -54,7 +54,7 @@ class DashboardConfig_model extends CI_Model
 
 	function getAllMetricsUnidades()
 	{
-		$query = "SELECT org.id AS id FROM Organization AS org WHERE org.parent = 1 AND org.id<>1";
+		$query = "SELECT org.id AS id FROM Organization AS org WHERE (org.parent = 1 AND org.id<>1) OR (org.parent = 0 AND org.id<>0)";
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0)
 			$areas = $q->result();
@@ -96,7 +96,7 @@ class DashboardConfig_model extends CI_Model
 
 	function getAllMetricsArea()
 	{
-		$query = "SELECT org.id AS id FROM Organization AS org WHERE org.parent = 1 AND org.id<>1"; //Selecciona areas
+		$query = "SELECT org.id AS id FROM Organization AS org WHERE (org.parent = 1 AND org.id<>1) OR (org.parent = 0 AND org.id<>0)"; //Selecciona areas
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0)
 			$areas = $q->result();
@@ -161,7 +161,7 @@ class DashboardConfig_model extends CI_Model
 		if(!$metrics)
 			$metrics=[];
 
-		$query = "SELECT mo.id AS id, m.name FROM MetOrg AS mo, Metric AS m WHERE mo.org=1 AND mo.metric=m.id";
+		$query = "SELECT mo.id AS id, m.name FROM MetOrg AS mo, Metric AS m WHERE (mo.org=1 OR mo.org=0) AND mo.metric=m.id";
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0){
 			$metrics_dcc = $q->result();
@@ -176,7 +176,8 @@ class DashboardConfig_model extends CI_Model
 
 	function getAllAreasUnidad(){
 
-		$query = "SELECT org.id AS id, org.name AS name FROM Organization AS org WHERE org.parent = 1 AND NOT org.id=1";
+		$query = "SELECT org.id AS id, org.name AS name, ot.name AS type FROM Organization AS org, OrgType AS ot 
+			WHERE (org.parent = 1 OR org.parent=0) AND NOT org.id=1 AND NOT org.id=0 AND org.type=ot.id";
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0)
 			$areas = $q->result();
@@ -196,7 +197,8 @@ class DashboardConfig_model extends CI_Model
 
 			
 			$result[$id_area] = array(
-							'name' => $a->name, 
+							'name' => $a->name,
+							'type' => $a->type, 
 							'id' => $id_area, 
 							'unidades' => $unidades);
 		}
