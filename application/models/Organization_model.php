@@ -5,15 +5,23 @@ class Organization_model extends CI_Model{
     function getDepartment(){
         $this->db->where("id = parent");
         $query = $this->db->get('Organization');
-        if ($query->num_rows() != 1)
+        if ($query->num_rows() != 2)
             return false;
-        else
-            return  $this->buildOrganization($query->row());
+        else{
+            $res = [];
+            foreach ($query->result() as $row ) {
+                array_push($res, $this->buildOrganization($row));
+            }
+            return $res;
+        }
     }
     
     function addArea($data){
         $root = $this->getDepartment();
-        return $this->addChild($root->getId(), $data);
+        foreach ($root as $r) {
+            if($r->getType()==$data['type'])
+                return $this->addChild($r->getId(), $data);
+        }
     }
     
     function addUnidad($parentName, $data){
@@ -61,7 +69,12 @@ class Organization_model extends CI_Model{
     
     function getAllAreas(){
         $root = $this->getDepartment();
-        return $this->getAllChilds($root->getId());
+        $res = [];
+        foreach ($root as $key) {
+            $res = array_merge($res, $this->getAllChilds($key->getId()));
+        }
+
+        return $res;
     }
     
     private function getAllChilds($id){
@@ -84,7 +97,7 @@ class Organization_model extends CI_Model{
     function getByID($id){
         $this->db->where(array('id'=>$id));
         $query = $this->db->get('Organization');
-        if ($query->num_rows() != 1)
+        if ($query->num_rows() != 2)
             return false;
         else
             return  $this->buildOrganization($query->row());
@@ -93,7 +106,7 @@ class Organization_model extends CI_Model{
     function getByName($name){
         $this->db->where(array('name'=>$name));
         $query = $this->db->get('Organization');
-        if ($query->num_rows() != 1)
+        if ($query->num_rows() != 2)
             return false;
         else
             return  $this->buildOrganization($query->row());

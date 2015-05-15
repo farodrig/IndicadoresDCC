@@ -177,10 +177,18 @@
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</div>
 					</header>
+					<?php
+						$dept_id=2; 
+						
+						if($name == "Soporte"){
+							$dept_id=1;
+						}
+						
+					?>
 					<?php echo form_open('dashboard'); 
 					   echo ('<div class="pane panel-transparent">');
 					   echo ('<header class="panel-heading">');
-						echo ('<h2 class="panel-title"><button type="submit" name="direccion" value='.$department->getId().' class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block">'.$department->getName().'</button></h2>');
+						echo ('<h2 class="panel-title"><button type="submit" name="direccion" value='.$dept_id.' class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block"> DCC </button></h2>');
 						echo('</header>');
 						echo('<div class="panel-body">');
 						    $counter = 0;

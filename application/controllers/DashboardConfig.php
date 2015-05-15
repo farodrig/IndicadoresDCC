@@ -102,6 +102,8 @@ class DashboardConfig extends CI_Controller
 	    $all_metrics = $this->DashboardConfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de todas las métricas
 	    															      //Si all_metrics es falso es porque no hay areas
 
+	    debug($all_metrics);
+
 	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
 
 	    if($all_metrics==false){
@@ -134,7 +136,7 @@ class DashboardConfig extends CI_Controller
 	    	$result['areas'] = $all_areas;
 	    }
 		
-	    $this->load->view('configurar-dashboard-dcc',$result);
+	    //$this->load->view('configurar-dashboard-dcc',$result);
 	    //debug($all_metrics, true);
 
 	}

@@ -173,14 +173,14 @@
 					<?php 
 					   echo ('<div class="pane panel-transparent">');
 					   echo ('<header class="panel-heading">');
-						echo ('<section class="panel"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
+						echo ('<div class="row"><section class="panel col-md-6"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
 							  <a title='.$department->getId().' id="DCC" class="btn modal-with-form insert" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
 													<a title='.$department->getId().' id="DCC" class="btn modal-with-form modify" href="#deleteMetrica" style="color: purple">
 														<i class="fa fa-edit" aria-hidden="true"></i>
 													</a><label class="text-center" style="color:white">'.ucwords($department->getName()).'</label>
-													</div></h2></div></section>');
+													</div></h2></div></section></div>');
 						echo('</header>');
 						echo('<div class="panel-body">');
 						    
