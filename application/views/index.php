@@ -178,12 +178,11 @@
 						</div>
 					</header>
 					<?php
-						$dept_id=2; 
+						$dept_id=1; 
 						
 						if($name == "Soporte"){
-							$dept_id=1;
+							$dept_id=0;
 						}
-						
 					?>
 					<?php echo form_open('dashboard'); 
 					   echo ('<div class="pane panel-transparent">');

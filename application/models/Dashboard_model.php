@@ -46,24 +46,31 @@ class Dashboard_model extends CI_Model
 
         $aux=$id;
         $aux_id = 0;
-        $i = 1;
-        while(1){
-            $query = "SELECT org.name AS name, org.parent AS parent FROM Organization AS org WHERE org.id =".$id;
-            $q = $this->db->query($query);
 
-            if($q->num_rows() > 0){
-                $row = $q->result()[0];
-            }
+        if($id==0 || $id==1){
+            $route[1]= "DCC";
+            $i=2;
+        }
+        else{
+            $i = 1;
+            while(1){
+                $query = "SELECT org.name AS name, org.parent AS parent FROM Organization AS org WHERE org.id =".$id;
+                $q = $this->db->query($query);
 
-            $route[$i] = $row->name;
+                if($q->num_rows() > 0){
+                    $row = $q->result()[0];
+                }
 
-            $aux_id = $id;
-            $id = $row->parent;
+                $route[$i] = $row->name;
 
-            if($aux_id==$id)
-                break;
+                $aux_id = $id;
+                $id = $row->parent;
+
+                if($aux_id==$id)
+                    break;
             
-            $i++;
+                $i++;
+            }
         }
 
         $query = "SELECT type.name AS name FROM Organization AS org, OrgType AS type WHERE org.type=type.id AND org.id =".$aux;

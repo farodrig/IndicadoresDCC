@@ -16,6 +16,12 @@ class Session extends CI_Controller {
 		if(is_null($type)){
 			$type="Operación";
 			$name=$type;
+			$aus = $areaunit;
+		    $areaunit = array();
+    		foreach ($aus as $au){
+    		    if ($au['area']->getType()==2)
+    		        array_push($areaunit, $au);
+    		}
 		}
 		else{
 			$name = $type;

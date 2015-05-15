@@ -173,7 +173,7 @@ class Dashboard extends CI_Controller
 		$this->load->library('session');
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
-		if(!$id && is_null(($id=$this->session->flashdata('id'))))
+		if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
 
 	    $this->load->model('Dashboard_model');
