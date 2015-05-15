@@ -210,22 +210,33 @@
 					<!-- start: page -->
 					<div class="row">
 					<div class="text-center col-sm-12 btn-group-horizontal">
-						<button class= "mb-xs mt-xs mr-xs btn btn-success btn-lg" onclick="changePage('cdashboardDCC')">Configurar Dashboard DCC</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-danger btn-lg" onclick="changePage('cdashboardDCC')">Configurar Dashboard DCC</button>
 						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="changePage('cdashboardArea')">Configurar Dashboard áreas</button>
 						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('cdashboardUnidad')">Configurar Dashboard unidades</button>
 
 					</div>
 					</div>
+					<?php 
+						$first_area_key = array_keys($areas)[0];
+						if($areas[$first_area_key]['type']=="Operación"){
+							$color_panel="panel-warning";
+							$color_button = "btn-warning";
+						}
+						else{
+							$color_panel="panel-success";
+							$color_button = "btn-success";
+						}
+					?>
 					<div class="row">
 						<div class="col-md-6">
-							<section class="panel-warning">
+							<section name="section" id="section" class="<?php echo $color_panel; ?>">
 								<header class="panel-heading">
 									<h2 class="panel-title">
 										<form id="conf-dash">
 											<div class="form-group mt-lg">
 												<div class="btn-group-horizontal text-center">
 													<form>
-													<select name="area" id= "area" class="form-control btn btn-warning">
+													<select name="area" id= "area" class="<?php echo("form-control btn ".$color_button);?>" onchange="changeColor();">
 													<?php 
 														foreach ($areas as $area) {
 															echo "<option class='select' value='".$area['id']."'>".$area['name']."</option>";
@@ -440,6 +451,19 @@
 					return false;
 				}
 			}
+
+			function changeColor(){
+				var id_area = document.getElementById("area").value;
+				var areas = <?php echo json_encode($areas); ?>;
+
+				var color = areas[id_area]['type']=="Operación" ? "warning" : "success";
+
+				$('#section').attr('class',"panel-".concat(color));
+				$('#area').attr('class', "form-control btn btn-".concat(color));
+				$('#unidad').attr('class', "form-control btn btn-".concat(color));
+
+			}
+
 		</script>
 	</body>
 </html>

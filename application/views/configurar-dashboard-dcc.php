@@ -210,7 +210,7 @@
 					<!-- start: page -->
 					<div class="row">
 					<div class="text-center col-sm-12 btn-group-horizontal">
-						<button class= "mb-xs mt-xs mr-xs btn btn-success btn-lg" onclick="changePage('cdashboardDCC')">Configurar Dashboard DCC</button>
+						<button class= "mb-xs mt-xs mr-xs btn btn-danger btn-lg" onclick="changePage('cdashboardDCC')">Configurar Dashboard DCC</button>
 						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="changePage('cdashboardArea')">Configurar Dashboard áreas</button>
 						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('cdashboardUnidad')">Configurar Dashboard unidades</button>
 
