@@ -55,13 +55,15 @@ $route['inicio'] = 'session/inicio';
 $route['dashboard'] = 'Dashboard/showDashboard';
 $route['validar'] = 'session/validar';
 $route['configurar'] = 'session/menuConfigurar';
-$route['agregarDato'] = 'Dashboard/formAddData';
+$route['formAgregarDato'] = 'Dashboard/formAddData';
+$route['agregarDato']= 'Dashboard/addData';
 $route['careaunidad'] = 'ModifyOrg/modifyAreaUnidad';
 $route['cdashboardUnidad'] = 'DashboardConfig/configUnidad';
 $route['cdashboardArea'] = 'DashboardConfig/configArea';
 $route['cdashboardDCC'] = 'DashboardConfig/configDCC';
 $route['addGraph'] = 'DashboardConfig/addGraphUnidad';
 $route['cmetrica'] = 'session/configurarMetricas';
+$route['export'] = 'Dashboard/exportData';
 
 
 

@@ -130,7 +130,7 @@
 										</a>
 									</li>
 									<li>
-										<a href="<?php echo base_url();?>agregarDato?var=<?php echo $id_location ?>">
+										<a href="<?php echo base_url();?>formAgregarDato?var=<?php echo $id_location ?>">
 											<span class="pull-right label label-primary"></span>
 											<i class="fa fa-plus-square" aria-hidden="true"></i>
 											<span>Añadir Datos</span>
@@ -179,7 +179,7 @@
 											<h2 class='panel-title'><?php echo element('name',$metric); ?></h2>
 										</header>
 										<div class='panel-body'>
-											<div class='chart chart-md' id='<?php echo str_replace(' ', '', $metric['name']); ?>'> 
+											<div class='chart chart-md' id='<?php echo str_replace(' ', '', $metric['id']); ?>'> 
 											<script type='text/javascript'>
 												var info = <?php echo json_encode($metric['vals']) ?>;
 												graph_info[index] = {
@@ -202,9 +202,14 @@
 							</div>
 							<div class='col-md-6'>
 								<section class='panel'>
+								<?php echo form_open("export"); ?>
 									<header class='panel-heading'>
-										<h2 class='panel-title'><?php echo $metric['name']; ?></h2>
+										<input type="hidden" name="id_org" id="id_org" value="<?php echo $id_location;?>">
+										<input type="hidden" name="id_met" id="id_met" value="<?php echo $metric['id'];?>">
+										<h2 class='panel-title'><?php echo $metric['name']; ?> &nbsp;&nbsp;&nbsp;
+										<button name="export" id="export" class="btn btn-primary" type="submit">Exportar</button></h2>
 									</header>
+								<?php echo form_close(); ?>
 									<div class='panel-body'>
 										<table class="table table-bordered table-striped mb-none" id='datatable-default'>
 											<thead>

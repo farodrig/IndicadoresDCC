@@ -22,7 +22,7 @@ class Dashboard extends CI_Controller
 	    else{
 	    	$id = $this->input->get('var'); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
-			if(!$id  && is_null(($id=$this->session->flashdata('id'))))
+			if(is_null($id)  && is_null(($id=$this->session->flashdata('id'))))
 				redirect('inicio');
 	    }
 		
@@ -79,7 +79,7 @@ class Dashboard extends CI_Controller
 	function addData(){
 		$id = $this->input->post("id_location");
 
-		if(!$id)
+		if(is_null($id))
 			redirect('inicio');
 
 		$user = "18.292.316-8";
@@ -88,6 +88,7 @@ class Dashboard extends CI_Controller
 		$metrics_id = $this->Dashboard_model->getAllMetricOrgIds($id);
 		$all_measurements = $this->Dashboard_model->getAllMeasurements($id);
 
+		$this->load->library('session');
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('year', 'Year', 'required|exact_length[4]|numeric');
 		foreach ($metrics_id as $i){
@@ -128,7 +129,7 @@ class Dashboard extends CI_Controller
 			if($value=="" && $target=="" && $expected==""){
 				continue;
 			}
-
+			
 			if(in_array($id_met, $data)==1 && ($value!=$vals[$id_met]['value'] || $target!=$vals[$id_met]['target'] || $expected!=$vals[$id_met]['expected'])){
 				$q = $this->Dashboard_model->updateData($id_met, $year, $value, $target, $expected, $user);
 			}
@@ -139,7 +140,7 @@ class Dashboard extends CI_Controller
 		
 		
 		$this->session->set_flashdata('id', $id);
-		return $this->formAddData();
+		redirect('formAgregarDato');
 
 	}
 
@@ -176,6 +177,7 @@ class Dashboard extends CI_Controller
 		if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
 
+		$result['id_location'] = $id;
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id);
@@ -191,6 +193,7 @@ class Dashboard extends CI_Controller
 	    	//debug($all_measurements);
 	    	foreach($dashboard_metrics as $metric){ //Problema AQUIII
 	    		$metrics[$metric->getId()]= array(
+	    										'id' => $metric->getId(),
 	    										'vals' => [],
 	    										'name' => "",
 	    										'table' => "",
@@ -206,7 +209,7 @@ class Dashboard extends CI_Controller
 	    		foreach ($all_measurements as $measure) {
 	    			$count = 1;
 	    			$id_met = $measure['id'];
-	    			$names[]= $measure['name'];
+	    			$names[]= $id_met;
 	    			$metrics[$id_met]['name'] = $measure['name'];
 	    			
 	    			$values=[];
@@ -255,11 +258,27 @@ class Dashboard extends CI_Controller
 	    $result['data'] = $metrics; 
 	    $result['route'] = $route;
 	    $result['names'] = $names;
-	    $result['id_location'] = $id;
 
 	    //debug($metrics);
 	    $this->load->view('dashboard', $result);
 
+	}
+
+	function exportData(){
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('id_org', 'Org', 'required|numeric');
+		$this->form_validation->set_rules('id_met', 'Met', 'required|numeric');
+
+		if(!$this->form_validation->run()){
+			redirect('inicio');
+		}
+
+		$id_org = $this->input->post('id_org');
+		$id_met = $this->input->post('id_met');
+		
+		$this->load->model('Dashboard_model');
+		$data = $this->Dashboard_model->getAllData($id_org, $id_met);
+		debug(array($id_met, $id_org));
 	}
 
 }

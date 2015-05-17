@@ -56,6 +56,15 @@ class Dashboard_library
         return $this;
     }
 
+    function initializeData($parameters){
+        
+        $this->value = element('value', $parameters);
+        $this->target = element('target', $parameters);
+        $this->expected = element('expected', $parameters);
+        $this->year = element('year', $parameters);
+        return $this;
+    }
+
  /**
      * @return the $id_met
      */

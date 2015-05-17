@@ -161,7 +161,7 @@ class Dashboard_model extends CI_Model
 
     function updateData($id_met, $year, $value, $target, $expected, $user){ //Aqui hay que guardar datos antiguos
 
-        $query = " UPDATE Measure SET state = 0, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()  
+        $query = " UPDATE Measure SET state = 1, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()  
         WHERE metorg = ? AND year = ?";
 
         $q = $this->db->query($query, array($value, $target, $expected, $user, $id_met, $year)); 
@@ -262,6 +262,90 @@ class Dashboard_model extends CI_Model
         }
         
         return $result;
+    }
+
+    function getAllData($id_org, $id_met){
+
+        $query = "SELECT m.value AS value, m.target AS target, m.expected AS expected, m.year AS year 
+         FROM Organization AS org, Dashboard AS d, GraphDash AS gd, Graphic AS g, Measure AS m
+         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1";
+
+         $q= $this->db->query($query, array($id_org, $id_met, $id_met));
+
+         if(($size=$q->num_rows()) > 0){
+                $data = $this->buildDataCSV($q);
+                $this->download_send_headers("data_export_" . date("Y-m-d") . ".csv");
+                echo $this->array2csv($data);
+                die();
+                
+                debug($user_agent);
+         }
+        else 
+            return false;
+
+
+    }
+
+    function buildDataCSV($q)  
+    {
+        $this->load->library('Dashboard_library');
+        $row = $q->result();
+        foreach ($q->result() as $row)
+        {
+            $parameters = array
+            (
+                'value' => $row->value,
+                'target' => $row->target,
+                'expected' => $row->expected,
+                'year' => $row->year
+            );
+
+            $metrica = new Dashboard_library();
+            $metrica_array[] = $metrica->initializeData($parameters);
+
+        }
+
+        return $metrica_array;
+    }
+
+    function array2csv($array)
+    {
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+        if(strpos($user_agent, "Win") !== FALSE)
+            $eol = "\r\n";
+        else
+            $eol = "\n";
+
+        if (count($array) == 0) {
+            return null;
+        }
+        ob_start();
+        $df = fopen("php://output", 'w');
+        fwrite($df, "Valor,Esperado,Meta,Año".$eol);
+        foreach ($array as $row) {
+            $a = $row->getValue().','.$row->getTarget().','.$row->getExpected().','.$row->getYear().$eol;
+            fwrite($df, $a);
+        }
+        fclose($df);
+        return ob_get_clean();
+    }
+
+    function download_send_headers($filename) {
+        // disable caching
+        $now = gmdate("D, d M Y H:i:s");
+        header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
+        header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
+        header("Last-Modified: {$now} GMT");
+
+        // force download  
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+
+        // disposition / encoding on response body
+        header("Content-Disposition: attachment;filename={$filename}");
+        header("Content-Transfer-Encoding: binary");
     }
 
 }
