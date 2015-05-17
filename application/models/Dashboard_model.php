@@ -274,8 +274,13 @@ class Dashboard_model extends CI_Model
 
          if(($size=$q->num_rows()) > 0){
                 $data = $this->buildDataCSV($q);
+
+                $query = "SELECT m.name AS name FROM Metric AS m, MetOrg AS mo WHERE mo.metric=m.id AND mo.id=".$id_met;
+                $q= $this->db->query($query);
+                $name = $q->result()[0];
+
                 $this->download_send_headers("data_export_" . date("Y-m-d") . ".csv");
-                echo $this->array2csv($data);
+                echo $this->array2csv($data, $name->name);
                 die();
                 
                 debug($user_agent);
@@ -308,7 +313,7 @@ class Dashboard_model extends CI_Model
         return $metrica_array;
     }
 
-    function array2csv($array)
+    function array2csv($array,$name)
     {
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
 
@@ -322,6 +327,7 @@ class Dashboard_model extends CI_Model
         }
         ob_start();
         $df = fopen("php://output", 'w');
+        fwrite($df, "[".$name."]".$eol);
         fwrite($df, "Valor,Esperado,Meta,Año".$eol);
         foreach ($array as $row) {
             $a = $row->getValue().','.$row->getTarget().','.$row->getExpected().','.$row->getYear().$eol;
