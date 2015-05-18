@@ -186,12 +186,12 @@ class Dashboard_model extends CI_Model
         else
             return false;
         
-        $g_id = "";
+        $g_id = "(";
         for($i=0; $i<$size-1; $i++){
             $id = $graphs[$i]->graph;
             $g_id = $g_id."g.id= ".$id." OR ";
         }
-        $g_id = $g_id."g.id =".$graphs[$size-1]->graph;
+        $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
 
         $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
                     FROM Graphic AS g 
@@ -349,6 +349,40 @@ class Dashboard_model extends CI_Model
         // disposition / encoding on response body
         header("Content-Disposition: attachment;filename={$filename}");
         header("Content-Transfer-Encoding: binary");
+    }
+
+    function getAllDashboardMetrics($id)
+    {
+        $query = "SELECT d.id AS id FROM Dashboard AS d WHERE d.org=".$id;
+        $q = $this->db->query($query);
+        if($q->num_rows() > 0)
+            $dashboard = $q->result()[0]->id;
+        else
+            return false;
+
+        $query = "SELECT gd.graphic AS graph FROM GraphDash AS gd WHERE gd.dashboard=".$dashboard;
+        $q = $this->db->query($query);
+        if(($size=$q->num_rows()) > 0)
+            $graphs = $q->result();
+        else
+            return false;
+        
+        $g_id = "(";
+        for($i=0; $i<$size-1; $i++){
+            $id = $graphs[$i]->graph;
+            $g_id = $g_id."g.id= ".$id." OR ";
+        }
+        $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
+
+        $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
+                    FROM Graphic AS g 
+                    WHERE ".$g_id;
+
+        $q = $this->db->query($query);
+        if($q->num_rows() > 0)
+            return $this->buildDashboardMetrics($q);
+        else
+            return false;
     }
 
 }

@@ -53,6 +53,7 @@ $route['default_controller'] = 'session';
 
 $route['inicio'] = 'session/inicio';
 $route['dashboard'] = 'Dashboard/showDashboard';
+$route['dashboardAll'] = 'Dashboard/showAllDashboard';
 $route['validar'] = 'session/validar';
 $route['configurar'] = 'session/menuConfigurar';
 $route['formAgregarDato'] = 'Dashboard/formAddData';

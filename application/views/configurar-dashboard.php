@@ -8,12 +8,12 @@
 		<title>Configurar Dashboard Unidades</title>
 		<style type="text/css">
     		.container {
-        		width: 500px;
+        		width: 214px;
         		clear: both;
     		}
     		.container input {
         		width: 100%;
-        	clear: both;
+        		clear: both;
     		}
     		input.rounded {
 
@@ -366,7 +366,7 @@
     		}
 
 			var metricas = <?php echo json_encode($metricas); ?>; 
-
+			console.log($('#popover'));
 			var unidad_value = $( "#unidad" ).val();
 			$('#metricas').empty();
 			var metricas_unidad = metricas[unidad_value];

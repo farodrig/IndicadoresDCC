@@ -8,7 +8,7 @@
 		<title>Configurar Dashboard Áreas</title>
 		<style type="text/css">
     		.container {
-        		width: 500px;
+        		width: 214px;
         		clear: both;
     		}
     		.container input {

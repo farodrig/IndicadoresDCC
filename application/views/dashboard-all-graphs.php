@@ -172,12 +172,10 @@
 							var index = 0;
 						</script>
 
-						
-						<?php echo form_open("dashboardAll"); ?>
-						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
+						<?php echo form_open("dashboard"); ?>
+						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
 						<?php echo form_close(); ?>
-						
-						
+
 						<?php foreach ($data as $metric):?> 
 							<div class='row'>
 								<div class='col-md-6'>
