@@ -232,9 +232,9 @@ class Dashboard_model extends CI_Model
             $query = "SELECT m.metric AS metric FROM MetOrg AS m WHERE m.id= ".$met->getMetOrg();
             $q = $this->db->query($query);
             if(($size=$q->num_rows()) > 0)
-                $metric = $q->result()[0]->metric;
+                $metric = $q->result()[0]->metric; 
             else 
-                return false;
+                return false; //Si llego aca hay problemas
 
             $query = "SELECT m.name AS name FROM Metric AS m WHERE m.id=".$metric;
             $q = $this->db->query($query);
@@ -245,8 +245,8 @@ class Dashboard_model extends CI_Model
 
             $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE m.state=1 AND m.metorg=".$met->getMetOrg()." AND m.year>=".$met->getMinYear()." AND m.year<=".$met->getMaxYear();
-            $q = $this->db->query($query);
+                    WHERE m.state=1 AND m.metorg= ? AND m.year>= ? AND m.year<=?";
+            $q = $this->db->query($query, array($met->getMetOrg(), $met->getMinYear(), $met->getMaxYear()));
             if(($size=$q->num_rows()) > 0){
                 $rows = $this->buildAllMeasuresments($q);
                 $result[] = array(
@@ -254,9 +254,6 @@ class Dashboard_model extends CI_Model
                                 'name' => $name,
                                 'measurements' => $rows
                                 );
-            }
-            else{
-                return false;
             }
             
         }

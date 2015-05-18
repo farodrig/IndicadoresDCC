@@ -32,8 +32,10 @@ class DashboardConfig extends CI_Controller
 	    }
 	    else{
 	    	$result['metricas'] = $all_metrics;
-	    	foreach ($all_metrics as $met_unidad) {
-	    		$id_org = key($all_metrics);
+	    	$id_keys = array_keys($all_metrics);
+	    	for($i=0; $i<sizeof($id_keys); $i++) {
+	    		$id_org = $id_keys[$i];
+	    		$met_unidad = $all_metrics[$id_org];
 	    		foreach ($met_unidad as $met) { //Permite acceder a nombre y id una metrica
 	    			$id=$met['metorg'];
 	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
@@ -74,11 +76,24 @@ class DashboardConfig extends CI_Controller
 	    }
 	    else{
 	    	$result['metricas'] = $all_metrics;
-	    	foreach ($all_metrics as $met_unidad) {
-	    		$id_org = key($all_metrics);
+	    	$id_keys = array_keys($all_metrics);
+	    	for($i=0; $i<sizeof($id_keys); $i++) {
+	    		$id_org = $id_keys[$i];
+	    		$met_unidad = $all_metrics[$id_org];
 	    		foreach ($met_unidad as $met) { //Permite acceder a nombre y id una metrica
 	    			$id=$met['metorg'];
-	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
+	    			$keys_areas = array_keys($all_areas);
+	    			if(in_array($id_org, $keys_areas))
+	    				$id_org_dash=$id_org;
+	    			else{
+	    				for ($j=0 ; $j<sizeof($keys_areas); $j++) {
+	    					if(in_array($id_org, $all_areas[$keys_areas[$j]])){
+	    						$id_org_dash=$keys_areas[$j];
+	    						break;
+	    					}
+	    				}
+	    			}
+	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
 	    		
@@ -97,16 +112,15 @@ class DashboardConfig extends CI_Controller
 
 	}
 
-	function configDCC(){ //Distinguir negocio y soporte?
+	function configDCC(){
 
 		$this->load->model('DashboardConfig_model');
 	    $all_metrics = $this->DashboardConfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de todas las métricas
 	    															      //Si all_metrics es falso es porque no hay areas
 
-	    debug($all_metrics);
+	    
 
 	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
-
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
 	    	$result['years'] = array(
@@ -116,19 +130,74 @@ class DashboardConfig extends CI_Controller
 				'max' => 2015,
 				'check' => NULL
 				);
+	    	$result['met_operacion']=[];
+	    	$result['met_soporte']=[];
 	    }
 	    else{
+	    	$met_op = [];
+	    	$met_sop=[];
 	    	$result['metricas'] = $all_metrics;
-	    	foreach ($all_metrics as $met_unidad) {
-	    		$id_org = key($all_metrics);
-	    		foreach ($met_unidad as $met) { //Permite acceder a nombre y id una metrica
+
+	    	if(!$all_areas)
+	    		$keys_areas = [];
+	    	else{
+	    		$keys_areas = array_keys($all_areas);
+	    	}
+	    	$id_keys = array_keys($all_metrics);
+	    	for($i=0; $i<sizeof($id_keys); $i++) {
+	    		$id_org = $id_keys[$i];
+	    		$metric = $all_metrics[$id_org];
+
+	    		foreach ($metric as $met) { //Permite acceder a nombre y id una metrica
 	    			$id=$met['metorg'];
-	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
+
+	    			if(in_array($id_org, $keys_areas)){
+	    				$this_unidades = $all_areas[$id_org]['unidades'];
+	    				if($all_areas[$id_org]['type']==0){
+	    					$met_sop[] = $id;
+	    					foreach ($this_unidades as $u) {
+	    						if(in_array($u['id'], $id_keys)){
+	    							foreach ($all_metrics[$u['id']] as $met_u) {
+	    								$met_sop[]=$met_u['metorg'];
+	    							}
+	    						}
+	    					}
+	    				}
+	    				else{
+	    					$met_op[] = $id;
+	    					foreach ($this_unidades as $u) {
+	    						if(in_array($u['id'], $id_keys)){
+	    							foreach ($all_metrics[$u['id']] as $met_u) {
+	    								$met_op[]=$met_u['metorg'];
+	    							}
+	    						}
+	    					}
+	    				}
+	    			}
+
+	    			$keys_areas = array_keys($all_areas);
+	    			if(in_array($id_org, $keys_areas))
+	    				$id_org_dash=$all_areas[$id_org]['type'];
+	    			else{
+	    				for ($j=0 ; $j<sizeof($keys_areas); $j++) {
+	    					if(in_array($id_org, $all_areas[$keys_areas[$j]])){
+	    						$id_org_dash=$all_areas[$keys_areas[$j]]['type'];
+	    						break;
+	    					}
+	    				}
+	    			}
+
+	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
 	    		
 	    	}
-	    	$result['years'] = $years;     
+	    	$met_op= array_unique($met_op);
+	    	$met_sop= array_unique($met_sop);
+	    	$result['years'] = $years;
+	    	$result['met_operacion']=[];
+	    	$result['met_soporte']=[];
+	    	$result['colors'] = array("success", "warning");     
 	    }
 
 	    if(!$all_areas)
@@ -137,8 +206,9 @@ class DashboardConfig extends CI_Controller
 	    	$result['areas'] = $all_areas;
 	    }
 		
-	    //$this->load->view('configurar-dashboard-dcc',$result);
-	    //debug($all_metrics, true);
+		//debug($all_areas);
+	    $this->load->view('configurar-dashboard-dcc',$result);
+	    //debug($all_metrics, true); */
 
 	}
 
@@ -152,6 +222,12 @@ class DashboardConfig extends CI_Controller
 
 		$this->addGraph();
 		redirect('cdashboardArea');
+	}
+
+	function addGraphDCC(){
+
+		$this->addGraph();
+		redirect('cdashboardDCC');
 	}
 
 	function addGraph(){

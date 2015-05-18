@@ -154,30 +154,35 @@ class DashboardConfig_model extends CI_Model
 		return $result;
 	}
 
-	function getAllMetricsDCC()
+	function getAllMetricsDCC() 
 	{
 		$metrics = $this->getAllMetricsArea();
 
 		if(!$metrics)
 			$metrics=[];
 
-		$query = "SELECT mo.id AS id, m.name FROM MetOrg AS mo, Metric AS m WHERE (mo.org=1 OR mo.org=0) AND mo.metric=m.id";
+		$query = "SELECT mo.id AS id, m.name, mo.org FROM MetOrg AS mo, Metric AS m WHERE (mo.org=1 OR mo.org=0) AND mo.metric=m.id";
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0){
 			$metrics_dcc = $q->result();
 			foreach ($metrics_dcc as $metric) {
-				$r[] = array('metorg' => $metric->id,
-							'name' => $metric->name );
+				if($metric->org==1)
+					$r_1[] = array('metorg' => $metric->id,
+								'name' => $metric->name );
+				else
+					$r_0[] = array('metorg' => $metric->id,
+								'name' => $metric->name );
 			}
-			$metrics[1] = $r;
+			$metrics[1] = $r_1;
+			$metrics[0] = $r_0;
 		}
 		return $metrics;
 	}
 
 	function getAllAreasUnidad(){
 
-		$query = "SELECT org.id AS id, org.name AS name, ot.name AS type FROM Organization AS org, OrgType AS ot 
-			WHERE (org.parent = 1 OR org.parent=0) AND NOT org.id=1 AND NOT org.id=0 AND org.type=ot.id";
+		$query = "SELECT org.id AS id, org.name AS name, org.parent AS parent FROM Organization AS org 
+			WHERE (org.parent = 1 OR org.parent=0) AND NOT org.id=1 AND NOT org.id=0";
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0)
 			$areas = $q->result();
@@ -198,7 +203,7 @@ class DashboardConfig_model extends CI_Model
 			
 			$result[$id_area] = array(
 							'name' => $a->name,
-							'type' => $a->type, 
+							'type' => $a->parent, 
 							'id' => $id_area, 
 							'unidades' => $unidades);
 		}

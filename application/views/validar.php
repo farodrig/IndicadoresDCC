@@ -62,7 +62,7 @@
 							<a href="<?php echo base_url();?>configurar" class="notification-icon">
 								<i class="fa fa-gear"></i>
 							</a>
-							<span class="separator"></span>
+							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</li>
 						<li>
 							<label>Validar</label>

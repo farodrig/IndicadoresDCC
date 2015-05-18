@@ -65,7 +65,7 @@
 							<a href="<?php echo base_url();?>configurar" class="notification-icon">
 								<i class="fa fa-gear"></i>
 							</a>
-							<span class="separator"></span>
+							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</li>
 						<li>
 							<label>Validar</label>
@@ -209,7 +209,6 @@
 										<h2 class='panel-title'><?php echo $metric['name']; ?> &nbsp;&nbsp;&nbsp;
 										<button name="export" id="export" class="btn btn-primary" type="submit">Exportar</button></h2>
 									</header>
-								<?php echo form_close(); ?>
 									<div class='panel-body'>
 										<table class="table table-bordered table-striped mb-none" id='datatable-default'>
 											<thead>
@@ -224,7 +223,9 @@
 											<tbody><?php echo $metric['table'];?></tbody>
 										</table>
 									</div>
+									<?php echo form_close(); ?>
 								</section>
+								
 							</div>
 						</div>
 						
