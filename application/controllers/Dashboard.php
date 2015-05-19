@@ -172,17 +172,30 @@ class Dashboard extends CI_Controller
 		}
 
 		$this->load->library('session');
+		//Usuario
+		$user = $this->input->post("user");
+		if(is_null($user) && is_null(($user=$this->session->flashdata('user'))))
+			redirect('inicio');
+		$this->load->model('Permits_model');
+    	$permits = $this->Permits_model->getAllPermits($user);
+		//-------------
+
+		//ID organizacion
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
-		debug($id);
+
 		if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
+		//-------------
 
 		$result['id_location'] = $id;
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id); 
-	    //debug($dashboard_metrics);
+	    
+	    //Guardar en variables de sesion
+	    $this->session->set_flashdata('user',$user);
 		$this->session->set_flashdata('id',$id);
+		//-------------
 	    
 	    if(!$dashboard_metrics){
 	    	$metrics=[];
@@ -190,7 +203,6 @@ class Dashboard extends CI_Controller
 	    }
 	    else{
 	    	$all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
-	    	//debug($all_measurements);
 	    	foreach($dashboard_metrics as $metric){
 	    		$metrics[$metric->getId()]= array(
 	    										'id' => $metric->getId(),
@@ -257,9 +269,14 @@ class Dashboard extends CI_Controller
 	    $result['data'] = $metrics; 
 	    $result['route'] = $route;
 	    $result['names'] = $names;
+	    $result['user'] = $user;
 
-	    //debug($metrics);
-	    $this->load->view('dashboard', $result);
+	    if($permits->getDirector()){
+	    	$this->load->view('dashboard', $result);
+	    }
+	    elseif($permits->getVisualizador()){
+	    	$this->load->view('dashboardVisualizador', $result);
+	    }
 
 	}
 
@@ -288,8 +305,17 @@ class Dashboard extends CI_Controller
 		}
 
 		$this->load->library('session');
+
+		//Usuario
+		$user = $this->input->post("user");
+		if(is_null($user) && is_null(($user=$this->session->flashdata('user'))))
+			redirect('inicio');
+		$this->load->model('Permits_model');
+    	$permits = $this->Permits_model->getAllPermits($user);
+		//-------------
+
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
-		debug($id);
+		
 		if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
 
@@ -297,7 +323,8 @@ class Dashboard extends CI_Controller
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getAllDashboardMetrics($id); //OK
-	    //debug($dashboard_metrics);
+	    
+	    $this->session->set_flashdata('user',$user);
 		$this->session->set_flashdata('id',$id);
 	    
 	    if(!$dashboard_metrics){
@@ -372,9 +399,14 @@ class Dashboard extends CI_Controller
 	    $result['data'] = $metrics; 
 	    $result['route'] = $route;
 	    $result['names'] = $names;
+	    $result['user'] = $user;
 
-	    //debug($metrics);
-	    $this->load->view('dashboard-all-graphs', $result);
+	    if($permits->getDirector()){
+	    	$this->load->view('dashboard-all-graphs', $result);
+	    }
+	    elseif($permits->getVisualizador()){
+	    	$this->load->view('dashboard-all-graphsVisualizador', $result);
+	    }
 
 	}
 

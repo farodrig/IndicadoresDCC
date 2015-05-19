@@ -69,7 +69,7 @@
 						</li>
 						<li>
 							<label>Validar</label>
-							<a href="<?php echo base_url();?>validar" class="notification-icon">
+							<a id="validar" href="<?php echo base_url();?>validar" class="notification-icon">
 								<i class="fa fa-check-circle" style="color:green"></i>
 								<span class="badge">1</span>
 							</a>
@@ -173,7 +173,9 @@
 						</script>
 
 						<?php echo form_open("dashboard"); ?>
+						<input type="hidden" name="user" id="user" value="<?php echo $user; ?>">
 						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
+						<hr>
 						<?php echo form_close(); ?>
 
 						<?php foreach ($data as $metric):?> 
@@ -392,6 +394,11 @@
 				}
 		
 			}
+
+			$(document).click(function(event) {
+    			var text = $(event.target);
+    			alert("holi");
+			});
 		</script>
 	</body>
 </html>

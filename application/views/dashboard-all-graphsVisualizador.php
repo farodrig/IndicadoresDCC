@@ -59,26 +59,6 @@
 				<!-- start: search & user box -->
 				<div class="header-right">
 
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-
-					<span class="separator"></span>
-
 					<div id="userbox" class="userbox">
 						<a href="#" data-toggle="dropdown">
 							<figure class="profile-picture">
@@ -129,13 +109,6 @@
 											<span>U-Dashboard</span>
 										</a>
 									</li>
-									<li>
-										<a href="<?php echo base_url();?>formAgregarDato?var=<?php echo $id_location ?>">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-plus-square" aria-hidden="true"></i>
-											<span>Añadir Datos</span>
-										</a>
-									</li>
 								</ul>
 							</nav>
 						</div>
@@ -172,14 +145,14 @@
 							var index = 0;
 						</script>
 
-						
-						<?php echo form_open("dashboardAll"); ?>
+
+						<?php echo form_open("dashboard"); ?>
 						<input type="hidden" name="user" id="user" value="<?php echo $user; ?>">
-						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
+						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
 						<hr>
 						<?php echo form_close(); ?>
-						
-						
+
+
 						<?php foreach ($data as $metric):?> 
 							<div class='row'>
 								<div class='col-md-6'>
@@ -213,7 +186,6 @@
 								<section class='panel'>
 								<?php echo form_open("export"); ?>
 									<header class='panel-heading'>
-										<input type="hidden" name="user" id="user" value="<?php echo $user;?>">
 										<input type="hidden" name="id_org" id="id_org" value="<?php echo $id_location;?>">
 										<input type="hidden" name="id_met" id="id_met" value="<?php echo $metric['id'];?>">
 										<h2 class='panel-title'><?php echo $metric['name']; ?> &nbsp;&nbsp;&nbsp;

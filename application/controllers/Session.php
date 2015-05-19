@@ -9,6 +9,12 @@ class Session extends CI_Controller {
 	}
 
     public function inicio(){
+
+    	//$user= "17.586.757-0"; //SE va a recibir y se va a ir guardando como variable de sesion
+    	$user= "18.292.316-8";
+    	$this->load->model('Permits_model');
+    	$permits = $this->Permits_model->getAllPermits($user);
+
         $this->load->model('Organization_model');
         $type = $this->input->get('sector');
 		$department = $this->Organization_model->getDepartment();
@@ -34,10 +40,22 @@ class Session extends CI_Controller {
     		}
 		}
 		$types = $this->Organization_model->getTypes();
-	    $this->load->view('index', array('department'=> $department,
-	                                     'areaunit'=>$areaunit,
-	                                     'types'=>$types,
-	                                     'name' => $name));
+
+		//Colocar permisos de mayor a menor
+		if($permits->getDirector()){
+	    	$this->load->view('index', array('department'=> $department,
+	        	                             'areaunit'=>$areaunit,
+	            	                         'types'=>$types,
+	                	                     'name' => $name,
+	                	                     'user' => $user));
+		}
+		elseif($permits->getVisualizador()){
+			$this->load->view('indexVisualizador', array('department'=> $department,
+	        	                             			'areaunit'=>$areaunit,
+	            	                         			'types'=>$types,
+	                	                     			'name' => $name,
+	                	                     			'user' => $user));
+		}
 	}
 
 	
