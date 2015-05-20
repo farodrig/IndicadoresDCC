@@ -11,12 +11,22 @@ class MySession extends CI_Controller {
     public function inicio(){
 
     	//$user= "17.586.757-0"; //SE va a recibir y se va a ir guardando como variable de sesion
-    	$user= "18.292.316-8";
+    	//$user= "18.292.316-8";
+    	$user = "20.584.236-5";
     	$this->load->library('session');
-    	$this->session->set_userdata('user', $user);
     	
     	$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
+
+    	$permits_array = array('user' => $user,
+    							'director' => $permits->getDirector(),
+    							'visualizador' => $permits->getVisualizador(),
+    							'asistente_unidad' => $permits->getAsistenteUnidad(),
+    							'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
+    							'encargado_unidad' => $permits->getEncargadoUnidad(),
+    							'asistente_dcc' => $permits->getAsistenteDCC());
+
+    	$this->session->set_userdata($permits_array);
 
         $this->load->model('Organization_model');
         $type = $this->input->get('sector');
@@ -51,7 +61,7 @@ class MySession extends CI_Controller {
 	                	                     'name' => $name,
 	                	                     'user' => $user));
 		}
-		elseif($permits->getVisualizador()){
+		elseif($permits->getAsistenteUnidad()!=-1 || $permits->getVisualizador()){
 			$this->load->view('indexVisualizador', array('department'=> $department,
 	        	                             			'areaunit'=>$areaunit,
 	            	                         			'types'=>$types,

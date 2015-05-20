@@ -170,7 +170,7 @@ class Dashboard_model extends CI_Model
     }
 
 
-    function getDashboardMetrics($id)
+    function getDashboardMetrics($id, $category)
     {
         $query = "SELECT d.id AS id FROM Dashboard AS d WHERE d.org=".$id;
         $q = $this->db->query($query);
@@ -192,10 +192,18 @@ class Dashboard_model extends CI_Model
             $g_id = $g_id."g.id= ".$id." OR ";
         }
         $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
+        
+        if($category==0){
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
+                        FROM Graphic AS g 
+                        WHERE g.position<>0 AND ".$g_id;
+        }
+        else{
 
-        $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                    FROM Graphic AS g 
-                    WHERE g.position<>0 AND ".$g_id;
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
+                        FROM Graphic AS g, MetOrg AS mo, Metric AS m
+                        WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND m.category=".$category." AND ".$g_id;
+        }
 
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
@@ -352,7 +360,7 @@ class Dashboard_model extends CI_Model
         header("Content-Transfer-Encoding: binary");
     }
 
-    function getAllDashboardMetrics($id)
+    function getAllDashboardMetrics($id, $category)
     {
         $query = "SELECT d.id AS id FROM Dashboard AS d WHERE d.org=".$id;
         $q = $this->db->query($query);
@@ -379,6 +387,17 @@ class Dashboard_model extends CI_Model
                     FROM Graphic AS g 
                     WHERE ".$g_id;
 
+        if($category==0){
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
+                        FROM Graphic AS g 
+                        WHERE ".$g_id;
+        }
+        else{
+
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
+                        FROM Graphic AS g, MetOrg AS mo, Metric AS m
+                        WHERE g.metorg=mo.id AND mo.metric=m.id AND m.category=".$category." AND ".$g_id;
+        }
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
             return $this->buildDashboardMetrics($q);

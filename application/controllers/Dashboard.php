@@ -163,36 +163,18 @@ class Dashboard extends CI_Controller
 				1 => $valid_years);
 	}
 
-
-	function showDashboard(){
+	function auxShowDashboard($dashboard_metrics,$id){
 
 		function cmpPairs($p1, $p2)
 		{
     		return $p1[0]>$p2[0];
 		}
 
-		$this->load->library('session');
-		//Usuario
-		$user = $this->session->userdata("user");
-		$this->load->model('Permits_model');
-    	$permits = $this->Permits_model->getAllPermits($user);
-		//-------------
-
-		//ID organizacion
-		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
-
-		if($this->session->userdata('id_location')!=FALSE){
-			$id =$this->session->userdata('id_location');
-			$this->session->unset_userdata('id_location');
-		}	
-		else if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
-			redirect('inicio');
 		//-------------
 
 		$result['id_location'] = $id;
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
-	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id); 
 	    
 	    //Guardar en variables de sesion
 		$this->session->set_flashdata('id',$id);
@@ -270,14 +252,67 @@ class Dashboard extends CI_Controller
 	    $result['data'] = $metrics; 
 	    $result['route'] = $route;
 	    $result['names'] = $names;
-	    $result['user'] = $user;
 
-	    if($permits->getDirector()){
+	    return $result;
+	}
+
+	function showDashboard(){
+
+		$this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"));
+		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
+
+		if($this->session->userdata('id_location')!=FALSE){
+			$id =$this->session->userdata('id_location');
+			$this->session->unset_userdata('id_location');
+		}	
+		else if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
+			redirect('inicio');
+		//-------------
+
+	    $this->load->model('Dashboard_model');
+	    
+	    //Guardar en variables de sesion
+		$this->session->set_flashdata('id',$id);
+
+		if($permits['director'] || $permits['visualizador'] || ($permits['asistente_finanzas_unidad']==$id 
+			&& ($permits['asistente_dcc'] || $permits['encargado_unidad']==$id || $permits['asistente_unidad']==$id))){
+	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,0); 
+		}
+	    elseif($permits['asistente_dcc'] || $permits['encargado_unidad']==$id || $permits['asistente_unidad']==$id){
+	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,1); 
+	    }
+	    elseif($permits['asistente_finanzas_unidad']==$id){
+	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,2); 	
+	    }
+	    else{
+	    	$dashboard_metrics=[];
+	    }
+	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
+
+	    $this->session->set_flashdata('id',$id);
+	    if($permits['director']){
 	    	$this->load->view('dashboard', $result);
 	    }
-	    elseif($permits->getVisualizador()){
+	    elseif($permits['asistente_unidad']==$id || $permits['asistente_finanzas_unidad']==$id || $permits['asistente_dcc']){ //Si me corresponde la unidad
+	    	$this->load->view('dashboardAsistente', $result);
+	    }
+	    elseif($permits['visualizador']){
 	    	$this->load->view('dashboardVisualizador', $result);
 	    }
+	    elseif($permits['encargado_unidad']!=$id && $permits['encargado_unidad']!=-1){
+	    	$this->load->view('noDashboardEncargado', $result);
+	    }
+	    elseif($permits['asistente_unidad']!=$id && $permits['asistente_finanzas_unidad']!=$id){
+	    	$this->load->view('noDashboardAsistente', $result);
+	    }
+	    
 
 	}
 
@@ -302,114 +337,59 @@ class Dashboard extends CI_Controller
 
 	function showAllDashboard(){
 
-		function cmpPairs($p1, $p2)
-		{
-    		return $p1[0]>$p2[0];
-		}
-
 		$this->load->library('session');
-
-		//Usuario
 		$user = $this->session->userdata("user");
-		$this->load->model('Permits_model');
-    	$permits = $this->Permits_model->getAllPermits($user);
-		//-------------
-
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"));
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
-		
+
 		if($this->session->userdata('id_location')!=FALSE){
 			$id =$this->session->userdata('id_location');
 			$this->session->unset_userdata('id_location');
 		}	
 		else if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
+		//-------------
 
-		$result['id_location'] = $id;
 	    $this->load->model('Dashboard_model');
-	    $route = $this->Dashboard_model->getRoute($id);
-	    $dashboard_metrics = $this->Dashboard_model->getAllDashboardMetrics($id); //OK
 	    
+	    //Guardar en variables de sesion
 		$this->session->set_flashdata('id',$id);
-	    
-	    if(!$dashboard_metrics){
-	    	$metrics=[];
-	    	$names=[];
+
+		if($permits['director'] || $permits['visualizador'] || ($permits['asistente_finanzas_unidad']==$id 
+			&& ($permits['asistente_dcc'] || $permits['encargado_unidad']==$id || $permits['asistente_unidad']==$id))){
+	    	$dashboard_metrics = $this->Dashboard_model->getAllDashboardMetrics($id,0);
+		}
+	    elseif($permits['asistente_dcc'] || $permits['encargado_unidad']==$id || $permits['asistente_unidad']==$id){
+	    	$dashboard_metrics = $this->Dashboard_model->getAllDashboardMetrics($id,1);
+	    }
+	    elseif($permits['asistente_finanzas_unidad']==$id){
+	    	$dashboard_metrics = $this->Dashboard_model->getAllDashboardMetrics($id,2); 	
 	    }
 	    else{
-	    	$all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
-	    	foreach($dashboard_metrics as $metric){ 
-	    		$metrics[$metric->getId()]= array(
-	    										'id' => $metric->getId(),
-	    										'vals' => [],
-	    										'name' => "",
-	    										'table' => "",
-	    										'graph_type' => $metric->getGraphType(),
-	    										'max_y' => 0,
-	    										'min_y' => 0,
-	    										'measure_number' => 0
-	    										);
-
-	    	}
-	    	if($all_measurements){ 
-	    		foreach ($all_measurements as $measure) {
-	    			$count = 1;
-	    			$id_met = $measure['id'];
-	    			$names[]= $id_met;
-	    			$metrics[$id_met]['name'] = $measure['name'];
-	    			
-	    			$values=[];
-	    			$years=[];
-	    			foreach ($measure['measurements'] as $m){
-	    				$s = "<tr>
-	    				  <td>".$count."</td>
-	    			  	  <td>".$m->getYear()."</td>
-	    			      <td>".$m->getValue()."</td>
-	    			      <td>".$m->getTarget()."</td>
-	    			      <td>".$m->getExpected()."</td>
-	    			      </tr>";
-	    			    $values[] = $m->getValue();
-	    			    $years[] = $m->getYear();
-	    				$metrics[$id_met]['table'] = $metrics[$id_met]['table'].$s; 
-	    				$metrics[$id_met]['vals'][] = array($m->getYear(), $m->getValue());
-	    				$count++;
-
-	    			}
-	    			
-	    			
-	    			usort($metrics[$id_met]['vals'], "cmpPairs");
-	    			$metrics[$id_met]['measure_number'] = max($years)-min($years);
-	    			$min = min($values);
-
-	    			$metrics[$id_met]['min_y'] = $min>0 ? floor(0.85*$min) : floor(1.15*$min);
-	    			$metrics[$id_met]['max_y'] = ceil(1.15*max($values));
-
-	    			
-	    		}
-	  
-	    		$res=[];
-	    		$id_met = array_keys($metrics);
-	    		foreach ($id_met as $id) {
-	    			if($metrics[$id]['name']=="")
-	    				continue;
-	    			$res[$id]=$metrics[$id];
-	    		}
-	    		$metrics= $res;
-	    	}
-	    	else{
-	    		$metrics=[];  //Si la metrica no tiene mediciones => no se muestra
-	    		$names=[];
-	    	}
-		}
-	    $result['data'] = $metrics; 
-	    $result['route'] = $route;
-	    $result['names'] = $names;
-	    $result['user'] = $user;
-
-	    if($permits->getDirector()){
+	    	$dashboard_metrics=[];
+	    }
+	     
+	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
+	    $this->session->set_flashdata('id',$id);
+	    if($permits['director']){
 	    	$this->load->view('dashboard-all-graphs', $result);
 	    }
-	    elseif($permits->getVisualizador()){
+	    elseif($permits['asistente_dcc'] || $permits['asistente_unidad']==$id || $permits['asistente_finanzas_unidad']==$id ){ //Si me corresponde la unidad
+	    	$this->load->view('dashboard-all-graphsAsistente', $result);
+	   	}
+	    elseif($permits['visualizador']){
 	    	$this->load->view('dashboard-all-graphsVisualizador', $result);
+	    }
+	    elseif($permits['encargado_unidad']!=$id && $permits['encargado_unidad']!=-1){
+	    	$this->load->view('noDashboardEncargado', $result);
+	    }
+	    elseif($permits['asistente_unidad']!=$id && $permits['asistente_finanzas_unidad']!=$id){
+	    	$this->load->view('noDashboardAsistente', $result);
 	    }
 
 	}

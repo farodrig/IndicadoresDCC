@@ -59,24 +59,6 @@
 				<!-- start: search & user box -->
 				<div class="header-right">
 
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a id="validar" href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-					
 					<span class="separator"></span>
 
 					<div id="userbox" class="userbox">
@@ -129,13 +111,6 @@
 											<span>U-Dashboard</span>
 										</a>
 									</li>
-									<li>
-										<a href="<?php echo base_url();?>formAgregarDato?var=<?php echo $id_location ?>">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-plus-square" aria-hidden="true"></i>
-											<span>Añadir Datos</span>
-										</a>
-									</li>
 								</ul>
 							</nav>
 						</div>
@@ -166,76 +141,7 @@
 					</header>
 
 					<!-- start: page -->
-						<script type="text/javascript">
-							var data = [];
-							var graph_info = [];
-							var index = 0;
-						</script>
-
-						<?php echo form_open("dashboard"); ?>
-						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
-						<hr>
-						<?php echo form_close(); ?>
-
-						<?php foreach ($data as $metric):?> 
-							<div class='row'>
-								<div class='col-md-6'>
-									<section class='panel'>
-										<header class='panel-heading'>
-											<h2 class='panel-title'><?php echo element('name',$metric); ?></h2>
-										</header>
-										<div class='panel-body'>
-											<div class='chart chart-md' id='<?php echo str_replace(' ', '', $metric['id']); ?>'> 
-											<script type='text/javascript'>
-												var info = <?php echo json_encode($metric['vals']) ?>;
-												graph_info[index] = {
-													max :  <?php echo $metric['max_y']?>,
-													min :  <?php echo $metric['min_y']?>,
-													graph_type :  <?php echo $metric['graph_type']?>,
-													measure_number : <?php echo $metric['measure_number'] ?>
-
-												};
-
-												data[index] = [{
-													data: info,
-													label: "<?php echo $metric['name']?>",
-													color: "#0088cc"
-												}];
-												index++;
-											</script>
-										</div>
-									</section>
-							</div>
-							<div class='col-md-6'>
-								<section class='panel'>
-								<?php echo form_open("export"); ?>
-									<header class='panel-heading'>
-										<input type="hidden" name="id_org" id="id_org" value="<?php echo $id_location;?>">
-										<input type="hidden" name="id_met" id="id_met" value="<?php echo $metric['id'];?>">
-										<h2 class='panel-title'><?php echo $metric['name']; ?> &nbsp;&nbsp;&nbsp;
-										<button name="export" id="export" class="btn btn-primary" type="submit">Exportar</button></h2>
-									</header>
-									<div class='panel-body'>
-										<table class="table table-bordered table-striped mb-none" id='datatable-default'>
-											<thead>
-												<tr>
-													<th>#</th>
-													<th>Año</th>
-													<th>Valor</th>
-													<th>Esperado</th>
-													<th>Meta</th>
-												</tr>
-											</thead>
-											<tbody><?php echo $metric['table'];?></tbody>
-										</table>
-									</div>
-									<?php echo form_close(); ?>
-								</section>
-								
-							</div>
-						</div>
-						
-						<?php endforeach; ?>
+					<h2>Usted no tiene permisos para ver esta página</h2>
 					<!-- end: page -->
 				</section>
 			</div>
@@ -286,113 +192,6 @@
 		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.tabletools.js"></script>
 		<!--<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.default.js"></script>-->
 
-		<script type="text/javascript">
-			
-			var names = <?php echo json_encode($names); ?>;
-			var size = names.length;
-
-			for(i=0; i<size; i++){
-				names[i] = names[i].replace(/\s+/g, '');
-			}
-
-			for(i = 0; i<index; i++){
-
-				if(graph_info[i]['graph_type']==2){ //Es de linea
-					$(document).ready((function( $ ) {
-
-						'use strict';
-
-						(function() {
-							var plot = $.plot('#'.concat(names[i]), data[i], {
-								series: {
-									lines: {
-										show: true,
-										fill: false,
-										lineWidth: 1,
-										fillColor: {
-											colors: [{
-												opacity: 0.45
-												}, {
-												opacity: 0.45
-											}]
-										}
-									},
-									points: {
-										show: true
-									},
-									shadowSize: 0
-								},
-								grid: {
-									hoverable: true,
-									clickable: true,
-									borderColor: 'rgba(0,0,0,0.1)',
-									borderWidth: 1,
-									labelMargin: 15,
-									backgroundColor: 'transparent'
-								},
-								yaxis: {
-									min: graph_info[i]['min'],
-									max: graph_info[i]['max'],
-									color: 'rgba(0,0,0,0.1)'
-								},
-								xaxis: {
-									ticks: graph_info[i]['measure_number']==0 ? 1 :  graph_info[i]['measure_number'],
-									color: 'rgba(0,0,0,0.1)'
-								},
-								tooltip: true,
-								tooltipOpts: {
-									content: '%s: Valor para %x es %y',
-									shifts: {
-										x: -60,
-										y: 25
-									},
-									defaultTheme: false
-								}
-							});
-						})()}).apply( this, [ jQuery ]));
-				}
-				else{
-					$(document).ready((function( $ ) {
-
-						'use strict';
-
-						(function() {
-							var plot = $.plot('#'.concat(names[i]), [data[i][0]['data']], {
-								colors: ['#8CC9E8'],
-								series: {
-									bars: {
-										show: true,
-										barWidth: 0.8,
-										align: 'center'
-									}
-								},
-								xaxis: {
-									mode: 'categories',
-									tickLength: 0
-								},
-								grid: {
-									hoverable: true,
-									clickable: true,
-									borderColor: 'rgba(0,0,0,0.1)',
-									borderWidth: 1,
-									labelMargin: 15,
-									backgroundColor: 'transparent'
-								},
-								tooltip: true,
-								tooltipOpts: {
-									content: '%y',
-									shifts: {
-										x: -10,
-										y: 20
-									},
-								defaultTheme: false
-								}
-							});
-						})()}).apply( this, [ jQuery ]));
-
-				}
-		
-			}
 		</script>
 	</body>
 </html>

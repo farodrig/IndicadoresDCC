@@ -59,26 +59,6 @@
 				<!-- start: search & user box -->
 				<div class="header-right">
 
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a id="validar" href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-					
-					<span class="separator"></span>
-
 					<div id="userbox" class="userbox">
 						<a href="#" data-toggle="dropdown">
 							<figure class="profile-picture">

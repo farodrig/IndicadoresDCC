@@ -59,24 +59,6 @@
 				<!-- start: search & user box -->
 				<div class="header-right">
 
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a id="validar" href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-					
 					<span class="separator"></span>
 
 					<div id="userbox" class="userbox">
@@ -172,11 +154,13 @@
 							var index = 0;
 						</script>
 
-						<?php echo form_open("dashboard"); ?>
-						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
+						
+						<?php echo form_open("dashboardAll"); ?>
+						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
 						<hr>
 						<?php echo form_close(); ?>
-
+						
+						
 						<?php foreach ($data as $metric):?> 
 							<div class='row'>
 								<div class='col-md-6'>
