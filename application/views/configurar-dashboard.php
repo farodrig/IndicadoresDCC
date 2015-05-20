@@ -218,7 +218,7 @@
 					</div>
 					<?php 
 						$first_area_key = array_keys($areas)[0];
-						if($areas[$first_area_key]['type']=="Operación"){
+						if($areas[$first_area_key]['type']=="1"){
 							$color_panel="panel-warning";
 							$color_button = "btn-warning";
 						}
@@ -409,7 +409,7 @@
 				var id_area = document.getElementById("area").value;
 				var areas = <?php echo json_encode($areas); ?>;
 				var unidades = areas[id_area]['unidades'];
-				var color = areas[id_area]['type']=="Operación" ? "warning" : "success";
+				var color = areas[id_area]['type']=="1" ? "warning" : "success";
 
 				$('#section').attr('class',"panel-".concat(color));
 				$('#area').attr('class', "form-control btn btn-".concat(color));

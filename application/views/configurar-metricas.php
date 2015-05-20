@@ -238,7 +238,7 @@
 						    ?>
 	
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
-									<?php echo form_open('session/agregarMetrica', array('onsubmit' => "return checkInput();"));?>
+									<?php echo form_open('MySession/agregarMetrica', array('onsubmit' => "return checkInput();"));?>
 									<section class="panel">
 										<form>
 										<header class="panel-heading">
@@ -283,7 +283,7 @@
 								</div>
 								
 								<div id="deleteMetrica" class="modal-block modal-block-primary mfp-hide">
-								<?php echo form_open('session/eliminarMetrica', array('id' => 'modificarMetrica')); ?>
+								<?php echo form_open('MySession/eliminarMetrica', array('id' => 'modificarMetrica')); ?>
 									<section class="panel">
 										<header class="panel-heading">
 											<h2 class="panel-title">Modificar métricas</h2>
@@ -318,7 +318,7 @@
 		</section>
 		
 		<div id="dialog" class="modal-block mfp-hide">
-		<?php echo form_open('session/eliminarMetrica', array('id' => 'eliminarMetrica'));?>
+		<?php echo form_open('MySession/eliminarMetrica', array('id' => 'eliminarMetrica'));?>
 			<section class="panel">
 				<header class="panel-heading">
 					<h2 class="panel-title">Eliminar métrica</h2>
@@ -534,6 +534,23 @@
 					});
 			}}
 		})
+
+		var success = <?php echo($success);?>;
+
+		   if (success==1){
+			   	new PNotify({
+					title: 'Éxito!',
+					text: 'Su solicitud ha sido realizada con éxito.',
+					type: 'success'
+				});
+			}
+			if (success==0){
+				new PNotify({
+					title: 'error!',
+					text: 'Ha ocurrido un error con su solicitud, porfavor intentelo de nuevo más tarde.',
+					type: 'error'
+				});
+			}
 		</script>
 	</body>
 </html>

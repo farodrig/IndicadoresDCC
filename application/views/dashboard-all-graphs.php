@@ -173,7 +173,6 @@
 						</script>
 
 						<?php echo form_open("dashboard"); ?>
-						<input type="hidden" name="user" id="user" value="<?php echo $user; ?>">
 						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
 						<hr>
 						<?php echo form_close(); ?>
@@ -394,11 +393,6 @@
 				}
 		
 			}
-
-			$(document).click(function(event) {
-    			var text = $(event.target);
-    			alert("holi");
-			});
 		</script>
 	</body>
 </html>

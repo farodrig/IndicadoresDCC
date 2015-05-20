@@ -106,7 +106,7 @@ class Organization_model extends CI_Model{
     function getByName($name){
         $this->db->where(array('name'=>$name));
         $query = $this->db->get('Organization');
-        if ($query->num_rows() != 2)
+        if ($query->num_rows() != 1)
             return false;
         else
             return  $this->buildOrganization($query->row());

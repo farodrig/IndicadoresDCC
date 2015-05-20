@@ -147,7 +147,6 @@
 
 						
 						<?php echo form_open("dashboardAll"); ?>
-						<input type="hidden" name="user" id="user" value="<?php echo $user; ?>">
 						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
 						<hr>
 						<?php echo form_close(); ?>

@@ -18,7 +18,7 @@ class DashboardConfig extends CI_Controller
 	    															          //Si all_metrics es falso es porque no hay areas
 
 	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
-
+	    //$all areas incluye type que representa al DCC padre, 0 si es soporte, 1 si es operacion
 
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];

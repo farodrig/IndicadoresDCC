@@ -228,6 +228,7 @@ class Dashboard_model extends CI_Model
    
     function getDashboardMeasurements($metorgs)
     {   
+        $result=[];
         foreach ($metorgs as $met) {
             $query = "SELECT m.metric AS metric FROM MetOrg AS m WHERE m.id= ".$met->getMetOrg();
             $q = $this->db->query($query);

@@ -173,9 +173,7 @@ class Dashboard extends CI_Controller
 
 		$this->load->library('session');
 		//Usuario
-		$user = $this->input->post("user");
-		if(is_null($user) && is_null(($user=$this->session->flashdata('user'))))
-			redirect('inicio');
+		$user = $this->session->userdata("user");
 		$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
 		//-------------
@@ -183,7 +181,11 @@ class Dashboard extends CI_Controller
 		//ID organizacion
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
-		if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
+		if($this->session->userdata('id_location')!=FALSE){
+			$id =$this->session->userdata('id_location');
+			$this->session->unset_userdata('id_location');
+		}	
+		else if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
 		//-------------
 
@@ -193,7 +195,6 @@ class Dashboard extends CI_Controller
 	    $dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id); 
 	    
 	    //Guardar en variables de sesion
-	    $this->session->set_flashdata('user',$user);
 		$this->session->set_flashdata('id',$id);
 		//-------------
 	    
@@ -292,6 +293,8 @@ class Dashboard extends CI_Controller
 		$id_org = $this->input->post('id_org');
 		$id_met = $this->input->post('id_met');
 		
+		$this->load->library('session');
+		$this->session->set_userdata('id_location', $id_org);
 		$this->load->model('Dashboard_model');
 		$data = $this->Dashboard_model->getAllData($id_org, $id_met);
 		debug(array($id_met, $id_org));
@@ -307,16 +310,18 @@ class Dashboard extends CI_Controller
 		$this->load->library('session');
 
 		//Usuario
-		$user = $this->input->post("user");
-		if(is_null($user) && is_null(($user=$this->session->flashdata('user'))))
-			redirect('inicio');
+		$user = $this->session->userdata("user");
 		$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
 		//-------------
 
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 		
-		if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
+		if($this->session->userdata('id_location')!=FALSE){
+			$id =$this->session->userdata('id_location');
+			$this->session->unset_userdata('id_location');
+		}	
+		else if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
 
 		$result['id_location'] = $id;
@@ -324,7 +329,6 @@ class Dashboard extends CI_Controller
 	    $route = $this->Dashboard_model->getRoute($id);
 	    $dashboard_metrics = $this->Dashboard_model->getAllDashboardMetrics($id); //OK
 	    
-	    $this->session->set_flashdata('user',$user);
 		$this->session->set_flashdata('id',$id);
 	    
 	    if(!$dashboard_metrics){

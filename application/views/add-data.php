@@ -122,6 +122,12 @@
 											<span>U-Dashboard</span>
 										</a>
 									</li>
+									<li>
+										<a href="<?php echo base_url();?>dashboard">
+											<i class="fa fa-line-chart" aria-hidden="true"></i>
+											<span>Volver al dashboard</span>
+										</a>
+									</li>
 								</ul>
 							</nav>
 						</div>
