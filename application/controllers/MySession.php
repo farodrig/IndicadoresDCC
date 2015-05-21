@@ -11,8 +11,8 @@ class MySession extends CI_Controller {
     public function inicio(){
 
     	//$user= "17.586.757-0"; //SE va a recibir y se va a ir guardando como variable de sesion
-    	//$user= "18.292.316-8";
-    	$user = "20.584.236-5";
+    	$user= "18.292.316-8";
+    	//$user = "20.584.236-5";
     	$this->load->library('session');
     	
     	$this->load->model('Permits_model');

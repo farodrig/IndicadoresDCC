@@ -23,6 +23,7 @@
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/magnific-popup/magnific-popup.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
 
+		<link rel="stylesheet" href="<?php echo base_url();?>chosen/chosen.css">
 		<!-- Theme CSS -->
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/stylesheets/theme.css" />
 
@@ -176,7 +177,15 @@
 											<label class="control-label">Año:</label>
 										</div>
 										<div class="col-md-3">
-											<input type="text" name="year" id="year" class="form-control" onkeyup ="selectYear(); validate_year('year')" required>
+											<select id="year" name="year" data-placeholder="Seleccione año..." class="chosen-select" style="width:200px;" onchange ="selectYear(); validate_year('year')" tabindex="4">
+											<option value=""></option>
+											<?php 
+												$years = array_unique($measurements[1]);
+												foreach ($years as $year) {
+													echo('<option value="'.$year.'">'.$year.'</option>');
+												}
+											?>
+											</select>
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -233,7 +242,39 @@
 
 		<!-- Theme Initialization Files -->
 		<script src="<?php echo base_url();?>assets/javascripts/theme.init.js"></script>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
+  		<script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
+  		<script type="text/javascript">
+    		var config = {
+      		'.chosen-select'           : {},
+      		'.chosen-select-deselect'  : {allow_single_deselect:true},
+      		'.chosen-select-no-single' : {disable_search_threshold:10},
+      		'.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+      		'.chosen-select-width'     : {width:"95%"}
+    		}
+    		for (var selector in config) {
+      			$(selector).chosen(config[selector]);
+    		}
+  		</script>
+
+		
 		<script type="text/javascript">
+
+			$('#year').live('chosen:no_results', function(e,params) {
+    			var value = $('.chosen-search > input:nth-child(1)').val();
+    			if(value.length==4 && (!isNaN(parseFloat(value)) && isFinite(value))){
+    				$('#year').append($("<option>" , {
+        					text: value,
+        					value: value
+    						}));
+    				$('#year option[value="'.concat(value,'"]')).attr("selected", "selected");
+  					$('#year').trigger('chosen:updated');
+  					selectYear();
+    				 
+    			}
+  			});
+
 			function selectYear(){
 			
 				var year = document.getElementById("year").value;
@@ -309,7 +350,7 @@
 	    		}
 
 	    		for(i=0; i<ids.length; i++){
-	    			if(!validate('value'.concat(ids[i])) || !validate('target'.concat(ids[i])) || !validate('expected'.concat(id[i]))){
+	    			if(!validate('value'.concat(ids[i])) || !validate('target'.concat(ids[i])) || !validate('expected'.concat(ids[i]))){
 	    				alert("Los valores ingresados deben ser numéricos");
 	    				return false;
 	    			}

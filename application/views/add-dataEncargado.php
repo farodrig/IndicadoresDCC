@@ -54,6 +54,19 @@
 				<!-- start: search & user box -->
 				<div class="header-right">
 
+					<ul class="notifications">
+						<li>
+							<label>Validar</label>
+							<a href="<?php echo base_url();?>validar" class="notification-icon">
+								<i class="fa fa-check-circle" style="color:green"></i>
+								<span class="badge">1</span>
+							</a>
+
+						</li>
+					</ul>
+
+					<span class="separator"></span>
+
 					<div id="userbox" class="userbox">
 						<a href="#" data-toggle="dropdown">
 							<figure class="profile-picture">
@@ -167,6 +180,7 @@
 												}
 											?>
 											</select>
+											<!--<input type="text" name="year" id="year" class="form-control" >-->
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -208,6 +222,8 @@
 
 		<!-- Vendor -->
 		<script src="<?php echo base_url();?>assets/vendor/jquery/jquery.js"></script>
+
+		<script>jQuery.noConflict();</script>
 		<script src="<?php echo base_url();?>assets/vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/bootstrap/js/bootstrap.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/nanoscroller/nanoscroller.js"></script>
@@ -223,6 +239,7 @@
 
 		<!-- Theme Initialization Files -->
 		<script src="<?php echo base_url();?>assets/javascripts/theme.init.js"></script>
+
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
   		<script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
   		<script type="text/javascript">
@@ -254,6 +271,7 @@
     				 
     			}
   			});
+
 
 			function selectYear(){
 			
@@ -330,13 +348,14 @@
 	    		}
 
 	    		for(i=0; i<ids.length; i++){
-	    			if(!validate('value'.concat(ids[i])) || !validate('target'.concat(ids[i])) || !validate('expected'.concat(id[i]))){
+	    			if(!validate('value'.concat(ids[i])) || !validate('target'.concat(ids[i])) || !validate('expected'.concat(ids[i]))){
 	    				alert("Los valores ingresados deben ser numéricos");
 	    				return false;
 	    			}
 	    		}
 	    		return true;
 	    	}
+
 		</script>
 	</body>
 </html>

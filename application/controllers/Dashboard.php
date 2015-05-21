@@ -96,10 +96,10 @@ class Dashboard extends CI_Controller
 	    if($permits['director']){
 	    	$this->load->view('add-data', $res);
 	    }
-	    if(in_array($id, $permits['encargado_unidad'])){
+	    elseif(in_array($id, $permits['encargado_unidad'])){
 	    	$this->load->view('add-dataEncargado', $res);
 	    }
-	    if(in_array($id, $permits['asistente_unidad']) || $permits['asistente_dcc'] || in_array($id, $permits['asistente_finanzas_unidad'])){
+	    elseif(in_array($id, $permits['asistente_unidad']) || $permits['asistente_dcc'] || in_array($id, $permits['asistente_finanzas_unidad'])){
 	    	$this->load->view('add-dataAsistente', $res);
 	    }
 	    else{
@@ -348,6 +348,9 @@ class Dashboard extends CI_Controller
 	    if($permits['director']){
 	    	$this->load->view('dashboard', $result);
 	    }
+	    elseif(in_array($id, $permits['encargado_unidad'])){ //Si me corresponde la unidad
+	    	$this->load->view('dashboardEncargado', $result);
+	    }
 	    elseif(in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc']){ //Si me corresponde la unidad
 	    	$this->load->view('dashboardAsistente', $result);
 	    }
@@ -426,6 +429,9 @@ class Dashboard extends CI_Controller
 	    $this->session->set_flashdata('id',$id);
 	    if($permits['director']){
 	    	$this->load->view('dashboard-all-graphs', $result);
+	    }
+	    elseif(in_array($id, $permits['encargado_unidad'])){ //Si me corresponde la unidad
+	    	$this->load->view('dashboard-all-graphsEncargado', $result);
 	    }
 	    elseif($permits['asistente_dcc'] || in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad'])){ //Si me corresponde la unidad
 	    	$this->load->view('dashboard-all-graphsAsistente', $result);
