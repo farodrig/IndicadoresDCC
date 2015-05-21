@@ -185,7 +185,6 @@
 								<section class='panel'>
 								<?php echo form_open("export"); ?>
 									<header class='panel-heading'>
-										<input type="hidden" name="user" id="user" value="<?php echo $user;?>">
 										<input type="hidden" name="id_org" id="id_org" value="<?php echo $id_location;?>">
 										<input type="hidden" name="id_met" id="id_met" value="<?php echo $metric['id'];?>">
 										<h2 class='panel-title'><?php echo $metric['name']; ?> &nbsp;&nbsp;&nbsp;

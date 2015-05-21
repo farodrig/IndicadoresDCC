@@ -21,12 +21,12 @@ class Permits_model extends CI_Model
             $parameters = array
             (
                 'user' => $row->user,
-                'director' => $row->director,
-                'visualizador' => $row->visualizer,
-                'asistente_unidad' => $row->assistant_unidad,
-                'asistente_finanzas_unidad' => $row->finances_assistant_unidad,
-                'asistente_dcc' => $row->dcc_assistant,
-                'encargado_unidad' => $row->in_charge_unidad
+                'director' => $row->director, //Se puede hacer esto porque es una flag
+                'visualizador' => $row->visualizer, //Se puede hacer esto porque es una flag
+                'asistente_unidad' => explode(" ", $row->assistant_unidad),
+                'asistente_finanzas_unidad' => explode(" ", $row->finances_assistant_unidad),
+                'asistente_dcc' => $row->dcc_assistant, //Se puede hacer esto porque es una flag
+                'encargado_unidad' => explode(" ", $row->in_charge_unidad)
             );
 
             $permits = new Permits_library();

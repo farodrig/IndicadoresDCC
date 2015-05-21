@@ -2,11 +2,19 @@
 class Dashboard_model extends CI_Model
 {
 
-    function getAllMetrics($id)
+    function getAllMetrics($id, $category)
     {
-        $query = "SELECT mo.id AS id, met.name AS name
-                    FROM MetOrg AS mo, Metric AS met, Organization AS org 
-                    WHERE mo.metric=met.id AND mo.org =".$id." AND org.id =".$id;
+        if($category==0){
+            $query = "SELECT mo.id AS id, met.name AS name
+                        FROM MetOrg AS mo, Metric AS met, Organization AS org 
+                        WHERE mo.metric=met.id AND mo.org =".$id." AND org.id =".$id;
+        }
+        else{
+            $query = "SELECT mo.id AS id, met.name AS name
+                        FROM MetOrg AS mo, Metric AS met, Organization AS org 
+                        WHERE mo.metric=met.id AND mo.org =".$id." AND org.id =".$id." AND met.category=".$category;
+        }
+
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
             return $this->buildAllMetrics($q);
@@ -14,9 +22,16 @@ class Dashboard_model extends CI_Model
             return false;
     }
 
-    function getAllMeasurements($id)
+    function getAllMeasurements($id, $category)
     {
-        $query = "SELECT mo.id AS id FROM MetOrg AS mo WHERE mo.org=".$id;
+        if($category==0){
+            $query = "SELECT mo.id AS id FROM MetOrg AS mo WHERE mo.org=".$id;
+        }
+        else{
+            $query = "SELECT mo.id AS id
+                        FROM MetOrg AS mo, Metric AS met
+                        WHERE mo.metric=met.id AND mo.org =".$id." AND met.category=".$category;
+        }
         $q = $this->db->query($query);
         if(($size=$q->num_rows()) > 0){
             $rows = $q->result();
@@ -149,22 +164,22 @@ class Dashboard_model extends CI_Model
         return $measurement_array;
     }
 
-    function insertData($id_met, $year, $value, $target, $expected, $user){ //Inserta datos en la tabla de mediciones
+    function insertData($id_met, $year, $value, $target, $expected, $user, $validation){ //Inserta datos en la tabla de mediciones
 
         $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup) 
-                    VALUES (?, 1, ?, ?, ? ,?, ?, NOW())";
+                    VALUES (?, ?, ?, ?, ? ,?, ?, NOW())";
 
-        $q = $this->db->query($query, array($id_met, $value, $target, $expected, $year, $user)); 
+        $q = $this->db->query($query, array($id_met, $validation ,$value, $target, $expected, $year, $user)); 
 
         return $q;
     }
 
-    function updateData($id_met, $year, $value, $target, $expected, $user){ //Aqui hay que guardar datos antiguos
+    function updateData($id_met, $year, $value, $target, $expected, $user, $validation){ //Aqui hay que guardar datos antiguos
 
-        $query = " UPDATE Measure SET state = 1, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()  
+        $query = " UPDATE Measure SET state = ?, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()  
         WHERE metorg = ? AND year = ?";
 
-        $q = $this->db->query($query, array($value, $target, $expected, $user, $id_met, $year)); 
+        $q = $this->db->query($query, array($validation, $value, $target, $expected, $user, $id_met, $year)); 
 
         return $q;
     }

@@ -61,7 +61,7 @@ class MySession extends CI_Controller {
 	                	                     'name' => $name,
 	                	                     'user' => $user));
 		}
-		elseif($permits->getAsistenteUnidad()!=-1 || $permits->getVisualizador()){
+		elseif(!in_array("-1", $permits->getAsistenteUnidad()) || $permits->getVisualizador()){
 			$this->load->view('indexVisualizador', array('department'=> $department,
 	        	                             			'areaunit'=>$areaunit,
 	            	                         			'types'=>$types,
