@@ -82,66 +82,7 @@
 	<body>
 		<section class="body">
 
-			<!-- start: header -->
-			<header class="header">
-				<div class="logo-container">
-					<a href="<?php echo base_url();?>inicio" class="logo">
-						<img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
-					</a>
-					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
-						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-					</div>
-				</div>
-
-				<!-- start: search & user box -->
-				<div class="header-right">
-
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-
-					<span class="separator"></span>
-
-					<div id="userbox" class="userbox">
-						<a href="#" data-toggle="dropdown">
-							<figure class="profile-picture">
-								<img src="<?php echo base_url();?>assets/images/!logged-user.jpg" alt="Joseph Doe" class="img-circle" data-lock-picture="assets/images/!logged-user.jpg" />
-							</figure>
-							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
-								<span class="name">John Doe Junior</span>
-								<span class="role">administrator</span>
-							</div>
-
-							<i class="fa custom-caret"></i>
-						</a>
-
-						<div class="dropdown-menu">
-							<ul class="list-unstyled">
-								<li class="divider"></li>
-								<li>
-									<a role="menuitem" tabindex="-1" href="pages-signin.html"><i class="fa fa-power-off"></i> Logout</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<!-- end: search & user box -->
-			</header>
-			<!-- end: header -->
+        <?php include 'partials/header.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
@@ -216,7 +157,7 @@
 
 					</div>
 					</div>
-					<?php 
+					<?php
 						if($id_first=="-1")
 							$first_area_key = array_keys($areas)[0];
 						else{
@@ -252,7 +193,7 @@
 													<?php
 														$first_area_unidades = $areas[$first_area_key]['unidades'];?>
 													<select name="area" id= "area" class="<?php echo("form-control btn ".$color_button);?>" onchange= "selectUnidades();">
-													<?php 
+													<?php
 														foreach ($areas as $area) {
 															echo "<option class='select' value='".$area['id']."'>".$area['name']."</option>";
 														}
@@ -260,7 +201,7 @@
 													</select>
 													<select name="unidad" id="unidad" class="<?php echo("form-control btn ".$color_button);?>">
 													<?php
-														
+
 														foreach ($first_area_unidades as $unidad) {
 															echo "<option class='select' value='".$unidad['id']."'>".$unidad['name']."</option>";
 														}
@@ -274,9 +215,9 @@
 
 								</header>
 								<div class="panel-body">
-								
+
 									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
-									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>	 
+									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>
 
 										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
@@ -308,12 +249,12 @@
 											<?php echo form_close(); ?>
 										</div>
 
-									
+
 									</div>
-									
+
 								</div>
 							</section>
-							
+
 						</div>
 					</div>
 					<!-- end: page -->
@@ -352,7 +293,7 @@
 			var to = 2000;
 
 			$(document).ready(function(){
-				
+
 			});
 
 			function saveValFrom(e){
@@ -383,7 +324,7 @@
       			window.location.href = "<?php echo base_url();?>".concat(page);
     		}
 
-			var metricas = <?php echo json_encode($metricas); ?>; 
+			var metricas = <?php echo json_encode($metricas); ?>;
 			$(document).ready(function(){
 				if(id_first!="-1"){
 					var first_area=<?php echo $first_area_key; ?>;
@@ -398,7 +339,7 @@
 					$('#id_org').attr('value',unidad_value);
   					for (i in metricas_unidad) {
   						var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
-  							"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
+  							"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>");
     					$(popover).appendTo($('#metricas'));
   					}
   				}
@@ -419,7 +360,7 @@
 
 				var select_grafico = document.getElementById('type');
 				select_grafico.options.length = 0;
-				
+
 				if(type=="2"){
 					select_grafico.options[select_grafico.options.length]= new Option('Líneas', 2);
 					select_grafico.options[select_grafico.options.length]= new Option('Barra', 1);
@@ -432,7 +373,7 @@
   			}
 
 			function selectUnidades(){
-			
+
 				var id_area = document.getElementById("area").value;
 				var areas = <?php echo json_encode($areas); ?>;
 				var unidades = areas[id_area]['unidades'];
@@ -446,7 +387,7 @@
 				$('#metricas').empty();
 
 				select_unidad.options.length = 0; //Resetear select
-				
+
 				for(i in unidades){
  					opt = new Option(unidades[i]['name'], unidades[i]['id']);
  					opt.className="select";
@@ -455,10 +396,10 @@
 				var unidad_value = $( "#unidad" ).val();
 				$('#id_org').attr('value',unidad_value);
 				$('#metricas').empty();
-				var metricas_unidad = metricas[unidad_value]; 
+				var metricas_unidad = metricas[unidad_value];
   				for (i in metricas_unidad) {
   					var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
-  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
+  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>");
     				$(popover).appendTo($('#metricas'));
   				}
 			}
@@ -468,23 +409,23 @@
 				var unidad_value = $( "#unidad" ).val();
 				$('#metricas').empty();
 				$('#id_org').attr('value',unidad_value);
-				var metricas_unidad = metricas[unidad_value]; 
+				var metricas_unidad = metricas[unidad_value];
   				for (i in metricas_unidad) {
   					var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
-  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
+  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>");
     				$(popover).appendTo($('#metricas'));
   				}
 			});
 
 			$('section.body').click(function(e){
-				if(!(e['target']['attributes']['class'].value=="btn-group-vertical col-md-12") && 
+				if(!(e['target']['attributes']['class'].value=="btn-group-vertical col-md-12") &&
 					!(e['target']['attributes']['class'].value=="btn btn-default" && e['target']['attributes']['href'].value=="#popover")){
 					$('#popover').popover('hide');
 				}
 			});
 
 			function validate_year(id,opt){
-				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.toString().length==4 && opt>=1980));  
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.toString().length==4 && opt>=1980));
 			}
 
 			function changeOnValidation(id, validator){

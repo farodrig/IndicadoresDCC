@@ -45,66 +45,7 @@
 	<body>
 		<section class="body">
 
-			<!-- start: header -->
-			<header class="header">
-				<div class="logo-container">
-					<a href="inicio" class="logo">
-						<img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
-					</a>
-					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
-						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-					</div>
-				</div>
-
-				<!-- start: search & user box -->
-				<div class="header-right">
-
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-
-					<span class="separator"></span>
-
-					<div id="userbox" class="userbox">
-						<a href="#" data-toggle="dropdown">
-							<figure class="profile-picture">
-								<img src="<?php echo base_url();?>assets/images/!logged-user.jpg" alt="Joseph Doe" class="img-circle" data-lock-picture="assets/images/!logged-user.jpg" />
-							</figure>
-							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
-								<span class="name">John Doe Junior</span>
-								<span class="role">administrator</span>
-							</div>
-
-							<i class="fa custom-caret"></i>
-						</a>
-
-						<div class="dropdown-menu">
-							<ul class="list-unstyled">
-								<li class="divider"></li>
-								<li>
-									<a role="menuitem" tabindex="-1" href="pages-signin.html"><i class="fa fa-power-off"></i> Logout</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<!-- end: search & user box -->
-			</header>
-			<!-- end: header -->
+        <?php include 'partials/header.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
@@ -170,7 +111,7 @@
 					</header>
 
 					<!-- start: page -->
-					<?php 
+					<?php
 					   echo ('<div class="pane panel-transparent">');
 					   echo ('<header class="panel-heading">');
 						echo ('<div class="row"><section class="col-xs-12 text-center btn-group-horizontal"><div class="col-xs-6"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
@@ -191,7 +132,7 @@
 													</div></h2><p class="panel-subtitle text-center" style="color: white">Soporte</p></div></div></section></div>');
 						echo('</header>');
 						echo('<div class="panel-body">');
-						    
+
 						    $counter = 0;
 						    foreach ($areaunit as $au){
 						        $kind = false;
@@ -218,7 +159,7 @@
 													</a>
 													<label class="text-center" style="color:white">'.ucwords($au['area']->getName()).'</label>
 												</div></h2><p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
-						        echo ('<div class="panel-body">');						        
+						        echo ('<div class="panel-body">');
 						        echo ('<div class="btn-group-vertical col-md-12">');
 						        foreach ($au['unidades'] as $unidad){
 										echo(	'<div class="btn btn-default btn-group-horizontal text-center">
@@ -231,12 +172,12 @@
 													<label class="text-center">'.ucwords($unidad->getName()).'</label>
 												</div>');
 						        }
-						       
+
 						        echo ('</div></div></section></div>');
 						        $counter++;
-						    }						    
+						    }
 						    ?>
-	
+
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
 									<?php echo form_open('MySession/agregarMetrica', array('onsubmit' => "return checkInput();"));?>
 									<section class="panel">
@@ -281,7 +222,7 @@
 									</section>
 									<?php echo form_close();?>
 								</div>
-								
+
 								<div id="deleteMetrica" class="modal-block modal-block-primary mfp-hide">
 								<?php echo form_open('MySession/eliminarMetrica', array('id' => 'modificarMetrica')); ?>
 									<section class="panel">
@@ -308,7 +249,7 @@
 									</section>
 									<?php echo form_close(); ?>
 								</div>
-								
+
 						</div>
 					</section>
 
@@ -316,7 +257,7 @@
 				</section>
 			</div>
 		</section>
-		
+
 		<div id="dialog" class="modal-block mfp-hide">
 		<?php echo form_open('MySession/eliminarMetrica', array('id' => 'eliminarMetrica'));?>
 			<section class="panel">
@@ -344,7 +285,7 @@
 			</section>
 			<?php echo form_close(); ?>
 		</div>
-		
+
 
 		<!-- Vendor -->
 		<script src="<?php echo base_url();?>assets/vendor/jquery/jquery.js"></script>
@@ -380,7 +321,7 @@
 		function setVal(e,id){
 			values_mod[id] = e.value;
 		}
-			
+
 		function checkInput(){
 			if(document.getElementById('name').value=="" || document.getElementById('unidad_medida').value==""){
 				alert("Debe ingresar valores para nombre de métrica y unidad de medida");
@@ -396,8 +337,8 @@
 			var id = $(this)[0]['attributes']['title'].value;
 			document.getElementById('id_insert').value= id;
 
-			
-	
+
+
 		})
 
 		$('a.modify').click(function( e ) {
@@ -414,7 +355,7 @@
 			document.getElementById('unidad_medida').value="";
 			document.getElementById('category').value=1;
 		}
-			
+
 		$('#rows').click(function(e) {
 			if(e['target']['localName']=="i"){
 			if(e['target']['attributes']['class'].value=="fa fa-pencil"){
@@ -494,14 +435,14 @@
 				document.getElementById('metrica').value = data[0];
 				document.getElementById('tipo').value = data[1];
 				document.getElementById('unidad').value = data[2];
-				
+
 				if(data[0]=="" || data[1]==""){
 					alert("No puede dejar campos en blanco");
 				}
 				else{
 					document.getElementById('modificarMetrica').submit();
-				}	
-				
+				}
+
 			}
 			else if(e['target']['attributes']['class'].value=="fa fa-trash-o"){
 				var id = e['target']['attributes']['id'].value;
@@ -510,7 +451,7 @@
 
 				var actions = row.find('td.actions');
 				var id_location = actions[0]['attributes']['title'].value;
-		
+
 				document.getElementById('modificar').value = 0;
 				document.getElementById('id2').value = id_location;
 

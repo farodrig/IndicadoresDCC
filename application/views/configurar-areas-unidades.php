@@ -40,7 +40,7 @@
 		<script src="<?php echo base_url();?>assets/vendor/modernizr/modernizr.js"></script>
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 		<script type="text/javascript">
-		
+
 		   function addUnidad(area){
 			   $("#addUni").html(area);
 		   }
@@ -66,13 +66,13 @@
 			    var segment = $("#segment").val();
 
 			    if(document.getElementById('AreaName').value==""){
-			   		alert("Debe ingresar un nombre para el área");	
+			   		alert("Debe ingresar un nombre para el área");
 			   	}
 			   	else{
 			    	redirectPost('<?php echo base_url();?>ModifyOrg/addArea', {'name': n, 'type': segment});
 			    }
 		   }
-		   
+
 		   function postDelArea(){
 			   var n = $("#delArea").html();
 			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'name': n});
@@ -82,7 +82,7 @@
 			   var area = $("#addUni").html();
 			   var name = $("#UniName").val();
 			   if(document.getElementById('UniName').value==""){
-			   		alert("Debe ingresar un nombre para la unidad");	
+			   		alert("Debe ingresar un nombre para la unidad");
 			   }
 			   else{
 			   		redirectPost('<?php echo base_url();?>ModifyOrg/addUni', {'area': area, 'name': name});
@@ -92,72 +92,13 @@
 		   function postDelUni(){
 			   var n = $("#delUni").html();
 			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'name': n});
-		   }			   
+		   }
 		</script>
 	</head>
 	<body>
 		<section class="body">
 
-			<!-- start: header -->
-			<header class="header">
-				<div class="logo-container">
-					<a href="<?php echo base_url();?>inicio" class="logo">
-						<img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
-					</a>
-					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
-						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-					</div>
-				</div>
-
-				<!-- start: search & user box -->
-				<div class="header-right">
-
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-
-					<span class="separator"></span>
-
-					<div id="userbox" class="userbox">
-						<a href="#" data-toggle="dropdown">
-							<figure class="profile-picture">
-								<img src="<?php echo base_url();?>assets/images/!logged-user.jpg" alt="Joseph Doe" class="img-circle" data-lock-picture="assets/images/!logged-user.jpg" />
-							</figure>
-							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
-								<span class="name">John Doe Junior</span>
-								<span class="role">administrator</span>
-							</div>
-
-							<i class="fa custom-caret"></i>
-						</a>
-
-						<div class="dropdown-menu">
-							<ul class="list-unstyled">
-								<li class="divider"></li>
-								<li>
-									<a role="menuitem" tabindex="-1" href="pages-signin.html"><i class="fa fa-power-off"></i> Logout</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<!-- end: search & user box -->
-			</header>
-			<!-- end: header -->
+        <?php include 'partials/header.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
@@ -227,7 +168,7 @@
 					<!-- start: page -->
 					<section class="panel panel-transparent">
 						<div class="panel-body">
-							    <?php							    
+							    <?php
 							        $counter = 0;
 							        foreach ($areaunit as $au){
 							            $kind = false;
@@ -236,7 +177,7 @@
 							                if ($type['id']==$au['area']->getType()){
 							                    $kind = $type['name'];
 							                    $color = $type['color'];
-							                }							                 
+							                }
 							            }
 							            if ($counter % 2 == 0 && $counter!=0)
 							                echo ('</div>');
@@ -262,7 +203,7 @@
 							            echo ('</div></div></section></div>');
 							            $counter++;
 							        }
-							     
+
 							    ?>
 							<div class="row col-md-12 text-center">
 								<a class="btn modal-with-form" href="#agregarArea" style="color: green">
@@ -279,16 +220,16 @@
 													<div class="form-group mt-lg">
 														<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
-															
+
 															<input id = "AreaName" type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
-															
+
 														</div>
 													</div>
 													<div class="form-group mt-lg">
 														<label class="col-sm-3 control-label">Segmento:</label>
 														<div class="col-sm-9">
                                                             <select class="form-control" id="segment">
-                                                              <?php 
+                                                              <?php
                                                                 foreach ($types as $type){
                                                                     echo('<option value="'.$type['id'].'">'.ucwords($type['name']).'</option>');
                                                                 }
