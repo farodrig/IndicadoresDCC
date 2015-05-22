@@ -217,7 +217,11 @@
 					</div>
 					</div>
 					<?php 
-						$first_area_key = array_keys($areas)[0];
+						if($id_first=="-1")
+							$first_area_key = array_keys($areas)[0];
+						else{
+							$first_area_key=$id_first;
+						}
 						if($areas[$first_area_key]['type']=="1"){ //Operación
 							$color_panel="panel-warning";
 							$color_button = "btn-warning";
@@ -320,6 +324,7 @@
 
 		<!-- Demo Purpose Only -->
 		<script>
+			var id_first = <?php echo $id_first; ?>; 
 			var years = <?php echo json_encode($years); ?>;
 			var from = 2000;
 			var to = 2000;
@@ -355,27 +360,35 @@
 			var metricas = <?php echo json_encode($metricas); ?>;
 			var areas = <?php echo json_encode($areas); ?>; 
 
-			var area_value = $( "#area" ).val();
-			$('#id_org').attr('value',area_value);
-			$('#metricas').empty();
-			var metricas_area = metricas[area_value]; 
-  			for (i in metricas_area) {
-  				var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
-  					metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>"); 
-    			$(popover).appendTo($('#metricas'));
-  			}
-  			var unidades = areas[area_value]['unidades'];
-  			for(i in unidades){
-  				var unidad_id = unidades[i]['id'];
-  				var unidad_name = unidades[i]['name'];
-  				var metricas_unidad = metricas[unidad_id];
-  				for(j in metricas_unidad){
-  					var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
-  						metricas_unidad[j]['metorg'], ")'>", "<b>",
-  						unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>"); 
-    				$(popover).appendTo($('#metricas'));
+			$(document).ready(function(){
+				if(id_first!="-1"){
+					$('#area option[value="'.concat(id_first,'"]')).attr("selected", "selected");
+					$('#area').trigger('change');
+				}
+				else{
+					var area_value = $( "#area" ).val();
+					$('#id_org').attr('value',area_value);
+					$('#metricas').empty();
+					var metricas_area = metricas[area_value]; 
+  					for (i in metricas_area) {
+  						var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  							metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>"); 
+    					$(popover).appendTo($('#metricas'));
+  					}
+  					var unidades = areas[area_value]['unidades'];
+  					for(i in unidades){
+  						var unidad_id = unidades[i]['id'];
+  						var unidad_name = unidades[i]['name'];
+  						var metricas_unidad = metricas[unidad_id];
+  						for(j in metricas_unidad){
+  							var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
+  								metricas_unidad[j]['metorg'], ")'>", "<b>",
+  								unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>"); 
+    						$(popover).appendTo($('#metricas'));
+  						}
+  					}
   				}
-  			}
+  			});
 
 			$('#area').change(function() {
 				var area_value = $( "#area" ).val();

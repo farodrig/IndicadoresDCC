@@ -217,7 +217,21 @@
 					</div>
 					</div>
 					<?php 
-						$first_area_key = array_keys($areas)[0];
+						if($id_first=="-1")
+							$first_area_key = array_keys($areas)[0];
+						else{
+							$first_area_key="";
+							foreach ($areas as $a) {
+								foreach ($a['unidades'] as $unidad) {
+									if($unidad['id']==intval($id_first)){
+										$first_area_key = $a['id'];
+										break;
+									}
+								}
+								if($first_area_key!="")
+									break;
+							}
+						}
 						if($areas[$first_area_key]['type']=="1"){
 							$color_panel="panel-warning";
 							$color_button = "btn-warning";
@@ -332,9 +346,14 @@
 
 		<!-- Demo Purpose Only -->
 		<script>
+			var id_first= <?php echo $id_first; ?>;
 			var years = <?php echo json_encode($years); ?>;
 			var from =2000;
 			var to = 2000;
+
+			$(document).ready(function(){
+				
+			});
 
 			function saveValFrom(e){
 				from = e.value;
@@ -350,7 +369,6 @@
 					if(from<=to)
 						return true;
 					else{
-						console.log(validate_year(from));
 						alert("Año de inicio debe ser menor al año final");
 						return false;
 					}
@@ -366,16 +384,25 @@
     		}
 
 			var metricas = <?php echo json_encode($metricas); ?>; 
-			console.log($('#popover'));
-			var unidad_value = $( "#unidad" ).val();
-			$('#metricas').empty();
-			var metricas_unidad = metricas[unidad_value];
-			$('#id_org').attr('value',unidad_value);
-  			for (i in metricas_unidad) {
-  				var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
-  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
-    			$(popover).appendTo($('#metricas'));
-  			}
+			$(document).ready(function(){
+				if(id_first!="-1"){
+					var first_area=<?php echo $first_area_key; ?>;
+					$('#area option[value="'.concat(first_area,'"]')).attr("selected", "selected");
+					$('#unidad option[value="'.concat(id_first,'"]')).attr("selected", "selected");
+					$('#unidad').trigger('change');
+				}
+				else{
+					var unidad_value = $( "#unidad" ).val();
+					$('#metricas').empty();
+					var metricas_unidad = metricas[unidad_value];
+					$('#id_org').attr('value',unidad_value);
+  					for (i in metricas_unidad) {
+  						var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
+  							"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>"); 
+    					$(popover).appendTo($('#metricas'));
+  					}
+  				}
+  			});
 
   			function updateYears(id){
   				var min_year = years[id]['min'];

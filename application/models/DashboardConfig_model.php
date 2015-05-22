@@ -161,7 +161,7 @@ class DashboardConfig_model extends CI_Model
 		if(!$metrics)
 			$metrics=[];
 
-		$query = "SELECT mo.id AS id, m.name, mo.org FROM MetOrg AS mo, Metric AS m WHERE (mo.org=1 OR mo.org=0) AND mo.metric=m.id";
+		$query = "SELECT mo.id AS id, m.name AS name, mo.org AS org FROM MetOrg AS mo, Metric AS m WHERE (mo.org=1 OR mo.org=0) AND mo.metric=m.id";
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0){
 			$metrics_dcc = $q->result();
@@ -252,7 +252,7 @@ class DashboardConfig_model extends CI_Model
 			if($q->num_rows() > 0)
 				$id_dash= $q->result()[0];
 			else{
-				$query = "SELECT o.name AS name FROM Organization AS o, MetOrg AS mo WHERE o.id=mo.org AND mo.id=".$data['id_met'];
+				$query = "SELECT o.name AS name FROM Organization AS o, MetOrg AS mo WHERE o.id=mo.org AND o.id=".$data['id_org'];
 				$q = $this->db->query($query);
 				if($q->num_rows() > 0)
 					$name= $q->result()[0];

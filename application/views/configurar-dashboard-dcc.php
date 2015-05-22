@@ -5,7 +5,7 @@
 		<!-- Basic -->
 		<meta charset="UTF-8">
 
-		<title>Configurar Dashboard Áreas</title>
+		<title>Configurar Dashboard DCC</title>
 		<style type="text/css">
     		.container {
         		width: 214px;
@@ -306,6 +306,7 @@
 
 		<!-- Demo Purpose Only -->
 		<script>
+			var id_first = <?php echo $id_first; ?>;
 			var years = <?php echo json_encode($years); ?>;
 			var colors = <?php echo json_encode($colors); ?>;
 
@@ -344,42 +345,49 @@
 			var met_sop = <?php echo json_encode($met_soporte); ?> 
 			var met_op = <?php echo json_encode($met_operacion); ?>
 
-			console.log(areas);
-
-			$('#id_org').attr('value',1);
-			$('#metricas').empty();
-			var metricas_dcc_op = metricas[1]; 
-  			for (i in metricas_dcc_op) {
-  				var popover = "<a href='#popover' id='".concat(metricas_dcc_op[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
-  					metricas_dcc_op[i]['metorg'], ")'>", metricas_dcc_op[i]['name'], "</a>"); 
-    			$(popover).appendTo($('#metricas'));
-  			}
-  			for(i in areas){
-  				if(areas[i]['type']=="1"){
-  					var metricas_area = metricas[areas[i]['id']];
-  					var area_name = areas[i]['name'];
-  					for(j in metricas_area){
-  						var popover = "<a href='#popover' id='".concat(metricas_area[j]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
-  								metricas_area[j]['metorg'], ")'>", "<b>",
-  						area_name, "</b>  &#8658; ", metricas_area[j]['name'], "</a>"); 
-    					$(popover).appendTo($('#metricas'));
-    				}
-
-    				var unidades = areas[i]['unidades'];
-    				for(k in unidades){
-  						var unidad_id = unidades[k]['id'];
-  						var unidad_name = unidades[k]['name'];
-  						var metricas_unidad = metricas[unidad_id];
-  						for(j in metricas_unidad){
-  							var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
-  								metricas_unidad[j]['metorg'], ")'>", "<b>",
-  								area_name, "</b>  &#8658; ","<b>",
-  								unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>"); 
+			
+			$(document).ready(function(){
+				if(id_first!="-1"){
+					$('#dcc option[value='.concat(id_first,']')).attr("selected", "selected");
+					$('#dcc').trigger('change');
+				}
+				else{
+				$('#id_org').attr('value',1);
+				$('#metricas').empty();
+				var metricas_dcc_op = metricas[1]; 
+  				for (i in metricas_dcc_op) {
+  					var popover = "<a href='#popover' id='".concat(metricas_dcc_op[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  						metricas_dcc_op[i]['metorg'], ")'>", metricas_dcc_op[i]['name'], "</a>"); 
+    				$(popover).appendTo($('#metricas'));
+  				}
+  				for(i in areas){
+  					if(areas[i]['type']=="1"){
+  						var metricas_area = metricas[areas[i]['id']];
+  						var area_name = areas[i]['name'];
+  						for(j in metricas_area){
+  							var popover = "<a href='#popover' id='".concat(metricas_area[j]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  									metricas_area[j]['metorg'], ")'>", "<b>",
+  								area_name, "</b>  &#8658; ", metricas_area[j]['name'], "</a>"); 
     						$(popover).appendTo($('#metricas'));
+    					}
+
+    					var unidades = areas[i]['unidades'];
+    					for(k in unidades){
+  							var unidad_id = unidades[k]['id'];
+  							var unidad_name = unidades[k]['name'];
+  							var metricas_unidad = metricas[unidad_id];
+  							for(j in metricas_unidad){
+  								var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
+  									metricas_unidad[j]['metorg'], ")'>", "<b>",
+  									area_name, "</b>  &#8658; ","<b>",
+  									unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>"); 
+    							$(popover).appendTo($('#metricas'));
+  							}
   						}
   					}
   				}
   			}
+  			});
 
   			$('#dcc').change(function() {
 				var dcc_value = $( "#dcc" ).val();
@@ -388,6 +396,7 @@
   				$('#id_org').attr('value',dcc_value);
 				$('#metricas').empty();
 				var metricas_dcc_op = metricas[dcc_value]; 
+
   				for (i in metricas_dcc_op) {
   					var popover = "<a href='#popover' id='".concat(metricas_dcc_op[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
   						metricas_dcc_op[i]['metorg'], ")'>", metricas_dcc_op[i]['name'], "</a>"); 

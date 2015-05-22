@@ -12,7 +12,16 @@ class DashboardConfig extends CI_Controller
 	function configUnidad() // funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
 	                           // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
-	{
+	{	
+		$this->load->library('session');
+		$id_first="-1";
+		if(!is_null($this->session->flashdata('id_first_unidad')))
+			$id_first=$this->session->flashdata('id_first_unidad');
+		elseif($this->session->userdata('id_org')!=FALSE){
+			$id_first =$this->session->userdata('id_org');
+			$this->session->unset_userdata('id_org');
+		}
+		$this->session->set_flashdata('id_first_unidad',$id_first);
 	    $this->load->model('DashboardConfig_model');
 	    $all_metrics = $this->DashboardConfig_model->getAllMetricsUnidades(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
 	    															          //Si all_metrics es falso es porque no hay areas
@@ -52,12 +61,23 @@ class DashboardConfig extends CI_Controller
 	    	$result['areas'] = $all_areas;
 	    }
 
+	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard', $result);
 	    //debug($all_metrics, true);
 	}
 
 	function configArea(){
 
+		$this->load->library('session');
+		$id_first="-1";
+		if(!is_null($this->session->flashdata('id_first_area')))
+			$id_first=$this->session->flashdata('id_first_area');
+		elseif($this->session->userdata('id_org')!=FALSE){
+			$id_first =$this->session->userdata('id_org');
+			$this->session->unset_userdata('id_org');
+		}
+
+		$this->session->set_flashdata('id_first_area',$id_first);
 		$this->load->model('DashboardConfig_model');
 	    $all_metrics = $this->DashboardConfig_model->getAllMetricsArea(); //Retorna arrglo de arreglos de metricas de las unidades y areas correspondientes
 	    															      //Si all_metrics es falso es porque no hay areas
@@ -106,7 +126,7 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-
+	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard-areas', $result);
 	    //debug($all_metrics, true);
 
@@ -114,6 +134,16 @@ class DashboardConfig extends CI_Controller
 
 	function configDCC(){
 
+		$this->load->library('session');
+		$id_first="-1";
+		if(!is_null($this->session->flashdata('id_first_dcc')))
+			$id_first=$this->session->flashdata('id_first_dcc');
+		elseif(($this->session->userdata('id_org')==1 || $this->session->userdata('id_org')==0) && $this->session->userdata('id_org')!=NULL){
+			$id_first =$this->session->userdata('id_org');
+			$this->session->unset_userdata('id_org');
+		}
+
+		$this->session->set_flashdata('id_first_dcc',$id_first);
 		$this->load->model('DashboardConfig_model');
 	    $all_metrics = $this->DashboardConfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de todas las métricas
 	    															      //Si all_metrics es falso es porque no hay areas
@@ -175,18 +205,27 @@ class DashboardConfig extends CI_Controller
 	    				}
 	    			}
 
-	    			$keys_areas = array_keys($all_areas);
-	    			if(in_array($id_org, $keys_areas))
+	    			if($id_org==0 || $id_org==1){
+	    				$id_org_dash= strval($id_org);
+	    			}
+	    			elseif(in_array($id_org, $keys_areas)){
 	    				$id_org_dash=$all_areas[$id_org]['type'];
+	    			}
 	    			else{
+	    				$id_org_dash=-1;
 	    				for ($j=0 ; $j<sizeof($keys_areas); $j++) {
-	    					if(in_array($id_org, $all_areas[$keys_areas[$j]])){
-	    						$id_org_dash=$all_areas[$keys_areas[$j]]['type'];
-	    						break;
+	    					$unidades = $all_areas[$keys_areas[$j]]['unidades'];
+	    					foreach ($unidades as $u){
+	    						if(in_array($id_org, $u)){
+	    							$id_org_dash=$all_areas[$keys_areas[$j]]['type'];
+	    							break;
+	    						}
 	    					}
+	    					if($id_org_dash!=-1)
+	    						break;	
 	    				}
 	    			}
-
+	    			//debug(array($id,$id_org_dash));
 	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
@@ -205,8 +244,8 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-		
-		//debug($all_areas);
+		$result['id_first']=$id_first;
+		//debug($all_metrics);
 	    $this->load->view('configurar-dashboard-dcc',$result);
 	    //debug($all_metrics, true); */
 
@@ -242,6 +281,9 @@ class DashboardConfig extends CI_Controller
 		if(!$this->form_validation->run()){
 			redirect('inicio');
 		}
+
+		$this->load->library('session');
+		$this->session->set_userdata('id_org', $this->input->post('id_org'));
 
 		$id_graph = intval($this->input->post('id_graph'));
 		$org_id = intval($this->input->post('id_org'));
