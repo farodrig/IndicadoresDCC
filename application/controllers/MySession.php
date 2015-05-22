@@ -10,11 +10,11 @@ class MySession extends CI_Controller {
 
     public function inicio(){
 
-    	//$user= "17.586.757-0"; //SE va a recibir y se va a ir guardando como variable de sesion
-    	$user= "18.292.316-8";
-    	//$user = "20.584.236-5";
+    	//$user= "17.586.757-0"; // usuario tipo Visualizador
+    	//$user= "18.292.316-8"; // usuario tipo Administrador
+    	$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
-    	
+
     	$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
 
@@ -70,7 +70,7 @@ class MySession extends CI_Controller {
 		}
 	}
 
-	
+
 
 	private function getDepartment(){
 			$this->load->model('Organization_model');
@@ -97,18 +97,18 @@ class MySession extends CI_Controller {
 	                                    'unidades' => $this->Organization_model->getAllUnidades($area->getId()))
 	        );
 	    }
-		return $areaunit;	
+		return $areaunit;
 	}
 
 	public function dashboard()
-	{	
-		
+	{
+
 		$id_unidad = $this->input->post("unidad");
 	    $this->session->set_flashdata("unidad", $id_unidad);
 	}
 
 	public function validar()
-	{	
+	{
 	    $this->load->view('validar');
 	}
 
@@ -140,7 +140,7 @@ class MySession extends CI_Controller {
 														'metrics'=>$metrics,
 														'success' => $success));
 	}
-	
+
 	public function agregarMetrica(){
 
 		$this->load->model('Unit_model');
@@ -154,18 +154,18 @@ class MySession extends CI_Controller {
 			redirect('inicio');
 		}
 
-	   	$Unit = array(		
+	   	$Unit = array(
 				'name' => ucwords($this->input->post('unidad_medida')),
 		);
-    
+
 		$Metricdata= array(
 			'category' => $this->input->post('category'), //esto es 1 si es productividad y 2 si es finanzas. Tienes que agregar esos dos valores en la base de datos
-														  // en la tabla catergory 
-			'unit' =>  $this->Unit_model->checkName($Unit), //-> primero revisa si hay unidad de medida en la base de datos con ese nombre, si existe toma 
+														  // en la tabla catergory
+			'unit' =>  $this->Unit_model->checkName($Unit), //-> primero revisa si hay unidad de medida en la base de datos con ese nombre, si existe toma
 																	// el id correspondiente y le asocias a la metrica ese id ,si no agrega la unidad, obten
 																	// el nuevo id y se lo asocias a la metrica
-			'name' => ucwords($this->input->post('name')), //Nombre que tendrá la métrica//id de la unidad o area a la que se le quiere ingresar la metrica		
-		);	
+			'name' => ucwords($this->input->post('name')), //Nombre que tendrá la métrica//id de la unidad o area a la que se le quiere ingresar la metrica
+		);
      	$this->load->model('Metrics_model');
    	 	$id_metric= $this->Metrics_model->addMetric($Metricdata);
 		$this->load->model('Metorg_model');
@@ -179,8 +179,8 @@ class MySession extends CI_Controller {
 			$this->session->set_flashdata('success',1);
 		else
 			$this->session->set_flashdata('success',0);
-		
- 	   	redirect('cmetrica');				
+
+ 	   	redirect('cmetrica');
 	}
 
 	public function eliminarMetrica(){
@@ -203,7 +203,7 @@ class MySession extends CI_Controller {
 				'id_metorg' => $this->input->post('id'),
 				'name_metrica' => ucwords($this->input->post('metrica')),
 				'category' => $this->input->post('tipo'),
-				'unidad_medida' => ucwords($this->input->post('unidad')) 		
+				'unidad_medida' => ucwords($this->input->post('unidad'))
 			);
 			if($this->Metrics_model->updateMetric($data))
 				$this->session->set_flashdata('success',1);
@@ -216,14 +216,14 @@ class MySession extends CI_Controller {
 	    	if(!$this->form_validation->run()){
 				redirect('inicio');
 			}
-			
+
 			$data = array('id_metorg' => $this->input->post('id2'));
 			if($this->Metrics_model->deleteMetric($data))
 				$this->session->set_flashdata('success',1);
 			else
 				$this->session->set_flashdata('success',0);
 		}
-   	 	
+
     	redirect('cmetrica');
 	}
 }

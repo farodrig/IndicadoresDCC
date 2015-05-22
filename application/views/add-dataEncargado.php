@@ -40,59 +40,7 @@
 	<body>
 		<section class="body">
 
-			<!-- start: header -->
-			<header class="header">
-				<div class="logo-container">
-					<a href="<?php echo base_url();?>inicio" class="logo">
-						<img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="45" alt="U-Dashboard" />
-					</a>
-					<div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
-						<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-					</div>
-				</div>
-
-				<!-- start: search & user box -->
-				<div class="header-right">
-
-					<ul class="notifications">
-						<li>
-							<label>Validar</label>
-							<a href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
-							</a>
-
-						</li>
-					</ul>
-
-					<span class="separator"></span>
-
-					<div id="userbox" class="userbox">
-						<a href="#" data-toggle="dropdown">
-							<figure class="profile-picture">
-								<img src="<?php echo base_url();?>assets/images/!logged-user.jpg" alt="Joseph Doe" class="img-circle" data-lock-picture="assets/images/!logged-user.jpg" />
-							</figure>
-							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
-								<span class="name">John Doe Junior</span>
-								<span class="role">administrator</span>
-							</div>
-
-							<i class="fa custom-caret"></i>
-						</a>
-
-						<div class="dropdown-menu">
-							<ul class="list-unstyled">
-								<li class="divider"></li>
-								<li>
-									<a role="menuitem" tabindex="-1" href="pages-signin.html"><i class="fa fa-power-off"></i> Logout</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<!-- end: search & user box -->
-			</header>
-			<!-- end: header -->
+        <?php include 'partials/header-encargado.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
@@ -142,11 +90,11 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<?php 
+								<?php
 									for($i=sizeof($route);$i>0;$i--)
 										echo "<li><span>".$route[$i]."</span></li>";
 								?>
-								
+
 								<li><span>Añadir Datos</span></li>
 							</ol>
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -173,7 +121,7 @@
 										<div class="col-md-3">
 											<select id="year" name="year" data-placeholder="Seleccione año..." class="chosen-select" style="width:200px;" onchange ="selectYear(); validate_year('year')" tabindex="4">
 											<option value=""></option>
-											<?php 
+											<?php
 												$years = array_unique($measurements[1]);
 												foreach ($years as $year) {
 													echo('<option value="'.$year.'">'.$year.'</option>');
@@ -197,7 +145,7 @@
 											<label class="control-label"><u><b>Meta</b></u></label>
 										</div>
 									</div>
-									
+
 									<?php
 										echo ('<input type="hidden" name="id_location" id="id_location" value='.$id_location.'>');
 										foreach ($result as $metrics){
@@ -205,8 +153,8 @@
 										}
 
 									?>
-									
-								</div> 
+
+								</div>
 								<footer class="panel-footer">
 									<input type="submit" class="btn btn-primary" value="Añadir">
 								</footer>
@@ -255,7 +203,7 @@
     		}
   		</script>
 
-		
+
 		<script type="text/javascript">
 
 			$('#year').live('chosen:no_results', function(e,params) {
@@ -268,13 +216,13 @@
     				$('#year option[value="'.concat(value,'"]')).attr("selected", "selected");
   					$('#year').trigger('chosen:updated');
   					selectYear();
-    				 
+
     			}
   			});
 
 
 			function selectYear(){
-			
+
 				var year = document.getElementById("year").value;
 				var jArray= <?php echo json_encode($measurements[0]); ?>;
 				var years = <?php echo json_encode($measurements[1]); ?>;
@@ -286,16 +234,16 @@
 						if(metorg==last_metorg)
 							continue;
 						last_metorg = metorg;
-						loadValues(metorg,"","",""); 
-					}	
+						loadValues(metorg,"","","");
+					}
 				}
-				
+
 				else{
 					for (i=0; i<size; i++) {
 						var aux_year = jArray[i]['year'];
 						if(aux_year==year){
 							loadValues(jArray[i]['metorg'],jArray[i]['value'],jArray[i]['target'],jArray[i]['expected']);
-						}              
+						}
 	    			}
 				}
 			}
@@ -304,17 +252,17 @@
 				document.getElementById("value".concat(metorg_id)).value=value;
 				document.getElementById("target".concat(metorg_id)).value=target;
 				document.getElementById("expected".concat(metorg_id)).value=expected;
-			
+
 			}
 
 			function validate(id){
 				var opt = document.getElementById(id).value;
-				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) || opt.length ==0));  
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) || opt.length ==0));
 			}
 
 			function validate_year(id){
 				var opt = document.getElementById(id).value;
-				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4 && opt>=1980));  
+				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4 && opt>=1980));
 			}
 
 			function changeOnValidation(id, validator){
@@ -344,7 +292,7 @@
 						var metorg = jArray[i]['metorg'];
 						if(ids.indexOf(metorg)==-1){
 							ids.push(metorg);
-						}              
+						}
 	    		}
 
 	    		for(i=0; i<ids.length; i++){
