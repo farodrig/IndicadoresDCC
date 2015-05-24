@@ -10,10 +10,11 @@ class MySession extends CI_Controller {
 
     public function inicio(){
 
-    	//$user= "17.586.757-0"; // usuario tipo Visualizador
+    	$user= "17.586.757-0"; // usuario tipo Visualizador
     	//$user= "18.292.316-8"; // usuario tipo Administrador
-    	$user = "20.584.236-5"; // usuario tipo Visualizador
+    	//$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
+    	$this->load->model('Dashboard_model');
 
     	$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
@@ -25,6 +26,15 @@ class MySession extends CI_Controller {
     							'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
     							'encargado_unidad' => $permits->getEncargadoUnidad(),
     							'asistente_dcc' => $permits->getAsistenteDCC());
+
+    	if($permits_array['director'])
+    		$validate = $this->Dashboard_model->getValidate(-1);
+    	elseif(!in_array(-1,$permits_array['encargado_unidad']))
+    		$validate = $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+    	else
+    		$validate = "";
+
+    	$permits_array['validate']=$validate;
 
     	$this->session->set_userdata($permits_array);
 
@@ -59,14 +69,25 @@ class MySession extends CI_Controller {
 	        	                             'areaunit'=>$areaunit,
 	            	                         'types'=>$types,
 	                	                     'name' => $name,
-	                	                     'user' => $user));
+	                	                     'user' => $user,
+	                	                     'validate' => $validate));
+		}
+		elseif(!in_array("-1", $permits->getEncargadoUnidad())){
+			$this->load->view('indexEncargado', array('department'=> $department,
+	        	                             			'areaunit'=>$areaunit,
+	            	                         			'types'=>$types,
+	                	                     			'name' => $name,
+	                	                     			'user' => $user,
+	                	                     			'validate' => $validate));
+
 		}
 		elseif(!in_array("-1", $permits->getAsistenteUnidad()) || $permits->getVisualizador()){
 			$this->load->view('indexVisualizador', array('department'=> $department,
 	        	                             			'areaunit'=>$areaunit,
 	            	                         			'types'=>$types,
 	                	                     			'name' => $name,
-	                	                     			'user' => $user));
+	                	                     			'user' => $user,
+	                	                     			'validate' => $validate));
 		}
 	}
 
@@ -114,7 +135,21 @@ class MySession extends CI_Controller {
 
 	public function menuConfigurar()
 	{
-	    $this->load->view('menu-configurar');
+		$this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
+
+    	if(!$permits['director']){
+    		redirect('inicio');
+    	}
+
+	    $this->load->view('menu-configurar', array('validate' => $permits['validate']));
 	}
 
 	public function agregarDato()
@@ -125,6 +160,18 @@ class MySession extends CI_Controller {
 	public function configurarMetricas()
 	{
 		$this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
+
+    	if(!$permits['director']){
+    		redirect('inicio');
+    	}
 		$success = $this->session->flashdata('success');
 		if(is_null($success))
 			$success=2;
@@ -138,7 +185,8 @@ class MySession extends CI_Controller {
 	                                     				'areaunit'=>$areaunit,
 	                                     				'types'=>$types,
 														'metrics'=>$metrics,
-														'success' => $success));
+														'success' => $success,
+														'validate' => $permits['validate']));
 	}
 
 	public function agregarMetrica(){

@@ -1,6 +1,25 @@
 <?php
 class Dashboard_model extends CI_Model
 {
+    function getValidate($id_metorg){
+        if($id_metorg==-1){
+            $query = "SELECT * FROM Measure AS m WHERE m.state=0";
+            $q = $this->db->query($query);
+            if($q->num_rows() > 0)
+                return "1";
+            else
+                return "";
+        }
+        else{
+            foreach ($id_metorg as $id) {
+                $query="SELECT * FROM Measure AS m, MetOrg AS mo WHERE m.state=0 AND mo.id=m.metorg AND mo.org=".$id;
+                $q = $this->db->query($query);
+                if($q->num_rows() > 0)
+                    return "1";
+            }
+            return "";
+        }
+    }
 
     function getAllMetrics($id, $category)
     {
@@ -289,7 +308,8 @@ class Dashboard_model extends CI_Model
 
         $query = "SELECT m.value AS value, m.target AS target, m.expected AS expected, m.year AS year 
          FROM Organization AS org, Dashboard AS d, GraphDash AS gd, Graphic AS g, Measure AS m
-         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1";
+         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1 
+         AND m.year>=g.min_year AND m.year<=g.max_year";
 
          $q= $this->db->query($query, array($id_org, $id_met, $id_met));
 

@@ -14,6 +14,19 @@ class DashboardConfig extends CI_Controller
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	{	
 		$this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
+
+    	if(!$permits['director']){
+    		redirect('inicio');
+    	}
+
 		$id_first="-1";
 		if(!is_null($this->session->flashdata('id_first_unidad')))
 			$id_first=$this->session->flashdata('id_first_unidad');
@@ -60,7 +73,7 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-
+	    $result['validate'] = $permits['validate'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard', $result);
 	    //debug($all_metrics, true);
@@ -69,6 +82,18 @@ class DashboardConfig extends CI_Controller
 	function configArea(){
 
 		$this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
+
+    	if(!$permits['director']){
+    		redirect('inicio');
+    	}
 		$id_first="-1";
 		if(!is_null($this->session->flashdata('id_first_area')))
 			$id_first=$this->session->flashdata('id_first_area');
@@ -126,6 +151,8 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
+
+	    $result['validate'] = $permits['validate'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard-areas', $result);
 	    //debug($all_metrics, true);
@@ -135,6 +162,18 @@ class DashboardConfig extends CI_Controller
 	function configDCC(){
 
 		$this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
+
+    	if(!$permits['director']){
+    		redirect('inicio');
+    	}
 		$id_first="-1";
 		if(!is_null($this->session->flashdata('id_first_dcc')))
 			$id_first=$this->session->flashdata('id_first_dcc');
@@ -244,6 +283,7 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
+	    $result['validate'] = $permits['validate'];
 		$result['id_first']=$id_first;
 		//debug($all_metrics);
 	    $this->load->view('configurar-dashboard-dcc',$result);
@@ -270,6 +310,20 @@ class DashboardConfig extends CI_Controller
 	}
 
 	function addGraph(){
+
+		$this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"));
+
+    	if(!$permits['director']){
+    		redirect('inicio');
+    	}
+
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('from', 'From', 'required|exact_length[4]|numeric');
 		$this->form_validation->set_rules('to', 'to', 'required|exact_length[4]|numeric');

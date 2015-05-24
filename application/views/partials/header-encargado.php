@@ -17,7 +17,7 @@
 							<label>Validar</label>
 							<a href="<?php echo base_url();?>validar" class="notification-icon">
 								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge">1</span>
+								<span class="badge"><?php echo $validate;?></span>
 							</a>
 
 						</li>

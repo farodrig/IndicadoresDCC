@@ -8,6 +8,18 @@ class ModifyOrg extends CI_Controller{
     function modifyAreaUnidad(){
 	    $this->load->model('Organization_model');
 	    $this->load->library('session');
+		$user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
+
+    	if(!$permits['director']){
+    		redirect('inicio');
+    	}
 	    $val = $this->session->flashdata('success');
 	    if (is_null($val))
 	       $val = 2;
@@ -21,7 +33,8 @@ class ModifyOrg extends CI_Controller{
 	    $this->load->view('configurar-areas-unidades', 
 	                       array('areaunit'=>$areaunit, 
 	                             'success'=> $val, 
-	                             'types'=>$this->Organization_model->getTypes()));
+	                             'types'=>$this->Organization_model->getTypes(),
+	                             'validate' => $permits['validate']));
 	}
 		
 	private function setRedirect($url, $data) {

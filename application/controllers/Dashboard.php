@@ -313,7 +313,8 @@ class Dashboard extends CI_Controller
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-    						'asistente_dcc' => $this->session->userdata("asistente_dcc"));
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
 		if($this->session->userdata('id_location')!=FALSE){
@@ -343,13 +344,20 @@ class Dashboard extends CI_Controller
 	    	$dashboard_metrics=[];
 	    }
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
-
+	    $result['validate'] = $permits['validate'];
 	    $this->session->set_flashdata('id',$id);
 	    if($permits['director']){
 	    	$this->load->view('dashboard', $result);
 	    }
 	    elseif(in_array($id, $permits['encargado_unidad'])){ //Si me corresponde la unidad
 	    	$this->load->view('dashboardEncargado', $result);
+	    }
+	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) && 
+	    (in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc'])){ //Si me corresponde la unidad
+	    	$this->load->view('dashboardEncargado', $result);
+	    }
+	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) && $permits['visualizador']){ //Si me corresponde la unidad
+	    	$this->load->view('dashboardEncargadoNoAdd', $result);
 	    }
 	    elseif(in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc']){ //Si me corresponde la unidad
 	    	$this->load->view('dashboardAsistente', $result);
@@ -395,7 +403,8 @@ class Dashboard extends CI_Controller
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-    						'asistente_dcc' => $this->session->userdata("asistente_dcc"));
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
 		if($this->session->userdata('id_location')!=FALSE){
@@ -426,12 +435,20 @@ class Dashboard extends CI_Controller
 	    }
 	     
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
+	    $result['validate'] = $permits['validate'];
 	    $this->session->set_flashdata('id',$id);
 	    if($permits['director']){
 	    	$this->load->view('dashboard-all-graphs', $result);
 	    }
 	    elseif(in_array($id, $permits['encargado_unidad'])){ //Si me corresponde la unidad
 	    	$this->load->view('dashboard-all-graphsEncargado', $result);
+	    }
+	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) && 
+	    (in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc'])){ //Si me corresponde la unidad
+	    	$this->load->view('dashboard-all-graphsEncargado', $result);
+	    }
+	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) && $permits['visualizador']){ //Si me corresponde la unidad
+	    	$this->load->view('dashboard-all-graphsEncargadoNoAdd', $result);
 	    }
 	    elseif($permits['asistente_dcc'] || in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad'])){ //Si me corresponde la unidad
 	    	$this->load->view('dashboard-all-graphsAsistente', $result);
