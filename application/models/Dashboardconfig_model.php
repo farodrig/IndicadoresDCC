@@ -1,9 +1,9 @@
 <?php
-class DashboardConfig_model extends CI_Model
+class Dashboardconfig_model extends CI_Model
 {
 	function getMinMaxYears($id,$id_org){
-		$query = "SELECT g.id AS graph, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, g.position AS position 
-			FROM Dashboard AS d, GraphDash as gd, Graphic AS g 
+		$query = "SELECT g.id AS graph, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, g.position AS position
+			FROM Dashboard AS d, GraphDash as gd, Graphic AS g
 			WHERE d.org=? AND gd.dashboard=d.id AND g.id=gd.graphic AND g.metorg=?";
 
 		$q = $this->db->query($query, array($id_org, $id));
@@ -88,7 +88,7 @@ class DashboardConfig_model extends CI_Model
 					$result[$u->id] = $mets_unidad;
 					}
 				}
-			}	
+			}
 		}
 
 		return $result;
@@ -122,7 +122,7 @@ class DashboardConfig_model extends CI_Model
 
 				$result[$a->id] = $mets_area;
 			}
-			
+
 
 			$query = "SELECT org.id AS id FROM Organization AS org WHERE org.parent=".$id_area;
 			$q = $this->db->query($query);
@@ -148,13 +148,13 @@ class DashboardConfig_model extends CI_Model
 					}
 				}
 			}
-	
+
 		}
 
 		return $result;
 	}
 
-	function getAllMetricsDCC() 
+	function getAllMetricsDCC()
 	{
 		$metrics = $this->getAllMetricsArea();
 
@@ -181,7 +181,7 @@ class DashboardConfig_model extends CI_Model
 
 	function getAllAreasUnidad(){
 
-		$query = "SELECT org.id AS id, org.name AS name, org.parent AS parent FROM Organization AS org 
+		$query = "SELECT org.id AS id, org.name AS name, org.parent AS parent FROM Organization AS org
 			WHERE (org.parent = 1 OR org.parent=0) AND NOT org.id=1 AND NOT org.id=0";
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0)
@@ -200,18 +200,18 @@ class DashboardConfig_model extends CI_Model
 				$unidades=[];
 			}
 
-			
+
 			$result[$id_area] = array(
 							'name' => $a->name,
 							'type' => $a->parent,
-							'id' => $id_area, 
+							'id' => $id_area,
 							'unidades' => $unidades);
 		}
 
 		return $result;
 	}
 
-	function buildUnidades($q)  
+	function buildUnidades($q)
 	{
 		$this->load->library('Dashboard_library');
 		$row = $q->result();

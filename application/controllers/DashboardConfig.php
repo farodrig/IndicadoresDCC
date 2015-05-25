@@ -35,11 +35,11 @@ class DashboardConfig extends CI_Controller
 			$this->session->unset_userdata('id_org');
 		}
 		$this->session->set_flashdata('id_first_unidad',$id_first);
-	    $this->load->model('DashboardConfig_model');
-	    $all_metrics = $this->DashboardConfig_model->getAllMetricsUnidades(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
+	    $this->load->model('Dashboardconfig_model');
+	    $all_metrics = $this->Dashboardconfig_model->getAllMetricsUnidades(); //Retorna arrglo de arreglos de metricas de las unidades correspondientes
 	    															          //Si all_metrics es falso es porque no hay areas
 
-	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
+	    $all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();
 	    //$all areas incluye type que representa al DCC padre, 0 si es soporte, 1 si es operacion
 
 	    if($all_metrics==false){
@@ -60,7 +60,7 @@ class DashboardConfig extends CI_Controller
 	    		$met_unidad = $all_metrics[$id_org];
 	    		foreach ($met_unidad as $met) { //Permite acceder a nombre y id una metrica
 	    			$id=$met['metorg'];
-	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
+	    			$min_max_years = $this->Dashboardconfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
 	    		
@@ -103,11 +103,11 @@ class DashboardConfig extends CI_Controller
 		}
 
 		$this->session->set_flashdata('id_first_area',$id_first);
-		$this->load->model('DashboardConfig_model');
-	    $all_metrics = $this->DashboardConfig_model->getAllMetricsArea(); //Retorna arrglo de arreglos de metricas de las unidades y areas correspondientes
+		$this->load->model('Dashboardconfig_model');
+	    $all_metrics = $this->Dashboardconfig_model->getAllMetricsArea(); //Retorna arrglo de arreglos de metricas de las unidades y areas correspondientes
 	    															      //Si all_metrics es falso es porque no hay areas
 	    
-	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad(); //arreglo de areas y sus respectivas unidades id_area =>(nombre, id, arreglo_unidades)
+	    $all_areas = $this->Dashboardconfig_model->getAllAreasUnidad(); //arreglo de areas y sus respectivas unidades id_area =>(nombre, id, arreglo_unidades)
 	    
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
@@ -138,7 +138,7 @@ class DashboardConfig extends CI_Controller
 	    					}
 	    				}
 	    			}
-	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
+	    			$min_max_years = $this->Dashboardconfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
 	    		
@@ -183,13 +183,13 @@ class DashboardConfig extends CI_Controller
 		}
 
 		$this->session->set_flashdata('id_first_dcc',$id_first);
-		$this->load->model('DashboardConfig_model');
-	    $all_metrics = $this->DashboardConfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de todas las métricas
+		$this->load->model('Dashboardconfig_model');
+	    $all_metrics = $this->Dashboardconfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de todas las métricas
 	    															      //Si all_metrics es falso es porque no hay areas
 
 	    
 
-	    $all_areas = $this->DashboardConfig_model->getAllAreasUnidad();
+	    $all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
 	    	$result['years'] = array(
@@ -265,7 +265,7 @@ class DashboardConfig extends CI_Controller
 	    				}
 	    			}
 	    			//debug(array($id,$id_org_dash));
-	    			$min_max_years = $this->DashboardConfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
+	    			$min_max_years = $this->Dashboardconfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
 	    		
@@ -355,9 +355,9 @@ class DashboardConfig extends CI_Controller
 						'id_org' => $org_id,
 						'id_graph' => $id_graph );
 
-		$this->load->model('DashboardConfig_model');
+		$this->load->model('Dashboardconfig_model');
 		//debug($data);
-		$this->DashboardConfig_model->addGraph($data);
+		$this->Dashboardconfig_model->addGraph($data);
 
 		
 	}
