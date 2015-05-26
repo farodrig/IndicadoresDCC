@@ -12,40 +12,40 @@
         		clear: both;
     		}
     		.container input {
-        		width: 100%;
-        	clear: both;
+        		width: 100px;
+        	   clear: both;
     		}
     		input.rounded {
+        
+        	    border: 1px solid #ccc;
+        
+        	    -moz-border-radius: 10px;
+        
+        	    -webkit-border-radius: 10px;
+        
+        	    border-radius: 10px;
+        
+        	    -moz-box-shadow: 2px 2px 3px #666;
+        
+        	    -webkit-box-shadow: 2px 2px 3px #666;
+        
+        	    box-shadow: 2px 2px 3px #666;
+        
+        	    font-size: 20px;
+        
+        	    padding: 4px 7px;
+        
+        	    outline: 0;
+        
+        	    -webkit-appearance: none;
+        
+        	}
 
-	    border: 1px solid #ccc;
-
-	    -moz-border-radius: 10px;
-
-	    -webkit-border-radius: 10px;
-
-	    border-radius: 10px;
-
-	    -moz-box-shadow: 2px 2px 3px #666;
-
-	    -webkit-box-shadow: 2px 2px 3px #666;
-
-	    box-shadow: 2px 2px 3px #666;
-
-	    font-size: 20px;
-
-	    padding: 4px 7px;
-
-	    outline: 0;
-
-	    -webkit-appearance: none;
-
-	}
-
-	input.rounded:focus {
-
-	    border-color: #339933;
-
-	}
+        	input.rounded:focus {        
+        	    border-color: #339933;
+        	    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(51, 153, 51, 0.6);
+                outline: 0 none;        
+        	}
     	</style>
 		<meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
@@ -211,12 +211,15 @@
 														<option value=1>Barra</option>
 												</select>
 												<div class="container btn-group-vertical col-md-12">
-													<br>
-													<label>Desde:</label>
-													<input type="number" class="rounded" id="from" name="from" onchange ="saveValFrom(this)"  >
-													<label>Hasta:</label>
-													<input type="number" class="rounded" id="to" name="to" onchange ="saveValTo(this)" >
-													<hr>
+													<div class="form-group">
+    													<label for="from">Desde:</label>
+    													<input type="number" class="form-control rounded"id="from" name="from" onchange ="saveValFrom(this)" onkeyup="validate_year('from',from)" >
+													</div>
+													<div class="form-group">
+    													<label for="to">Hasta:</label>
+    													<input type="number" class="form-control rounded" id="to" name="to" onkeyup="saveValTo(this)" onkeyup="validate_year('to',to)"  >
+													</div>
+													<hr style="width:250px;">
 												</div>
 												<br>
 												<br>
