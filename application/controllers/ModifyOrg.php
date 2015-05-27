@@ -45,45 +45,57 @@ class ModifyOrg extends CI_Controller{
 	
 	function addArea() {
 	    $this->load->model('Organization_model');
+	    
 	    $this->load->library('form_validation');
 	    $this->form_validation->set_rules('type', 'Type', 'numeric|required');
-	    $this->form_validation->set_rules('name', 'Name', 'required');
+	    $this->form_validation->set_rules('name', 'Name', 'trim|required|callback_alphaSpace');
 
 	    if(!$this->form_validation->run()){
-			redirect('inicio');
+			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>0));
 		}
 
 	    $data = array('type'=>$this->input->post('type'), 'name'=>$this->input->post('name'));
 	    $result = $this->Organization_model->addArea($data);
-	    $this->setRedirect('/careaunidad', array('name'=>'success', 'value'=>$result));
+	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
 	}
 	
 	function addUni() {
 	    $this->load->model('Organization_model');
+	    
 	    $this->load->library('form_validation');
-	    $this->form_validation->set_rules('area', 'Area', 'required');
-	    $this->form_validation->set_rules('name', 'Name', 'required');
+	    $this->form_validation->set_rules('area', 'Area', 'trim|required|callback_alphaSpace');
+	    $this->form_validation->set_rules('name', 'Name', 'trim|required|callback_alphaSpace');
 
 	    if(!$this->form_validation->run()){
-			redirect('inicio');
+			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>0));
 		}
 	    $data = array('name'=>$this->input->post('name'));
 	    $result = $this->Organization_model->addUnidad($this->input->post('area'), $data);
-	    $this->setRedirect('/careaunidad', array('name'=>'success', 'value'=>$result));
+	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
 	}
 	
 	function delAreaUni() {
 	    $this->load->model('Organization_model');
 	    
 	    $this->load->library('form_validation');
-	    $this->form_validation->set_rules('name', 'Name', 'required');
+	    $this->form_validation->set_rules('name', 'Name', 'trim|required|callback_alphaSpace');
 
 	    if(!$this->form_validation->run()){
-			redirect('inicio');
+			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>0));
 		}
-
+        
 	    $data = $this->input->post('name');
 	    $result = $this->Organization_model->delByName($data);
-	    $this->setRedirect('/careaunidad', array('name'=>'success', 'value'=>$result));
-	}	
+	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
+	}
+	
+	public function alphaSpace($str){
+	    if (preg_match("^([a-zA-Zñáéíóú]\s?)+^", $str, $data) && $data[0]==$str){
+	        return true;
+	    }
+	    else{
+	        $this->form_validation->set_message('alphaSpace', 'El campo {field} contiene caracteres no alfabeticos o espacios');
+	        return false;
+	    }
+	}
 }
