@@ -38,12 +38,11 @@
 		<!-- start: page -->
 		<section class="body-sign">
 			<div class="center-sign">
-				<a href="/" class="logo pull-left">
-					<img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="54" alt="Porto Admin" />
-				</a>
-
 				<div class="panel panel-sign">
 					<div class="panel-title-sign mt-xl text-right">
+					   <a href="<?php echo base_url();?>" class="logo pull-left">
+					       <img src="<?php echo base_url();?>assets/images/u-dashboard-logo.png" height="54" alt="Porto Admin" />
+				        </a>
 						<h2 class="title text-uppercase text-bold m-none"><i class="fa fa-user mr-xs"></i> Login</h2>
 					</div>
 					<div class="panel-body text-center">
