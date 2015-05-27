@@ -311,7 +311,7 @@
 					var metricas_unidad = metricas[unidad_value];
 					$('#id_org').attr('value',unidad_value);
   					for (i in metricas_unidad) {
-  						var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
+  						var popover = "<button href='#popover' id='id".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
   							"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>");
     					$(popover).appendTo($('#metricas'));
   					}

@@ -181,7 +181,7 @@
 									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
 									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>
 
-										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
+									<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
 										<?php echo form_open('DashboardConfig/addGraphDCC', array('onSubmit' => "return checkInput();")); ?>
 												<label>Tipo de gráfico:</label>
@@ -273,7 +273,7 @@
 				$('#metricas').empty();
 				var metricas_dcc_op = metricas[1];
   				for (i in metricas_dcc_op) {
-  					var popover = "<a href='#popover' id='".concat(metricas_dcc_op[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  					var popover = "<a href='#popover' id='id".concat(metricas_dcc_op[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
   						metricas_dcc_op[i]['metorg'], ")'>", metricas_dcc_op[i]['name'], "</a>");
     				$(popover).appendTo($('#metricas'));
   				}
@@ -282,7 +282,7 @@
   						var metricas_area = metricas[areas[i]['id']];
   						var area_name = areas[i]['name'];
   						for(j in metricas_area){
-  							var popover = "<a href='#popover' id='".concat(metricas_area[j]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  							var popover = "<a href='#popover' id='id".concat(metricas_area[j]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
   									metricas_area[j]['metorg'], ")'>", "<b>",
   								area_name, "</b>  &#8658; ", metricas_area[j]['name'], "</a>");
     						$(popover).appendTo($('#metricas'));
@@ -294,7 +294,7 @@
   							var unidad_name = unidades[k]['name'];
   							var metricas_unidad = metricas[unidad_id];
   							for(j in metricas_unidad){
-  								var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
+  								var popover = "<a href='#popover' id='id".concat(metricas_unidad[j]['metorg'], "' class='btn btn-default' onclick='updateYears(",
   									metricas_unidad[j]['metorg'], ")'>", "<b>",
   									area_name, "</b>  &#8658; ","<b>",
   									unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>");
@@ -305,6 +305,7 @@
   				}
   			}
   			});
+
 
   			$('#dcc').change(function() {
 				var dcc_value = $( "#dcc" ).val();
@@ -345,6 +346,7 @@
   						}
   					}
   				}
+
 			});
 
 

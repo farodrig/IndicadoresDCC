@@ -130,7 +130,7 @@ class MySession extends CI_Controller {
 
 	public function validar()
 	{
-	    $this->load->view('validar');
+	    $this->load->view('validar', array('validate' => "1", ));
 	}
 
 	public function menuConfigurar()

@@ -288,7 +288,7 @@
 					$('#metricas').empty();
 					var metricas_area = metricas[area_value];
   					for (i in metricas_area) {
-  						var popover = "<a href='#popover' id='".concat(metricas_area[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  						var popover = "<a href='#popover' id='id".concat(metricas_area[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
   							metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>");
     					$(popover).appendTo($('#metricas'));
   					}
@@ -298,7 +298,7 @@
   						var unidad_name = unidades[i]['name'];
   						var metricas_unidad = metricas[unidad_id];
   						for(j in metricas_unidad){
-  							var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
+  							var popover = "<a href='#popover' id='id".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
   								metricas_unidad[j]['metorg'], ")'>", "<b>",
   								unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>");
     						$(popover).appendTo($('#metricas'));

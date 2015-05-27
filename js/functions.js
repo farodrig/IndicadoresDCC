@@ -1,5 +1,6 @@
 var from, to; 
 var initial_from, initial_to;
+var pressed;
 function saveValFrom(e){
   from = e.value;
 }
@@ -41,6 +42,7 @@ function checkInput(){
     }
   }
 
+
   $('section.body').click(function(e){
     if(!(e['target']['attributes']['class'].value=="btn-group-vertical col-md-12") &&
       !(e['target']['attributes']['class'].value=="btn btn-default" && e['target']['attributes']['href'].value=="#popover")){
@@ -48,18 +50,20 @@ function checkInput(){
     }
   });
 
+
   function updateYears(id){
     var min_year = years[id]['min'];
     var max_year = years[id]['max'];
     var check = years[id]['checked'];
     var type = years[id]['type'];
     var id_graph = years[id]['id'];
+    pressed = id;
 
     from = new Number(JSON.parse(min_year));
     to = new Number(JSON.parse(max_year));
     initial_from = from;
     initial_to = to;
-
+    
     $('#from').attr('value',new Number(JSON.parse(min_year)));
     $('#to').attr('value',new Number(JSON.parse(max_year)));
     $('#id_met').attr('value',new Number(id));
