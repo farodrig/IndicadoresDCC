@@ -54,7 +54,7 @@ class ModifyOrg extends CI_Controller{
 			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>0));
 		}
 
-	    $data = array('type'=>$this->input->post('type'), 'name'=>ucwords($this->input->post('name'))); 
+	    $data = array('type'=>$this->input->post('type'), 'name'=>ucwords($this->input->post('name')));
 	    $result = $this->Organization_model->addArea($data);
 	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
 	}

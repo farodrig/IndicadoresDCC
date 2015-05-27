@@ -219,7 +219,7 @@ class MySession extends CI_Controller {
 	}
 
 	public function agregarMetrica(){
-
+		$this->load->library('session');
 		$this->load->model('Unit_model');
 		$this->load->library('form_validation');
 	    $this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required|callback_alphaSpace');
@@ -228,7 +228,8 @@ class MySession extends CI_Controller {
 	    $this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
 
 	    if(!$this->form_validation->run()){
-			redirect('inicio');
+				$this->session->set_flashdata('success',0);
+				redirect('cmetrica');
 		}
 
 	   	$Unit = array(
@@ -250,7 +251,6 @@ class MySession extends CI_Controller {
         	'org' => $this->input->post('id_insert'),
         	'metric' =>$id_metric
 			);
-		$this->load->library('session');
 
 		if($this->Metorg_model->addMetOrg($metorg))
 			$this->session->set_flashdata('success',1);
@@ -267,13 +267,14 @@ class MySession extends CI_Controller {
 		$this->load->library('session');
 
 		if($this->input->post('modificar')){
-			$this->form_validation->set_rules('unidad', 'UnidadMedida', 'required');
+			$this->form_validation->set_rules('unidad', 'UnidadMedida', 'required|callback_alphaSpace');
 	    	$this->form_validation->set_rules('tipo', 'Type', 'required|numeric');
-	    	$this->form_validation->set_rules('metrica', 'Metric', 'required');
+	    	$this->form_validation->set_rules('metrica', 'Metric', 'required|callback_alphaSpace');
 	    	$this->form_validation->set_rules('id', 'Id', 'required|numeric');
 
 	    	if(!$this->form_validation->run()){
-				redirect('inicio');
+					$this->session->set_flashdata('success',0);
+					redirect('cmetrica');
 			}
 
 			$data= array(
@@ -291,8 +292,9 @@ class MySession extends CI_Controller {
 			$this->form_validation->set_rules('id2', 'Id', 'required|numeric');
 
 	    	if(!$this->form_validation->run()){
-				redirect('inicio');
-			}
+					$this->session->set_flashdata('success',0);
+					redirect('cmetrica');
+				}
 
 			$data = array('id_metorg' => $this->input->post('id2'));
 			if($this->Metrics_model->deleteMetric($data))

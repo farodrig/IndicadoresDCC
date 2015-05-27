@@ -487,8 +487,8 @@
 			}
 			if (success==0){
 				new PNotify({
-					title: 'error!',
-					text: 'Ha ocurrido un error con su solicitud, porfavor intentelo de nuevo más tarde.',
+					title: 'Error!',
+					text: 'Solicitud no pudo ser realizada. Puede que haya agregado entradas inválidas',
 					type: 'error'
 				});
 			}
