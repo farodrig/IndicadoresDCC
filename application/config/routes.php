@@ -65,6 +65,7 @@ $route['cdashboardDCC'] = 'DashboardConfig/configDCC';
 $route['addGraph'] = 'DashboardConfig/addGraphUnidad';
 $route['cmetrica'] = 'MySession/configurarMetricas';
 $route['export'] = 'Dashboard/exportData';
+$route['contacto'] = 'MySession/contact';
 
 
 

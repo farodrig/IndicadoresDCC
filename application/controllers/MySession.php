@@ -4,8 +4,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class MySession extends CI_Controller {
 
 	public function index()
-	{
+	{	    
 		$this->load->view('login');
+	}
+	
+	public function contact(){
+	    $work = true;
+	    if($this->input->method()=="post"){
+	        
+	        $this->load->library('email');
+	         
+	        $this->email->from($this->input->post('email'), $this->input->post('name'));
+	        $this->email->to('farodrig92@gmail.com');
+	         
+	        $this->email->subject($this->input->post('topic'));
+	        $this->email->message($this->input->post('message'));
+	        
+	        if (! $this->email->send()){
+	            $work = false;
+	        }
+	        else{
+	            redirect('inicio');
+	        }
+	    }  
+	    
+	    $this->load->view('contact', array('work'=>$work));
 	}
 
     public function inicio(){
