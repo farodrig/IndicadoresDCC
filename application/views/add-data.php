@@ -109,7 +109,8 @@
 									<h2 class="panel-title">Añadir Datos</h2>
 
 									<p class="panel-subtitle">
-										Deje en blanco campos correspondientes a métricas que no desea considerar
+										Deje en blanco campos correspondientes a métricas que no desea considerar. Para modificar datos existentes elija un año 
+										del menú desplegable y reemplace los datos mostrados. 
 									</p>
 								</header>
 								<div class="panel-body">
