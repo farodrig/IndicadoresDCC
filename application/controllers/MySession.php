@@ -8,6 +8,12 @@ class MySession extends CI_Controller {
 		$this->load->view('login');
 	}
 	
+	public function logout(){
+	    $this->load->library('session');
+	    $this->session->sess_destroy();
+	    redirect('');
+	}
+	
 	public function contact(){
 	    $work = true;
 	    if($this->input->method()=="post"){

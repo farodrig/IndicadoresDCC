@@ -49,7 +49,7 @@
 							<ul class="list-unstyled">
 								<li class="divider"></li>
 								<li>
-									<a role="menuitem" tabindex="-1" href="pages-signin.html"><i class="fa fa-power-off"></i> Logout</a>
+									<a role="menuitem" tabindex="-1" href="<?php echo base_url();?>salir"><i class="fa fa-power-off"></i> Logout</a>
 								</li>
 							</ul>
 						</div>

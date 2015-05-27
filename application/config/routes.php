@@ -66,6 +66,7 @@ $route['addGraph'] = 'DashboardConfig/addGraphUnidad';
 $route['cmetrica'] = 'MySession/configurarMetricas';
 $route['export'] = 'Dashboard/exportData';
 $route['contacto'] = 'MySession/contact';
+$route['salir'] = 'MySession/logout';
 
 
 
