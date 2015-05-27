@@ -221,7 +221,7 @@
 
 										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
-										<?php echo form_open('DashboardConfig/addGraphArea', array('onSubmit' => "return checkInput();")); ?>
+										<?php echo form_open('DashboardConfig/addGraphUnidad', array('onSubmit' => "return checkInput();")); ?>
 												<label>Tipo de gráfico:</label>
 												<input type="hidden" id="id_org" name="id_org" value=""/>
 												<input type="hidden" id="id_met" name="id_met" value=""/>
