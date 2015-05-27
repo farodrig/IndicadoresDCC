@@ -48,7 +48,7 @@
 						<?php echo form_open_multipart('contacto', 'id="contact_form"'); ?>
 							<div class="form-group mb-lg">
 								<label>Nombre Completo</label>
-								<input name="name" data-validation="custom" data-validation-regexp="^([a-zA-Z]+\s)([a-zA-Z]+\s?)+$" data-validation-error-msg = "Debes escribir al menos un nombre y un apellido" type="text" class="form-control input-lg" />
+								<input name="name" data-validation="custom" data-validation-regexp="^([a-zA-Zñáéíóú]+\s)([a-zA-Zñáéíóú]+\s?)+$" data-validation-error-msg = "Debes escribir al menos un nombre y un apellido" type="text" class="form-control input-lg" />
 							</div>
 
 							<div class="form-group mb-lg">
