@@ -18,33 +18,33 @@
     		input.rounded {
 
         	    border: 1px solid #ccc;
-        
+
         	    -moz-border-radius: 10px;
-        
+
         	    -webkit-border-radius: 10px;
-        
+
         	    border-radius: 10px;
-        
+
         	    -moz-box-shadow: 2px 2px 3px #666;
-        
+
         	    -webkit-box-shadow: 2px 2px 3px #666;
-        
+
         	    box-shadow: 2px 2px 3px #666;
-        
+
         	    font-size: 20px;
-        
+
         	    padding: 4px 7px;
-        
+
         	    outline: 0;
-        
+
         	    -webkit-appearance: none;
-        
+
         	}
 
-	       input.rounded:focus {        
+	       input.rounded:focus {
         	    border-color: #339933;
         	    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(51, 153, 51, 0.6);
-                outline: 0 none;        
+                outline: 0 none;
         	}
     	</style>
 		<meta name="keywords" content="HTML5 Admin Template" />
@@ -181,9 +181,9 @@
 									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
 									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>
 
-										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
+									<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
 										<div id="popover-content" data-placement="right" class="hide">
-										<?php echo form_open('DashboardConfig/addGraphDCC'); ?>
+										<?php echo form_open('DashboardConfig/addGraphDCC', array('onSubmit' => "return checkInput();")); ?>
 												<label>Tipo de gráfico:</label>
 												<input type="hidden" id="id_org" name="id_org" value=""/>
 												<input type="hidden" id="id_met" name="id_met" value=""/>
@@ -199,7 +199,7 @@
 													</div>
 													<div class="form-group">
     													<label for="to">Hasta:</label>
-    													<input type="number" class="form-control rounded" id="to" name="to" onkeyup="saveValTo(this)" onkeyup="validate_year('to',to)"  >
+    													<input type="number" class="form-control rounded" id="to" name="to" onchange="saveValTo(this)" onkeyup="validate_year('to',to)"  >
 													</div>
 													<hr style="width:250px;">
 												</div>
@@ -254,33 +254,6 @@
 			var years = <?php echo json_encode($years); ?>;
 			var colors = <?php echo json_encode($colors); ?>;
 
-			var from =2000;
-			var to = 2000;
-
-			function saveValFrom(e){
-				from = e.value;
-			}
-
-			function saveValTo(e){
-				from = e.value;
-			}
-
-			function checkInput(){
-				if(validate_year('from', from) && validate_year('to', to)){
-
-					if(from<=to)
-						return true;
-					else{
-						alert("Año de inicio debe ser menor al año final");
-						return false;
-					}
-				}
-				else{
-					alert("Años inválidos");
-					return false;
-				}
-			}
-
 			function changePage(page){
       			window.location.href = "<?php echo base_url();?>".concat(page);
     		}
@@ -300,7 +273,7 @@
 				$('#metricas').empty();
 				var metricas_dcc_op = metricas[1];
   				for (i in metricas_dcc_op) {
-  					var popover = "<a href='#popover' id='".concat(metricas_dcc_op[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  					var popover = "<a href='#popover' id='id".concat(metricas_dcc_op[i]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
   						metricas_dcc_op[i]['metorg'], ")'>", metricas_dcc_op[i]['name'], "</a>");
     				$(popover).appendTo($('#metricas'));
   				}
@@ -309,7 +282,7 @@
   						var metricas_area = metricas[areas[i]['id']];
   						var area_name = areas[i]['name'];
   						for(j in metricas_area){
-  							var popover = "<a href='#popover' id='".concat(metricas_area[j]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
+  							var popover = "<a href='#popover' id='id".concat(metricas_area[j]['metorg'], "' class='btn btn-default' onclick='updateYears(" ,
   									metricas_area[j]['metorg'], ")'>", "<b>",
   								area_name, "</b>  &#8658; ", metricas_area[j]['name'], "</a>");
     						$(popover).appendTo($('#metricas'));
@@ -321,7 +294,7 @@
   							var unidad_name = unidades[k]['name'];
   							var metricas_unidad = metricas[unidad_id];
   							for(j in metricas_unidad){
-  								var popover = "<a href='#popover' id='".concat(metricas_unidad[j]['metorg'], "'class='btn btn-default' onclick='updateYears(",
+  								var popover = "<a href='#popover' id='id".concat(metricas_unidad[j]['metorg'], "' class='btn btn-default' onclick='updateYears(",
   									metricas_unidad[j]['metorg'], ")'>", "<b>",
   									area_name, "</b>  &#8658; ","<b>",
   									unidad_name, "</b>  &#8658; ",metricas_unidad[j]['name'], "</a>");
@@ -332,6 +305,7 @@
   				}
   			}
   			});
+
 
   			$('#dcc').change(function() {
 				var dcc_value = $( "#dcc" ).val();
@@ -372,57 +346,9 @@
   						}
   					}
   				}
+
 			});
 
-			function updateYears(id){
-  				var min_year = years[id]['min'];
-  				var max_year = years[id]['max'];
-  				var check = years[id]['checked'];
-  				var type = years[id]['type'];
-  				var id_graph = years[id]['id'];
-
-  				$('#from').attr('value',new Number(JSON.parse(min_year)));
-  				$('#to').attr('value',new Number(JSON.parse(max_year)));
-				$('#id_met').attr('value',new Number(id));
-				$('#id_graph').attr('value',new Number(id_graph));
-				$('#mostrar').attr('checked', check==0 ? null : 1);
-
-				var select_grafico = document.getElementById('type');
-				select_grafico.options.length = 0;
-
-				if(type=="2"){
-					select_grafico.options[select_grafico.options.length]= new Option('Líneas', 2);
-					select_grafico.options[select_grafico.options.length]= new Option('Barra', 1);
-				}
-				else{
-					select_grafico.options[select_grafico.options.length]= new Option('Barra', 1);
-					select_grafico.options[select_grafico.options.length]= new Option('Líneas', 2);
-				}
-
-  			}
-
-  			function validate_year(id,opt){
-				return changeOnValidation(id, ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.toString().length==4 && opt>=1980));
-			}
-
-			function changeOnValidation(id, validator){
-				if(validator){
-					document.getElementById(id).style.borderColor="green";
-					return true;
-				}
-				else{
-					document.getElementById(id).style.borderColor="red";
-					document.getElementById(id).focus();
-					return false;
-				}
-			}
-
-  			$('section.body').click(function(e){
-				if(!(e['target']['attributes']['class'].value=="btn-group-vertical col-md-12") &&
-					!(e['target']['attributes']['class'].value=="btn btn-default" && e['target']['attributes']['href'].value=="#popover")){
-					$('#popover').popover('hide');
-				}
-			});
 
 			function changeColor(){
 				var id_dcc = document.getElementById("dcc").value;
@@ -434,5 +360,6 @@
 			}
 
 		</script>
+		<script src="<?php echo base_url();?>js/functions.js"></script>
 	</body>
 </html>

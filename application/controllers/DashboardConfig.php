@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class DashboardConfig extends CI_Controller 
+class DashboardConfig extends CI_Controller
 {
 
 	function __construct()
@@ -12,7 +12,7 @@ class DashboardConfig extends CI_Controller
 	function configUnidad() // funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
 	                           // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
-	{	
+	{
 		$this->load->library('session');
 		$user = $this->session->userdata("user");
     	$permits = array('director' => $this->session->userdata("director"),
@@ -47,7 +47,7 @@ class DashboardConfig extends CI_Controller
 	    	$result['years'] = array(
 	    		'id' => -1,
 	    		'type' => 2,
-				'min' => 2005, 
+				'min' => 2005,
 				'max' => 2015,
 				'check' => NULL
 				);
@@ -63,10 +63,10 @@ class DashboardConfig extends CI_Controller
 	    			$min_max_years = $this->Dashboardconfig_model->getMinMaxYears($id,$id_org); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
-	    		
+
 	    	}
 	    	$result['years'] = $years;
-	    }	
+	    }
 
 	   if(!$all_areas)
 	    	$result['areas'] = [];
@@ -106,15 +106,15 @@ class DashboardConfig extends CI_Controller
 		$this->load->model('Dashboardconfig_model');
 	    $all_metrics = $this->Dashboardconfig_model->getAllMetricsArea(); //Retorna arrglo de arreglos de metricas de las unidades y areas correspondientes
 	    															      //Si all_metrics es falso es porque no hay areas
-	    
+
 	    $all_areas = $this->Dashboardconfig_model->getAllAreasUnidad(); //arreglo de areas y sus respectivas unidades id_area =>(nombre, id, arreglo_unidades)
-	    
+
 	    if($all_metrics==false){
 	    	$result['metricas'] = [];
 	    	$result['years'] = array(
 	    		'id' => -1,
 	    		'type' => 2,
-				'min' => 2005, 
+				'min' => 2005,
 				'max' => 2015,
 				'check' => NULL
 				);
@@ -141,9 +141,9 @@ class DashboardConfig extends CI_Controller
 	    			$min_max_years = $this->Dashboardconfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
-	    		
+
 	    	}
-	    	$result['years'] = $years;  
+	    	$result['years'] = $years;
 	    }
 
 	    if(!$all_areas)
@@ -187,7 +187,7 @@ class DashboardConfig extends CI_Controller
 	    $all_metrics = $this->Dashboardconfig_model->getAllMetricsDCC(); //Retorna arrglo de arreglos de todas las métricas
 	    															      //Si all_metrics es falso es porque no hay areas
 
-	    
+
 
 	    $all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();
 	    if($all_metrics==false){
@@ -195,7 +195,7 @@ class DashboardConfig extends CI_Controller
 	    	$result['years'] = array(
 	    		'id' => -1,
 	    		'type' => 2,
-				'min' => 2005, 
+				'min' => 2005,
 				'max' => 2015,
 				'check' => NULL
 				);
@@ -261,21 +261,21 @@ class DashboardConfig extends CI_Controller
 	    						}
 	    					}
 	    					if($id_org_dash!=-1)
-	    						break;	
+	    						break;
 	    				}
 	    			}
 	    			//debug(array($id,$id_org_dash));
 	    			$min_max_years = $this->Dashboardconfig_model->getMinMaxYears($id,$id_org_dash); //Si existe config entrego los años correspondientes, junto con valor check
 	    			$years[$id] = $min_max_years;
 	    		}
-	    		
+
 	    	}
 	    	$met_op= array_unique($met_op);
 	    	$met_sop= array_unique($met_sop);
 	    	$result['years'] = $years;
 	    	$result['met_operacion']=[];
 	    	$result['met_soporte']=[];
-	    	$result['colors'] = array("success", "warning");     
+	    	$result['colors'] = array("success", "warning");
 	    }
 
 	    if(!$all_areas)
@@ -331,7 +331,7 @@ class DashboardConfig extends CI_Controller
 		$this->form_validation->set_rules('id_org', 'Org', 'required|numeric');
 		$this->form_validation->set_rules('type', 'Type', 'required|numeric');
 		$this->form_validation->set_rules('id_met', 'Metric', 'required|numeric');
-		
+
 		if(!$this->form_validation->run()){
 			redirect('inicio');
 		}
@@ -347,6 +347,10 @@ class DashboardConfig extends CI_Controller
 		$to = $this->input->post('to');
 		$position = $this->input->post('mostrar')==NULL ? 0 : 1;
 
+		if(intval($to)<intval($from)){
+			$this->load->model('Dashboardconfig_model');
+		}
+		
 		$data  = array('type' => $graph,
 						'id_met' => $id_met,
 						'from' => $from,
@@ -359,9 +363,9 @@ class DashboardConfig extends CI_Controller
 		//debug($data);
 		$this->Dashboardconfig_model->addGraph($data);
 
-		
+
 	}
 
-	
+
 
 }
