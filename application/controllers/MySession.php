@@ -4,36 +4,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class MySession extends CI_Controller {
 
 	public function index()
-	{	    
+	{
 		$this->load->view('login');
 	}
-	
+
 	public function logout(){
 	    $this->load->library('session');
 	    $this->session->sess_destroy();
 	    redirect('');
 	}
-	
+
 	public function contact(){
 	    $work = true;
 	    if($this->input->method()=="post"){
-	        
+
 	        $this->load->library('email');
-	         
+
 	        $this->email->from($this->input->post('email'), $this->input->post('name'));
 	        $this->email->to('farodrig92@gmail.com');
-	         
+
 	        $this->email->subject($this->input->post('topic'));
 	        $this->email->message($this->input->post('message'));
-	        
+
 	        if (! $this->email->send()){
 	            $work = false;
 	        }
 	        else{
 	            redirect('inicio');
 	        }
-	    }  
-	    
+	    }
+
 	    $this->load->view('contact', array('work'=>$work));
 	}
 
@@ -222,9 +222,9 @@ class MySession extends CI_Controller {
 
 		$this->load->model('Unit_model');
 		$this->load->library('form_validation');
-	    $this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required');
+	    $this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required|callback_alphaSpace');
 	    $this->form_validation->set_rules('category', 'Category', 'required|numeric');
-	    $this->form_validation->set_rules('name', 'Name', 'required');
+	    $this->form_validation->set_rules('name', 'Name', 'required|callback_alphaSpace');
 	    $this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
 
 	    if(!$this->form_validation->run()){
@@ -302,6 +302,16 @@ class MySession extends CI_Controller {
 		}
 
     	redirect('cmetrica');
+	}
+
+	public function alphaSpace($str){
+	    if (preg_match("^([a-zA-Zñáéíóú]\s?)+^", $str, $data) && $data[0]==$str){
+	        return true;
+	    }
+	    else{
+	        $this->form_validation->set_message('alphaSpace', 'El campo {field} contiene caracteres no alfabeticos o espacios');
+	        return false;
+	    }
 	}
 }
 ?>

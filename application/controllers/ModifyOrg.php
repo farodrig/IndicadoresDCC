@@ -1,10 +1,10 @@
 <?php
 class ModifyOrg extends CI_Controller{
-    
+
     function __construct(){
         parent::__construct();
     }
-    
+
     function modifyAreaUnidad(){
 	    $this->load->model('Organization_model');
 	    $this->load->library('session');
@@ -26,26 +26,26 @@ class ModifyOrg extends CI_Controller{
 	    $areaunit = array();
 	    $areas = $this->Organization_model->getAllAreas();
 	    foreach ($areas as $area){
-	        array_push($areaunit, array('area' => $area, 
+	        array_push($areaunit, array('area' => $area,
 	                                    'unidades' => $this->Organization_model->getAllUnidades($area->getId()))
 	                   );
 	    }
-	    $this->load->view('configurar-areas-unidades', 
-	                       array('areaunit'=>$areaunit, 
-	                             'success'=> $val, 
+	    $this->load->view('configurar-areas-unidades',
+	                       array('areaunit'=>$areaunit,
+	                             'success'=> $val,
 	                             'types'=>$this->Organization_model->getTypes(),
 	                             'validate' => $permits['validate']));
 	}
-		
+
 	private function setRedirect($url, $data) {
 	    $this->load->library('session');
 	    $this->session->set_flashdata($data['name'], $data['value']);
 	    redirect($url);
 	}
-	
+
 	function addArea() {
 	    $this->load->model('Organization_model');
-	    
+
 	    $this->load->library('form_validation');
 	    $this->form_validation->set_rules('type', 'Type', 'numeric|required');
 	    $this->form_validation->set_rules('name', 'Name', 'trim|required|callback_alphaSpace');
@@ -54,14 +54,14 @@ class ModifyOrg extends CI_Controller{
 			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>0));
 		}
 
-	    $data = array('type'=>$this->input->post('type'), 'name'=>$this->input->post('name'));
+	    $data = array('type'=>$this->input->post('type'), 'name'=>ucwords($this->input->post('name'))); 
 	    $result = $this->Organization_model->addArea($data);
 	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
 	}
-	
+
 	function addUni() {
 	    $this->load->model('Organization_model');
-	    
+
 	    $this->load->library('form_validation');
 	    $this->form_validation->set_rules('area', 'Area', 'trim|required|callback_alphaSpace');
 	    $this->form_validation->set_rules('name', 'Name', 'trim|required|callback_alphaSpace');
@@ -69,26 +69,26 @@ class ModifyOrg extends CI_Controller{
 	    if(!$this->form_validation->run()){
 			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>0));
 		}
-	    $data = array('name'=>$this->input->post('name'));
+	    $data = array('name'=>ucwords($this->input->post('name')));
 	    $result = $this->Organization_model->addUnidad($this->input->post('area'), $data);
 	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
 	}
-	
+
 	function delAreaUni() {
 	    $this->load->model('Organization_model');
-	    
+
 	    $this->load->library('form_validation');
 	    $this->form_validation->set_rules('name', 'Name', 'trim|required|callback_alphaSpace');
 
 	    if(!$this->form_validation->run()){
 			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>0));
 		}
-        
+
 	    $data = $this->input->post('name');
 	    $result = $this->Organization_model->delByName($data);
 	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
 	}
-	
+
 	public function alphaSpace($str){
 	    if (preg_match("^([a-zA-Zñáéíóú]\s?)+^", $str, $data) && $data[0]==$str){
 	        return true;
