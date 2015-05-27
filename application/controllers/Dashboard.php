@@ -20,7 +20,8 @@ class Dashboard extends CI_Controller
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-    						'asistente_dcc' => $this->session->userdata("asistente_dcc"));
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+    						'validate' => $this->session->userdata("validate"));
 	    $val = $this->session->flashdata('id');
 
 	    if(!is_null($val)){
@@ -93,6 +94,7 @@ class Dashboard extends CI_Controller
 	    
 	    $res['route'] = $route;
 	    $res['id_location'] = $id;
+	    $res['validate'] = $permits['validate'];
 	    if($permits['director']){
 	    	$this->load->view('add-data', $res);
 	    }
