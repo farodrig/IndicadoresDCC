@@ -3,17 +3,18 @@
 class Dashboard_library
 {
     private $name_met;
-	private $id_measurement;
-	private $metorg;
-	private $value;
-	private $target;
-	private $expected;
-	private $year;
+	  private $id_measurement;
+	  private $metorg;
+	  private $value;
+	  private $target;
+	  private $expected;
+	  private $year;
     private $graph_type;
-	private $id_org;
-	private $name_org;
+	  private $id_org;
+	  private $name_org;
     private $min_year;
     private $max_year;
+    private $unit;
 	/*private $validator;
 	private $dateval;*/
 
@@ -42,6 +43,7 @@ class Dashboard_library
         $this->max_year = element('max_year', $parameters);
         $this->metorg = element('met_org', $parameters);
         $this->graph_type = element('type', $parameters);
+        $this->unit = element('unit', $parameters);
         return $this;
     }
 
@@ -57,13 +59,22 @@ class Dashboard_library
     }
 
     function initializeData($parameters){
-        
+
         $this->value = element('value', $parameters);
         $this->target = element('target', $parameters);
         $this->expected = element('expected', $parameters);
         $this->year = element('year', $parameters);
         return $this;
     }
+
+
+    /**
+        * @return the unit
+        */
+       public function getUnit()
+       {
+           return $this->unit;
+       }
 
  /**
      * @return the $id_met

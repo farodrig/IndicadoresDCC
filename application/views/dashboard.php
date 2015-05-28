@@ -114,8 +114,8 @@
 													max :  <?php echo $metric['max_y']?>,
 													min :  <?php echo $metric['min_y']?>,
 													graph_type :  <?php echo $metric['graph_type']?>,
-													measure_number : <?php echo $metric['measure_number'] ?>
-
+													measure_number : <?php echo $metric['measure_number'] ?>,
+													unit : "<?php echo $metric['unit'] ?>"
 												};
 
 												data[index] = [{
@@ -211,6 +211,7 @@
 
 		<script type="text/javascript">
 		var names = <?php echo json_encode($names); ?>; //id's de las metricas
+		console.log(graph_info);
 		</script>
 		<script src="<?php echo base_url();?>js/plot.js"></script>
 	</body>

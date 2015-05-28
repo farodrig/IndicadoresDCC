@@ -21,7 +21,8 @@ class Dashboard extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"));
+    						'validate' => $this->session->userdata("validate"),
+								'title' =>$this->session->userdata("title"));
 	    $val = $this->session->flashdata('id');
 
 	    if(!is_null($val)){
@@ -108,6 +109,7 @@ class Dashboard extends CI_Controller
 	    else{
 	    	redirect('inicio');
 	    }
+			$res['title'] = $permits['title'];
 			$this->load->view('add-data', $res);
 	    //debug($all_metrics, true);
 	}
@@ -253,10 +255,12 @@ class Dashboard extends CI_Controller
 	    										'graph_type' => $metric->getGraphType(),
 	    										'max_y' => 0,
 	    										'min_y' => 0,
-	    										'measure_number' => 0
+	    										'measure_number' => 0,
+													'unit' => $metric->getUnit()
 	    										);
 
 	    	}
+
 	    	if($all_measurements){
 	    		foreach ($all_measurements as $measure) {
 	    			$count = 1;
@@ -324,7 +328,8 @@ class Dashboard extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"));
+    						'validate' => $this->session->userdata("validate"),
+								'title' =>$this->session->userdata("title"));
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
 		if($this->session->userdata('id_location')!=FALSE){
@@ -340,7 +345,6 @@ class Dashboard extends CI_Controller
 	    //Guardar en variables de sesion
 		$this->session->set_flashdata('id',$id);
 
-		//Problemas aqui!!
 		if($permits['director'] || $permits['visualizador'] || (in_array($id, $permits['asistente_finanzas_unidad'])
 			&& ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))){
 	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,0);
@@ -356,6 +360,7 @@ class Dashboard extends CI_Controller
 	    }
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
 	    $result['validate'] = $permits['validate'];
+			$result['title'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 
 	    if($permits['director']){
@@ -392,15 +397,15 @@ class Dashboard extends CI_Controller
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad'])){
 				$result['header'] = "header-encargado";
 				$result['addData'] = "no-add-data";
-	    	$this->load->view('noDashboard', $result);
+	    	$this->load->view('no-dashboard', $result);
 	    }
 	    elseif(!in_array($id, $permits['asistente_unidad']) && !in_array($id, $permits['asistente_finanzas_unidad'])){
 				$result['header'] = "header";
 				$result['addData'] = "no-add-data";
-	    	$this->load->view('noDashboard', $result);
+	    	$this->load->view('no-dashboard', $result);
 	    }
 
-			//$this->load->view('dashboard', $result);
+
 			//debug($result);
 
 
@@ -422,7 +427,7 @@ class Dashboard extends CI_Controller
 		$this->session->set_userdata('id_location', $id_org);
 		$this->load->model('Dashboard_model');
 		$data = $this->Dashboard_model->getAllData($id_org, $id_met);
-		debug(array($id_met, $id_org));
+
 	}
 
 	function showAllDashboard(){
@@ -435,7 +440,8 @@ class Dashboard extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"));
+    						'validate' => $this->session->userdata("validate"),
+								'title' =>$this->session->userdata("title"));
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
 		if($this->session->userdata('id_location')!=FALSE){
@@ -467,32 +473,39 @@ class Dashboard extends CI_Controller
 
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
 	    $result['validate'] = $permits['validate'];
+			$result['title'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 
 			if($permits['director']){
 	    	$result['header'] = "header-director";
 				$result['addData'] = "add-data";
+				$this->load->view('dashboard-all-graphs', $result);
 	    }
 	    elseif(in_array($id, $permits['encargado_unidad'])){ //Si me corresponde la unidad
 				$result['header'] = "header-encargado";
 				$result['addData'] = "add-data";
+				$this->load->view('dashboard-all-graphs', $result);
 	    }
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) &&
 	    (in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc'])){ //Si me corresponde la unidad
 				$result['header'] = "header-encargado";
 				$result['addData'] = "no-add-data";
+				$this->load->view('dashboard-all-graphs', $result);
 	    }
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) && $permits['visualizador']){ //Si me corresponde la unidad
 				$result['header'] = "header-encargado";
 				$result['addData'] = "no-add-data";
+				$this->load->view('dashboard-all-graphs', $result);
 	    }
 	    elseif(in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc']){ //Si me corresponde la unidad
 				$result['header'] = "header";
 				$result['addData'] = "add-data";
+				$this->load->view('dashboard-all-graphs', $result);
 	    }
 	    elseif($permits['visualizador']){
 				$result['header'] = "header";
 				$result['addData'] = "no-add-data";
+				$this->load->view('dashboard-all-graphs', $result);
 	    }
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad'])){
 				$result['header'] = "header-encargado";
@@ -505,7 +518,6 @@ class Dashboard extends CI_Controller
 	    	$this->load->view('noDashboard', $result);
 	    }
 
-			$this->load->view('dashboard-all-graphs', $result);
 
 	}
 

@@ -15,7 +15,8 @@ class ModifyOrg extends CI_Controller{
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"));
+    						'validate' => $this->session->userdata("validate"),
+                'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
     		redirect('inicio');
@@ -34,7 +35,8 @@ class ModifyOrg extends CI_Controller{
 	                       array('areaunit'=>$areaunit,
 	                             'success'=> $val,
 	                             'types'=>$this->Organization_model->getTypes(),
-	                             'validate' => $permits['validate']));
+	                             'validate' => $permits['validate'],
+                               'title' => $permits['title']));
 	}
 
 	private function setRedirect($url, $data) {

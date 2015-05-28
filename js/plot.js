@@ -48,7 +48,7 @@ for(i = 0; i<index; i++){
             max: graph_info[i]['max'],
             color: 'rgba(0,0,0,0.1)',
             position: "left",
-            axisLabel: 'Sin(X)',
+            axisLabel: graph_info[i]['unit'],
             axisLabelUseCanvas: true,
             axisLabelFontSizePixels: 12,
             axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
@@ -105,7 +105,7 @@ for(i = 0; i<index; i++){
             tickDecimals: 0
           },
           yaxis :{
-            axisLabel: 'Sin(X)',
+            axisLabel: graph_info[i]['unit'],
             axisLabelUseCanvas: true,
             axisLabelFontSizePixels: 12,
             axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
