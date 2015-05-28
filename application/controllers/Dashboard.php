@@ -95,6 +95,7 @@ class Dashboard extends CI_Controller
 	    $res['route'] = $route;
 	    $res['id_location'] = $id;
 	    $res['validate'] = $permits['validate'];
+	    $res['success'] = $this->session->flashdata('success');
 	    if($permits['director']){
 	    	$this->load->view('add-data', $res);
 	    }
@@ -138,7 +139,8 @@ class Dashboard extends CI_Controller
 		}
 
 		if(!$this->form_validation->run()){
-			redirect('inicio');
+		    $this->session->set_flashdata('success', $success);
+			redirect('formAgregarDato');
 		}
 
 		$year = $this->input->post('year');
@@ -169,7 +171,8 @@ class Dashboard extends CI_Controller
 		else{
 			redirect('inicio');
 		}
-
+        
+		$success = 1;
 		foreach($metrics_id as $i){
 			$id_met = $i->getId();
 			$value = $this->input->post('value'.$id_met);
@@ -179,19 +182,23 @@ class Dashboard extends CI_Controller
 			if($value=="" && $target=="" && $expected==""){
 				continue;
 			}
-			
 			if(in_array($id_met, $data)==1 && ($value!=$vals[$id_met]['value'] || $target!=$vals[$id_met]['target'] || $expected!=$vals[$id_met]['expected'])){
 				$q = $this->Dashboard_model->updateData($id_met, $year, $value, $target, $expected, $user, $validation);
 			}
 			else if(in_array($id_met, $data)!=1){
 				$q = $this->Dashboard_model->insertData($id_met, $year, $value, $target, $expected, $user, $validation); // si $q es falso significa que fallo la query
+			}	
+			else{
+			    $q = -1;
+			}
+			if ($q == 0){
+			    $success = 0;
 			}
 		}
 		
-		
 		$this->session->set_flashdata('id', $id);
+		$this->session->set_flashdata('success', $success);
 		redirect('formAgregarDato');
-
 	}
 
 	function _parseMeasurements($m){
