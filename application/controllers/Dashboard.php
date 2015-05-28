@@ -362,27 +362,33 @@ class Dashboard extends CI_Controller
 	    if($permits['director']){
 	    	$result['header'] = "header-director";
 				$result['addData'] = "add-data";
+				$this->load->view('dashboard', $result);
 	    }
 	    elseif(in_array($id, $permits['encargado_unidad'])){ //Si me corresponde la unidad
 				$result['header'] = "header-encargado";
 				$result['addData'] = "add-data";
+				$this->load->view('dashboard', $result);
 	    }
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) &&
 	    (in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc'])){ //Si me corresponde la unidad
 				$result['header'] = "header-encargado";
 				$result['addData'] = "no-add-data";
+				$this->load->view('dashboard', $result);
 	    }
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad']) && $permits['visualizador']){ //Si me corresponde la unidad
 				$result['header'] = "header-encargado";
 				$result['addData'] = "no-add-data";
+				$this->load->view('dashboard', $result);
 	    }
 	    elseif(in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) || $permits['asistente_dcc']){ //Si me corresponde la unidad
 				$result['header'] = "header";
 				$result['addData'] = "add-data";
+				$this->load->view('dashboard', $result);
 	    }
 	    elseif($permits['visualizador']){
 				$result['header'] = "header";
 				$result['addData'] = "no-add-data";
+				$this->load->view('dashboard', $result);
 	    }
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad'])){
 				$result['header'] = "header-encargado";
@@ -395,7 +401,7 @@ class Dashboard extends CI_Controller
 	    	$this->load->view('no-dashboard', $result);
 	    }
 
-			$this->load->view('dashboard', $result);
+			//$this->load->view('dashboard', $result);
 			//debug($result);
 
 
