@@ -151,7 +151,7 @@
 						        echo ('<section class="panel panel-info">');
 						        echo ('<header class="panel-heading" style="background-color: '.$color.'">');
 						        echo ('<h2 class="panel-title"><button type="submit" name="direccion" value='.$au['area']->getId().' class="mb-xs mt-xs mr-xs btn btn-info btn-lg btn-block '.$kind.'">'.ucwords($au['area']->getName()).'</button></h2>');
-						        echo ('<p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
+						        echo ('</header>');
 						        echo ('<div class="panel-body">');
 
 						        echo ('<div class="btn-group-vertical col-md-12">');

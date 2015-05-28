@@ -196,6 +196,7 @@
 		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.categories.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.resize.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/jquery-sparkline/jquery.sparkline.js"></script>
+		<script type="text/javascript" src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.axislabels.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/raphael/raphael.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/morris/morris.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/gauge/gauge.js"></script>
@@ -269,11 +270,23 @@
 								yaxis: {
 									min: graph_info[i]['min'],
 									max: graph_info[i]['max'],
-									color: 'rgba(0,0,0,0.1)'
+									color: 'rgba(0,0,0,0.1)',
+									position: "left",
+									axisLabel: 'Sin(X)',
+									axisLabelUseCanvas: true,
+									axisLabelFontSizePixels: 12,
+									axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+									axisLabelPadding: 5
 								},
 								xaxis: {
+									axisLabel: "Año",
+									axisLabelUseCanvas: true,
+    							axisLabelFontSizePixels: 12,
+    							axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+    							axisLabelPadding: 5,
 									ticks: graph_info[i]['measure_number']==0 ? 1 :  graph_info[i]['measure_number'],
-									color: 'rgba(0,0,0,0.1)'
+									color: 'rgba(0,0,0,0.1)',
+									tickDecimals: 0
 								},
 								tooltip: true,
 								tooltipOpts: {
@@ -303,8 +316,14 @@
 									}
 								},
 								xaxis: {
+									axisLabel: "Año",
+									axisLabelUseCanvas: true,
+    							axisLabelFontSizePixels: 12,
+    							axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+    							axisLabelPadding: 5,
 									mode: 'categories',
-									tickLength: 0
+									tickLength: 0,
+									tickDecimals: 0
 								},
 								grid: {
 									hoverable: true,
