@@ -8,6 +8,7 @@ class ModifyOrg extends CI_Controller{
     function modifyAreaUnidad(){
 	    $this->load->model('Organization_model');
 	    $this->load->library('session');
+	    $this->load->library('parser');
 		$user = $this->session->userdata("user");
     	$permits = array('director' => $this->session->userdata("director"),
     						'visualizador' => $this->session->userdata("visualizador"),
@@ -15,8 +16,7 @@ class ModifyOrg extends CI_Controller{
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
-                'title' =>$this->session->userdata("title"));
+    						'validate' => $this->session->userdata("validate"));
 
     	if(!$permits['director']){
     		redirect('inicio');
@@ -32,11 +32,13 @@ class ModifyOrg extends CI_Controller{
 	                   );
 	    }
 	    $this->load->view('configurar-areas-unidades',
-	                       array('areaunit'=>$areaunit,
+	                       array('title'=>'Configuración de Areas y Unidades',
+	                             'name' => 'Juan Jones',
+	                             'role' => $this->session->userdata("title"),
+	                             'areaunit'=>$areaunit,
 	                             'success'=> $val,
 	                             'types'=>$this->Organization_model->getTypes(),
-	                             'validate' => $permits['validate'],
-                               'title' => $permits['title']));
+	                             'validate' => $permits['validate']));
 	}
 
 	private function setRedirect($url, $data) {
