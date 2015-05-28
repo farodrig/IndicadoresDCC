@@ -114,8 +114,8 @@
 													max :  <?php echo $metric['max_y']?>,
 													min :  <?php echo $metric['min_y']?>,
 													graph_type :  <?php echo $metric['graph_type']?>,
-													measure_number : <?php echo $metric['measure_number'] ?>
-
+													measure_number : <?php echo $metric['measure_number'] ?>,
+													unit : "<?php echo $metric['unit'] ?>"
 												};
 
 												data[index] = [{

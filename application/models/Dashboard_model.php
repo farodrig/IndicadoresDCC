@@ -25,12 +25,12 @@ class Dashboard_model extends CI_Model
     {
         if($category==0){
             $query = "SELECT mo.id AS id, met.name AS name
-                        FROM MetOrg AS mo, Metric AS met, Organization AS org 
+                        FROM MetOrg AS mo, Metric AS met, Organization AS org
                         WHERE mo.metric=met.id AND mo.org =".$id." AND org.id =".$id;
         }
         else{
             $query = "SELECT mo.id AS id, met.name AS name
-                        FROM MetOrg AS mo, Metric AS met, Organization AS org 
+                        FROM MetOrg AS mo, Metric AS met, Organization AS org
                         WHERE mo.metric=met.id AND mo.org =".$id." AND org.id =".$id." AND met.category=".$category;
         }
 
@@ -54,8 +54,8 @@ class Dashboard_model extends CI_Model
         $q = $this->db->query($query);
         if(($size=$q->num_rows()) > 0){
             $rows = $q->result();
-        
-        
+
+
         $morgs = "";
         for($i=0; $i<$size-1; $i++){
             $id = $rows[$i]->id;
@@ -102,7 +102,7 @@ class Dashboard_model extends CI_Model
 
                 if($aux_id==$id)
                     break;
-            
+
                 $i++;
             }
         }
@@ -129,8 +129,8 @@ class Dashboard_model extends CI_Model
             foreach ($q->result() as $row){
                 $parameters=  array(
                                 'id' => $row->id
-                            );  
-            
+                            );
+
             $id = new Dashboard_library();
             $id_array[] = $id->initializeIds($parameters);
             }
@@ -185,20 +185,20 @@ class Dashboard_model extends CI_Model
 
     function insertData($id_met, $year, $value, $target, $expected, $user, $validation){ //Inserta datos en la tabla de mediciones
 
-        $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup) 
+        $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup)
                     VALUES (?, ?, ?, ?, ? ,?, ?, NOW())";
 
-        $q = $this->db->query($query, array($id_met, $validation ,$value, $target, $expected, $year, $user)); 
+        $q = $this->db->query($query, array($id_met, $validation ,$value, $target, $expected, $year, $user));
 
         return $q;
     }
 
     function updateData($id_met, $year, $value, $target, $expected, $user, $validation){ //Aqui hay que guardar datos antiguos
 
-        $query = " UPDATE Measure SET state = ?, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()  
+        $query = " UPDATE Measure SET state = ?, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()
         WHERE metorg = ? AND year = ?";
 
-        $q = $this->db->query($query, array($validation, $value, $target, $expected, $user, $id_met, $year)); 
+        $q = $this->db->query($query, array($validation, $value, $target, $expected, $user, $id_met, $year));
 
         return $q;
     }
@@ -219,27 +219,27 @@ class Dashboard_model extends CI_Model
             $graphs = $q->result();
         else
             return false;
-        
+
         $g_id = "(";
         for($i=0; $i<$size-1; $i++){
             $id = $graphs[$i]->graph;
             $g_id = $g_id."g.id= ".$id." OR ";
         }
         $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
-        
+
         if($category==0){
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                        FROM Graphic AS g 
-                        WHERE g.position<>0 AND ".$g_id;
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
+                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
+                        WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND ".$g_id;
         }
         else{
 
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                        FROM Graphic AS g, MetOrg AS mo, Metric AS m
-                        WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND m.category=".$category." AND ".$g_id;
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
+                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
+                        WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND m.category=? AND ".$g_id;
         }
 
-        $q = $this->db->query($query);
+        $q = $this->db->query($query, array($category));
         if($q->num_rows() > 0)
             return $this->buildDashboardMetrics($q);
         else
@@ -257,7 +257,8 @@ class Dashboard_model extends CI_Model
                 'met_org' => $row->org,
                 'type' => $row->type,
                 'min_year' => $row->min_year,
-                'max_year' => $row->max_year
+                'max_year' => $row->max_year,
+                'unit' => ucwords($row->unit)
             );
 
             $metrica = new Dashboard_library();
@@ -267,23 +268,23 @@ class Dashboard_model extends CI_Model
 
         return $metrica_array;
     }
-   
+
     function getDashboardMeasurements($metorgs)
-    {   
+    {
         $result=[];
         foreach ($metorgs as $met) {
             $query = "SELECT m.metric AS metric FROM MetOrg AS m WHERE m.id= ".$met->getMetOrg();
             $q = $this->db->query($query);
             if(($size=$q->num_rows()) > 0)
-                $metric = $q->result()[0]->metric; 
-            else 
+                $metric = $q->result()[0]->metric;
+            else
                 return false; //Si llego aca hay problemas
 
             $query = "SELECT m.name AS name FROM Metric AS m WHERE m.id=".$metric;
             $q = $this->db->query($query);
             if(($size=$q->num_rows()) > 0)
                 $name = $q->result()[0]->name;
-            else 
+            else
                 return false;
 
             $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
@@ -298,17 +299,17 @@ class Dashboard_model extends CI_Model
                                 'measurements' => $rows
                                 );
             }
-            
+
         }
-        
+
         return $result;
     }
 
     function getAllData($id_org, $id_met){
 
-        $query = "SELECT m.value AS value, m.target AS target, m.expected AS expected, m.year AS year 
+        $query = "SELECT m.value AS value, m.target AS target, m.expected AS expected, m.year AS year
          FROM Organization AS org, Dashboard AS d, GraphDash AS gd, Graphic AS g, Measure AS m
-         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1 
+         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1
          AND m.year>=g.min_year AND m.year<=g.max_year";
 
          $q= $this->db->query($query, array($id_org, $id_met, $id_met));
@@ -323,16 +324,16 @@ class Dashboard_model extends CI_Model
                 $this->download_send_headers("data_export_" . date("Y-m-d") . ".csv");
                 echo $this->array2csv($data, $name->name);
                 die();
-                
+
                 debug($user_agent);
          }
-        else 
+        else
             return false;
 
 
     }
 
-    function buildDataCSV($q)  
+    function buildDataCSV($q)
     {
         $this->load->library('Dashboard_library');
         $row = $q->result();
@@ -385,7 +386,7 @@ class Dashboard_model extends CI_Model
         header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
         header("Last-Modified: {$now} GMT");
 
-        // force download  
+        // force download
         header("Content-Type: application/force-download");
         header("Content-Type: application/octet-stream");
         header("Content-Type: application/download");
@@ -410,7 +411,7 @@ class Dashboard_model extends CI_Model
             $graphs = $q->result();
         else
             return false;
-        
+
         $g_id = "(";
         for($i=0; $i<$size-1; $i++){
             $id = $graphs[$i]->graph;
@@ -419,12 +420,12 @@ class Dashboard_model extends CI_Model
         $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
 
         $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                    FROM Graphic AS g 
+                    FROM Graphic AS g
                     WHERE ".$g_id;
 
         if($category==0){
             $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                        FROM Graphic AS g 
+                        FROM Graphic AS g
                         WHERE ".$g_id;
         }
         else{

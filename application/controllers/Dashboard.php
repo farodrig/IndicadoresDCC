@@ -253,7 +253,8 @@ class Dashboard extends CI_Controller
 	    										'graph_type' => $metric->getGraphType(),
 	    										'max_y' => 0,
 	    										'min_y' => 0,
-	    										'measure_number' => 0
+	    										'measure_number' => 0,
+													'unit' => $metric->getUnit()
 	    										);
 
 	    	}
