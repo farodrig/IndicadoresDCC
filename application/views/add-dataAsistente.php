@@ -23,6 +23,9 @@
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/magnific-popup/magnific-popup.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap-datepicker/css/datepicker3.css" />
 
+		<!-- Specific Page Vendor CSS -->
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/pnotify/pnotify.custom.css" />		
+		
 		<link rel="stylesheet" href="<?php echo base_url();?>chosen/chosen.css">
 
 		<!-- Theme CSS -->
@@ -176,7 +179,10 @@
 		<script src="<?php echo base_url();?>assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/magnific-popup/magnific-popup.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
-
+		
+		<!-- Specific Page Vendor -->
+		<script src="<?php echo base_url();?>assets/vendor/pnotify/pnotify.custom.js"></script>
+		
 		<!-- Theme Base, Components and Settings -->
 		<script src="<?php echo base_url();?>assets/javascripts/theme.js"></script>
 
@@ -187,6 +193,25 @@
 		<script src="<?php echo base_url();?>assets/javascripts/theme.init.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
   		<script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
+  		<script type="text/javascript">
+           var success = <?php echo($success);?>;
+
+		   if (success==1){
+			   new PNotify({
+					title: 'Éxito!',
+					text: 'Su solicitud ha sido realizada con éxito.',
+					type: 'success'
+				});
+			   }
+		   if (success==0){
+			   new PNotify({
+					title: 'error!',
+					text: 'Ha ocurrido un error con su solicitud.<br>Revise que la información de los campos sea correcta.<br>Si el problema persiste, intente de nuevo más tarde.',
+					type: 'error'
+				});
+			}  	 
+  		</script>
+  		
   		<script type="text/javascript">
     		var config = {
       		'.chosen-select'           : {},
@@ -199,8 +224,7 @@
       			$(selector).chosen(config[selector]);
     		}
   		</script>
-
-
+  		
 		<script type="text/javascript">
 
 			$('#year').live('chosen:no_results', function(e,params) {

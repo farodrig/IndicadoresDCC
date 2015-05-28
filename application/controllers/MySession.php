@@ -21,7 +21,7 @@ class MySession extends CI_Controller {
 	        $this->load->library('email');
 
 	        $this->email->from($this->input->post('email'), $this->input->post('name'));
-	        $this->email->to('farodrig92@gmail.com');
+	        $this->email->to('NoMandaMail@gmail.com');
 
 	        $this->email->subject($this->input->post('topic'));
 	        $this->email->message($this->input->post('message'));

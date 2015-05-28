@@ -365,7 +365,7 @@
 		   if (success==0){
 			   new PNotify({
 					title: 'error!',
-					text: 'Ha ocurrido un error con su solicitud. Los nombres de Areas y Unidades solo puede tener letras, tildes y espacios.',
+					text: 'Ha ocurrido un error con su solicitud.<br>Los nombres de Areas y Unidades solo puede tener letras, tildes y espacios.',
 					type: 'error'
 				});
 			}
