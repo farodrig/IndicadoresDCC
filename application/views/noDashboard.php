@@ -45,7 +45,7 @@
 	<body>
 		<section class="body">
 
-        <?php include 'partials/header-asistente.php'; ?>
+        <?php include 'partials/'.$header.'.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
@@ -100,10 +100,16 @@
 					</header>
 
 					<!-- start: page -->
-					<h2>Usted no tiene permisos para ver esta página</h2>
+						<div class='row'>
+								<div class='col-md-6'>
+									<h2> Usted no tiene permisos para ver la página </h2>
+								</div>
+						</div>
+
+
 					<!-- end: page -->
 				</section>
-			</div>
+			
 
 		</section>
 
@@ -119,12 +125,6 @@
 		<!-- Specific Page Vendor -->
 		<script src="<?php echo base_url();?>assets/vendor/jquery-appear/jquery.appear.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/jquery-easypiechart/jquery.easypiechart.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot-tooltip/jquery.flot.tooltip.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.pie.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.categories.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.resize.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/jquery-sparkline/jquery.sparkline.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/raphael/raphael.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/morris/morris.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/gauge/gauge.js"></script>
@@ -151,6 +151,5 @@
 		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.tabletools.js"></script>
 		<!--<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.default.js"></script>-->
 
-		</script>
 	</body>
 </html>

@@ -12,24 +12,6 @@
 				<!-- start: search & user box -->
 				<div class="header-right">
 
-					<ul class="notifications">
-						<li>
-							<label>Configurar</label>
-							<a href="<?php echo base_url();?>configurar" class="notification-icon">
-								<i class="fa fa-gear"></i>
-							</a>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</li>
-						<li>
-							<label>Validar</label>
-							<a href="<?php echo base_url();?>validar" class="notification-icon">
-								<i class="fa fa-check-circle" style="color:green"></i>
-								<span class="badge"><?php echo $validate;?></span>
-							</a>
-
-						</li>
-					</ul>
-
 					<span class="separator"></span>
 
 					<div id="userbox" class="userbox">
@@ -39,7 +21,7 @@
 							</figure>
 							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
 								<span class="name">john Doe Jr</span>
-								<span class="role">Administrator</span>
+								<span class="role">Visualizador</span>
 							</div>
 
 							<i class="fa custom-caret"></i>
@@ -49,7 +31,7 @@
 							<ul class="list-unstyled">
 								<li class="divider"></li>
 								<li>
-									<a role="menuitem" tabindex="-1" href="<?php echo base_url();?>salir"><i class="fa fa-power-off"></i> Logout</a>
+									<a role="menuitem" tabindex="-1" href="pages-signin.html"><i class="fa fa-power-off"></i> Logout</a>
 								</li>
 							</ul>
 						</div>

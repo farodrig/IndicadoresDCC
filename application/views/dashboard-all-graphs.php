@@ -45,7 +45,7 @@
 	<body>
 		<section class="body">
 
-        <?php include 'partials/header.php'; ?>
+			<?php include 'partials/'.$header.'.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
@@ -60,28 +60,7 @@
 						</div>
 					</div>
 
-					<div class="nano">
-						<div class="nano-content">
-							<nav id="menu" class="nav-main" role="navigation">
-								<ul class="nav nav-main">
-									<li>
-										<a href="<?php echo base_url();?>inicio">
-											<i class="fa fa-home" aria-hidden="true"></i>
-											<span>U-Dashboard</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>formAgregarDato?var=<?php echo $id_location ?>">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-plus-square" aria-hidden="true"></i>
-											<span>Añadir Datos</span>
-										</a>
-									</li>
-								</ul>
-							</nav>
-						</div>
-
-					</div>
+					<?php include 'partials/navegation-'.$addData.'.php'; ?>
 
 				</aside>
 				<!-- end: sidebar -->
@@ -229,138 +208,8 @@
 		<!--<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.default.js"></script>-->
 
 		<script type="text/javascript">
-
-			var names = <?php echo json_encode($names); ?>;
-			var size = names.length;
-
-			for(i=0; i<size; i++){
-				names[i] = names[i].replace(/\s+/g, '');
-			}
-
-			for(i = 0; i<index; i++){
-
-				if(graph_info[i]['graph_type']==2){ //Es de linea
-					$(document).ready((function( $ ) {
-
-						'use strict';
-
-						(function() {
-							var plot = $.plot('#'.concat(names[i]), data[i], {
-								series: {
-									lines: {
-										show: true,
-										fill: false,
-										lineWidth: 1,
-										fillColor: {
-											colors: [{
-												opacity: 0.45
-												}, {
-												opacity: 0.45
-											}]
-										}
-									},
-									points: {
-										show: true
-									},
-									shadowSize: 0
-								},
-								grid: {
-									hoverable: true,
-									clickable: true,
-									borderColor: 'rgba(0,0,0,0.1)',
-									borderWidth: 1,
-									labelMargin: 15,
-									backgroundColor: 'transparent'
-								},
-								yaxis: {
-									min: graph_info[i]['min'],
-									max: graph_info[i]['max'],
-									color: 'rgba(0,0,0,0.1)',
-									position: "left",
-									axisLabel: 'Sin(X)',
-									axisLabelUseCanvas: true,
-									axisLabelFontSizePixels: 12,
-									axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-									axisLabelPadding: 5
-								},
-								xaxis: {
-									axisLabel: "Año",
-									axisLabelUseCanvas: true,
-    							axisLabelFontSizePixels: 12,
-    							axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-    							axisLabelPadding: 5,
-									ticks: graph_info[i]['measure_number']==0 ? 1 :  graph_info[i]['measure_number'],
-									color: 'rgba(0,0,0,0.1)',
-									tickDecimals: 0
-								},
-								tooltip: true,
-								tooltipOpts: {
-									content: '%s: Valor para %x es %y',
-									shifts: {
-										x: -60,
-										y: 25
-									},
-									defaultTheme: false
-								}
-							});
-						})()}).apply( this, [ jQuery ]));
-				}
-				else{
-					$(document).ready((function( $ ) {
-
-						'use strict';
-
-						(function() {
-							var plot = $.plot('#'.concat(names[i]), [data[i][0]['data']], {
-								colors: ['#8CC9E8'],
-								series: {
-									bars: {
-										show: true,
-										barWidth: 0.8,
-										align: 'center'
-									}
-								},
-								xaxis: {
-									axisLabel: "Año",
-									axisLabelUseCanvas: true,
-    							axisLabelFontSizePixels: 12,
-    							axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-    							axisLabelPadding: 5,
-									mode: 'categories',
-									tickLength: 0,
-									tickDecimals: 0
-								},
-								yaxis: {
-									position: "left",
-									axisLabel: 'Sin(X)',
-									axisLabelUseCanvas: true,
-									axisLabelFontSizePixels: 12,
-									axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-									axisLabelPadding: 5
-								},
-								grid: {
-									hoverable: true,
-									clickable: true,
-									borderColor: 'rgba(0,0,0,0.1)',
-									borderWidth: 1,
-									labelMargin: 15,
-									backgroundColor: 'transparent'
-								},
-								tooltip: true,
-								tooltipOpts: {
-									content: '%y',
-									shifts: {
-										x: -10,
-										y: 20
-									},
-								defaultTheme: false
-								}
-							});
-						})()}).apply( this, [ jQuery ]));
-
-				}
-
-			}
+		var names = <?php echo json_encode($names); ?>; //id's de las metricas
 		</script>
+		<script src="<?php echo base_url();?>js/plot.js"></script>
 	</body>
 </html>

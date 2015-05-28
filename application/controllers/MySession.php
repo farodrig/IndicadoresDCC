@@ -92,32 +92,26 @@ class MySession extends CI_Controller {
     		}
 		}
 		$types = $this->Organization_model->getTypes();
+		$result = array('department'=> $department,
+																		'areaunit'=>$areaunit,
+																		'types'=>$types,
+																		'name' => $name,
+																		'user' => $user,
+																		'validate' => $validate);
 		//Colocar permisos de mayor a menor
 		if($permits->getDirector()){
-	    	$this->load->view('index', array('department'=> $department,
-	        	                             'areaunit'=>$areaunit,
-	            	                         'types'=>$types,
-	                	                     'name' => $name,
-	                	                     'user' => $user,
-	                	                     'validate' => $validate));
+			$result['header'] = "header-director";
 		}
 		elseif(!in_array("-1", $permits->getEncargadoUnidad())){
-			$this->load->view('indexEncargado', array('department'=> $department,
-	        	                             			'areaunit'=>$areaunit,
-	            	                         			'types'=>$types,
-	                	                     			'name' => $name,
-	                	                     			'user' => $user,
-	                	                     			'validate' => $validate));
+			$result['header'] = "header-encargado";
 
 		}
-		elseif(!in_array("-1", $permits->getAsistenteUnidad()) || $permits->getVisualizador()){
-			$this->load->view('indexVisualizador', array('department'=> $department,
-	        	                             			'areaunit'=>$areaunit,
-	            	                         			'types'=>$types,
-	                	                     			'name' => $name,
-	                	                     			'user' => $user,
-	                	                     			'validate' => $validate));
+		elseif(!in_array("-1", $permits->getAsistenteUnidad()) || $permits->getVisualizador() ||
+		(!in_array("-1", $permits->getAsistenteFinanzasUnidad())) || $permits->getAsistenteDCC()){
+			$result['header'] = "header-encargado";
 		}
+
+		$this->load->view('index', $result);
 	}
 
 

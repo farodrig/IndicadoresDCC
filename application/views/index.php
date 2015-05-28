@@ -57,7 +57,7 @@
 		<section class="body">
 
 
-		<?php include 'partials/header.php'; ?>
+			<?php include 'partials/'.$header.'.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
