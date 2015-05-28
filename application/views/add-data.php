@@ -25,7 +25,7 @@
 
 		<!-- Specific Page Vendor CSS -->
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/pnotify/pnotify.custom.css" />
-		
+
 		<link rel="stylesheet" href="<?php echo base_url();?>chosen/chosen.css">
 		<!-- Theme CSS -->
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/stylesheets/theme.css" />
@@ -181,7 +181,7 @@
 
 		<!-- Specific Page Vendor -->
 		<script src="<?php echo base_url();?>assets/vendor/pnotify/pnotify.custom.js"></script>
-		
+
 		<!-- Theme Base, Components and Settings -->
 		<script src="<?php echo base_url();?>assets/javascripts/theme.js"></script>
 
@@ -212,7 +212,7 @@
 				});
 			}
   		</script>
-  		
+
   		<script type="text/javascript">
     		var config = {
       		'.chosen-select'           : {},

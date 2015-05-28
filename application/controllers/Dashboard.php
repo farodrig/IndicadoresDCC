@@ -97,17 +97,18 @@ class Dashboard extends CI_Controller
 	    $res['validate'] = $permits['validate'];
 	    $res['success'] = $this->session->flashdata('success');
 	    if($permits['director']){
-	    	$this->load->view('add-data', $res);
+				$res['header'] = "header-director";
 	    }
 	    elseif(in_array($id, $permits['encargado_unidad'])){
-	    	$this->load->view('add-dataEncargado', $res);
+				$res['header'] = "header-encargado";
 	    }
 	    elseif(in_array($id, $permits['asistente_unidad']) || $permits['asistente_dcc'] || in_array($id, $permits['asistente_finanzas_unidad'])){
-	    	$this->load->view('add-dataAsistente', $res);
+				$res['header'] = "header";
 	    }
 	    else{
 	    	redirect('inicio');
 	    }
+			$this->load->view('add-data', $res);
 	    //debug($all_metrics, true);
 	}
 
@@ -182,7 +183,7 @@ class Dashboard extends CI_Controller
 			if($value=="" && $target=="" && $expected==""){
 				continue;
 			}
-			
+
 			if(in_array($id_met, $data)==1 && ($value!=$vals[$id_met]['value'] || $target!=$vals[$id_met]['target'] || $expected!=$vals[$id_met]['expected'])){
 				$q = $this->Dashboard_model->updateData($id_met, $year, $value, $target, $expected, $user, $validation);
 			}
