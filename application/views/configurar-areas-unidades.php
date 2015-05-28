@@ -98,7 +98,7 @@
 	<body>
 		<section class="body">
 
-        <?php include 'partials/header.php'; ?>
+        <?php include 'partials/header-director.php'; ?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->

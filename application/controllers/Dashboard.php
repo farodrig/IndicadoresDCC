@@ -386,12 +386,12 @@ class Dashboard extends CI_Controller
 	    elseif(!in_array($id, $permits['encargado_unidad']) && !in_array("-1", $permits['encargado_unidad'])){
 				$result['header'] = "header-encargado";
 				$result['addData'] = "no-add-data";
-	    	$this->load->view('noDashboard', $result);
+	    	$this->load->view('no-dashboard', $result);
 	    }
 	    elseif(!in_array($id, $permits['asistente_unidad']) && !in_array($id, $permits['asistente_finanzas_unidad'])){
 				$result['header'] = "header";
 				$result['addData'] = "no-add-data";
-	    	$this->load->view('noDashboard', $result);
+	    	$this->load->view('no-dashboard', $result);
 	    }
 
 			$this->load->view('dashboard', $result);
