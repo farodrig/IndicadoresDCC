@@ -231,22 +231,24 @@ class Dashboard_model extends CI_Model
             $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
                         FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
                         WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND ".$g_id;
+            $q = $this->db->query($query);
         }
         else{
 
             $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
                         FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
                         WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND m.category=? AND ".$g_id;
+            $q = $this->db->query($query, array($category));
         }
 
-        $q = $this->db->query($query, array($category));
+
         if($q->num_rows() > 0)
             return $this->buildDashboardMetrics($q);
         else
             return false;
     }
 
-    function buildDashboardMetrics($q)  // Contruye y retorna el objeto persona
+    function buildDashboardMetrics($q)
     {
         $this->load->library('Dashboard_library');
         $row = $q->result();
@@ -419,20 +421,20 @@ class Dashboard_model extends CI_Model
         }
         $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
 
-        $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                    FROM Graphic AS g
-                    WHERE ".$g_id;
+        $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
+                    FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
+                    WHERE g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND ".$g_id;
 
         if($category==0){
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                        FROM Graphic AS g
-                        WHERE ".$g_id;
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
+                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
+                        WHERE g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND ".$g_id;
         }
         else{
 
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year
-                        FROM Graphic AS g, MetOrg AS mo, Metric AS m
-                        WHERE g.metorg=mo.id AND mo.metric=m.id AND m.category=".$category." AND ".$g_id;
+            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
+                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
+                        WHERE g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND m.category=".$category." AND ".$g_id;
         }
         $q = $this->db->query($query);
         if($q->num_rows() > 0)

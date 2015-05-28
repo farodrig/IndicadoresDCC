@@ -211,6 +211,7 @@
 
 		<script type="text/javascript">
 		var names = <?php echo json_encode($names); ?>; //id's de las metricas
+		console.log(graph_info);
 		</script>
 		<script src="<?php echo base_url();?>js/plot.js"></script>
 	</body>
