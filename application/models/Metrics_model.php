@@ -13,8 +13,8 @@ class Metrics_model extends CI_Model{
 			return $metric_id = $q->result_array()[0]['id'];
 		}
 		else
-			return false; 
-		
+			return false;
+
 	}
 
 	function deleteMetric($data){
@@ -27,7 +27,7 @@ class Metrics_model extends CI_Model{
 			return false;
 		$query = "DELETE FROM Metric WHERE id=".$metric_id->id;
 		$q = $this->db->query($query);
-		$query = "DELETE FROM MetOrg WHERE id=".$data['id_metorg']; 
+		$query = "DELETE FROM MetOrg WHERE id=".$data['id_metorg'];
 		$q = $this->db->query($query);
 
 		return $q;
@@ -81,17 +81,17 @@ class Metrics_model extends CI_Model{
 			}
 		}
 
-		$query = "SELECT mo.org AS org, mo.id AS metorg, m.name AS name, c.name AS category, u.name AS unit 
+		$query = "SELECT mo.org AS org, mo.id AS metorg, m.name AS name, c.name AS category, u.name AS unit
 					FROM Metric AS m, MetOrg AS mo, Unit AS u, Category AS c
 		 			WHERE mo.metric=m.id AND u.id=m.unit AND c.id=m.category";
 		$q = $this->db->query($query);
-		
+
 		if($q->num_rows() > 0){
 			foreach ($q->result() as $row){
 					$data[$row->org]= $data[$row->org].'<tr class='.$row->metorg.'>
-						<td>'.$row->name.'</td>
-						<td>'.$row->category.'</td>
-						<td>'.$row->unit.'</td>
+						<td>'.ucwords($row->name).'</td>
+						<td>'.ucwords($row->category).'</td>
+						<td>'.ucwords($row->unit).'</td>
 						<td class="actions" title='.$row->metorg.'>
 							<a href="#" class="hidden on-editing save-row" ><i class="fa fa-save" id='.$row->metorg.'></i></a>
 							<a href="#" class="hidden on-editing cancel-row" ><i class="fa fa-times" id='.$row->metorg.'></i></a>
@@ -104,7 +104,7 @@ class Metrics_model extends CI_Model{
 		for($i=0; $i<sizeof($orgs); $i++)
 			$data[$orgs[$i]] = $data[$orgs[$i]]."</tbody></table>";
 		return $data;
-		
+
 	}
 
 
@@ -123,8 +123,8 @@ class Metrics_model extends CI_Model{
             'category' => $row->category,
             'unit' => $row->unit,
             'name' => $row->name
-        );        
-        $me = new Metrics_library();        
+        );
+        $me = new Metrics_library();
         return $me->initialize($parameters);
     }
 

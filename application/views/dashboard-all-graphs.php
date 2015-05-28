@@ -102,7 +102,7 @@
 								<div class='col-md-6'>
 									<section class='panel'>
 										<header class='panel-heading'>
-											<h2 class='panel-title'><?php echo element('name',$metric); ?></h2>
+											<h2 class='panel-title'><?php echo ucwords(element('name',$metric)); ?></h2>
 										</header>
 										<div class='panel-body'>
 											<div class='chart chart-md' id='<?php echo str_replace(' ', '', $metric['id']); ?>'>
@@ -112,13 +112,14 @@
 													max :  <?php echo $metric['max_y']?>,
 													min :  <?php echo $metric['min_y']?>,
 													graph_type :  <?php echo $metric['graph_type']?>,
-													measure_number : <?php echo $metric['measure_number'] ?>
+													measure_number : <?php echo $metric['measure_number'] ?>,
+													unit : "<?php echo $metric['unit'] ?>"
 
 												};
 
 												data[index] = [{
 													data: info,
-													label: "<?php echo $metric['name']?>",
+													label: "<?php echo ucwords($metric['name']);?>",
 													color: "#0088cc"
 												}];
 												index++;
@@ -132,7 +133,7 @@
 									<header class='panel-heading'>
 										<input type="hidden" name="id_org" id="id_org" value="<?php echo $id_location;?>">
 										<input type="hidden" name="id_met" id="id_met" value="<?php echo $metric['id'];?>">
-										<h2 class='panel-title'><?php echo $metric['name']; ?> &nbsp;&nbsp;&nbsp;
+										<h2 class='panel-title'><?php echo ucwords($metric['name']); ?> &nbsp;&nbsp;&nbsp;
 										<button name="export" id="export" class="btn btn-primary" type="submit">Exportar</button></h2>
 									</header>
 									<div class='panel-body'>

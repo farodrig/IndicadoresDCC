@@ -321,34 +321,58 @@ class MySession extends CI_Controller {
 	private function getTitle($permits_array){
 		$this->load->model("Permits_model");
 		$title="";
-
+		$count=0;
 		if($permits_array['director'])
-				$title= $title."Director,<br>";
-		if($permits_array['visualizador'])
-				$title= $title."Visualizador,<br>";
-		if($permits_array['asistente_dcc'])
-				$title= $title."Asistente DCC,<br>";
-		if(!in_array("-1", $permits_array['asistente_unidad'])){
+				$title= $title."Director <br>";
+		elseif($permits_array['asistente_dcc'])
+				$title= $title."Asistente DCC <br>";
+		elseif(!in_array("-1", $permits_array['encargado_unidad'])){
+				$name= "";
+				foreach ($permits_array['encargado_unidad'] as $p) {
+					if($count==2){
+						$name = $name."...";
+						break;
+					}
+					elseif ($count==1) {
+						$name = $name."<br>";
+					}
+					$name = $name.$this->Permits_model->getName($p).", ";
+					$count++;
+				}
+				$title= $title.rtrim("Encargado de ".$name, ", ")."<br>";
+		}
+		elseif(!in_array("-1", $permits_array['asistente_unidad'])){
 			$name= "";
 			foreach ($permits_array['asistente_unidad'] as $p) {
+				if($count==2){
+					$name = $name."...";
+					break;
+				}
+				elseif ($count==1) {
+					$name = $name."<br>";
+				}
 				$name = $name.$this->Permits_model->getName($p).", ";
+				$count++;
 			}
 			$title= $title.rtrim("Asistente de ".$name,", ")."<br>";
 		}
-		if(!in_array("-1", $permits_array['asistente_finanzas_unidad'])){
+		elseif(!in_array("-1", $permits_array['asistente_finanzas_unidad'])){
 			$name= "";
 			foreach ($permits_array['asistente_finanzas_unidad'] as $p) {
+				if($count==2){
+					$name = $name."...";
+					break;
+				}
+				elseif ($count==1) {
+					$name = $name."<br>";
+				}
 				$name = $name.$this->Permits_model->getName($p).", ";
+				$count++;
 			}
 			$title= $title.rtrim("Asistente de finanzas de ".$name, ", ")."<br>";
 		}
-		if(!in_array("-1", $permits_array['encargado_unidad'])){
-			$name= "";
-			foreach ($permits_array['encargado_unidad'] as $p) {
-				$name = $name.$this->Permits_model->getName($p).", ";
-			}
-			$title= $title.rtrim("Encargado de ".$name, ", ")."<br>";
-		}
+		elseif($permits_array['visualizador'])
+				$title= $title."Visualizador <br>";
 
 		return rtrim($title, "<br>");
 

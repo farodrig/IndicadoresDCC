@@ -95,7 +95,7 @@ class Dashboard_model extends CI_Model
                     $row = $q->result()[0];
                 }
 
-                $route[$i] = $row->name;
+                $route[$i] = ucwords($row->name);
 
                 $aux_id = $id;
                 $id = $row->parent;
