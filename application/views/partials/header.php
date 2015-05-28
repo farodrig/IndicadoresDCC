@@ -21,7 +21,7 @@
 							</figure>
 							<div class="profile-info" data-lock-name="John Doe" data-lock-email="johndoe@okler.com">
 								<span class="name">john Doe Jr</span>
-								<span class="role">Visualizador</span>
+								<span class="role"><?php echo $title; ?></span>
 							</div>
 
 							<i class="fa custom-caret"></i>

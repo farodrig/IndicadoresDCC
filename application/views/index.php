@@ -83,16 +83,18 @@
 										</a>
 									</li>
 									<?php
-									$first = true;
+									$second = false;
 									foreach ($types as $type){
 									    echo ('<li> <a href="'.base_url().'inicio?sector='.$type['name'].'">');
 									    echo ('<span class="pull-right label label-primary"></span>');
-									    if ($first){
+									    if ($second){
 									       echo ('<i class="fa fa-university" aria-hidden="true"></i>');
-									       $first = false;
+									      
 									    }
-									    else
+									    else{
 									        echo ('<i class="el-icon-group" aria-hidden="true"></i>');
+													$second = true;
+												}
 									    echo ('<span>'.ucwords($type['name']).'</span></a></li>');
 									}
 									?>
@@ -110,7 +112,7 @@
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
 								<li>
-									<a href="<?php echo base_url();?>">
+									<a href="<?php echo base_url();?>inicio">
 										<i class="fa fa-home"></i>
 									</a>
 								</li>

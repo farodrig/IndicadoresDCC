@@ -12,7 +12,7 @@ class Permits_model extends CI_Model
             return false;
     }
 
-    function buildPermits($q) 
+    function buildPermits($q)
     {
         $this->load->library('Permits_library');
         $row = $q->result();
@@ -35,6 +35,19 @@ class Permits_model extends CI_Model
         }
 
         return $permits;
+    }
+
+    function getName($org){
+      $query = "SELECT org.name AS name FROM Organization AS org WHERE org.id= ?";
+      $q = $this->db->query($query, array($org));
+
+      if($q->num_rows()==1){
+          $row = $q->result()[0];
+          return ucwords($row->name);
+      }
+      else
+          return false;
+
     }
 
 }

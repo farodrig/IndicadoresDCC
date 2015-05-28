@@ -40,8 +40,8 @@ class MySession extends CI_Controller {
     public function inicio(){
 
     	//$user= "17.586.757-0"; // usuario tipo Visualizador
-    	$user= "18.292.316-8"; // usuario tipo Administrador
-    	//$user = "20.584.236-5"; // usuario tipo Visualizador
+    	//$user= "18.292.316-8"; // usuario tipo Administrador
+    	$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
     	$this->load->model('Dashboard_model');
 
@@ -56,6 +56,9 @@ class MySession extends CI_Controller {
     							'encargado_unidad' => $permits->getEncargadoUnidad(),
     							'asistente_dcc' => $permits->getAsistenteDCC());
 
+			$title = $this->getTitle($permits_array);
+			$permits_array['title'] = $title;
+
     	if($permits_array['director'])
     		$validate = $this->Dashboard_model->getValidate(-1);
     	elseif(!in_array(-1,$permits_array['encargado_unidad']))
@@ -67,22 +70,22 @@ class MySession extends CI_Controller {
 
     	$this->session->set_userdata($permits_array);
 
-        $this->load->model('Organization_model');
-        $type = $this->input->get('sector');
-		$department = $this->Organization_model->getDepartment();
-		$areaunit = $this->showAreaUnit();
-		if(is_null($type)){
-			$type="Operación";
-			$name=$type;
-			$aus = $areaunit;
+      $this->load->model('Organization_model');
+      $type = $this->input->get('sector');
+			$department = $this->Organization_model->getDepartment();
+			$areaunit = $this->showAreaUnit();
+			if(is_null($type)){
+				$type="Operación";
+				$name=$type;
+				$aus = $areaunit;
 		    $areaunit = array();
     		foreach ($aus as $au){
     		    if ($au['area']->getType()==2)
     		        array_push($areaunit, $au);
     		}
-		}
-		else{
-			$name = $type;
+			}
+			else{
+				$name = $type;
 		    $type = $this->Organization_model->getTypeByName($type);
     		$aus = $areaunit;
 		    $areaunit = array();
@@ -90,28 +93,29 @@ class MySession extends CI_Controller {
     		    if ($au['area']->getType()==$type['id'])
     		        array_push($areaunit, $au);
     		}
-		}
-		$types = $this->Organization_model->getTypes();
-		$result = array('department'=> $department,
+			}
+			$types = $this->Organization_model->getTypes();
+			$result = array('department'=> $department,
 																		'areaunit'=>$areaunit,
 																		'types'=>$types,
 																		'name' => $name,
 																		'user' => $user,
-																		'validate' => $validate);
+																		'validate' => $validate,
+																		'title' => $title);
 		//Colocar permisos de mayor a menor
-		if($permits->getDirector()){
+			if($permits->getDirector()){
 			$result['header'] = "header-director";
-		}
-		elseif(!in_array("-1", $permits->getEncargadoUnidad())){
+			}
+			elseif(!in_array("-1", $permits->getEncargadoUnidad())){
 			$result['header'] = "header-encargado";
 
-		}
-		elseif(!in_array("-1", $permits->getAsistenteUnidad()) || $permits->getVisualizador() ||
-		(!in_array("-1", $permits->getAsistenteFinanzasUnidad())) || $permits->getAsistenteDCC()){
-			$result['header'] = "header-encargado";
-		}
+			}
+			elseif(!in_array("-1", $permits->getAsistenteUnidad()) || $permits->getVisualizador() ||
+			(!in_array("-1", $permits->getAsistenteFinanzasUnidad())) || $permits->getAsistenteDCC()){
+				$result['header'] = "header";
+			}
 
-		$this->load->view('index', $result);
+			$this->load->view('index', $result);
 	}
 
 
@@ -153,7 +157,8 @@ class MySession extends CI_Controller {
 
 	public function validar()
 	{
-	    $this->load->view('validar', array('validate' => "1", ));
+			$this->load->library('session');
+	    $this->load->view('validar', array('validate' => "1", 'title' => $this->session->userdata("title")));
 	}
 
 	public function menuConfigurar()
@@ -166,13 +171,14 @@ class MySession extends CI_Controller {
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"));
+    						'validate' => $this->session->userdata("validate"),
+								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
     		redirect('inicio');
     	}
 
-	    $this->load->view('menu-configurar', array('validate' => $permits['validate']));
+	    $this->load->view('menu-configurar', array('validate' => $permits['validate'], 'title' => $permits['title']));
 	}
 
 	public function agregarDato()
@@ -190,7 +196,8 @@ class MySession extends CI_Controller {
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"));
+    						'validate' => $this->session->userdata("validate"),
+								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
     		redirect('inicio');
@@ -209,6 +216,7 @@ class MySession extends CI_Controller {
 	                                     				'types'=>$types,
 														'metrics'=>$metrics,
 														'success' => $success,
+														'title' => $permits['title'],
 														'validate' => $permits['validate']));
 	}
 
@@ -308,6 +316,42 @@ class MySession extends CI_Controller {
 	        $this->form_validation->set_message('alphaSpace', 'El campo {field} contiene caracteres no alfabeticos o espacios');
 	        return false;
 	    }
+	}
+
+	private function getTitle($permits_array){
+		$this->load->model("Permits_model");
+		$title="";
+
+		if($permits_array['director'])
+				$title= $title."Director,<br>";
+		if($permits_array['visualizador'])
+				$title= $title."Visualizador,<br>";
+		if($permits_array['asistente_dcc'])
+				$title= $title."Asistente DCC,<br>";
+		if(!in_array("-1", $permits_array['asistente_unidad'])){
+			$name= "";
+			foreach ($permits_array['asistente_unidad'] as $p) {
+				$name = $name.$this->Permits_model->getName($p).", ";
+			}
+			$title= $title.rtrim("Asistente de ".$name,", ")."<br>";
+		}
+		if(!in_array("-1", $permits_array['asistente_finanzas_unidad'])){
+			$name= "";
+			foreach ($permits_array['asistente_finanzas_unidad'] as $p) {
+				$name = $name.$this->Permits_model->getName($p).", ";
+			}
+			$title= $title.rtrim("Asistente de finanzas de ".$name, ", ")."<br>";
+		}
+		if(!in_array("-1", $permits_array['encargado_unidad'])){
+			$name= "";
+			foreach ($permits_array['encargado_unidad'] as $p) {
+				$name = $name.$this->Permits_model->getName($p).", ";
+			}
+			$title= $title.rtrim("Encargado de ".$name, ", ")."<br>";
+		}
+
+		return rtrim($title, "<br>");
+
 	}
 }
 ?>
