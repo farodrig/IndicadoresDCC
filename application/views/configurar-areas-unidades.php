@@ -7,8 +7,26 @@
         
         <script type="text/javascript">
 
+           function validateName(input){
+        	   var re = new RegExp('^([a-zA-Zñáéíóú]\s?)+$');
+        	   if (input.value.match(re)) {
+        		   input.style.borderColor="#cccccc";
+        		  } else {
+        		    alert("Los nombres de Areas y Unidades solo puede tener letras, tildes y espacios.");
+        		    input.style.borderColor="red";
+        		  }
+
+           }
+
+           function addArea(){
+        	   $("#AreaName").val("");
+        	   $("#AreaName").css("border-color", "#cccccc");
+           }
+
 		   function addUnidad(area){
-			   $("#addUni").html(area);
+			   $("#UniName").val("");
+        	   $("#UniName").css("border-color", "#cccccc");
+			   $("#addUni").html(area);			   
 		   }
 
 		   function delUnidad(unidad){
@@ -174,7 +192,7 @@
 
 							    ?>
 							<div class="row col-md-12 text-center">
-								<a class="btn modal-with-form" href="#agregarArea" style="color: green">
+								<a class="btn modal-with-form" href="#agregarArea" style="color: green" onclick = "addArea();">
 								<h1><i class="licon-plus"></i></h1>
 								</a>
 							</div>
@@ -189,8 +207,8 @@
 														<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
 
-															<input id = "AreaName" type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
-
+															<input id = "AreaName" onchange = "validateName(this);" type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
+                                        
 														</div>
 													</div>
 													<div class="form-group mt-lg">
@@ -227,7 +245,7 @@
 													<div class="form-group mt-lg">
 														<label class="col-sm-3 control-label">Nombre:</label>
 														<div class="col-sm-9">
-															<input id = "UniName" type="text" name="name" class="form-control" placeholder="nombre de la nueva unidad..." required/>
+															<input id = "UniName" onchange = "validateName(this);" type="text" name="name" class="form-control" placeholder="nombre de la nueva unidad..." required/>
 														</div>
 													</div>
 												</form>
