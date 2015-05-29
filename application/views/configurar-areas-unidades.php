@@ -8,13 +8,14 @@
         <script type="text/javascript">
 
            function validateName(input){
-        	   var re = new RegExp('^([a-zA-Zñáéíóú]\s?)+$');
+        	   var re = new RegExp('^([a-zA-Zñáéíóú]\\s?)+$');
         	   if (input.value.match(re)) {
         		   input.style.borderColor="#cccccc";
-        		  } else {
+        	   } 
+        	   else {
         		    alert("Los nombres de Areas y Unidades solo puede tener letras, tildes y espacios.");
         		    input.style.borderColor="red";
-        		  }
+        	   }
 
            }
 
