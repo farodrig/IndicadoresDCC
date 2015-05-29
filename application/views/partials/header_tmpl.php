@@ -16,7 +16,7 @@
         <?php 
         $titles = explode('<br>', $role); //Separa los Titulos "Encargado de ...", "Director", "Asistente de ..."
         foreach ($titles as $titl){
-            $words = explode(' ',rtrim($titl, ',')); //Separa las palabras del titulo y elimina comas al final. "Encargado, de, ..."
+            $words = explode(' ',$titl); //Separa las palabras del titulo y elimina comas al final. "Encargado, de, ..."
             if($words[0]=="Director"){ //Revisa si el titulo parte con la palabra director?>
                 <ul class="notifications">
                     <li>
@@ -50,6 +50,8 @@
         <?php 
             }
         }
+        if (!isset($username))
+            $username = "Juan Johnes";
         ?>
     
         <span class="separator"></span>
@@ -58,8 +60,8 @@
                 <figure class="profile-picture">
                     <img src="<?php echo base_url();?>assets/images/!logged-user.jpg" alt="Joseph Doe" class="img-circle" data-lock-picture="assets/images/!logged-user.jpg" />
                 </figure>
-                <div class="profile-info" data-lock-name="<?php echo $name;?>">
-                    <span class="name"><?php echo $name;?></span>
+                <div class="profile-info" data-lock-name="<?php echo $username;?>">
+                    <span class="name"><?php echo $username;?></span>
                     <span class="role"><?php echo $role;?></span>
                 </div>        
                 <i class="fa custom-caret"></i>

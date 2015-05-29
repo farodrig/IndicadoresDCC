@@ -109,8 +109,8 @@ class Dashboard extends CI_Controller
 	    else{
 	    	redirect('inicio');
 	    }
-			$res['title'] = $permits['title'];
-			$this->load->view('add-data', $res);
+		$res['role'] = $permits['title'];
+		$this->load->view('add-data', $res);
 	    //debug($all_metrics, true);
 	}
 
@@ -360,7 +360,7 @@ class Dashboard extends CI_Controller
 	    }
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
 	    $result['validate'] = $permits['validate'];
-			$result['title'] = $permits['title'];
+			$result['role'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 
 	    if($permits['director']){
@@ -473,7 +473,7 @@ class Dashboard extends CI_Controller
 
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
 	    $result['validate'] = $permits['validate'];
-			$result['title'] = $permits['title'];
+			$result['role'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 
 			if($permits['director']){

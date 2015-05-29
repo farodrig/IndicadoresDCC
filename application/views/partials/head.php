@@ -1,6 +1,6 @@
         <!-- Basic -->
         <meta charset="UTF-8">
-
+        
         <title><?php echo $title;?></title>
         <meta name="keywords" content="HTML5 Admin Template" />
 		<meta name="description" content="Porto Admin - Responsive HTML5 Template">
@@ -22,7 +22,7 @@
 		<!-- Specific Page Vendor CSS -->
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/pnotify/pnotify.custom.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/lineicons/css/lineicons.css" />
-
+	    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/elusive-icons/css/elusive-webfont.css" >
 		<!-- Theme CSS -->
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/stylesheets/theme.css" />
 

@@ -75,7 +75,7 @@ class DashboardConfig extends CI_Controller
 	    	$result['areas'] = $all_areas;
 	    }
 	    $result['validate'] = $permits['validate'];
-			$result['title'] = $permits['title'];
+			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard', $result);
 	    //debug($all_metrics, true);
@@ -156,7 +156,7 @@ class DashboardConfig extends CI_Controller
 	    }
 
 	    $result['validate'] = $permits['validate'];
-			$result['title'] = $permits['title'];
+			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard-areas', $result);
 	    //debug($all_metrics, true);
@@ -289,7 +289,7 @@ class DashboardConfig extends CI_Controller
 	    	$result['areas'] = $all_areas;
 	    }
 	    $result['validate'] = $permits['validate'];
-			$result['title'] = $permits['title'];
+			$result['role'] = $permits['title'];
 			$result['id_first']=$id_first;
 		//debug($all_metrics);
 	    $this->load->view('configurar-dashboard-dcc',$result);
