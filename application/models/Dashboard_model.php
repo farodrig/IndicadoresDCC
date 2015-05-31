@@ -204,6 +204,22 @@ class Dashboard_model extends CI_Model
     }
 
 
+	function getAllnonValidateData()
+	{
+		$querry = "SELECT   u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected
+					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
+					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id";
+		 $q = $this->db->query($querry);
+		 
+		 if($q->num_rows() > 0){			 
+			 foreach($q->result() as $row){		 	
+				 $data[]= $row;
+			 }			 		 
+		 	return $data;
+		 }			  
+	}	
+
+
     function getDashboardMetrics($id, $category)
     {
         $query = "SELECT d.id AS id FROM Dashboard AS d WHERE d.org=".$id;

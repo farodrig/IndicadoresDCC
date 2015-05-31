@@ -79,31 +79,32 @@
 									<thead>
 										<tr>
 											<th>Usuario</th>
-											<th>Rol</th>
-											<th>Área</th>
-											<th>Unidad</th>
+											<th>Organización</th>
 											<th>Métrica</th>
 											<th>Tipo</th>
-											<th>Valor Anterior</th>
-											<th>Valor Nuevo</th>
+											<th>Valor</th>
+											<th>Esperado</th>
+											<th>Meta</th>
 											<th>Validar</th>
 										</tr>
 									</thead>
 									<tbody> <!-- no se que pasa aqui -->
-										<tr class="">
-											<td>Juan</td>
-											<td>Encargado de área
-											</td>
-											<td>Pregrado</td>
-											<td>Docencia</td>
-											<td>Nuevos alumnos</td>
-											<td>Valor</td>
-											<td>20</td>
-											<td>40</td>
+										
+										<?php foreach($data as $row) :?>
+											<tr class="">
+											<td> <?php echo $row->name?> </td>
+											<td> <?php  echo $row->org_name?> </td>
+											<td> <?php  echo $row->metric?> </td>
+											<td> <?php  echo $row->type?> </td>
+											<td><?php  echo $row->value?> </td>
+											<td> <?php  echo $row->target?> </td>
+											<td> <?php  echo $row->expected?> </td>
+											
 											<td>
 												<input id="for-website" value="" type="checkbox" name="validar" />
 											</td>
 										</tr>
+										<?php endforeach?>
 									</tbody>
 								</table>
 								<div class="row">

@@ -97,7 +97,9 @@ class Session extends CI_Controller {
 
 	public function validar()
 	{
-	    $this->load->view('validar');
+		$this->load->model('Dashboard_model');
+		$data['valinfo']= $this->Dashboard_model->getAllnonValidateData();
+	    $this->load->view('validar',$data);
 	}
 	public function menuConfigurar()
 	{
