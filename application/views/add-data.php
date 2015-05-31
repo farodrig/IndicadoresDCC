@@ -3,7 +3,7 @@
 	<head>
         <?php
         $title = "Añadir datos";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
         <link rel="stylesheet" href="<?php echo base_url();?>chosen/chosen.css">
 	</head>
@@ -139,10 +139,10 @@
 		</section>
 
 		<?php include 'partials/footer.php'; ?>
-		
+
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
   		<script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
-  		
+
   		<script type="text/javascript">
   	       var success = <?php echo($success);?>;
 
@@ -209,12 +209,17 @@
 				}
 
 				else{
+					var metorg;
+					for(i=0;i<size; i++){
+						metorg = jArray[i]['metorg'];
+						loadValues(metorg,"","","");
+					}
 					for (i=0; i<size; i++) {
 						var aux_year = jArray[i]['year'];
 						if(aux_year==year){
 							loadValues(jArray[i]['metorg'],jArray[i]['value'],jArray[i]['target'],jArray[i]['expected']);
 						}
-	    			}
+	    		}
 				}
 			}
 
