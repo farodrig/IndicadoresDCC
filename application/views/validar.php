@@ -66,6 +66,7 @@
 
 					<!-- start: page -->
 						<section class="panel">
+							<?php echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));?>
 							<header class="panel-heading">
 								<div class="panel-actions">
 									<a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
@@ -89,34 +90,37 @@
 										</tr>
 									</thead>
 									<tbody> <!-- no se que pasa aqui -->
-										
+										<?php if(count($data) >0)  :?>
 										<?php foreach($data as $row) :?>
 											<tr class="">
 											<td> <?php echo $row->name?> </td>
 											<td> <?php  echo $row->org_name?> </td>
 											<td> <?php  echo $row->metric?> </td>
 											<td> <?php  echo $row->type?> </td>
-											<td><?php  echo $row->value?> </td>
+											<td> <?php  echo $row->value?> </td>
 											<td> <?php  echo $row->target?> </td>
 											<td> <?php  echo $row->expected?> </td>
-											
 											<td>
-												<input id="for-website" value="" type="checkbox" name="validar" />
+												<input id="for-website" value=<?php  echo $row->data_id?> type="checkbox" name=<?php  echo "check". $row->data_id?> />
 											</td>
 										</tr>
 										<?php endforeach?>
+										<?php endif?>
+										
 									</tbody>
 								</table>
 								<div class="row">
 									<div class="col-sm-9">
 										<div class="mb-md">
-											<button id="addToTable" class="mb-xs mt-xs mr-xs btn btn-primary">Validar <i class="fa fa-plus"></i></button>
-											<button id="addToTable" class="mb-xs mt-xs mr-xs btn btn-danger">Rechazar <i class="fa fa-plus"></i></button>
+											<input class="mb-xs mt-xs mr-xs btn btn-primary" type="submit" value="Validar" name="Validar" id="Validar">
+											<input class="mb-xs mt-xs mr-xs btn btn-danger" type="submit" value="Rechazar" name="Rechazar" id="Rechazar">
 										</div>
 									</div>
 								</div>
 							</div>
+							<?php echo form_close();?>
 						</section>
+						
 					<!-- end: page -->
 				</section>
 			</div>
