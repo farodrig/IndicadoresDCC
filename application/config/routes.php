@@ -67,7 +67,7 @@ $route['cmetrica'] = 'MySession/configurarMetricas';
 $route['export'] = 'Dashboard/exportData';
 $route['contacto'] = 'MySession/contact';
 $route['salir'] = 'MySession/logout';
-
+$route['verif_usuario'] = 'MySession/user_verify';
 
 
 $route['404_override'] = '';
