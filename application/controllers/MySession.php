@@ -58,8 +58,8 @@ class MySession extends CI_Controller {
 
     public function inicio(){
 
-    	//$user= "17.586.757-0"; // usuario tipo Visualizador
-    	$user= "18.292.316-8"; // usuario tipo Administrador
+    	$user= "17.586.757-0"; // usuario tipo Visualizador
+    	//$user= "18.292.316-8"; // usuario tipo Administrador
     	//$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
     	$this->load->model('Dashboard_model');
@@ -167,9 +167,14 @@ class MySession extends CI_Controller {
 			$this->load->library('session');
 			$this->load->model('Dashboard_model');
 			//$this->load->view('validar', $data);
-	    $this->load->view('validar', array('validate' => $this->validation($permits),
-			 																		'role' => $this->session->userdata("title"),
-																					'data' => $this->Dashboard_model->getAllnonValidateData()));
+
+			if($this->session->userdata("director")==1 ){
+	    	$this->load->view('validar', array('validate' => "1", 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
+			}
+			elseif(!in_array('-1',$this->session->userdata('encargado_unidad'))){
+ 				$this->load->view('validar', array('validate' => "1", 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
+			}
+
 	}
 
 	public function validate_reject()

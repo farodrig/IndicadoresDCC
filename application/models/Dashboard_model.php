@@ -221,6 +221,32 @@ class Dashboard_model extends CI_Model
         return $q;
 	}
 
+	function _getAllnonValidateDataUnidad($id_org)
+	{
+		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected
+					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
+					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id AND mo.org =?" ;
+		 $q = $this->db->query($querry,array($id_org));
+		 
+		 if($q->num_rows() > 0){			 
+			 foreach($q->result() as $row){		 	
+				 $data[]= $row;
+			 }			 		 
+		 	return $data;
+		 }			  
+	}	
+
+
+	function getnonValidatebyUnit($array_idorg){
+		$arr = array();
+		foreach($array_idorg as $id){
+			$arr = array_merge ($this->_getAllnonValidateDataUnidad($id), $arr);
+		}
+		return $arr;			
+			
+	}
+
+
 
 	function getAllnonValidateData()
 	{
