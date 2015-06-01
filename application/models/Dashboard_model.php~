@@ -240,7 +240,7 @@ class Dashboard_model extends CI_Model
 	function getnonValidatebyUnit($array_idorg){
 		$arr = array();
 		foreach($array_idorg as $id){
-			$arr = array_merge ($this->_getAllnonValidateDataUnidad($id), $arr);
+			$arr = array_merge ($this->getAllnonValidateDataUnidad($id), $arr);
 		}
 		return $arr;			
 			
