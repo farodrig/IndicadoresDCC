@@ -21,7 +21,6 @@ class Dashboard extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 	    $val = $this->session->flashdata('id');
 
@@ -95,7 +94,7 @@ class Dashboard extends CI_Controller
 
 	    $res['route'] = $route;
 	    $res['id_location'] = $id;
-	    $res['validate'] = $permits['validate'];
+			$res['validate'] = $this->validation($permits);
 	    $res['success'] = $this->session->flashdata('success');
 	    if($permits['director']){
 				$res['header'] = "header-director";
@@ -328,7 +327,6 @@ class Dashboard extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
@@ -359,7 +357,7 @@ class Dashboard extends CI_Controller
 	    	$dashboard_metrics=[];
 	    }
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
-	    $result['validate'] = $permits['validate'];
+			$result['validate'] = $this->validation($permits);
 			$result['role'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 
@@ -440,7 +438,6 @@ class Dashboard extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
 
@@ -472,7 +469,7 @@ class Dashboard extends CI_Controller
 	    }
 
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
-	    $result['validate'] = $permits['validate'];
+			$result['validate'] = $this->validation($permits);
 			$result['role'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 
@@ -520,5 +517,14 @@ class Dashboard extends CI_Controller
 
 
 	}
+
+	private function validation($permits_array){
+		$this->load->model('Dashboard_model');
+    if($permits_array['director'])
+      return $this->Dashboard_model->getValidate(-1);
+    elseif(!in_array(-1,$permits_array['encargado_unidad']))
+      return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+    return  "";
+  }
 
 }

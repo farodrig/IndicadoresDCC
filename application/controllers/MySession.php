@@ -7,7 +7,7 @@ class MySession extends CI_Controller {
 	{
 		$this->load->view('login');
 	}
-	
+
 	public function user_verify(){
 	    session_id( $_GET[ session_name() ] );
 	    session_start();
@@ -78,15 +78,6 @@ class MySession extends CI_Controller {
 			$title = $this->getTitle($permits_array);
 			$permits_array['title'] = $title;
 
-    	if($permits_array['director'])
-    		$validate = $this->Dashboard_model->getValidate(-1);
-    	elseif(!in_array(-1,$permits_array['encargado_unidad']))
-    		$validate = $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
-    	else
-    		$validate = "";
-
-    	$permits_array['validate']=$validate;
-
     	$this->session->set_userdata($permits_array);
 
       $this->load->model('Organization_model');
@@ -119,7 +110,7 @@ class MySession extends CI_Controller {
 																		'types'=>$types,
 																		'name' => $name,
 																		'user' => $user,
-																		'validate' => $validate,
+																		'validate' => $this->validation($permits_array),
 																		'role' => $title);
 			$this->load->view('index', $result);
 	}
@@ -163,12 +154,24 @@ class MySession extends CI_Controller {
 
 	public function validar()
 	{
+		$permits = array('director' => $this->session->userdata("director"),
+							'visualizador' => $this->session->userdata("visualizador"),
+							'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+							'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+							'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+							'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+							'title' =>$this->session->userdata("title"));
+			if(!$permits['director'] && in_array(-1, $permits['encargado_unidad']))
+						redirect('inicio');
+
 			$this->load->library('session');
 			$this->load->model('Dashboard_model');
 			//$this->load->view('validar', $data);
-	    $this->load->view('validar', array('validate' => "1", 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
+	    $this->load->view('validar', array('validate' => $this->validation($permits),
+			 																		'role' => $this->session->userdata("title"),
+																					'data' => $this->Dashboard_model->getAllnonValidateData()));
 	}
-	
+
 	public function validate_reject()
 	{
 		$this->load->model('Dashboard_model');
@@ -192,7 +195,7 @@ class MySession extends CI_Controller {
 				}
 			}
 		}
- 	
+
 		redirect('validar');
 	}
 
@@ -206,14 +209,14 @@ class MySession extends CI_Controller {
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
     		redirect('inicio');
     	}
 
-	    $this->load->view('menu-configurar', array('validate' => $permits['validate'], 'role' => $permits['title']));
+	    $this->load->view('menu-configurar', array('validate' => $this->validation($permits),
+																									'role' => $permits['title']));
 	}
 
 	public function configurarMetricas()
@@ -226,7 +229,6 @@ class MySession extends CI_Controller {
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
@@ -247,7 +249,7 @@ class MySession extends CI_Controller {
 														'metrics'=>$metrics,
 														'success' => $success,
 														'role' => $permits['title'],
-														'validate' => $permits['validate']));
+														'validate' => $this->validation($permits)));
 	}
 
 	public function agregarMetrica(){
@@ -407,5 +409,14 @@ class MySession extends CI_Controller {
 		return rtrim($title, "<br>");
 
 	}
+	private function validation($permits_array){
+		$this->load->model('Dashboard_model');
+    if($permits_array['director'])
+      return $this->Dashboard_model->getValidate(-1);
+    elseif(!in_array(-1,$permits_array['encargado_unidad']))
+      return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+    return  "";
+  }
+
 }
 ?>
