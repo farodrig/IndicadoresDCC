@@ -432,9 +432,9 @@ class Dashboard_model extends CI_Model
         ob_start();
         $df = fopen("php://output", 'w');
         fwrite($df, "[".$name."]".$eol);
-        fwrite($df, "Valor,Esperado,Meta,Año".$eol);
+        fwrite($df, "Año,Valor,Esperado,Meta".$eol);
         foreach ($array as $row) {
-            $a = $row->getValue().','.$row->getTarget().','.$row->getExpected().','.$row->getYear().$eol;
+            $a = $row->getYear().','.$row->getValue().','.$row->getTarget().','.$row->getExpected().$eol;
             fwrite($df, $a);
         }
         fclose($df);
