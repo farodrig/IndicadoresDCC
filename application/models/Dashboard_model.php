@@ -351,7 +351,7 @@ class Dashboard_model extends CI_Model
 
             $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE m.state=1 AND m.metorg= ? AND m.year>= ? AND m.year<=?";
+                    WHERE m.state=1 AND m.metorg= ? AND m.year>= ? AND m.year<=? ORDER BY m.year ASC";
             $q = $this->db->query($query, array($met->getMetOrg(), $met->getMinYear(), $met->getMaxYear()));
             if(($size=$q->num_rows()) > 0){
                 $rows = $this->buildAllMeasuresments($q);
@@ -372,7 +372,7 @@ class Dashboard_model extends CI_Model
         $query = "SELECT m.value AS value, m.target AS target, m.expected AS expected, m.year AS year
          FROM Organization AS org, Dashboard AS d, GraphDash AS gd, Graphic AS g, Measure AS m
          WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1
-         AND m.year>=g.min_year AND m.year<=g.max_year";
+         AND m.year>=g.min_year AND m.year<=g.max_year ORDER BY m.year ASC";
 
          $q= $this->db->query($query, array($id_org, $id_met, $id_met));
 
