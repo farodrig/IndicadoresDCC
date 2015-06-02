@@ -58,8 +58,8 @@ class MySession extends CI_Controller {
 
     public function inicio(){
 
-    	//$user= "17.586.757-0"; // usuario tipo Visualizador
-    	$user= "18.292.316-8"; // usuario tipo Administrador
+    	$user= "17.586.757-0"; // usuario tipo Visualizador
+    	//$user= "18.292.316-8"; // usuario tipo Administrador
     	//$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
     	$this->load->model('Dashboard_model');
@@ -361,58 +361,22 @@ class MySession extends CI_Controller {
 		$title="";
 		$count=0;
 		if($permits_array['director'])
-				$title= $title."Director <br>";
+				$title= $title."Director";
 		elseif($permits_array['asistente_dcc'])
-				$title= $title."Asistente DCC <br>";
+				$title= $title."Asistente DCC";
 		elseif(!in_array("-1", $permits_array['encargado_unidad'])){
-				$name= "";
-				foreach ($permits_array['encargado_unidad'] as $p) {
-					if($count==2){
-						$name = $name."...";
-						break;
-					}
-					elseif ($count==1) {
-						$name = $name."<br>";
-					}
-					$name = $name.$this->Permits_model->getName($p).", ";
-					$count++;
-				}
-				$title= $title.rtrim("Encargado de ".$name, ", ")."<br>";
+				$title= $title.rtrim("Encargado de unidad");
 		}
 		elseif(!in_array("-1", $permits_array['asistente_unidad'])){
-			$name= "";
-			foreach ($permits_array['asistente_unidad'] as $p) {
-				if($count==2){
-					$name = $name."...";
-					break;
-				}
-				elseif ($count==1) {
-					$name = $name."<br>";
-				}
-				$name = $name.$this->Permits_model->getName($p).", ";
-				$count++;
-			}
-			$title= $title.rtrim("Asistente de ".$name,", ")."<br>";
+			$title= $title.rtrim("Asistente de unidad");
 		}
 		elseif(!in_array("-1", $permits_array['asistente_finanzas_unidad'])){
-			$name= "";
-			foreach ($permits_array['asistente_finanzas_unidad'] as $p) {
-				if($count==2){
-					$name = $name."...";
-					break;
-				}
-				elseif ($count==1) {
-					$name = $name."<br>";
-				}
-				$name = $name.$this->Permits_model->getName($p).", ";
-				$count++;
-			}
-			$title= $title.rtrim("Asistente de finanzas de ".$name, ", ")."<br>";
+			$title= $title.rtrim("Asistente de finanzas");
 		}
 		elseif($permits_array['visualizador'])
-				$title= $title."Visualizador <br>";
+				$title= $title."Visualizador";
 
-		return rtrim($title, "<br>");
+		return $title;
 
 	}
 	private function validation($permits_array){
