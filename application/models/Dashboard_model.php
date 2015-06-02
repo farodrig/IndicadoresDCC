@@ -6,9 +6,9 @@ class Dashboard_model extends CI_Model
             $query = "SELECT * FROM Measure AS m WHERE m.state=0";
             $q = $this->db->query($query);
             if($q->num_rows() > 0)
-                return "1";
+                return true;
             else
-                return "";
+                return false;
         }
         else{
             foreach ($id_metorg as $id) {
@@ -202,20 +202,20 @@ class Dashboard_model extends CI_Model
 
         return $q;
     }
-	
+
 	function deleteData($id){
 		$this->db->where('id', $id);
 		$q=$this->db->delete('Measure');
-		return $q; 
+		return $q;
 	}
-	
+
 	function validateData($id){
 		$data = array(
 		               'state' => 1,
 		            );
 
 		$this->db->where('id', $id);
-		$q=$this->db->update('Measure', $data); 
+		$q=$this->db->update('Measure', $data);
 
 
         return $q;
@@ -227,14 +227,14 @@ class Dashboard_model extends CI_Model
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id AND mo.org =?" ;
 		 $q = $this->db->query($querry,array($id_org));
-		 
-		 if($q->num_rows() > 0){			 
-			 foreach($q->result() as $row){		 	
+
+		 if($q->num_rows() > 0){
+			 foreach($q->result() as $row){
 				 $data[]= $row;
-			 }			 		 
+			 }
 		 	return $data;
-		 }			  
-	}	
+		 }
+	}
 
 
 	function getnonValidatebyUnit($array_idorg){
@@ -242,8 +242,8 @@ class Dashboard_model extends CI_Model
 		foreach($array_idorg as $id){
 			$arr = array_merge ($this->_getAllnonValidateDataUnidad($id), $arr);
 		}
-		return $arr;			
-			
+		return $arr;
+
 	}
 
 
@@ -254,14 +254,14 @@ class Dashboard_model extends CI_Model
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id";
 		 $q = $this->db->query($querry);
-		 
-		 if($q->num_rows() > 0){			 
-			 foreach($q->result() as $row){		 	
+
+		 if($q->num_rows() > 0){
+			 foreach($q->result() as $row){
 				 $data[]= $row;
-			 }			 		 
+			 }
 		 	return $data;
-		 }			  
-	}	
+		 }
+	}
 
 
     function getDashboardMetrics($id, $category)

@@ -376,7 +376,7 @@ class DashboardConfig extends CI_Controller
       return $this->Dashboard_model->getValidate(-1);
     elseif(!in_array(-1,$permits_array['encargado_unidad']))
       return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
-    return  "";
+    return  false;
   }
 
 
