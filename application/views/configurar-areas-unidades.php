@@ -5,6 +5,14 @@
         //Para usar head.php debe ser dentro del tag head y debe haberse creado una variable $title.
         include 'partials/head.php'; ?>
         
+        <style type="text/css">
+        .titulo{
+            font-size: 15px;
+            padding-bottom: 20px;
+            padding-top: 10px;
+        }
+        </style>
+        
         <script type="text/javascript">
 
            function validateName(input){
@@ -270,7 +278,16 @@
 												<div class="modal-wrapper">
 													<div class="modal-text">
 														<p>¿Está seguro de que quiere eliminar esta área?</p>
-														<p id="delArea">area 1</p>
+														<ul class="titulo">
+                                                            <li>
+                                                                <p ><strong id="delArea">area 1</strong></p>
+														    </li>
+														</ul>
+                                                        <div class="alert alert-warning">
+                                                            <i class="fa fa-warning"></i>                                                
+                                                            <strong>Precaución!!</strong> Al eliminar esta área se perderá toda la información asociada a esta.<br>
+                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.                                                    
+                                                        </div>
 													</div>
 												</div>
 											</div>
@@ -293,7 +310,16 @@
 												<div class="modal-wrapper">
 													<div class="modal-text">
 														<p>¿Está seguro de que quiere eliminar esta unidad?</p>
-														<p id="delUni">unidad 1</p>
+														<ul class="titulo">
+                                                            <li>
+                                                                <p><strong id="delUni">unidad 1</strong></p>
+														    </li>
+														</ul>
+                                                        <div class="alert alert-warning">
+                                                            <i class="fa fa-warning"></i>                                                
+                                                            <strong>Precaución!!</strong> Al eliminar esta unidad se perderá toda la información asociada a esta.<br>
+                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.                                                    
+                                                        </div>														
 													</div>
 												</div>
 											</div>
