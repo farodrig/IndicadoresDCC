@@ -241,7 +241,7 @@ class Dashboard_model extends CI_Model
 		$arr = array();
 		foreach($array_idorg as $id){
 			$colums = $this->_getAllnonValidateDataUnidad($id);
-			if($colums=null){
+			if($colums!=null){
 				$arr = array_merge ($colums, $arr);
 			}	
 		}
