@@ -21,7 +21,6 @@ class DashboardConfig extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
@@ -74,7 +73,7 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-	    $result['validate'] = $permits['validate'];
+			$result['validate'] = $this->validation($permits);
 			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard', $result);
@@ -91,7 +90,6 @@ class DashboardConfig extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
@@ -155,7 +153,7 @@ class DashboardConfig extends CI_Controller
 	    	$result['areas'] = $all_areas;
 	    }
 
-	    $result['validate'] = $permits['validate'];
+	    $result['validate'] = $this->validation($permits);
 			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard-areas', $result);
@@ -173,7 +171,6 @@ class DashboardConfig extends CI_Controller
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
@@ -288,7 +285,7 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-	    $result['validate'] = $permits['validate'];
+			$result['validate'] = $this->validation($permits);
 			$result['role'] = $permits['title'];
 			$result['id_first']=$id_first;
 		//debug($all_metrics);
@@ -373,6 +370,14 @@ class DashboardConfig extends CI_Controller
 
 	}
 
+	private function validation($permits_array){
+		$this->load->model('Dashboard_model');
+    if($permits_array['director'])
+      return $this->Dashboard_model->getValidate(-1);
+    elseif(!in_array(-1,$permits_array['encargado_unidad']))
+      return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+    return  false;
+  }
 
 
 }

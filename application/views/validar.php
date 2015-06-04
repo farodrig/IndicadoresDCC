@@ -79,24 +79,24 @@
 								<table class="table table-bordered table-striped mb-none text-center" id="datatable-editable">
 									<thead>
 										<tr>
-											<th>Usuario</th>
-											<th>Organización</th>
-											<th>Métrica</th>
-											<th>Tipo</th>
-											<th>Valor</th>
-											<th>Esperado</th>
-											<th>Meta</th>
-											<th>Validar</th>
+											<td>Usuario</td>
+											<td>Organización</td>
+											<td>Métrica</td>
+											<td>Tipo</td>
+											<td>Valor</td>
+											<td>Esperado</td>
+											<td>Meta</td>
+											<td>Validar</td>
 										</tr>
 									</thead>
 									<tbody> <!-- no se que pasa aqui -->
 										<?php if(count($data) >0)  :?>
 										<?php foreach($data as $row) :?>
 											<tr class="">
-											<td> <?php echo $row->name?> </td>
-											<td> <?php  echo $row->org_name?> </td>
-											<td> <?php  echo $row->metric?> </td>
-											<td> <?php  echo $row->type?> </td>
+											<td> <?php echo ucwords($row->name)?> </td>
+											<td> <?php  echo ucwords($row->org_name)?> </td>
+											<td> <?php  echo ucwords($row->metric)?> </td>
+											<td> <?php  echo ucwords($row->type)?> </td>
 											<td> <?php  echo $row->value?> </td>
 											<td> <?php  echo $row->target?> </td>
 											<td> <?php  echo $row->expected?> </td>

@@ -6,9 +6,9 @@ class Dashboard_model extends CI_Model
             $query = "SELECT * FROM Measure AS m WHERE m.state=0";
             $q = $this->db->query($query);
             if($q->num_rows() > 0)
-                return "1";
+                return true;
             else
-                return "";
+                return false;
         }
         else{
             foreach ($id_metorg as $id) {
@@ -202,24 +202,50 @@ class Dashboard_model extends CI_Model
 
         return $q;
     }
-	
+
 	function deleteData($id){
 		$this->db->where('id', $id);
 		$q=$this->db->delete('Measure');
-		return $q; 
+		return $q;
 	}
-	
+
 	function validateData($id){
 		$data = array(
 		               'state' => 1,
 		            );
 
 		$this->db->where('id', $id);
-		$q=$this->db->update('Measure', $data); 
+		$q=$this->db->update('Measure', $data);
 
 
         return $q;
 	}
+
+	function _getAllnonValidateDataUnidad($id_org)
+	{
+		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected
+					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
+					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id AND mo.org =?" ;
+		 $q = $this->db->query($querry,array($id_org));
+
+		 if($q->num_rows() > 0){
+			 foreach($q->result() as $row){
+				 $data[]= $row;
+			 }
+		 	return $data;
+		 }
+	}
+
+
+	function getnonValidatebyUnit($array_idorg){
+		$arr = array();
+		foreach($array_idorg as $id){
+			$arr = array_merge ($this->_getAllnonValidateDataUnidad($id), $arr);
+		}
+		return $arr;
+
+	}
+
 
 
 	function getAllnonValidateData()
@@ -228,14 +254,14 @@ class Dashboard_model extends CI_Model
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id";
 		 $q = $this->db->query($querry);
-		 
-		 if($q->num_rows() > 0){			 
-			 foreach($q->result() as $row){		 	
+
+		 if($q->num_rows() > 0){
+			 foreach($q->result() as $row){
 				 $data[]= $row;
-			 }			 		 
+			 }
 		 	return $data;
-		 }			  
-	}	
+		 }
+	}
 
 
     function getDashboardMetrics($id, $category)
@@ -325,7 +351,7 @@ class Dashboard_model extends CI_Model
 
             $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE m.state=1 AND m.metorg= ? AND m.year>= ? AND m.year<=?";
+                    WHERE m.state=1 AND m.metorg= ? AND m.year>= ? AND m.year<=? ORDER BY m.year ASC";
             $q = $this->db->query($query, array($met->getMetOrg(), $met->getMinYear(), $met->getMaxYear()));
             if(($size=$q->num_rows()) > 0){
                 $rows = $this->buildAllMeasuresments($q);
@@ -346,7 +372,7 @@ class Dashboard_model extends CI_Model
         $query = "SELECT m.value AS value, m.target AS target, m.expected AS expected, m.year AS year
          FROM Organization AS org, Dashboard AS d, GraphDash AS gd, Graphic AS g, Measure AS m
          WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1
-         AND m.year>=g.min_year AND m.year<=g.max_year";
+         AND m.year>=g.min_year AND m.year<=g.max_year ORDER BY m.year ASC";
 
          $q= $this->db->query($query, array($id_org, $id_met, $id_met));
 
@@ -406,9 +432,9 @@ class Dashboard_model extends CI_Model
         ob_start();
         $df = fopen("php://output", 'w');
         fwrite($df, "[".$name."]".$eol);
-        fwrite($df, "Valor,Esperado,Meta,Año".$eol);
+        fwrite($df, "Año,Valor,Esperado,Meta".$eol);
         foreach ($array as $row) {
-            $a = $row->getValue().','.$row->getTarget().','.$row->getExpected().','.$row->getYear().$eol;
+            $a = $row->getYear().','.$row->getValue().','.$row->getTarget().','.$row->getExpected().$eol;
             fwrite($df, $a);
         }
         fclose($df);

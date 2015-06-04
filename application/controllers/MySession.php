@@ -7,7 +7,7 @@ class MySession extends CI_Controller {
 	{
 		$this->load->view('login');
 	}
-	
+
 	public function user_verify(){
 	    session_id( $_GET[ session_name() ] );
 	    session_start();
@@ -58,8 +58,8 @@ class MySession extends CI_Controller {
 
     public function inicio(){
 
-    	//$user= "17.586.757-0"; // usuario tipo Visualizador
-    	$user= "18.292.316-8"; // usuario tipo Administrador
+    	$user= "17.586.757-0"; // usuario tipo Visualizador
+    	//$user= "18.292.316-8"; // usuario tipo Administrador
     	//$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
     	$this->load->model('Dashboard_model');
@@ -77,15 +77,6 @@ class MySession extends CI_Controller {
 
 			$title = $this->getTitle($permits_array);
 			$permits_array['title'] = $title;
-
-    	if($permits_array['director'])
-    		$validate = $this->Dashboard_model->getValidate(-1);
-    	elseif(!in_array(-1,$permits_array['encargado_unidad']))
-    		$validate = $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
-    	else
-    		$validate = "";
-
-    	$permits_array['validate']=$validate;
 
     	$this->session->set_userdata($permits_array);
 
@@ -119,7 +110,7 @@ class MySession extends CI_Controller {
 																		'types'=>$types,
 																		'name' => $name,
 																		'user' => $user,
-																		'validate' => $validate,
+																		'validate' => $this->validation($permits_array),
 																		'role' => $title);
 			$this->load->view('index', $result);
 	}
@@ -163,12 +154,30 @@ class MySession extends CI_Controller {
 
 	public function validar()
 	{
+		$this->load->library('session');
+		$permits = array('director' => $this->session->userdata("director"),
+							'visualizador' => $this->session->userdata("visualizador"),
+							'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+							'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+							'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+							'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+							'title' =>$this->session->userdata("title"));
+			if(!$permits['director'] && in_array(-1, $permits['encargado_unidad']))
+						redirect('inicio');
+
 			$this->load->library('session');
 			$this->load->model('Dashboard_model');
 			//$this->load->view('validar', $data);
-	    $this->load->view('validar', array('validate' => "1", 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
+
+			if($this->session->userdata("director")==1 ){
+	    	$this->load->view('validar', array('validate' => "1", 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
+			}
+			elseif(!in_array('-1',$this->session->userdata('encargado_unidad'))){
+ 				$this->load->view('validar', array('validate' => "1", 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
+			}
+
 	}
-	
+
 	public function validate_reject()
 	{
 		$this->load->model('Dashboard_model');
@@ -192,7 +201,7 @@ class MySession extends CI_Controller {
 				}
 			}
 		}
- 	
+
 		redirect('validar');
 	}
 
@@ -206,14 +215,14 @@ class MySession extends CI_Controller {
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
     		redirect('inicio');
     	}
 
-	    $this->load->view('menu-configurar', array('validate' => $permits['validate'], 'role' => $permits['title']));
+	    $this->load->view('menu-configurar', array('validate' => $this->validation($permits),
+																									'role' => $permits['title']));
 	}
 
 	public function configurarMetricas()
@@ -226,7 +235,6 @@ class MySession extends CI_Controller {
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-    						'validate' => $this->session->userdata("validate"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
@@ -247,7 +255,7 @@ class MySession extends CI_Controller {
 														'metrics'=>$metrics,
 														'success' => $success,
 														'role' => $permits['title'],
-														'validate' => $permits['validate']));
+														'validate' => $this->validation($permits)));
 	}
 
 	public function agregarMetrica(){
@@ -353,59 +361,32 @@ class MySession extends CI_Controller {
 		$title="";
 		$count=0;
 		if($permits_array['director'])
-				$title= $title."Director <br>";
+				$title= $title."Director";
 		elseif($permits_array['asistente_dcc'])
-				$title= $title."Asistente DCC <br>";
+				$title= $title."Asistente DCC";
 		elseif(!in_array("-1", $permits_array['encargado_unidad'])){
-				$name= "";
-				foreach ($permits_array['encargado_unidad'] as $p) {
-					if($count==2){
-						$name = $name."...";
-						break;
-					}
-					elseif ($count==1) {
-						$name = $name."<br>";
-					}
-					$name = $name.$this->Permits_model->getName($p).", ";
-					$count++;
-				}
-				$title= $title.rtrim("Encargado de ".$name, ", ")."<br>";
+				$title= $title.rtrim("Encargado de unidad");
 		}
 		elseif(!in_array("-1", $permits_array['asistente_unidad'])){
-			$name= "";
-			foreach ($permits_array['asistente_unidad'] as $p) {
-				if($count==2){
-					$name = $name."...";
-					break;
-				}
-				elseif ($count==1) {
-					$name = $name."<br>";
-				}
-				$name = $name.$this->Permits_model->getName($p).", ";
-				$count++;
-			}
-			$title= $title.rtrim("Asistente de ".$name,", ")."<br>";
+			$title= $title.rtrim("Asistente de unidad");
 		}
 		elseif(!in_array("-1", $permits_array['asistente_finanzas_unidad'])){
-			$name= "";
-			foreach ($permits_array['asistente_finanzas_unidad'] as $p) {
-				if($count==2){
-					$name = $name."...";
-					break;
-				}
-				elseif ($count==1) {
-					$name = $name."<br>";
-				}
-				$name = $name.$this->Permits_model->getName($p).", ";
-				$count++;
-			}
-			$title= $title.rtrim("Asistente de finanzas de ".$name, ", ")."<br>";
+			$title= $title.rtrim("Asistente de finanzas");
 		}
 		elseif($permits_array['visualizador'])
-				$title= $title."Visualizador <br>";
+				$title= $title."Visualizador";
 
-		return rtrim($title, "<br>");
+		return $title;
 
 	}
+	private function validation($permits_array){
+		$this->load->model('Dashboard_model');
+    if($permits_array['director'])
+      return $this->Dashboard_model->getValidate(-1);
+    elseif(!in_array(-1,$permits_array['encargado_unidad']))
+      return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+    return  false;
+  }
+
 }
 ?>

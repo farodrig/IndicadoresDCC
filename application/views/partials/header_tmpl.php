@@ -9,11 +9,11 @@
             <i class="fa fa-bars" aria-label="Toggle sidebar"></i>
         </div>
     </div>
-    
+
     <!-- start: search & user box -->
     <div class="header-right">
-    
-        <?php 
+
+        <?php
         $titles = explode('<br>', $role); //Separa los Titulos "Encargado de ...", "Director", "Asistente de ..."
         foreach ($titles as $titl){
             $words = explode(' ',$titl); //Separa las palabras del titulo y elimina comas al final. "Encargado, de, ..."
@@ -30,11 +30,14 @@
                         <label>Validar</label>
                         <a href="<?php echo base_url();?>validar" class="notification-icon">
                             <i class="fa fa-check-circle" style="color:green"></i>
-                            <span class="badge"><?php echo $validate;?></span>
+                            <?php
+                            if($validate)
+                              echo('<span class="badge">!</span>');
+                            ?>
                 		</a>
                 	</li>
                 </ul>
-        <?php 
+        <?php
             break; //Como el director tiene más accesos q los otros, no es necesario agregar más cosas.
             }
             else if($words[0]=="Encargado"){ ?>
@@ -43,17 +46,20 @@
                         <label>Validar</label>
                         <a href="<?php echo base_url();?>validar" class="notification-icon">
                             <i class="fa fa-check-circle" style="color:green"></i>
-                            <span class="badge"><?php echo $validate;?></span>
+                            <?php
+                            if($validate)
+                              echo('<span class="badge">!</span>');
+                            ?>
 						</a>
                 	</li>
                 </ul>
-        <?php 
+        <?php
             }
         }
         if (!isset($username))
             $username = "Juan Johnes";
         ?>
-    
+
         <span class="separator"></span>
         <div id="userbox" class="userbox">
             <a href="#" data-toggle="dropdown">
@@ -63,10 +69,10 @@
                 <div class="profile-info" data-lock-name="<?php echo $username;?>">
                     <span class="name"><?php echo $username;?></span>
                     <span class="role"><?php echo $role;?></span>
-                </div>        
+                </div>
                 <i class="fa custom-caret"></i>
             </a>
-    
+
             <div class="dropdown-menu">
                 <ul class="list-unstyled">
                     <li class="divider"></li>
