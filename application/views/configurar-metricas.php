@@ -81,7 +81,7 @@
 					<?php
 					   echo ('<div class="pane panel-transparent">');
 					   echo ('<header class="panel-heading">');
-						echo ('<div class="row"><section class="col-xs-12 text-center btn-group-horizontal"><div class="col-xs-6"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
+						echo ('<div class="row"><div class="col-xs-6"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
 							  <a title=1 id="DCC" class="btn modal-with-form insert" href="#modalForm" style="color: green">
 														<i class="licon-plus" aria-hidden="true"></i>
 													</a>
@@ -96,7 +96,7 @@
 													<a title=0 id="DCC" class="btn modal-with-form modify" href="#deleteMetrica" style="color: purple">
 														<i class="fa fa-edit" aria-hidden="true"></i>
 													</a><label class="text-center" style="color:white">DCC</label>
-													</div></h2><p class="panel-subtitle text-center" style="color: white">Soporte</p></div></div></section></div>');
+													</div></h2><p class="panel-subtitle text-center" style="color: white">Soporte</p></div></div></div>');
 						echo('</header>');
 						echo('<div class="panel-body">');
 
