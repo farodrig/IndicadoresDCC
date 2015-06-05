@@ -68,15 +68,11 @@
 						<section class="panel">
 							<?php echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));?>
 							<header class="panel-heading">
-								<div class="panel-actions">
-									<a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
-									<a href="#" class="panel-action panel-action-dismiss" data-panel-dismiss></a>
-								</div>
 
 								<h2 class="panel-title">Validar</h2>
 							</header>
 							<div class="panel-body">
-								<table class="table table-bordered table-striped mb-none text-center" id="datatable-editable">
+								<table class="table table-bordered table-striped mb-none text-center" id="datatable">
 									<thead>
 										<tr>
 											<td>Usuario</td>
