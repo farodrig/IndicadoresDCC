@@ -58,8 +58,8 @@ class MySession extends CI_Controller {
 
     public function inicio(){
 
-    	$user= "17.586.757-0"; // usuario tipo Visualizador
-    	//$user= "18.292.316-8"; // usuario tipo Administrador
+    	//$user= "17.586.757-0"; // usuario tipo Visualizador
+    	$user= "18.292.316-8"; // usuario tipo Administrador
     	//$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
     	$this->load->model('Dashboard_model');
@@ -72,6 +72,7 @@ class MySession extends CI_Controller {
     							'visualizador' => $permits->getVisualizador(),
     							'asistente_unidad' => $permits->getAsistenteUnidad(),
     							'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
+    							'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
     							'encargado_unidad' => $permits->getEncargadoUnidad(),
     							'asistente_dcc' => $permits->getAsistenteDCC());
 
@@ -156,13 +157,10 @@ class MySession extends CI_Controller {
 	{
 		$this->load->library('session');
 		$permits = array('director' => $this->session->userdata("director"),
-							'visualizador' => $this->session->userdata("visualizador"),
-							'asistente_unidad' => $this->session->userdata("asistente_unidad"),
-							'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
 							'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-							'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+							'encargado_finanzas_unidad' => $this->session->userdata("encargado_finanzas_unidad"),
 							'title' =>$this->session->userdata("title"));
-			if(!$permits['director'] && in_array(-1, $permits['encargado_unidad']))
+			if(!$permits['director'] && in_array(-1, $permits['encargado_unidad']) && in_array(-1, $permits['encargado_finanzas_unidad']))
 						redirect('inicio');
 
 			$this->load->library('session');
@@ -210,11 +208,6 @@ class MySession extends CI_Controller {
 		$this->load->library('session');
 		$user = $this->session->userdata("user");
     	$permits = array('director' => $this->session->userdata("director"),
-    						'visualizador' => $this->session->userdata("visualizador"),
-    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
-    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
-    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
@@ -230,11 +223,6 @@ class MySession extends CI_Controller {
 		$this->load->library('session');
 		$user = $this->session->userdata("user");
     	$permits = array('director' => $this->session->userdata("director"),
-    						'visualizador' => $this->session->userdata("visualizador"),
-    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
-    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
-    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
 								'title' =>$this->session->userdata("title"));
 
     	if(!$permits['director']){
@@ -367,6 +355,9 @@ class MySession extends CI_Controller {
 		elseif(!in_array("-1", $permits_array['encargado_unidad'])){
 				$title= $title.rtrim("Encargado de unidad");
 		}
+		elseif(!in_array("-1", $permits_array['encargado_finanzas_unidad'])){
+				$title= $title.rtrim("Encargado de finanzas <br> de unidad");
+		}
 		elseif(!in_array("-1", $permits_array['asistente_unidad'])){
 			$title= $title.rtrim("Asistente de unidad");
 		}
@@ -379,12 +370,17 @@ class MySession extends CI_Controller {
 		return $title;
 
 	}
+
 	private function validation($permits_array){
 		$this->load->model('Dashboard_model');
     if($permits_array['director'])
       return $this->Dashboard_model->getValidate(-1);
+    elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
+      return $this->Dashboard_model->getValidate(-1);
     elseif(!in_array(-1,$permits_array['encargado_unidad']))
-      return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+        return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+    elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
+        return $this->Dashboard_model->getValidate($permits_array['encargado_finanzas_unidad']);
     return  false;
   }
 

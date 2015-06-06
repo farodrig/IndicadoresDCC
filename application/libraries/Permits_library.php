@@ -2,11 +2,12 @@
 
 class Permits_library
 {
-    private $user;
+  private $user;
 	private $director;
 	private $visualizador;
 	private $asistente_unidad;
 	private $asistente_finanzas_unidad;
+  private $encargado_finanzas_unidad;
 	private $encargado_unidad;
 	private $asistente_dcc;
 
@@ -18,6 +19,7 @@ class Permits_library
         $this->visualizador = element('visualizador', $parameters);
         $this->asistente_unidad = element('asistente_unidad', $parameters);
         $this->asistente_finanzas_unidad = element('asistente_finanzas_unidad', $parameters);
+        $this->encargado_finanzas_unidad = element('encargado_finanzas_unidad', $parameters);
         $this->encargado_unidad = element('encargado_unidad', $parameters);
         $this->asistente_dcc = element('asistente_dcc', $parameters);
 		return $this;
@@ -55,6 +57,14 @@ class Permits_library
         return $this->asistente_unidad;
     }
 
+    /**
+        * @return the $encargado_finanzas_unidad
+        */
+       public function getEncargadoFinanzasUnidad()
+       {
+           return $this->encargado_finanzas_unidad;
+       }
+
  /**
      * @return the $asistente_finanzas_unidad
      */
@@ -79,5 +89,5 @@ class Permits_library
         return $this->asistente_dcc;
     }
 
-    
+
 }

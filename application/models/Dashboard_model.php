@@ -185,20 +185,41 @@ class Dashboard_model extends CI_Model
 
     function insertData($id_met, $year, $value, $target, $expected, $user, $validation){ //Inserta datos en la tabla de mediciones
 
-        $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup)
-                    VALUES (?, ?, ?, ?, ? ,?, ?, NOW())";
+        $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup, old_value, old_target, old_expected)
+                    VALUES (?, ?, ?, ?, ? ,?, ?, NOW(),?,?,?)";
 
-        $q = $this->db->query($query, array($id_met, $validation ,$value, $target, $expected, $year, $user));
+        $q = $this->db->query($query, array($id_met, $validation ,$value, $target, $expected, $year, $user,$value, $target, $expected));
 
         return $q;
     }
 
     function updateData($id_met, $year, $value, $target, $expected, $user, $validation){ //Aqui hay que guardar datos antiguos
+        if(!$validation){
+          $query = "SELECT value AS val, target AS tar, expected AS exp FROM Measure WHERE metorg = ? AND year = ?";
+          $q = $this->db->query($query, array($id_met, $year));
 
-        $query = " UPDATE Measure SET state = ?, value =? , target = ?, expected = ?, updater = ? , dateup = NOW()
+          if($q->num_rows() == 1){
+              $row = $q->result()[0];
+              $old_value = $row->val;
+              $old_target = $row->tar;
+              $old_expected = $row->exp;
+            }
+            else{
+              return false;
+            }
+        }
+        else{
+          $old_value = $value;
+          $old_target = $target;
+          $old_expected = $expected;
+        }
+
+        $query = " UPDATE Measure SET state = ?, value =? , target = ?, expected = ?, updater = ? , dateup = NOW(),
+        old_value = ?, old_target = ?, old_expected = ?, modified = 1
         WHERE metorg = ? AND year = ?";
 
-        $q = $this->db->query($query, array($validation, $value, $target, $expected, $user, $id_met, $year));
+        $q = $this->db->query($query, array($validation, $value, $target, $expected, $user,$old_value,
+        $old_target, $old_expected, $id_met, $year));
 
         return $q;
     }
@@ -250,7 +271,7 @@ class Dashboard_model extends CI_Model
 			$colums = $this->_getAllnonValidateDataUnidad($id);
 			if($colums!=null){
 				$arr = array_merge ($colums, $arr);
-			}	
+			}
 		}
 		return $arr;
 
@@ -359,9 +380,9 @@ class Dashboard_model extends CI_Model
             else
                 return false;
 
-            $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
+            $query = "SELECT m.id AS id, m.metorg AS org, m.old_value AS val, m.old_target AS target, m.old_expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE m.state=1 AND m.metorg= ? AND m.year>= ? AND m.year<=? ORDER BY m.year ASC";
+                    WHERE ((m.modified = 0 AND m.state=1) OR m.modified=1) AND m.metorg= ? AND m.year>= ? AND m.year<=? ORDER BY m.year ASC";
             $q = $this->db->query($query, array($met->getMetOrg(), $met->getMinYear(), $met->getMaxYear()));
             if(($size=$q->num_rows()) > 0){
                 $rows = $this->buildAllMeasuresments($q);

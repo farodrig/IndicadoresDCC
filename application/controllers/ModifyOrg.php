@@ -10,13 +10,8 @@ class ModifyOrg extends CI_Controller{
       $this->load->model('Dashboard_model');
 	    $this->load->library('session');
 	    $this->load->library('parser');
-		$user = $this->session->userdata("user");
-    	$permits = array('director' => $this->session->userdata("director"),
-    						'visualizador' => $this->session->userdata("visualizador"),
-    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
-    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
-    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-    						'asistente_dcc' => $this->session->userdata("asistente_dcc"));
+		  $user = $this->session->userdata("user");
+    	$permits = array('director' => $this->session->userdata("director"));
 
     	if(!$permits['director']){
     		redirect('inicio');
@@ -107,8 +102,12 @@ class ModifyOrg extends CI_Controller{
 		$this->load->model('Dashboard_model');
     if($permits_array['director'])
       return $this->Dashboard_model->getValidate(-1);
+    elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
+      return $this->Dashboard_model->getValidate(-1);
     elseif(!in_array(-1,$permits_array['encargado_unidad']))
-      return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+        return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
+    elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
+        return $this->Dashboard_model->getValidate($permits_array['encargado_finanzas_unidad']);
     return  false;
   }
 

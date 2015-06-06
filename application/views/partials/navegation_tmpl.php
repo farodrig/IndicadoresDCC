@@ -8,6 +8,8 @@
             <span>U-Dashboard</span>
           </a>
         </li>
+        <?php
+        if($add_data==1){ ?>
         <li>
           <a href="<?php echo base_url();?>formAgregarDato?var=<?php echo $id_location ?>">
             <span class="pull-right label label-primary"></span>
@@ -15,6 +17,8 @@
             <span>Añadir Datos</span>
           </a>
         </li>
+      <?php }
+        ?>
       </ul>
     </nav>
   </div>
