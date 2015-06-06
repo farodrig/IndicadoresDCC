@@ -15,9 +15,9 @@ class Dashboard_model extends CI_Model
                 $query="SELECT * FROM Measure AS m, MetOrg AS mo WHERE m.state=0 AND mo.id=m.metorg AND mo.org=".$id;
                 $q = $this->db->query($query);
                 if($q->num_rows() > 0)
-                    return "1";
+                    return true;
             }
-            return "";
+            return false;
         }
     }
 
@@ -251,9 +251,12 @@ class Dashboard_model extends CI_Model
 
 	function _getAllnonValidateDataUnidad($id_org)
 	{
-		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected
-					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
-					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id AND mo.org =?" ;
+		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
+              m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc
+					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
+					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
+            metric.unit = unit.id AND c.id=metric.category AND u.id=p.user AND mo.org =?" ;
 		 $q = $this->db->query($querry,array($id_org));
 
 		 if($q->num_rows() > 0){
@@ -281,9 +284,12 @@ class Dashboard_model extends CI_Model
 
 	function getAllnonValidateData()
 	{
-		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected
-					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit
-					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND metric.unit = unit.id";
+		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
+              m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc
+					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
+					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
+            metric.unit = unit.id AND c.id=metric.category AND u.id=p.user";
 		 $q = $this->db->query($querry);
 
 		 if($q->num_rows() > 0){
