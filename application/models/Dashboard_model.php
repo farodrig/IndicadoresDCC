@@ -213,12 +213,19 @@ class Dashboard_model extends CI_Model
 		$data = array(
 		               'state' => 1,
 		            );
-
 		$this->db->where('id', $id);
-		$q=$this->db->update('Measure', $data);
+		$q=$this->db->update('Measure',$data);
+		$this->_overrrideData($id);
+		return $q;
+	}
 
-
-        return $q;
+	function _overrrideData($id){
+		$q = $this->db->get_where('Measure',array('id' => $id));
+		$newData = $q->row();
+		$q =  $this->db->get_where('Measure',array('id !='=> $id, 'year'=> $newData->year,'metorg'=> $newData->metorg));
+		foreach ($q->result() as $olderData){
+				$this->deleteData($olderData->id);
+		}
 	}
 
 	function _getAllnonValidateDataUnidad($id_org)
