@@ -231,8 +231,13 @@ class Dashboard_model extends CI_Model
 	}
 
 	function validateData($id){
+		$query = $this->db->get_where('Measure',array('id' => $id));
+		$measure = $query->row();		
 		$data = array(
 		               'state' => 1,
+					   'old_value'=> $measure->value,
+					   'old_target'=> $measure->target,
+					   'old_expected'=> $measure->expected
 		            );
 		$this->db->where('id', $id);
 		$q=$this->db->update('Measure',$data);
