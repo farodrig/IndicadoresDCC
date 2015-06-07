@@ -3,14 +3,14 @@
 	<head>
         <?php
         $title = "Dashboard";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
-        
+
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/select2/select2.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/css/datatables.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/morris/morris.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/chartist/chartist.css" />
-		
+
 	</head>
 	<body>
 		<section class="body">
@@ -30,7 +30,7 @@
 						</div>
 					</div>
 
-					<?php include 'partials/navegation-'.$addData.'.php'; ?>
+					<?php include 'partials/navegation_tmpl.php'; ?>
 
 				</aside>
 				<!-- end: sidebar -->

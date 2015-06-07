@@ -3,12 +3,12 @@
 	<head>
 	    <?php
         $title = "Validar datos";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
-        		
+
 		<link rel="stylesheet" href="assets/vendor/select2/select2.css" />
 		<link rel="stylesheet" href="assets/vendor/jquery-datatables-bs3/assets/css/datatables.css" />
-		
+
 	</head>
 	<body>
 		<section class="body">
@@ -68,24 +68,25 @@
 						<section class="panel">
 							<?php echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));?>
 							<header class="panel-heading">
-								<div class="panel-actions">
-									<a href="#" class="panel-action panel-action-toggle" data-panel-toggle></a>
-									<a href="#" class="panel-action panel-action-dismiss" data-panel-dismiss></a>
-								</div>
 
 								<h2 class="panel-title">Validar</h2>
 							</header>
 							<div class="panel-body">
-								<table class="table table-bordered table-striped mb-none text-center" id="datatable-editable">
+								<table class="table table-bordered table-striped mb-none text-center" id="datatable">
 									<thead>
 										<tr>
 											<td>Usuario</td>
+											<td>Rol</td>
 											<td>Organización</td>
 											<td>Métrica</td>
 											<td>Tipo</td>
+											<td>Unidad</td>
 											<td>Valor</td>
 											<td>Esperado</td>
 											<td>Meta</td>
+											<td>Valor anterior</td>
+											<td>Esperado anterior</td>
+											<td>Meta anterior</td>
 											<td>Validar</td>
 										</tr>
 									</thead>
@@ -93,20 +94,26 @@
 										<?php if(count($data) >0)  :?>
 										<?php foreach($data as $row) :?>
 											<tr class="">
-											<td> <?php echo ucwords($row->name)?> </td>
+											<td> <?php  echo ucwords($row->name)?> </td>
+											<td> <?php echo strcmp(ucwords($row->category),"Finanzas")==0 ? "Asistente de finanzas" :
+												(strcmp($row->adcc,"-1")==0 ? "Asistente de unidad" : "Asistente de DCC") ?></td>
 											<td> <?php  echo ucwords($row->org_name)?> </td>
 											<td> <?php  echo ucwords($row->metric)?> </td>
+											<td> <?php  echo ucwords($row->category)?> </td>
 											<td> <?php  echo ucwords($row->type)?> </td>
-											<td> <?php  echo $row->value?> </td>
-											<td> <?php  echo $row->target?> </td>
-											<td> <?php  echo $row->expected?> </td>
+											<td> <?php  echo strcmp($row->value, $row->o_v)==0 ? $row->value : "<b>".$row->value."</b>" ?> </td>
+											<td> <?php  echo strcmp($row->target, $row->o_t)==0 ? $row->target : "<b>".$row->target."</b>" ?> </td>
+											<td> <?php  echo strcmp($row->expected, $row->o_e)==0 ? $row->expected : "<b>".$row->expected."</b>" ?> </td>
+											<td> <?php echo $row->o_v ?> </td>
+											<td> <?php echo $row->o_t ?> </td>
+											<td> <?php echo $row->o_e ?> </td>
 											<td>
 												<input id="for-website" value=<?php  echo $row->data_id?> type="checkbox" name=<?php  echo "check". $row->data_id?> />
 											</td>
 										</tr>
 										<?php endforeach?>
 										<?php endif?>
-										
+
 									</tbody>
 								</table>
 								<div class="row">
@@ -120,7 +127,7 @@
 							</div>
 							<?php echo form_close();?>
 						</section>
-						
+
 					<!-- end: page -->
 				</section>
 			</div>
@@ -131,8 +138,8 @@
 		<script src="assets/vendor/select2/select2.js"></script>
 		<script src="assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
 		<script src="assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
-		
-		<!-- Examples -->		
+
+		<!-- Examples -->
 		<script src="assets/javascripts/tables/examples.datatables.editable.js"></script>
 	</body>
 </html>

@@ -25,6 +25,7 @@ class Permits_model extends CI_Model
                 'visualizador' => $row->visualizer, //Se puede hacer esto porque es una flag
                 'asistente_unidad' => explode(" ", $row->assistant_unidad),
                 'asistente_finanzas_unidad' => explode(" ", $row->finances_assistant_unidad),
+                'encargado_finanzas_unidad' => explode(" ", $row->in_charge_unidad_finances),
                 'asistente_dcc' => $row->dcc_assistant, //Se puede hacer esto porque es una flag
                 'encargado_unidad' => explode(" ", $row->in_charge_unidad)
             );

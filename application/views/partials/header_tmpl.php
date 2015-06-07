@@ -14,9 +14,7 @@
     <div class="header-right">
 
         <?php
-        $titles = explode('<br>', $role); //Separa los Titulos "Encargado de ...", "Director", "Asistente de ..."
-        foreach ($titles as $titl){
-            $words = explode(' ',$titl); //Separa las palabras del titulo y elimina comas al final. "Encargado, de, ..."
+            $words = explode(' ',$role); //Separa las palabras del titulo y elimina comas al final. "Encargado, de, ..."
             if($words[0]=="Director"){ //Revisa si el titulo parte con la palabra director?>
                 <ul class="notifications">
                     <li>
@@ -38,7 +36,6 @@
                 	</li>
                 </ul>
         <?php
-            break; //Como el director tiene más accesos q los otros, no es necesario agregar más cosas.
             }
             else if($words[0]=="Encargado"){ ?>
                 <ul class="notifications">
@@ -55,7 +52,7 @@
                 </ul>
         <?php
             }
-        }
+
         if (!isset($username))
             $username = "Juan Johnes";
         ?>
