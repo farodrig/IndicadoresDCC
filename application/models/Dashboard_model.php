@@ -262,10 +262,12 @@ class Dashboard_model extends CI_Model
 
 	function _overrrideData($id){
 		$q = $this->db->get_where('Measure',array('id' => $id));
+		echo $id;
 		$newData = $q->row();
-		$q =  $this->db->get_where('Measure',array('id !='=> $id, 'year'=> $newData->year,'metorg'=> $newData->metorg));
+		$q =  $this->db->get_where('Measure',array('id !='=> $id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
 		foreach ($q->result() as $olderData){
-				$this->deleteData($olderData->id);
+			echo $olderData->id;
+			$this->deleteData($olderData->id);
 		}
 	}
 
