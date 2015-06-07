@@ -39,8 +39,6 @@ class Organization_model extends CI_Model{
     }
     
     function getTypes(){
-        $this->db->where(array('name!='=>""));
-
         return $this->getTypesWhere(array());
     }
     
@@ -48,15 +46,19 @@ class Organization_model extends CI_Model{
         return $this->getTypesWhere(array('name'=>$name));
     }
     
+    function getTypeById($id){
+        return $this->getTypesWhere(array('id'=>$id));
+    }
+    
     private function getTypesWhere($where){
-        $this->db->where(array('id!='=>3));
+        $this->db->where(array('name!='=>""));
         if(count($where)!=0)
             $this->db->where($where);
         $query = $this->db->get('OrgType');
         $result = array();
-        $colores = array('#47a447', '#ed9c28');
+        $colores = array('Operación'=>'#47a447', 'operación'=>'#47a447', 'Soporte'=>'#ed9c28', 'soporte'=>'#ed9c28');
         foreach ($query->result() as $row){
-            array_push($result, array('id'=>$row->id, 'name'=>$row->name, 'color'=> $colores[count($result)]));
+            array_push($result, array('id'=>$row->id, 'name'=>$row->name, 'color'=> $colores[$row->name]));
         }
         if (count($result)==1)
             return $result[0];
@@ -73,11 +75,10 @@ class Organization_model extends CI_Model{
         foreach ($root as $key) {
             $res = array_merge($res, $this->getAllChilds($key->getId()));
         }
-
         return $res;
     }
     
-    private function getAllChilds($id){
+    function getAllChilds($id){
         $this->db->where(array('parent'=>$id));
         $this->db->where('id!=parent');
         $query = $this->db->get('Organization');

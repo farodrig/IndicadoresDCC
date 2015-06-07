@@ -59,7 +59,7 @@ class MySession extends CI_Controller {
     public function inicio(){
 
     	$user= "17.586.757-0"; // usuario tipo Visualizador
-    	//$user= "18.292.316-8"; // usuario tipo Administrador
+    	$user= "18.292.316-8"; // usuario tipo Administrador
     	//$user = "20.584.236-5"; // usuario tipo Visualizador
     	$this->load->library('session');
     	$this->load->model('Dashboard_model');
@@ -344,16 +344,6 @@ class MySession extends CI_Controller {
 		}
 
     	redirect('cmetrica');
-	}
-
-	public function alphaSpace($str){
-	    if (preg_match("^([a-zA-Zñáéíóú]\s?)+^", $str, $data) && $data[0]==$str){
-	        return true;
-	    }
-	    else{
-	        $this->form_validation->set_message('alphaSpace', 'El campo {field} contiene caracteres no alfabeticos o espacios');
-	        return false;
-	    }
 	}
 
 	private function getTitle($permits_array){

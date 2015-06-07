@@ -4,22 +4,25 @@
         <?php
         //Para usar head.php debe ser dentro del tag head y debe haberse creado una variable $title.
         include 'partials/head.php'; ?>
-        
+
         <style type="text/css">
         .titulo{
             font-size: 15px;
             padding-bottom: 20px;
             padding-top: 10px;
         }
+        .Areas{
+            margin-bottom: 40px;
+        }
         </style>
-        
+
         <script type="text/javascript">
 
            function validateName(input){
         	   var re = new RegExp('^([a-zA-Zñáéíóú]\\s?)+$');
         	   if (input.value.match(re)) {
         		   input.style.borderColor="#cccccc";
-        	   } 
+        	   }
         	   else {
         		    alert("Los nombres de Areas y Unidades solo puede tener letras, tildes y espacios.");
         		    input.style.borderColor="red";
@@ -27,15 +30,16 @@
 
            }
 
-           function addArea(){
+           function addArea(value){
         	   $("#AreaName").val("");
         	   $("#AreaName").css("border-color", "#cccccc");
+        	   $("#segment").val(value);
            }
 
 		   function addUnidad(area){
 			   $("#UniName").val("");
         	   $("#UniName").css("border-color", "#cccccc");
-			   $("#addUni").html(area);			   
+			   $("#addUni").html(area);
 		   }
 
 		   function delUnidad(unidad){
@@ -91,7 +95,7 @@
 	<body>
 	   <section class="body">
 
-        <?php 
+        <?php
         //Para usar header_tmpl.php se debe haber creado la variable $name y $role. Se pueden crear tanto aqui como en el controlador.
         include 'partials/header_tmpl.php'; ?>
 
@@ -163,48 +167,70 @@
 					<!-- start: page -->
 					<section class="panel panel-transparent">
 						<div class="panel-body">
-							    <?php
-							        $counter = 0;
-							        foreach ($areaunit as $au){
-							            $kind = false;
-							            $color = false;
-							            foreach ($types as $type){
-							                if ($type['id']==$au['area']->getType()){
-							                    $kind = $type['name'];
-							                    $color = $type['color'];
-							                }
-							            }
-							            if ($counter % 2 == 0 && $counter!=0)
-							                echo ('</div>');
-							            if ($counter % 2 == 0)
-							                echo ('<div class ="row">');
-							            echo ('<div class="col-md-6">');
-							            echo ('<section class="panel panel-info">');
-							            echo ('<header class="panel-heading" style="background-color: '.$color.'">');
-							            echo ('<h2 class="panel-title text-center">');
-							            echo ('<div class="btn-group-horizontal text-center">');
-							            echo ('<label class="text-center">'.ucwords($au['area']->getName()).'</label>');
-							            echo ('<a class="btn modal-with-form" href="#deleteArea" onclick = "delArea(\''.ucwords($au['area']->getName()).'\')" style="color: red"><i class="licon-close"></i></a>');
-							            echo ('</div></h2>');
-							            echo ('<p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
-							            echo ('<div class="panel-body">');
-							            echo ('<div class="btn-group-vertical col-md-12">');
-							            foreach ($au['unidades'] as $unidad){
-							                echo('<div class="btn btn-default btn-group-horizontal text-center">');
-							                echo ('<a class="btn modal-with-form" href="#deleteUnidad" onclick = "delUnidad(\''.ucwords($unidad->getName()).'\')" style="color: red"><i class="licon-close"></i></a>');
-							                echo ('<label class="text-center">'.ucwords($unidad->getName()).'</label></div>');
-							            }
-							            echo ('<a class="btn modal-with-form" href="#agregarUnidad" onclick = "addUnidad(\''.ucwords($au['area']->getName()).'\')" style="color: green"><i class="licon-plus"></i></a>');
-							            echo ('</div></div></section></div>');
-							            $counter++;
-							        }
-
-							    ?>
-							<div class="row col-md-12 text-center">
-								<a class="btn modal-with-form" href="#agregarArea" style="color: green" onclick = "addArea();">
-								<h1><i class="licon-plus"></i></h1>
-								</a>
-							</div>
+						  <?php
+						        $c = 0;
+						        foreach ($departments as $dpto){
+						            $c++;
+						            $counter = 0;
+						            $kind = $dpto['type']['name'];
+						            $color = $dpto['type']['color'];
+						            if($c==count($departments))
+						              echo('<section class="panel panel-transparent">');
+						            else
+						              echo('<section class="panel panel-transparent Areas">');
+						            echo('<h2 style="text-align:center;">'.ucwords($kind).'</h2>');
+						            echo('<hr>');
+						            foreach ($dpto['areas'] as $area){
+    						            if ($counter % 2 == 0 && $counter!=0)
+    						                echo ('</div>');
+    						            if ($counter % 2 == 0)
+    						                echo ('<div class ="row">');
+    						            ?>    						            							    
+    						            <div class="col-md-6">
+    						              <section class="panel panel-info">
+    						                  <header class="panel-heading" style="background-color: <?php echo($color);?>">
+    						                      <h2 class="panel-title text-center">
+        						                      <div class="btn-group-horizontal text-center">
+        						                          <label class="text-center"><?php echo(ucwords($area['area']->getName()));?></label>
+        						                          <a class="btn modal-with-form" href="#deleteArea" onclick = "delArea('<?php echo(ucwords($area['area']->getName()));?>')" style="color: red"><i class="licon-close"></i></a>
+        						                      </div>
+    						                      </h2>
+						                      </header>
+    						                  <div class="panel-body">
+    						                      <div class="btn-group-vertical col-md-12">
+    						            <?php
+    						            foreach ($area['unidades'] as $unidad){
+    						                ?>
+            						                <div class="btn btn-default btn-group-horizontal text-center">
+            						                  <a class="btn modal-with-form" href="#deleteUnidad" onclick = "delUnidad('<?php echo(ucwords($unidad->getName()));?>')" style="color: red"><i class="licon-close"></i></a>
+            						                  <label class="text-center"><?php echo(ucwords($unidad->getName()));?></label>
+        						                    </div>
+    						            <?php
+    						            }    						            
+    						            ?>
+    						                        <a class="btn modal-with-form" href="#agregarUnidad" onclick = "addUnidad('<?php echo(ucwords($area['area']->getName()));?>')" style="color: green"><i class="licon-plus"></i></a>
+    						                      </div>
+						                      </div>
+					                      </section>
+				                        </div>
+    						            <?php
+    						            $counter++;
+    						            if($counter==count($dpto['areas'])){
+    						                echo ('</div>');
+    						            }    						                
+						            }
+						            ?>
+						            <div class="row text-center">
+						              <a class="btn modal-with-form" href="#agregarArea" style="color: green" onclick = "addArea(<?php echo($dpto['type']['id'])?>);">
+						                  <h1><i class="licon-plus"></i></h1>
+						              </a>
+						            </div>
+					              </section>
+						            
+						            <?php
+						        }
+						        ?>
+							
 							<div id="agregarArea" class="modal-block modal-block-primary mfp-hide">
 										<section class="panel">
 											<header class="panel-heading">
@@ -217,7 +243,7 @@
 														<div class="col-sm-9">
 
 															<input id = "AreaName" onchange = "validateName(this);" type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
-                                        
+
 														</div>
 													</div>
 													<div class="form-group mt-lg">
@@ -225,8 +251,8 @@
 														<div class="col-sm-9">
                                                             <select class="form-control" id="segment">
                                                               <?php
-                                                                foreach ($types as $type){
-                                                                    echo('<option value="'.$type['id'].'">'.ucwords($type['name']).'</option>');
+                                                                foreach ($departments as $dpto){
+                                                                    echo('<option value="'.$dpto['type']['id'].'">'.ucwords($dpto['type']['name']).'</option>');
                                                                 }
                                                               ?>
                                                             </select>														</div>
@@ -284,9 +310,9 @@
 														    </li>
 														</ul>
                                                         <div class="alert alert-warning">
-                                                            <i class="fa fa-warning"></i>                                                
-                                                            <strong>Precaución!!</strong> Al eliminar esta área se perderá toda la información asociada a esta.<br>
-                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.                                                    
+                                                            <i class="fa fa-warning"></i>
+                                                            <strong>Advertencia</strong><br>Al eliminar esta área se perderá toda la información asociada a esta.<br>
+                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.
                                                         </div>
 													</div>
 												</div>
@@ -316,10 +342,10 @@
 														    </li>
 														</ul>
                                                         <div class="alert alert-warning">
-                                                            <i class="fa fa-warning"></i>                                                
-                                                            <strong>Precaución!!</strong> Al eliminar esta unidad se perderá toda la información asociada a esta.<br>
-                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.                                                    
-                                                        </div>														
+                                                            <i class="fa fa-warning"></i>
+                                                            <strong>Advertencia</strong><br>Al eliminar esta unidad se perderá toda la información asociada a esta.<br>
+                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.
+                                                        </div>
 													</div>
 												</div>
 											</div>
@@ -340,9 +366,9 @@
 				</section>
 			</div>
 		</section>
-		
+
         <?php include 'partials/footer.php'; ?>
-        
+
 		<script type="text/javascript">
 		   var success = <?php echo($success);?>;
 
@@ -355,7 +381,7 @@
 			   }
 		   if (success==0){
 			   new PNotify({
-					title: 'error!',
+					title: 'Error!',
 					text: 'Ha ocurrido un error con su solicitud.<br>Los nombres de Areas y Unidades solo puede tener letras, tildes y espacios.',
 					type: 'error'
 				});
