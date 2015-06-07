@@ -198,7 +198,7 @@ class MySession extends CI_Controller {
 			if(count($data) >0){
 				foreach($data as $data_id){
 					print_r($data_id);
-					$this->Dashboard_model->deleteData($data_id);
+					$this->Dashboard_model->rejectData($data_id);
 				}
 			}
 		}
