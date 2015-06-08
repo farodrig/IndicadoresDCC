@@ -73,7 +73,7 @@ class Dashboard extends CI_Controller
 	    	{
                 $s = "<div class='row mb-md'>".
 				"<div class= 'col-md-3'>".
-				"<label class='text'>".$metrics->getName()."</label>".
+				"<label class='text'>".ucwords($metrics->getName())."</label>".
 				"</div>".
 				"<div class='col-md-3'>".
 				"<input type='text' name='value".$metrics->getId()."' id='value".$metrics->getId()."' class='form-control' onkeyup =\"validate('value".$metrics->getId()."')\"
@@ -97,7 +97,7 @@ class Dashboard extends CI_Controller
 	    $res['route'] = $route;
 	    $res['id_location'] = $id;
 			$res['validate'] = $this->validation($permits);
-	    $res['success'] = $this->session->flashdata('success');
+	    $res['success'] = $this->session->flashdata('success')==null ? 2 : $this->session->flashdata('success');
 			$res['role'] = $permits['title'];
 			$this->load->view('add-data', $res);
 	    //debug($all_metrics, true);
@@ -121,7 +121,7 @@ class Dashboard extends CI_Controller
 
 		$this->load->model('Dashboard_model');
 		$metrics_id = $this->Dashboard_model->getAllMetricOrgIds($id);
-		$all_measurements = $this->Dashboard_model->getAllMeasurements($id);
+		$all_measurements = $this->Dashboard_model->getAllMeasurements($id,0);
 
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('year', 'Year', 'required|exact_length[4]|numeric');
@@ -142,7 +142,7 @@ class Dashboard extends CI_Controller
 			foreach ($all_measurements as $measure) {
 				if($measure->getYear()==$year){
 					$data[] = $measure->getMetOrg();
-					$vals[ $measure->getMetOrg()] = array(
+					$vals[$measure->getMetOrg()] = array(
 													'value' => $measure->getValue(),
 													'target' => $measure->getTarget(),
 													'expected' => $measure->getExpected()
@@ -155,13 +155,14 @@ class Dashboard extends CI_Controller
 		}
 		$data[] = -1; // Asi el arreglo nunca sera null
 
-		if($permits['director'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['encargado_finanzas_unidad'])){
+		if($permits['director']){
 			$validation = 1;
 		}
-		elseif($permits['asistente_dcc'] || in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['asistente_unidad'])){
+		elseif($permits['asistente_dcc'] || in_array($id, $permits['asistente_finanzas_unidad']) ||
+		 in_array($id, $permits['asistente_unidad'])){
 			$validation = 0;
 		}
-		else{
+		elseif(in_array(-1, $permits['encargado_finanzas_unidad']) && in_array(-1, $permits['encargado_unidad'])){
 			redirect('inicio');
 		}
 
@@ -174,6 +175,12 @@ class Dashboard extends CI_Controller
 
 			if($value=="" && $target=="" && $expected==""){
 				continue;
+			}
+			$met_type = $this->Dashboard_model->getMetType($id_met);
+
+			if((in_array($id, $permits['encargado_unidad']) && !strcmp($met_type,"Productividad")) ||
+			 (in_array($id, $permits['encargado_finanzas_unidad']) && !strcmp($met_type,"Finanzas"))){
+				$validation = 1;
 			}
 
 			if(in_array($id_met, $data)==1 && ($value!=$vals[$id_met]['value'] || $target!=$vals[$id_met]['target'] || $expected!=$vals[$id_met]['expected'])){

@@ -1,6 +1,18 @@
 <?php
 class Dashboard_model extends CI_Model
 {
+    function getMetType($id_met){
+      $query = "SELECT c.name AS name FROM Metric AS m, MetOrg AS metorg, Category AS c
+      WHERE m.id=metorg.metric AND m.category=c.id AND metorg.id = ?";
+
+      $q = $this->db->query($query, array($id_met));
+      if($q->num_rows() == 1){
+          $row= $q->result()[0];
+          return $row->name;
+      }
+      else
+          return false;
+    }
     function getValidate($id_metorg){
         if($id_metorg==-1){
             $query = "SELECT * FROM Measure AS m WHERE m.state=0";
@@ -232,7 +244,7 @@ class Dashboard_model extends CI_Model
 
 	function validateData($id){
 		$query = $this->db->get_where('Measure',array('id' => $id));
-		$measure = $query->row();		
+		$measure = $query->row();
 		$data = array(
 		               'state' => 1,
 					   'old_value'=> $measure->value,
@@ -244,10 +256,10 @@ class Dashboard_model extends CI_Model
 		$this->_overrrideData($id);
 		return $q;
 	}
-	
+
 	function rejectData($id){
 		$query = $this->db->get_where('Measure',array('id' => $id));
-		$measure = $query->row();		
+		$measure = $query->row();
 		$data = array(
 		               'state' => 1,
 					   'value'=> $measure->old_value,
@@ -259,7 +271,7 @@ class Dashboard_model extends CI_Model
 		$this->_overrrideData($id);
 		return $q;
 	}
-	
+
 	function checkIfValidate($id){
 		$q = $this->db->get_where('Measure',array('id' => $id));
 		$newData = $q->row();
