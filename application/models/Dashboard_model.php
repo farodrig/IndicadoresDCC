@@ -263,7 +263,7 @@ class Dashboard_model extends CI_Model
 	function checkIfValidate($id){
 		$q = $this->db->get_where('Measure',array('id' => $id));
 		$newData = $q->row();
-		$q =  $this->db->get_where('Measure',array('id !='=> $id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
+		$q =  $this->db->get_where('Measure',array('id'=> $id,'state' =>1));
 		if($q->num_rows()>0){
 			return TRUE;
 		}
