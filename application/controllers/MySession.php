@@ -182,8 +182,7 @@ class MySession extends CI_Controller {
 
 	}
 
-	public function validate_reject()
-	{
+	public function validate_reject(){
 		$this->load->library('session');
 		$this->load->model('Dashboard_model');
 		$success =2;
@@ -198,6 +197,11 @@ class MySession extends CI_Controller {
 						$success =1;
 					}
 					else{
+						foreach($data as $data_id){
+							if($this->Dashboard_model->checkIfValidate($data_id)){
+								$this->Dashboard_model->deleteData($data_id);
+							}
+						}											
 						$success =0;						
 					}
 			}
@@ -213,14 +217,18 @@ class MySession extends CI_Controller {
 						$success =1;
 					}
 					else{
+						foreach($data as $data_id){
+							if($this->Dashboard_model->checkIfValidate($data_id)){
+								$this->Dashboard_model->deleteData($data_id);
+							}
+						}	
 						$success =0;
 					}
 			}
 		}
 		$this->session->set_flashdata('success', $success);
 		//echo $this->session->flashdata('success');
-		redirect('validar');
-	}
+		redirect('validar');}
 
 	private function checkIfAlreadyValidate($data)
 	{
