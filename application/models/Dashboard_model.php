@@ -285,7 +285,7 @@ class Dashboard_model extends CI_Model
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user AND mo.org =?" ;
@@ -312,13 +312,44 @@ class Dashboard_model extends CI_Model
 
 	}
 
+	function _getAllnonValidateDataUnidadByType($id_org,$type)
+	{
+		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
+              m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year
+					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
+					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
+            metric.unit = unit.id AND c.id=metric.category AND u.id=p.user  AND c.id= $type  AND mo.org =?";
+		 $q = $this->db->query($querry,array($id_org));
+
+		 if($q->num_rows() > 0){
+			 foreach($q->result() as $row){
+				 $data[]= $row;
+			 }
+		 	return $data;
+		 }
+	}
+
+
+
+	function getnonValidatebyUnitByType($array_idorg,$type){
+		$arr = array();
+		foreach($array_idorg as $id){
+			$colums = $this->_getAllnonValidateDataUnidadByType($id,$type);
+			if($colums!=null){
+				$arr = array_merge ($colums, $arr);
+			}
+		}
+		return $arr;
+
+	}
 
 
 	function getAllnonValidateData()
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user";

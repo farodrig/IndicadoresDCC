@@ -82,6 +82,7 @@
 											<td>Métrica</td>
 											<td>Tipo</td>
 											<td>Unidad</td>
+											<td>Año</td>
 											<td>Valor</td>
 											<td>Esperado</td>
 											<td>Meta</td>
@@ -89,6 +90,7 @@
 											<td>Esperado anterior</td>
 											<td>Meta anterior</td>
 											<td>Validar</td>
+											
 										</tr>
 									</thead>
 									<tbody> <!-- no se que pasa aqui -->
@@ -102,6 +104,7 @@
 											<td> <?php  echo ucwords($row->metric)?> </td>
 											<td> <?php  echo ucwords($row->category)?> </td>
 											<td> <?php  echo ucwords($row->type)?> </td>
+											<td> <?php  echo ucwords($row->year)?> </td>
 											<td> <?php  echo strcmp($row->value, $row->o_v)==0 ? $row->value : "<b>".$row->value."</b>" ?> </td>
 											<td> <?php  echo strcmp($row->target, $row->o_t)==0 ? $row->target : "<b>".$row->target."</b>" ?> </td>
 											<td> <?php  echo strcmp($row->expected, $row->o_e)==0 ? $row->expected : "<b>".$row->expected."</b>" ?> </td>
@@ -141,7 +144,7 @@
 		   if (success==1){
 			   new PNotify({
 					title: 'Éxito!',
-					text: 'Se ha validado con exito',
+					text: 'Se ha completado la acción con exito',
 					type: 'success'
 				});
 			   }
