@@ -5,7 +5,18 @@ class MySession extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->view('login');
+	    $this->load->library('session');
+	    $this->load->model('User_model');
+	    $result = array();
+	    $result['users'] = $this->User_model->getAllUsers();
+	    if($this->input->method()=="post"){
+	        $rut = $this->input->post('user');
+	        $name = $result[$rut];
+    	    $this->session->set_userdata('rut', $rut);
+    	    $this->session->set_userdata('name', $name);
+	        redirect('inicio');
+	    }	    
+		$this->load->view('login', $result);
 	}
 
 	public function user_verify(){
@@ -57,18 +68,13 @@ class MySession extends CI_Controller {
 	}
 
     public function inicio(){
-
-    	//$user= "17.586.757-0"; // usuario tipo Visualizador
-
-    	//$user= "18.292.316-8"; // usuario tipo Administrador
-    	$user = "20.584.236-5"; // usuario tipo Visualizador
-
-    	$user= "18.292.316-8"; // usuario tipo Administrador
-    	//$user = "20.584.236-5"; // usuario tipo Visualizador
-
+        
     	$this->load->library('session');
+    	$user = $this->session->rut;
+        if(is_null($user))
+            redirect('');
+    	
     	$this->load->model('Dashboard_model');
-
     	$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
 
@@ -112,12 +118,12 @@ class MySession extends CI_Controller {
 			}
 			$types = $this->Organization_model->getTypes();
 			$result = array('department'=> $department,
-																		'areaunit'=>$areaunit,
-																		'types'=>$types,
-																		'name' => $name,
-																		'user' => $user,
-																		'validate' => $this->validation($permits_array),
-																		'role' => $title);
+							'areaunit'=>$areaunit,
+							'types'=>$types,
+							'name' => $name,
+							'user' => $user,
+							'validate' => $this->validation($permits_array),
+							'role' => $title);
 			$this->load->view('index', $result);
 	}
 
@@ -168,25 +174,25 @@ class MySession extends CI_Controller {
 							'encargado_unidad' => $this->session->userdata("encargado_unidad"),
 							'encargado_finanzas_unidad' => $this->session->userdata("encargado_finanzas_unidad"),
 							'title' =>$this->session->userdata("title"));
-			if(!$permits['director'] && in_array(-1, $permits['encargado_unidad']) && in_array(-1, $permits['encargado_finanzas_unidad']))
-						redirect('inicio');
+		if(!$permits['director'] && in_array(-1, $permits['encargado_unidad']) && in_array(-1, $permits['encargado_finanzas_unidad']))
+		  redirect('inicio');
 
-			$this->load->library('session');
-			$this->load->model('Dashboard_model');
-			//$this->load->view('validar', $data);
+		$this->load->library('session');
+		$this->load->model('Dashboard_model');
+		//$this->load->view('validar', $data);
 
-			if($this->session->userdata("director")==1 ){
-	    	$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
-			}
-			elseif(!in_array('-1',$this->session->userdata('encargado_unidad')) && !in_array('-1',$this->session->userdata('encargado_finanzas_unidad')) ){
- 				$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
-			}
-			elseif(!in_array('-1',$this->session->userdata('encargado_unidad'))){
- 				$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_unidad'), 1)));
-			}
-			elseif(!in_array('-1',$this->session->userdata('encargado_finanzas_unidad'))){
- 				$this->load->view('validar', array('success'=> $success, 'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_finanzas_unidad'), 2)));
-			}
+		if($this->session->userdata("director")==1 ){
+    	$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
+		}
+		elseif(!in_array('-1',$this->session->userdata('encargado_unidad')) && !in_array('-1',$this->session->userdata('encargado_finanzas_unidad')) ){
+			$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
+		}
+		elseif(!in_array('-1',$this->session->userdata('encargado_unidad'))){
+			$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_unidad'), 1)));
+		}
+		elseif(!in_array('-1',$this->session->userdata('encargado_finanzas_unidad'))){
+			$this->load->view('validar', array('success'=> $success, 'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_finanzas_unidad'), 2)));
+		}
 
 	}
 
@@ -256,6 +262,7 @@ class MySession extends CI_Controller {
 
 	public function configurarMetricas()
 	{
+	    $this->load->model('Organization_model');
 		$this->load->library('session');
 		$user = $this->session->userdata("user");
     	$permits = array('director' => $this->session->userdata("director"),
@@ -268,14 +275,9 @@ class MySession extends CI_Controller {
 		if(is_null($success))
 			$success=2;
 
-		$department = $this->getDepartment();
-		$areaunit = $this->showAreaUnit();
-		$types = $this->getType();
 		$this->load->model('Metrics_model');
 		$metrics= $this->Metrics_model->getAllMetrics();
-	    $this->load->view('configurar-metricas',array('department'=> $department,
-	                                     				'areaunit'=>$areaunit,
-	                                     				'types'=>$types,
+	    $this->load->view('configurar-metricas',array(	'departments' => getAllOrgsByDpto($this->Organization_model),
 														'metrics'=>$metrics,
 														'success' => $success,
 														'role' => $permits['title'],
