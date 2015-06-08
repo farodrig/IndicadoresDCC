@@ -259,14 +259,24 @@ class Dashboard_model extends CI_Model
 		$this->_overrrideData($id);
 		return $q;
 	}
+	
+	function checkIfValidate($id){
+		$q = $this->db->get_where('Measure',array('id' => $id));
+		$newData = $q->row();
+		$q =  $this->db->get_where('Measure',array('id !='=> $id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
+		if($q->num_rows()>0){
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
+	}
 
 	function _overrrideData($id){
 		$q = $this->db->get_where('Measure',array('id' => $id));
-		echo $id;
 		$newData = $q->row();
 		$q =  $this->db->get_where('Measure',array('id !='=> $id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
 		foreach ($q->result() as $olderData){
-			echo $olderData->id;
 			$this->deleteData($olderData->id);
 		}
 	}

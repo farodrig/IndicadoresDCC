@@ -156,6 +156,9 @@ class MySession extends CI_Controller {
 	public function validar()
 	{
 		$this->load->library('session');
+		$success = $this->session->flashdata('success');
+		if(is_null($success))
+			$success=2;
 		$permits = array('director' => $this->session->userdata("director"),
 							'encargado_unidad' => $this->session->userdata("encargado_unidad"),
 							'encargado_finanzas_unidad' => $this->session->userdata("encargado_finanzas_unidad"),
@@ -168,41 +171,67 @@ class MySession extends CI_Controller {
 			//$this->load->view('validar', $data);
 
 			if($this->session->userdata("director")==1 ){
-	    	$this->load->view('validar', array('validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
+	    	$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
 			}
 			elseif(!in_array('-1',$this->session->userdata('encargado_unidad'))){
- 				$this->load->view('validar', array('validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
+ 				$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
 			}
 			elseif(!in_array('-1',$this->session->userdata('encargado_finanzas_unidad'))){
- 				$this->load->view('validar', array('validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_finanzas_unidad'))));
+ 				$this->load->view('validar', array('success'=> $success, 'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_finanzas_unidad'))));
 			}
 
 	}
 
 	public function validate_reject()
 	{
+		$this->load->library('session');
 		$this->load->model('Dashboard_model');
+		$success =2;
 		if($this->input->post('Validar')){
 			$data = $this->input->post();
 			unset($data['Validar']);
 			if(count($data) >0){
-				foreach($data as $data_id){
-					$this->Dashboard_model->validateData($data_id);
-				}
+					if (!$this->checkIfAlreadyValidate($data)){
+						foreach($data as $data_id){
+							$this->Dashboard_model->validateData($data_id);
+						}
+						$success =1;
+					}
+					else{
+						$success =0;						
+					}
 			}
 		}
 		elseif($this->input->post('Rechazar')){
 			$data = $this->input->post();
 			unset($data['Rechazar']);
 			if(count($data) >0){
-				foreach($data as $data_id){
-					$this->Dashboard_model->rejectData($data_id);
-				}
+					if (!$this->checkIfAlreadyValidate($data)){
+						foreach($data as $data_id){
+							$this->Dashboard_model->rejectData($data_id);
+						}
+						$success =1;
+					}
+					else{
+						$success =0;
+					}
 			}
 		}
-
+		$this->session->set_flashdata('success', $success);
+		//echo $this->session->flashdata('success');
 		redirect('validar');
 	}
+
+	private function checkIfAlreadyValidate($data)
+	{
+		$this->load->model('Dashboard_model');
+		$isValidate = FALSE;
+		foreach($data as $data_id){
+			$isValidate = $isValidate || $this->Dashboard_model->checkIfValidate($data_id);
+		}
+		return $isValidate;
+		
+	} 
 
 	public function menuConfigurar()
 	{

@@ -71,6 +71,7 @@
 
 								<h2 class="panel-title">Validar</h2>
 							</header>
+
 							<div class="panel-body">
 								<table class="table table-bordered table-striped mb-none text-center" id="datatable">
 									<thead>
@@ -134,7 +135,24 @@
 		</section>
 
 		<?php include 'partials/footer.php'; ?>
+		<script type="text/javascript">
+		   var success = <?php echo ($success);?>;
 
+		   if (success==1){
+			   new PNotify({
+					title: 'Éxito!',
+					text: 'Se a validado con exito',
+					type: 'success'
+				});
+			   }
+		   if (success==0){
+			   new PNotify({
+					title: 'Error!',
+					text: 'Intento validar un dato ya validado',
+					type: 'error'
+				});
+			}
+		</script>
 		<script src="assets/vendor/select2/select2.js"></script>
 		<script src="assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
 		<script src="assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
