@@ -141,7 +141,7 @@
 		   if (success==1){
 			   new PNotify({
 					title: 'Éxito!',
-					text: 'Se a validado con exito',
+					text: 'Se ha validado con exito',
 					type: 'success'
 				});
 			   }
