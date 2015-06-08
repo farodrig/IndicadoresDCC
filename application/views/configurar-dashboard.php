@@ -3,10 +3,10 @@
 	<head>
 	    <?php
         $title = "Configurar Dashboard Unidades";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
-        		
+
 		<style type="text/css">
     		.container {
         		width: 214px;
@@ -143,7 +143,7 @@
 									break;
 							}
 						}
-						if($areas[$first_area_key]['type']=="1"){
+						if($areas[$first_area_key]['type']=="Operación"){
 							$color_panel="panel-warning";
 							$color_button = "btn-warning";
 						}
@@ -232,7 +232,7 @@
 					</div>
 					<!-- end: page -->
 				</section>
-				
+
         <?php include 'partials/footer.php'; ?>
 
 		<!-- Specific Page Vendor -->
@@ -278,7 +278,7 @@
 				var id_area = document.getElementById("area").value;
 				var areas = <?php echo json_encode($areas); ?>;
 				var unidades = areas[id_area]['unidades'];
-				var color = areas[id_area]['type']=="1" ? "warning" : "success";
+				var color = areas[id_area]['type']=="Operación" ? "warning" : "success";
 
 				$('#section').attr('class',"panel-".concat(color));
 				$('#area').attr('class', "form-control btn btn-".concat(color));

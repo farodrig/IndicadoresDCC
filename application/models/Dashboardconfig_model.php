@@ -203,7 +203,8 @@ class Dashboardconfig_model extends CI_Model
 
 			$result[$id_area] = array(
 							'name' => $a->name,
-							'type' => $a->parent,
+							'type' => $a->parent==0 ? "Soporte" : "Operación",
+							'parent' => $a->parent,
 							'id' => $id_area,
 							'unidades' => $unidades);
 		}
