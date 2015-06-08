@@ -3,11 +3,11 @@
 	<head>
         <?php
         $title = "Configurar Dashboard DCC";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
-        
+
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
-				
+
 		<style type="text/css">
     		.container {
         		width: 214px;
@@ -54,7 +54,7 @@
 		<section class="body">
 
         <?php include 'partials/header_tmpl.php'; ?>
-		
+
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
 				<aside id="sidebar-left" class="sidebar-left">
@@ -193,7 +193,7 @@
 
 					<!-- end: page -->
 				</section>
-				
+
 		<?php include 'partials/footer.php'; ?>
 
 		<!-- Specific Page Vendor -->
@@ -233,7 +233,7 @@
     				$(popover).appendTo($('#metricas'));
   				}
   				for(i in areas){
-  					if(areas[i]['type']=="1"){
+  					if(areas[i]['parent']=="1"){
   						var metricas_area = metricas[areas[i]['id']];
   						var area_name = areas[i]['name'];
   						for(j in metricas_area){
@@ -276,7 +276,7 @@
     				$(popover).appendTo($('#metricas'));
   				}
   				for(i in areas){
-  					if(parseInt(areas[i]['type'])==dcc_value){
+  					if(parseInt(areas[i]['parent'])==dcc_value){
   						var metricas_area = metricas[areas[i]['id']];
   						var area_name = areas[i]['name'];
   						for(j in metricas_area){

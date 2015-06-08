@@ -42,9 +42,9 @@ class DashboardConfig extends CI_Controller
 	    	$result['years'] = array(
 	    		'id' => -1,
 	    		'type' => 2,
-				'min' => 2005,
-				'max' => 2015,
-				'check' => NULL
+					'min' => 2005,
+					'max' => 2015,
+					'check' => NULL
 				);
 	    }
 	    else{
@@ -72,7 +72,7 @@ class DashboardConfig extends CI_Controller
 			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard', $result);
-	    //debug($all_metrics, true);
+	    //debug($result['colors'], true);
 	}
 
 	function configArea(){
@@ -209,7 +209,7 @@ class DashboardConfig extends CI_Controller
 
 	    			if(in_array($id_org, $keys_areas)){
 	    				$this_unidades = $all_areas[$id_org]['unidades'];
-	    				if($all_areas[$id_org]['type']==0){
+	    				if($all_areas[$id_org]['parent']==0){
 	    					$met_sop[] = $id;
 	    					foreach ($this_unidades as $u) {
 	    						if(in_array($u['id'], $id_keys)){
@@ -235,7 +235,7 @@ class DashboardConfig extends CI_Controller
 	    				$id_org_dash= strval($id_org);
 	    			}
 	    			elseif(in_array($id_org, $keys_areas)){
-	    				$id_org_dash=$all_areas[$id_org]['type'];
+	    				$id_org_dash=$all_areas[$id_org]['parent'];
 	    			}
 	    			else{
 	    				$id_org_dash=-1;
@@ -243,7 +243,7 @@ class DashboardConfig extends CI_Controller
 	    					$unidades = $all_areas[$keys_areas[$j]]['unidades'];
 	    					foreach ($unidades as $u){
 	    						if(in_array($id_org, $u)){
-	    							$id_org_dash=$all_areas[$keys_areas[$j]]['type'];
+	    							$id_org_dash=$all_areas[$keys_areas[$j]]['parent'];
 	    							break;
 	    						}
 	    					}
@@ -262,7 +262,6 @@ class DashboardConfig extends CI_Controller
 	    	$result['years'] = $years;
 	    	$result['met_operacion']=[];
 	    	$result['met_soporte']=[];
-	    	$result['colors'] = array("success", "warning");
 	    }
 
 	    if(!$all_areas)
@@ -273,6 +272,7 @@ class DashboardConfig extends CI_Controller
 			$result['validate'] = $this->validation($permits);
 			$result['role'] = $permits['title'];
 			$result['id_first']=$id_first;
+			$result['colors'] = array("1" => "warning", "0" => "success");
 		//debug($all_metrics);
 	    $this->load->view('configurar-dashboard-dcc',$result);
 	    //debug($all_metrics, true); */
@@ -350,6 +350,15 @@ class DashboardConfig extends CI_Controller
 
 	}
 
+	private function getColors(){
+		$this->load->model("Organization_model");
+		$types = $this->Organization_model->getTypes();
+
+		foreach ($types as $t) {
+			$colors[$t['name']]=$t['color'];
+		}
+		return $colors;
+	}
 	private function validation($permits_array){
 		$this->load->model('Dashboard_model');
     if($permits_array['director'])
