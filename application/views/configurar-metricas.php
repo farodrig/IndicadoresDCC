@@ -79,71 +79,91 @@
 
 					<!-- start: page -->
 					<?php
-					   echo ('<div class="pane panel-transparent">');
-					   echo ('<header class="panel-heading">');
-						echo ('<div class="row"><div class="col-xs-6"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
-							  <a title=1 id="DCC" class="btn modal-with-form insert" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a title=1 id="DCC" class="btn modal-with-form modify" href="#deleteMetrica" style="color: purple">
-														<i class="fa fa-edit" aria-hidden="true"></i>
-													</a><label class="text-center" style="color:white">DCC</label>
-													</div></h2><p class="panel-subtitle text-center" style="color: white">Operación</p></div></div>
-							<div class="col-xs-6"><div class="panel-body" style="background-color:#08C"><h2 class="panel-title"><div class="btn-group-horizontal text-center">
-							  <a title=0 id="DCC" class="btn modal-with-form insert" href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a title=0 id="DCC" class="btn modal-with-form modify" href="#deleteMetrica" style="color: purple">
-														<i class="fa fa-edit" aria-hidden="true"></i>
-													</a><label class="text-center" style="color:white">DCC</label>
-													</div></h2><p class="panel-subtitle text-center" style="color: white">Soporte</p></div></div></div>');
-						echo('</header>');
-						echo('<div class="panel-body">');
-
-						    $counter = 0;
-						    foreach ($areaunit as $au){
-						        $kind = false;
-						        $color = false;
-						        foreach ($types as $type){
-						            if ($type['id']==$au['area']->getType()){
-						                $kind = $type['name'];
-						                $color = $type['color'];
-						            }
-						        }
-						        if ($counter % 2 == 0 && $counter!=0)
-						            echo ('</div>');
-						        if ($counter % 2 == 0)
-						            echo ('<div class ="row">');
-						        echo ('<div class="col-md-6">');
-						        echo ('<section class="panel panel-info">');
-						        echo ('<header class="panel-heading" style="background-color: '.$color.'">');
-						        echo ('<h2 class="panel-title"><div class="btn-group-horizontal text-center">
-													<a class="btn modal-with-form insert" id="'.ucwords($au['area']->getName()).'" title='.$au['area']->getId().' href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form modify" id="'.ucwords($au['area']->getName()).'" title='.$au['area']->getId().' href="#deleteMetrica" style="color: purple">
-														<i class="fa fa-edit" aria-hidden="true"></i>
-													</a>
-													<label class="text-center" style="color:white">'.ucwords($au['area']->getName()).'</label>
-												</div></h2><p class="panel-subtitle text-center">'.ucwords($kind).'</p></header>');
-						        echo ('<div class="panel-body">');
-						        echo ('<div class="btn-group-vertical col-md-12">');
-						        foreach ($au['unidades'] as $unidad){
-										echo(	'<div class="btn btn-default btn-group-horizontal text-center">
-													<a class="btn modal-with-form insert" id="'.ucwords($au['area']->getName()).': '.ucwords($unidad->getName()).'" title='.$unidad->getId().' href="#modalForm" style="color: green">
-														<i class="licon-plus" aria-hidden="true"></i>
-													</a>
-													<a class="btn modal-with-form modify" id="'.ucwords($au['area']->getName()).': '.ucwords($unidad->getName()).'" title='.$unidad->getId().' href="#deleteMetrica" style="color: purple">
-														<i class="fa fa-edit" aria-hidden="true"></i>
-													</a>
-													<label class="text-center">'.ucwords($unidad->getName()).'</label>
-												</div>');
-						        }
-
-						        echo ('</div></div></section></div>');
-						        $counter++;
-						    }
-						    ?>
+			        $c = 0;
+			        foreach ($departments as $dpto){
+			            $c++;
+			            $counter = 0;
+			            $kind = $dpto['type']['name'];
+			            $color = $dpto['type']['color'];
+			            if($c==count($departments))
+			              echo('<section class="panel panel-transparent">');
+			            else
+			              echo('<section class="panel panel-transparent Areas">');
+			            ?>
+			            <h2 style="text-align:center;"><?php echo(ucwords($kind))?></h2>
+			            <hr>
+			            
+			            <header class="panel-heading" style="padding-left: 15px; padding-right: 15px;">
+			              <div class="row">
+			                 <div style="background-color:#08C" class="panel-body">
+			                     <h2 class="panel-title">
+			                         <div class="btn-group-horizontal text-center">
+							             <a style="color: green" href="#modalForm" class="btn modal-with-form insert" id="DCC" title="<?php echo($dpto['department']->getId())?>">
+											<i aria-hidden="true" class="licon-plus"></i>
+										</a>
+										<a style="color: purple" href="#deleteMetrica" class="btn modal-with-form modify" id="DCC" title="<?php echo($dpto['department']->getId())?>">
+								            <i aria-hidden="true" class="fa fa-edit"></i>
+										</a>
+										<label style="color:white" class="text-center">DCC</label>
+									 </div>
+								 </h2>
+							 </div>
+						  </div>
+					    </header>
+			   
+					    <div class="panel-body">
+			            <?php 
+			            foreach ($dpto['areas'] as $area){
+				            if ($counter % 2 == 0 && $counter!=0)
+				                echo ('</div>');
+				            if ($counter % 2 == 0)
+				                echo ('<div class ="row">');
+				            ?>												         							    
+				            <div class="col-md-6">
+				              <section class="panel panel-info">
+				                  <header class="panel-heading" style="background-color: <?php echo($color);?>">
+				                      <h2 class="panel-title">
+					                      <div class="btn-group-horizontal text-center">
+                                              <a style="color: green" href="#modalForm" title="<?php echo(ucwords($area['area']->getId()));?>" id="<?php echo(ucwords($area['area']->getName()));?>" class="btn modal-with-form insert">
+									            <i aria-hidden="true" class="licon-plus"></i>
+    									      </a>
+    										  <a style="color: purple" href="#deleteMetrica" title="<?php echo(ucwords($area['area']->getId()));?>" id="<?php echo(ucwords($area['area']->getName()));?>" class="btn modal-with-form modify">
+										  	    <i aria-hidden="true" class="fa fa-edit"></i>
+    										  </a>
+					                          <label class="text-center" style="color:white"><?php echo(ucwords($area['area']->getName()));?></label>
+					                      </div>
+				                      </h2>
+			                      </header>
+				                  <div class="panel-body">
+				                      <div class="btn-group-vertical col-md-12">
+				            <?php
+				            foreach ($area['unidades'] as $unidad){
+				                ?>
+						                <div class="btn btn-default btn-group-horizontal text-center">
+						                  <a style="color: green" href="#modalForm" title="<?php echo(ucwords($unidad->getId()));?>" id="<?php echo(ucwords($area['area']->getName()));?>: <?php echo(ucwords($unidad->getName()));?>" class="btn modal-with-form insert">
+											<i aria-hidden="true" class="licon-plus"></i>
+										  </a>
+										  <a style="color: purple" href="#deleteMetrica" title="<?php echo(ucwords($unidad->getId()));?>" id="<?php echo(ucwords($area['area']->getName()));?>: <?php echo(ucwords($unidad->getName()));?>" class="btn modal-with-form modify">
+											<i aria-hidden="true" class="fa fa-edit"></i>
+										  </a>
+						                  <label class="text-center"><?php echo(ucwords($unidad->getName()));?></label>
+					                    </div>
+				            <?php
+				            }    						            
+				            ?>
+				                      </div>
+			                      </div>
+		                      </section>
+	                        </div>
+				            <?php
+				            $counter++;
+				            if($counter==count($dpto['areas'])){
+				                echo ('</div>');
+				            }   						                
+			            }
+			            echo ('</div>');
+			        }
+				    ?>
 
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
 									<?php echo form_open('MySession/agregarMetrica', array('onsubmit' => "return checkInput();"));?>

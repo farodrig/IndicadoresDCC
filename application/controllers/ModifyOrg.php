@@ -22,13 +22,6 @@ class ModifyOrg extends CI_Controller{
 	    if (is_null($val))
 	       $val = 2;
 	    
-	    $areaunit = array();
-	    $areas = $this->Organization_model->getAllAreas();
-	    foreach ($areas as $area){
-	        array_push($areaunit, array('area' => $area,
-	                                    'unidades' => $this->Organization_model->getAllUnidades($area->getId()))
-	                   );
-	    }
 	    $this->load->view('configurar-areas-unidades',
 	                       array('title'=>'Configuración de Areas y Unidades',
 	                             'name' => 'Juan Jones',

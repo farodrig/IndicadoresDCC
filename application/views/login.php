@@ -18,8 +18,16 @@
 						<h2 class="title text-uppercase text-bold m-none"><i class="fa fa-user mr-xs"></i> Login</h2>
 					</div>
 					<div class="panel-body text-center">
-						<a href="<?php echo base_url();?>inicio" class="btn btn-default"> U-Pasaporte </a>
+					   <?php echo form_open('');
+					         echo form_dropdown('user', $users);
+					         echo form_submit('submit', 'Ingresar');
+					         echo form_close();
+					   ?>
 					</div>
+					<div class="panel-body text-center">
+					    <script language="JavaScript" src="https://www.u-cursos.cl/upasaporte/javascript?servicio=dashboard_dcc&debug=1"></script>
+					</div>
+					
 				</div>
 			</div>
 		</section>
