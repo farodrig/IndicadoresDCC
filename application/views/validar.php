@@ -90,7 +90,7 @@
 											<td>Esperado anterior</td>
 											<td>Meta anterior</td>
 											<td>Validar</td>
-											
+
 										</tr>
 									</thead>
 									<tbody> <!-- no se que pasa aqui -->
@@ -108,9 +108,16 @@
 											<td> <?php  echo strcmp($row->value, $row->o_v)==0 ? $row->value : "<b>".$row->value."</b>" ?> </td>
 											<td> <?php  echo strcmp($row->target, $row->o_t)==0 ? $row->target : "<b>".$row->target."</b>" ?> </td>
 											<td> <?php  echo strcmp($row->expected, $row->o_e)==0 ? $row->expected : "<b>".$row->expected."</b>" ?> </td>
-											<td> <?php echo $row->o_v ?> </td>
-											<td> <?php echo $row->o_t ?> </td>
-											<td> <?php echo $row->o_e ?> </td>
+											<?php if($row->modified){ ?>
+												<td> <?php echo $row->o_v ?> </td>
+												<td> <?php echo $row->o_t ?> </td>
+												<td> <?php echo $row->o_e ?> </td>
+										   <?php	}
+											else{ ?>
+												<td> - </td>
+												<td> - </td>
+												<td> - </td>
+											<?php } ?>
 											<td>
 												<input id="for-website" value=<?php  echo $row->data_id?> type="checkbox" name=<?php  echo "check". $row->data_id?> />
 											</td>

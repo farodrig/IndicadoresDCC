@@ -14,6 +14,7 @@ class Dashboard_model extends CI_Model
           return false;
     }
     function getValidate($id_metorg){
+        $this->load->library('session');
         if($id_metorg==-1){
             $query = "SELECT * FROM Measure AS m WHERE m.state=0";
             $q = $this->db->query($query);
@@ -23,8 +24,20 @@ class Dashboard_model extends CI_Model
                 return false;
         }
         else{
+            $encargado_unidad = $this->session->userdata('encargado_unidad');
+            $encargado_finanzas_unidad = $this->session->userdata("encargado_finanzas_unidad");
+            if(!in_array(-1, $encargado_unidad) && !in_array(-1, $encargado_finanzas_unidad)){
+              $text = "";
+            }
+            elseif (!in_array(-1,$encargado_unidad)) {
+              $text = " AND met.category = 1";
+            }
+            else{
+              $text = " AND met.category = 2";
+            }
             foreach ($id_metorg as $id) {
-                $query="SELECT * FROM Measure AS m, MetOrg AS mo WHERE m.state=0 AND mo.id=m.metorg AND mo.org=".$id;
+                $query="SELECT * FROM Measure AS m, MetOrg AS mo, Metric AS met
+                        WHERE m.state=0 AND met.id=mo.metric AND mo.id=m.metorg AND mo.org=".$id.$text;
                 $q = $this->db->query($query);
                 if($q->num_rows() > 0)
                     return true;
@@ -243,30 +256,38 @@ class Dashboard_model extends CI_Model
 	}
 
 	function validateData($id){
+    $this->load->library('session');
 		$query = $this->db->get_where('Measure',array('id' => $id));
 		$measure = $query->row();
 		$data = array(
 		               'state' => 1,
 					   'old_value'=> $measure->value,
 					   'old_target'=> $measure->target,
-					   'old_expected'=> $measure->expected
+					   'old_expected'=> $measure->expected,
+             'validator' => $this->session->userdata('user'),
+             'modified' => 0
 		            );
 		$this->db->where('id', $id);
+    $this->db->set('dateval', 'NOW()', FALSE);
 		$q=$this->db->update('Measure',$data);
 		$this->_overrrideData($id);
 		return $q;
 	}
 
 	function rejectData($id){
+    $this->load->library('session');
 		$query = $this->db->get_where('Measure',array('id' => $id));
 		$measure = $query->row();
 		$data = array(
 		               'state' => 1,
 					   'value'=> $measure->old_value,
 					   'target'=> $measure->old_target,
-					   'expected'=> $measure->old_expected
+					   'expected'=> $measure->old_expected,
+             'validator' => $this->session->userdata('user'),
+             'modified' => 0
 		            );
 		$this->db->where('id', $id);
+    $this->db->set('dateval', 'NOW()', FALSE);
 		$q=$this->db->update('Measure',$data);
 		$this->_overrrideData($id);
 		return $q;
@@ -274,14 +295,19 @@ class Dashboard_model extends CI_Model
 
 	function checkIfValidate($id){
 		$q = $this->db->get_where('Measure',array('id' => $id));
-		$newData = $q->row();
-		$q =  $this->db->get_where('Measure',array('id'=> $id,'state' =>1));
-		if($q->num_rows()>0){
-			return TRUE;
+    if($q->num_rows()>0){
+      $q =  $this->db->get_where('Measure',array('id'=> $id,'state' =>1));
+  		if($q->num_rows()>0){
+  			return TRUE;
+  		}
+  		else {
+  			return FALSE;
+  		}
 		}
 		else {
-			return FALSE;
+			return TRUE;
 		}
+
 	}
 
 	function _overrrideData($id){
@@ -297,7 +323,7 @@ class Dashboard_model extends CI_Model
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year, m.modified AS mod
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user AND mo.org =?" ;
@@ -328,7 +354,7 @@ class Dashboard_model extends CI_Model
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user  AND c.id= $type  AND mo.org =?";
@@ -361,7 +387,7 @@ class Dashboard_model extends CI_Model
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user";
