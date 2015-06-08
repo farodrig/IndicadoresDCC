@@ -205,11 +205,6 @@ class MySession extends CI_Controller {
 						$success =1;
 					}
 					else{
-						foreach($data as $data_id){
-							if($this->Dashboard_model->checkIfValidate($data_id)){
-								$this->Dashboard_model->deleteData($data_id);
-							}
-						}
 						$success =0;
 					}
 			}
@@ -225,11 +220,6 @@ class MySession extends CI_Controller {
 						$success =1;
 					}
 					else{
-						foreach($data as $data_id){
-							if($this->Dashboard_model->checkIfValidate($data_id)){
-								$this->Dashboard_model->deleteData($data_id);
-							}
-						}
 						$success =0;
 					}
 			}
