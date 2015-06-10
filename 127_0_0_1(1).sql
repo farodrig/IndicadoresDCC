@@ -66,20 +66,20 @@ INSERT INTO `Dashboard` (`id`, `org`, `title`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `Graphdash`
+-- Estructura de tabla para la tabla `GraphDash`
 --
 
-CREATE TABLE IF NOT EXISTS `Graphdash` (
+CREATE TABLE IF NOT EXISTS `GraphDash` (
   `id` int(11) NOT NULL,
   `dashboard` int(11) NOT NULL,
   `graphic` int(11) NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
--- Volcado de datos para la tabla `Graphdash`
+-- Volcado de datos para la tabla `GraphDash`
 --
 
-INSERT INTO `Graphdash` (`id`, `dashboard`, `graphic`) VALUES
+INSERT INTO `GraphDash` (`id`, `dashboard`, `graphic`) VALUES
 (1, 1, 1),
 (2, 1, 2),
 (5, 1, 11),
@@ -144,19 +144,19 @@ INSERT INTO `Graphic` (`id`, `type`, `metorg`, `min_year`, `max_year`, `position
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `Graphtype`
+-- Estructura de tabla para la tabla `GraphType`
 --
 
-CREATE TABLE IF NOT EXISTS `Graphtype` (
+CREATE TABLE IF NOT EXISTS `GraphType` (
   `id` int(11) NOT NULL,
   `description` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
--- Volcado de datos para la tabla `Graphtype`
+-- Volcado de datos para la tabla `GraphType`
 --
 
-INSERT INTO `Graphtype` (`id`, `description`) VALUES
+INSERT INTO `GraphType` (`id`, `description`) VALUES
 (1, 'Barra'),
 (2, 'Linea');
 
@@ -439,9 +439,9 @@ ALTER TABLE `Dashboard`
   ADD KEY `fk_Dashboards_Tree-org1_idx` (`org`);
 
 --
--- Indices de la tabla `Graphdash`
+-- Indices de la tabla `GraphDash`
 --
-ALTER TABLE `Graphdash`
+ALTER TABLE `GraphDash`
   ADD PRIMARY KEY (`id`,`dashboard`,`graphic`),
   ADD KEY `fk_graficoDashboard_Dashboards1_idx` (`dashboard`),
   ADD KEY `fk_graficoDashboard_graficos1_idx` (`graphic`);
@@ -455,9 +455,9 @@ ALTER TABLE `Graphic`
   ADD KEY `fk_graficos_Metric-org1_idx` (`metorg`);
 
 --
--- Indices de la tabla `Graphtype`
+-- Indices de la tabla `GraphType`
 --
-ALTER TABLE `Graphtype`
+ALTER TABLE `GraphType`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -537,9 +537,9 @@ ALTER TABLE `Category`
 ALTER TABLE `Dashboard`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=12;
 --
--- AUTO_INCREMENT de la tabla `Graphdash`
+-- AUTO_INCREMENT de la tabla `GraphDash`
 --
-ALTER TABLE `Graphdash`
+ALTER TABLE `GraphDash`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=24;
 --
 -- AUTO_INCREMENT de la tabla `Graphic`
@@ -547,9 +547,9 @@ ALTER TABLE `Graphdash`
 ALTER TABLE `Graphic`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=30;
 --
--- AUTO_INCREMENT de la tabla `Graphtype`
+-- AUTO_INCREMENT de la tabla `GraphType`
 --
-ALTER TABLE `Graphtype`
+ALTER TABLE `GraphType`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT de la tabla `Measure`
@@ -587,9 +587,9 @@ ALTER TABLE `Dashboard`
   ADD CONSTRAINT `fk_dash_org_id` FOREIGN KEY (`org`) REFERENCES `Organization` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `Graphdash`
+-- Filtros para la tabla `GraphDash`
 --
-ALTER TABLE `Graphdash`
+ALTER TABLE `GraphDash`
   ADD CONSTRAINT `fk_graficoDashboard_Dashboards1` FOREIGN KEY (`dashboard`) REFERENCES `Dashboard` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_graficoDashboard_graficos1` FOREIGN KEY (`graphic`) REFERENCES `Graphic` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -598,7 +598,7 @@ ALTER TABLE `Graphdash`
 --
 ALTER TABLE `Graphic`
   ADD CONSTRAINT `fk_graficos_Metric-org1` FOREIGN KEY (`metorg`) REFERENCES `MetOrg` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_graficos_graficos-tipos1` FOREIGN KEY (`type`) REFERENCES `Graphtype` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_graficos_graficos-tipos1` FOREIGN KEY (`type`) REFERENCES `GraphType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `Measure`
