@@ -11,7 +11,7 @@ class MySession extends CI_Controller {
 	    $result['users'] = $this->User_model->getAllUsers();
 	    if($this->input->method()=="post"){
 	        $rut = $this->input->post('user');
-	        $name = $result[$rut];
+	        $name = $result['users'][$rut];
     	    $this->session->set_userdata('rut', $rut);
     	    $this->session->set_userdata('name', $name);
 	        redirect('inicio');
@@ -23,7 +23,6 @@ class MySession extends CI_Controller {
 	    session_id( $_GET[ session_name() ] );
 	    session_start();
 	    $data = $_SESSION;
-	    print_r($_SESSION);
 	    session_destroy();
 	    //Aqui se debe agregar las variables de sesion que seran consultadas a futuro en la aplicacion.
 	    $this->load->library('session');
@@ -74,7 +73,6 @@ class MySession extends CI_Controller {
     	$this->load->model('Dashboard_model');
     	$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
-
     	$permits_array = array('user' => $user,
     							'director' => $permits->getDirector(),
     							'visualizador' => $permits->getVisualizador(),
@@ -84,44 +82,44 @@ class MySession extends CI_Controller {
     							'encargado_unidad' => $permits->getEncargadoUnidad(),
     							'asistente_dcc' => $permits->getAsistenteDCC());
 
-			$title = $this->getTitle($permits_array);
-			$permits_array['title'] = $title;
+		$title = $this->getTitle($permits_array);    
+		$permits_array['title'] = $title;
 
     	$this->session->set_userdata($permits_array);
 
-      $this->load->model('Organization_model');
-      $type = $this->input->get('sector');
-			$department = $this->Organization_model->getDepartment();
-			$areaunit = $this->showAreaUnit();
-			if(is_null($type)){
-				$type="Operación";
-				$name=$type;
-				$aus = $areaunit;
-		    $areaunit = array();
-    		foreach ($aus as $au){
-    		    if ($au['area']->getType()==2)
-    		        array_push($areaunit, $au);
-    		}
-			}
-			else{
-				$name = $type;
-		    $type = $this->Organization_model->getTypeByName($type);
-    		$aus = $areaunit;
-		    $areaunit = array();
-    		foreach ($aus as $au){
-    		    if ($au['area']->getType()==$type['id'])
-    		        array_push($areaunit, $au);
-    		}
-			}
-			$types = $this->Organization_model->getTypes();
-			$result = array('department'=> $department,
-							'areaunit'=>$areaunit,
-							'types'=>$types,
-							'name' => $name,
-							'user' => $user,
-							'validate' => $this->validation($permits_array),
-							'role' => $title);
-			$this->load->view('index', $result);
+        $this->load->model('Organization_model');
+        $type = $this->input->get('sector');
+		$department = $this->Organization_model->getDepartment();
+		$areaunit = $this->showAreaUnit();
+		if(is_null($type)){
+			$type="Operación";
+			$name=$type;
+			$aus = $areaunit;
+	    $areaunit = array();
+		foreach ($aus as $au){
+		    if ($au['area']->getType()==2)
+		        array_push($areaunit, $au);
+		}
+		}
+		else{
+			$name = $type;
+	    $type = $this->Organization_model->getTypeByName($type);
+		$aus = $areaunit;
+	    $areaunit = array();
+		foreach ($aus as $au){
+		    if ($au['area']->getType()==$type['id'])
+		        array_push($areaunit, $au);
+		}
+		}
+		$types = $this->Organization_model->getTypes();
+		$result = array('department'=> $department,
+						'areaunit'=>$areaunit,
+						'types'=>$types,
+						'name' => $name,
+						'user' => $user,
+						'validate' => $this->validation($permits_array),
+						'role' => $title);
+		$this->load->view('index', $result);
 	}
 
 
