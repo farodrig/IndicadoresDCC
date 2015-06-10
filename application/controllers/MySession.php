@@ -15,7 +15,7 @@ class MySession extends CI_Controller {
     	    $this->session->set_userdata('rut', $rut);
     	    $this->session->set_userdata('name', $name);
 	        redirect('inicio');
-	    }	    
+	    }
 		$this->load->view('login', $result);
 	}
 
@@ -68,12 +68,11 @@ class MySession extends CI_Controller {
 	}
 
     public function inicio(){
-        
     	$this->load->library('session');
     	$user = $this->session->rut;
         if(is_null($user))
             redirect('');
-    	
+
     	$this->load->model('Dashboard_model');
     	$this->load->model('Permits_model');
     	$permits = $this->Permits_model->getAllPermits($user);
