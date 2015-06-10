@@ -26,10 +26,9 @@ if( ! $result ) exit( '-1' );
 // Ej:
 
 session_start();
-$_SESSION = array(
-	'rut'				=> $_POST['rut'],
-	'nombre_completo'	=> $_POST['nombre_completo'],
-	'valido'			=> TRUE,
+$_SESSION = array('rut' => $_POST['rut'].'-'.$_POST['dv'],
+                  'nombre_completo' => $_POST['nombre1']." ".$_POST['nombre2']." ".$_POST['apellido_paterno']." ".$_POST['apellido_materno'],
+                  'valido' => TRUE,
 );
 
 $paths = explode("/", $_SERVER['REQUEST_URI']);

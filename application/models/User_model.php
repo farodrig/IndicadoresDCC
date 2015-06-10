@@ -9,4 +9,13 @@ class User_model extends CI_Model{
         }
         return $result;
     }
+    
+    function getUserById($id){
+        $this->db->where(array('id'=>$id));
+        $query = $this->db->get('User');
+        if ($query->num_rows() == 1){
+            return $query->result_array()[0];
+        }
+        return false;
+    }
 }

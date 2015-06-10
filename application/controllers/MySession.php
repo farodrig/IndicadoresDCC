@@ -23,19 +23,17 @@ class MySession extends CI_Controller {
 	    session_id( $_GET[ session_name() ] );
 	    session_start();
 	    $data = $_SESSION;
+	    print_r($_SESSION);
 	    session_destroy();
+	    //Aqui se debe agregar las variables de sesion que seran consultadas a futuro en la aplicacion.
 	    $this->load->library('session');
 	    $this->session->set_userdata('rut', $data['rut']);
 	    $this->session->set_userdata('name', $data['nombre_completo']);
-	    $this->load->model('Permits_model');
-	    $permits = $this->Permits_model->getAllPermits($data['rut']);
-	    /* if(!$permits){
-	        redirect('salir');
-	    } */
-	    echo('<pre>Funciona!!<br>');
-	    echo('Información:<br>');
-	    print_r($_SERVER);
-	    print_r($this->session->all_userdata());
+	    //Aqui se debiesen hacer validaciones para que el usuario pueda ingresar a la aplicación
+	    $this->load->model('User_model');
+	    if(!$this->User_model->getUserById($data['rut']))
+	        redirect('logout');
+	    redirect('inicio');
 	}
 
 	public function logout(){
@@ -71,7 +69,7 @@ class MySession extends CI_Controller {
     	$this->load->library('session');
     	$user = $this->session->rut;
         if(is_null($user))
-            redirect('');
+            redirect('logout');
 
     	$this->load->model('Dashboard_model');
     	$this->load->model('Permits_model');
