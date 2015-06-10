@@ -32,7 +32,7 @@ class MySession extends CI_Controller {
 	    //Aqui se debiesen hacer validaciones para que el usuario pueda ingresar a la aplicación
 	    $this->load->model('User_model');
 	    if(!$this->User_model->getUserById($data['rut']))
-	        redirect('logout');
+	        redirect('salir');
 	    redirect('inicio');
 	}
 
@@ -69,7 +69,7 @@ class MySession extends CI_Controller {
     	$this->load->library('session');
     	$user = $this->session->rut;
         if(is_null($user))
-            redirect('logout');
+            redirect('salir');
 
     	$this->load->model('Dashboard_model');
     	$this->load->model('Permits_model');
