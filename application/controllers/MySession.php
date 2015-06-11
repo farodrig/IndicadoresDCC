@@ -82,7 +82,7 @@ class MySession extends CI_Controller {
     							'encargado_unidad' => $permits->getEncargadoUnidad(),
     							'asistente_dcc' => $permits->getAsistenteDCC());
 
-		$title = $this->getTitle($permits_array);    
+		$title = $this->getTitle($permits_array);
 		$permits_array['title'] = $title;
 
     	$this->session->set_userdata($permits_array);
@@ -283,9 +283,9 @@ class MySession extends CI_Controller {
 		$this->load->library('session');
 		$this->load->model('Unit_model');
 		$this->load->library('form_validation');
-	    $this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required|callback_alphaSpace');
+	    $this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required|alphaSpace');
 	    $this->form_validation->set_rules('category', 'Category', 'required|numeric');
-	    $this->form_validation->set_rules('name', 'Name', 'required|callback_alphaSpace');
+	    $this->form_validation->set_rules('name', 'Name', 'required|alphaSpace');
 	    $this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
 
 	    if(!$this->form_validation->run()){
@@ -328,9 +328,9 @@ class MySession extends CI_Controller {
 		$this->load->library('session');
 
 		if($this->input->post('modificar')){
-			$this->form_validation->set_rules('unidad', 'UnidadMedida', 'required|callback_alphaSpace');
+			$this->form_validation->set_rules('unidad', 'UnidadMedida', 'required|alphaSpace');
 	    	$this->form_validation->set_rules('tipo', 'Type', 'required|numeric');
-	    	$this->form_validation->set_rules('metrica', 'Metric', 'required|callback_alphaSpace');
+	    	$this->form_validation->set_rules('metrica', 'Metric', 'required|alphaSpace');
 	    	$this->form_validation->set_rules('id', 'Id', 'required|numeric');
 
 	    	if(!$this->form_validation->run()){

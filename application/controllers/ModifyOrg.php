@@ -10,18 +10,18 @@ class ModifyOrg extends CI_Controller{
         $this->load->model('Dashboard_model');
 	    $this->load->library('session');
 	    $this->load->library('parser');
-	    
+
 		$user = $this->session->userdata("user");
     	$permits = array('director' => $this->session->userdata("director"));
-    	
+
     	if(!$permits['director']){
     		redirect('inicio');
     	}
-    	
+
 	    $val = $this->session->flashdata('success');
 	    if (is_null($val))
 	       $val = 2;
-	    
+
 	    $this->load->view('configurar-areas-unidades',
 	                       array('title'=>'Configuración de Areas y Unidades',
 	                             'name' => 'Juan Jones',
@@ -60,7 +60,7 @@ class ModifyOrg extends CI_Controller{
 	    $this->load->library('form_validation');
 	    $this->form_validation->set_rules('area', 'Area', 'trim|required|alphaSpace');
 	    $this->form_validation->set_rules('name', 'Name', 'trim|required|alphaSpace');
-        
+
 	    if(!$this->form_validation->run()){
 			$this->setRedirect('careaunidad', array('name'=>'success', 'value'=>-1));
 		}
