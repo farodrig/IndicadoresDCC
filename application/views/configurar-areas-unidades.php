@@ -185,7 +185,7 @@
     						                echo ('</div>');
     						            if ($counter % 2 == 0)
     						                echo ('<div class ="row">');
-    						            ?>    						            							    
+    						            ?>
     						            <div class="col-md-6">
     						              <section class="panel panel-info">
     						                  <header class="panel-heading" style="background-color: <?php echo($color);?>">
@@ -206,7 +206,7 @@
             						                  <label class="text-center"><?php echo(ucwords($unidad->getName()));?></label>
         						                    </div>
     						            <?php
-    						            }    						            
+    						            }
     						            ?>
     						                        <a class="btn modal-with-form" href="#agregarUnidad" onclick = "addUnidad('<?php echo(ucwords($area['area']->getName()));?>')" style="color: green"><i class="licon-plus"></i></a>
     						                      </div>
@@ -217,7 +217,7 @@
     						            $counter++;
     						            if($counter==count($dpto['areas'])){
     						                echo ('</div>');
-    						            }    						                
+    						            }
 						            }
 						            ?>
 						            <div class="row text-center">
@@ -226,11 +226,11 @@
 						              </a>
 						            </div>
 					              </section>
-						            
+
 						            <?php
 						        }
 						        ?>
-							
+
 							<div id="agregarArea" class="modal-block modal-block-primary mfp-hide">
 										<section class="panel">
 											<header class="panel-heading">
@@ -311,8 +311,8 @@
 														</ul>
                                                         <div class="alert alert-warning">
                                                             <i class="fa fa-warning"></i>
-                                                            <strong>Advertencia</strong><br>Al eliminar esta área se perderá toda la información asociada a esta.<br>
-                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.
+                                                            <strong>Advertencia</strong><br>Al eliminar esta área se perderá toda la información asociada a ésta.<br>
+                                                            Por favor tener cuidado de respaldar los datos que no quiera que se pierdan.
                                                         </div>
 													</div>
 												</div>
@@ -343,8 +343,8 @@
 														</ul>
                                                         <div class="alert alert-warning">
                                                             <i class="fa fa-warning"></i>
-                                                            <strong>Advertencia</strong><br>Al eliminar esta unidad se perderá toda la información asociada a esta.<br>
-                                                            Por favor tener cuidado de respaldar los datos que no quiera que sea pierdan.
+                                                            <strong>Advertencia</strong><br>Al eliminar esta unidad se perderá toda la información asociada a ésta.<br>
+                                                            Por favor tener cuidado de respaldar los datos que no quiera que se pierdan.
                                                         </div>
 													</div>
 												</div>
