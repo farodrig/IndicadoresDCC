@@ -26,8 +26,22 @@ class MySession extends CI_Controller {
 	    session_destroy();
 	    //Aqui se debe agregar las variables de sesion que seran consultadas a futuro en la aplicacion.
 	    $this->load->library('session');
+			$this->load->model('Permits_model');
 	    $this->session->set_userdata('rut', $data['rut']);
 	    $this->session->set_userdata('name', $data['nombre_completo']);
+			$permits = $this->Permits_model->getAllPermits($data['rut']);
+    	$permits_array = array('user' => $user,
+    							'director' => $permits->getDirector(),
+    							'visualizador' => $permits->getVisualizador(),
+    							'asistente_unidad' => $permits->getAsistenteUnidad(),
+    							'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
+    							'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
+    							'encargado_unidad' => $permits->getEncargadoUnidad(),
+    							'asistente_dcc' => $permits->getAsistenteDCC());
+		$title = $this->getTitle($permits_array);
+		$permits_array['title'] = $title;
+
+    	$this->session->set_userdata($permits_array);
 	    //Aqui se debiesen hacer validaciones para que el usuario pueda ingresar a la aplicación
 	    $this->load->model('User_model');
 	    if(!$this->User_model->getUserById($data['rut']))
@@ -71,36 +85,28 @@ class MySession extends CI_Controller {
             redirect('salir');
 
     	$this->load->model('Dashboard_model');
-    	$this->load->model('Permits_model');
-    	$permits = $this->Permits_model->getAllPermits($user);
-    	$permits_array = array('user' => $user,
-    							'director' => $permits->getDirector(),
-    							'visualizador' => $permits->getVisualizador(),
-    							'asistente_unidad' => $permits->getAsistenteUnidad(),
-    							'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
-    							'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
-    							'encargado_unidad' => $permits->getEncargadoUnidad(),
-    							'asistente_dcc' => $permits->getAsistenteDCC());
-
-		$title = $this->getTitle($permits_array);
-		$permits_array['title'] = $title;
-
-    	$this->session->set_userdata($permits_array);
-
-        $this->load->model('Organization_model');
-        $type = $this->input->get('sector');
-		$department = $this->Organization_model->getDepartment();
-		$areaunit = $this->showAreaUnit();
-		if(is_null($type)){
-			$type="Operación";
-			$name=$type;
-			$aus = $areaunit;
-	    $areaunit = array();
-		foreach ($aus as $au){
-		    if ($au['area']->getType()==2)
-		        array_push($areaunit, $au);
-		}
-		}
+      $this->load->model('Organization_model');
+			$permits = array('director' => $this->session->userdata("director"),
+    						'visualizador' => $this->session->userdata("visualizador"),
+    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
+    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
+								'encargado_finanzas_unidad' => $this->session->userdata("encargado_finanzas_unidad"),
+    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
+    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
+								'title' =>$this->session->userdata("title"));
+      $type = $this->input->get('sector');
+			$department = $this->Organization_model->getDepartment();
+			$areaunit = $this->showAreaUnit();
+			if(is_null($type)){
+				$type="Operación";
+				$name=$type;
+				$aus = $areaunit;
+	    	$areaunit = array();
+				foreach ($aus as $au){
+		    	if ($au['area']->getType()==2)
+		        	array_push($areaunit, $au);
+						}
+					}
 		else{
 			$name = $type;
 	    $type = $this->Organization_model->getTypeByName($type);
@@ -117,8 +123,8 @@ class MySession extends CI_Controller {
 						'types'=>$types,
 						'name' => $name,
 						'user' => $user,
-						'validate' => $this->validation($permits_array),
-						'role' => $title);
+						'validate' => validation($permits, $this->Dashboard_model),
+						'role' => $permits['title']);
 		$this->load->view('index', $result);
 	}
 
@@ -177,16 +183,16 @@ class MySession extends CI_Controller {
 		//$this->load->view('validar', $data);
 
 		if($this->session->userdata("director")==1 ){
-    	$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
+    	$this->load->view('validar', array('success'=> $success,'validate' => validation($permits, $this->Dashboard_model), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getAllnonValidateData()));
 		}
 		elseif(!in_array('-1',$this->session->userdata('encargado_unidad')) && !in_array('-1',$this->session->userdata('encargado_finanzas_unidad')) ){
-			$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
+			$this->load->view('validar', array('success'=> $success,'validate' => validation($permits, $this->Dashboard_model), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnit($this->session->userdata('encargado_unidad'))));
 		}
 		elseif(!in_array('-1',$this->session->userdata('encargado_unidad'))){
-			$this->load->view('validar', array('success'=> $success,'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_unidad'), 1)));
+			$this->load->view('validar', array('success'=> $success,'validate' => validation($permits, $this->Dashboard_model), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_unidad'), 1)));
 		}
 		elseif(!in_array('-1',$this->session->userdata('encargado_finanzas_unidad'))){
-			$this->load->view('validar', array('success'=> $success, 'validate' => $this->validation($permits), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_finanzas_unidad'), 2)));
+			$this->load->view('validar', array('success'=> $success, 'validate' => validation($permits, $this->Dashboard_model), 'role' => $this->session->userdata("title"),'data' => $this->Dashboard_model->getnonValidatebyUnitByType($this->session->userdata('encargado_finanzas_unidad'), 2)));
 		}
 
 	}
@@ -243,7 +249,7 @@ class MySession extends CI_Controller {
 	public function menuConfigurar()
 	{
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$this->load->model('Dashboard_model');
     	$permits = array('director' => $this->session->userdata("director"),
 								'title' =>$this->session->userdata("title"));
 
@@ -251,15 +257,15 @@ class MySession extends CI_Controller {
     		redirect('inicio');
     	}
 
-	    $this->load->view('menu-configurar', array('validate' => $this->validation($permits),
+	    $this->load->view('menu-configurar', array('validate' => validation($permits, $this->Dashboard_model),
 																									'role' => $permits['title']));
 	}
 
 	public function configurarMetricas()
 	{
 	    $this->load->model('Organization_model');
-		$this->load->library('session');
-		$user = $this->session->userdata("user");
+			$this->load->model('Dashboard_model');
+			$this->load->library('session');
     	$permits = array('director' => $this->session->userdata("director"),
 								'title' =>$this->session->userdata("title"));
 
@@ -276,7 +282,7 @@ class MySession extends CI_Controller {
 														'metrics'=>$metrics,
 														'success' => $success,
 														'role' => $permits['title'],
-														'validate' => $this->validation($permits)));
+														'validate' => validation($permits, $this->Dashboard_model)));
 	}
 
 	public function agregarMetrica(){
@@ -393,19 +399,6 @@ class MySession extends CI_Controller {
 		return $title;
 
 	}
-
-	private function validation($permits_array){
-		$this->load->model('Dashboard_model');
-    if($permits_array['director'])
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
-    elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_finanzas_unidad']);
-    return  false;
-  }
 
 }
 ?>

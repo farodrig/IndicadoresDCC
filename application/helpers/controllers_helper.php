@@ -27,3 +27,15 @@ function getAllOrgsByDpto($model){
     }
     return $result;
 }
+
+ function validation($permits_array, $model){
+  if($permits_array['director'])
+    return $model->getValidate(-1);
+  elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
+    return $model->getValidate(-1);
+  elseif(!in_array(-1,$permits_array['encargado_unidad']))
+      return $model->getValidate($permits_array['encargado_unidad']);
+  elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
+      return $model->getValidate($permits_array['encargado_finanzas_unidad']);
+  return  false;
+}

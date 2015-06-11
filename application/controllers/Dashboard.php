@@ -2,10 +2,13 @@
 
 class Dashboard extends CI_Controller
 {
+	private $dashboardModel;
 
 	function __construct()
 	{
 		parent::__construct();
+		$this->load->model('Dashboard_model');
+		$this->dashboardModel = $this->Dashboard_model;
 
 	}
 
@@ -14,7 +17,7 @@ class Dashboard extends CI_Controller
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	{
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
     						'visualizador' => $this->session->userdata("visualizador"),
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
@@ -96,7 +99,7 @@ class Dashboard extends CI_Controller
 
 	    $res['route'] = $route;
 	    $res['id_location'] = $id;
-			$res['validate'] = $this->validation($permits);
+			$res['validate'] = validation($permits, $this->dashboardModel);
 	    $res['success'] = $this->session->flashdata('success')==null ? 2 : $this->session->flashdata('success');
 			$res['role'] = $permits['title'];
 			$this->load->view('add-data', $res);
@@ -110,7 +113,7 @@ class Dashboard extends CI_Controller
 		if(is_null($id))
 			redirect('inicio');
 
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
     						'visualizador' => $this->session->userdata("visualizador"),
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
@@ -318,7 +321,7 @@ class Dashboard extends CI_Controller
 	function showDashboard(){
 
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
     						'visualizador' => $this->session->userdata("visualizador"),
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
@@ -356,7 +359,7 @@ class Dashboard extends CI_Controller
 	    	$dashboard_metrics=[];
 	    }
 	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
-			$result['validate'] = $this->validation($permits);
+			$result['validate'] = validation($permits, $this->dashboardModel);
 			$result['role'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 			$add_data = 0;
@@ -402,7 +405,7 @@ class Dashboard extends CI_Controller
 	function showAllDashboard(){
 
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
     						'visualizador' => $this->session->userdata("visualizador"),
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
@@ -441,7 +444,7 @@ class Dashboard extends CI_Controller
 	    }
 
 			$result= $this->auxShowDashboard($dashboard_metrics, $id);
-			$result['validate'] = $this->validation($permits);
+			$result['validate'] = validation($permits, $this->dashboardModel);
 			$result['role'] = $permits['title'];
 	    $this->session->set_flashdata('id',$id);
 			$add_data = 0;
@@ -461,18 +464,5 @@ class Dashboard extends CI_Controller
 	    	$this->load->view('dashboard-all-graphs', $result);
 
 	}
-
-	private function validation($permits_array){
-		$this->load->model('Dashboard_model');
-    if($permits_array['director'])
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
-    elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_finanzas_unidad']);
-    return  false;
-  }
 
 }

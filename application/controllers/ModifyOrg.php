@@ -1,8 +1,12 @@
 <?php
 class ModifyOrg extends CI_Controller{
 
+  private $dashboardModel;
+
     function __construct(){
         parent::__construct();
+        $this->load->model('Dashboard_model');
+    		$this->dashboardModel = $this->Dashboard_model;
     }
 
     function modifyAreaUnidad(){
@@ -11,7 +15,7 @@ class ModifyOrg extends CI_Controller{
 	    $this->load->library('session');
 	    $this->load->library('parser');
 
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"));
 
     	if(!$permits['director']){
@@ -27,7 +31,7 @@ class ModifyOrg extends CI_Controller{
 	                             'name' => 'Juan Jones',
 	                             'role' => $this->session->userdata("title"),
 	                             'success'=> $val,
-	                             'validate' => $this->validation($permits),
+	                             'validate' => validation($permits, $this->dashboardModel),
 	                             'departments' => getAllOrgsByDpto($this->Organization_model) //Notar que funcion esta en helpers
 	                       ));
 	}
@@ -83,18 +87,5 @@ class ModifyOrg extends CI_Controller{
 	    $result = $this->Organization_model->delByName($data);
 	    $this->setRedirect('careaunidad', array('name'=>'success', 'value'=>$result));
 	}
-
-  private function validation($permits_array){
-		$this->load->model('Dashboard_model');
-    if($permits_array['director'])
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
-    elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_finanzas_unidad']);
-    return  false;
-  }
 
 }

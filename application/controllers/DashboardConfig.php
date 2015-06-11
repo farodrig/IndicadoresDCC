@@ -3,18 +3,20 @@
 class DashboardConfig extends CI_Controller
 {
 
-	function __construct()
-	{
-		parent::__construct();
+	private $dashboardModel;
 
-	}
+    function __construct(){
+        parent::__construct();
+        $this->load->model('Dashboard_model');
+    		$this->dashboardModel = $this->Dashboard_model;
+    }
 
 	function configUnidad() // funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
 	                           // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	                           // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	{
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
 								'title' =>$this->session->userdata("title"));
 
@@ -68,7 +70,7 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-			$result['validate'] = $this->validation($permits);
+			$result['validate'] = validation($permits, $this->dashboardModel);
 			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard', $result);
@@ -78,7 +80,7 @@ class DashboardConfig extends CI_Controller
 	function configArea(){
 
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
 								'title' =>$this->session->userdata("title"));
 
@@ -143,7 +145,7 @@ class DashboardConfig extends CI_Controller
 	    	$result['areas'] = $all_areas;
 	    }
 
-	    $result['validate'] = $this->validation($permits);
+	    $result['validate'] = validation($permits, $this->dashboardModel);
 			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard-areas', $result);
@@ -154,7 +156,7 @@ class DashboardConfig extends CI_Controller
 	function configDCC(){
 
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
 								'title' =>$this->session->userdata("title"));
 
@@ -269,7 +271,7 @@ class DashboardConfig extends CI_Controller
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
-			$result['validate'] = $this->validation($permits);
+			$result['validate'] = validation($permits, $this->dashboardModel);
 			$result['role'] = $permits['title'];
 			$result['id_first']=$id_first;
 			$result['colors'] = array("1" => "warning", "0" => "success");
@@ -300,7 +302,7 @@ class DashboardConfig extends CI_Controller
 	function addGraph(){
 
 		$this->load->library('session');
-		$user = $this->session->userdata("user");
+		$user = $this->session->userdata("rut");
     	$permits = array('director' => $this->session->userdata("director"),
 								'title' =>$this->session->userdata("title"));
 
@@ -359,18 +361,5 @@ class DashboardConfig extends CI_Controller
 		}
 		return $colors;
 	}
-	private function validation($permits_array){
-		$this->load->model('Dashboard_model');
-    if($permits_array['director'])
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
-      return $this->Dashboard_model->getValidate(-1);
-    elseif(!in_array(-1,$permits_array['encargado_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_unidad']);
-    elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
-        return $this->Dashboard_model->getValidate($permits_array['encargado_finanzas_unidad']);
-    return  false;
-  }
-
 
 }
