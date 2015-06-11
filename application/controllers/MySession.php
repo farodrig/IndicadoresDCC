@@ -7,6 +7,7 @@ class MySession extends CI_Controller {
 	{
 	    $this->load->library('session');
 	    $this->load->model('User_model');
+			$this->load->model('Permits_model');
 	    $result = array();
 	    $result['users'] = $this->User_model->getAllUsers();
 	    if($this->input->method()=="post"){
@@ -14,6 +15,19 @@ class MySession extends CI_Controller {
 	        $name = $result['users'][$rut];
     	    $this->session->set_userdata('rut', $rut);
     	    $this->session->set_userdata('name', $name);
+					$permits = $this->Permits_model->getAllPermits($rut);
+		    	$permits_array = array(
+		    							'director' => $permits->getDirector(),
+		    							'visualizador' => $permits->getVisualizador(),
+		    							'asistente_unidad' => $permits->getAsistenteUnidad(),
+		    							'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
+		    							'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
+		    							'encargado_unidad' => $permits->getEncargadoUnidad(),
+		    							'asistente_dcc' => $permits->getAsistenteDCC());
+				$title = $this->getTitle($permits_array);
+				$permits_array['title'] = $title;
+
+		    	$this->session->set_userdata($permits_array);
 	        redirect('inicio');
 	    }
 		$this->load->view('login', $result);
@@ -30,7 +44,7 @@ class MySession extends CI_Controller {
 	    $this->session->set_userdata('rut', $data['rut']);
 	    $this->session->set_userdata('name', $data['nombre_completo']);
 			$permits = $this->Permits_model->getAllPermits($data['rut']);
-    	$permits_array = array('user' => $user,
+    	$permits_array = array(
     							'director' => $permits->getDirector(),
     							'visualizador' => $permits->getVisualizador(),
     							'asistente_unidad' => $permits->getAsistenteUnidad(),
