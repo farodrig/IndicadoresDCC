@@ -1,7 +1,7 @@
 <?php
 class Permits_model extends CI_Model
 {
-
+    //Retorna todos los roles de un usuario
     function getAllPermits($user){ //Retorna false si usuario no existe en sistema => redireccionar a login
         $query = "SELECT * FROM Permits WHERE user= ?";
 
@@ -12,6 +12,7 @@ class Permits_model extends CI_Model
             return false;
     }
 
+    //Construye los permisos
     function buildPermits($q)
     {
         $this->load->library('Permits_library');
@@ -38,6 +39,7 @@ class Permits_model extends CI_Model
         return $permits;
     }
 
+    //Permite obtner el nombre de una organizacion
     function getName($org){
       $query = "SELECT org.name AS name FROM Organization AS org WHERE org.id= ?";
       $q = $this->db->query($query, array($org));

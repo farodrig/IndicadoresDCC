@@ -61,8 +61,16 @@
 						</script>
 
 
-						<?php echo form_open("dashboardAll"); ?>
-						<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
+						<?php echo form_open("dashboard");
+						if($show_all){
+						?>
+							<input type="hidden" id="show_all" name="show_all" value="0">
+							<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
+						<?php }
+						else { ?>
+							<input type="hidden" id="show_all" name="show_all" value="1">
+							<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
+						<?php } ?>
 						<hr>
 						<?php echo form_close(); ?>
 

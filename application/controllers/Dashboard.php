@@ -43,6 +43,8 @@ class Dashboard extends CI_Controller
 	    $this->load->model('Dashboard_model');
 	    $route = $this->Dashboard_model->getRoute($id);
 
+			//Se obtienen las metricas correspondientes a los permisos del usuario, junto con las mediciones
+			//correspondientes
 	    if($permits['director'] || ((in_array($id,$permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
 			&& ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))){
 	    	$all_metrics = $this->Dashboard_model->getAllMetrics($id,0);
@@ -72,6 +74,7 @@ class Dashboard extends CI_Controller
 	    	$res['result']=[];
 	    }
 	    else{
+				//Se construye la tabla donde se podrán ingresar mediciones y actualizar valores
 	    	foreach ($all_metrics as $metrics)
 	    	{
                 $s = "<div class='row mb-md'>".
@@ -106,6 +109,7 @@ class Dashboard extends CI_Controller
 	    //debug($all_metrics, true);
 	}
 
+  //Función encargada de llamar a las funciones correspondientes del modelo, para poder actualizar valores en la base de datos
 	function addData(){
 		$this->load->library('session');
 		$id = $this->input->post("id_location");
@@ -126,6 +130,7 @@ class Dashboard extends CI_Controller
 		$metrics_id = $this->Dashboard_model->getAllMetricOrgIds($id);
 		$all_measurements = $this->Dashboard_model->getAllMeasurements($id,0);
 
+		//Se validan los datos ingresados
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('year', 'Year', 'required|exact_length[4]|numeric');
 		foreach ($metrics_id as $i){
@@ -176,6 +181,7 @@ class Dashboard extends CI_Controller
 			$target = $this->input->post('target'.$id_met);
 			$expected = $this->input->post('expected'.$id_met);
 
+			//Si no se ingresaron datos no se agregan a la base de datos
 			if($value=="" && $target=="" && $expected==""){
 				continue;
 			}
@@ -196,14 +202,18 @@ class Dashboard extends CI_Controller
 			    $q = -1;
 			}
 			if ($q == 0){
+				//Success es la flag que desplegara el mensaje de exito o fallo según corresponda
 			    $success = 0;
 			}
 		}
 		$this->session->set_flashdata('id', $id);
 		$this->session->set_flashdata('success', $success);
+		//Se redirige a la pantalla de agregar datos
 		redirect('formAgregarDato');
 	}
 
+	//Función que genera un arreglo de dos arreglos. El primero contiene todas las mediciones
+	//que se reciben en el argumento $m. Y el segundo contiene todos los años que presentan mediciones
 	function _parseMeasurements($m){
 
 		foreach ($m as $measure) {
@@ -223,6 +233,8 @@ class Dashboard extends CI_Controller
 				1 => $valid_years);
 	}
 
+	//construye tabla que va al lado de los gráficos, y además genera arreglo con los
+	//datos necesarios para graficar
 	function auxShowDashboard($dashboard_metrics,$id){
 
 		function cmpPairs($p1, $p2)
@@ -247,7 +259,7 @@ class Dashboard extends CI_Controller
 	    else{
 	    	$all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
 	    	foreach($dashboard_metrics as $metric){
-	    		$metrics[$metric->getId()]= array(
+	    		$metrics[$metric->getId()]= array( //Se obtienen datos que ocupará la librería para graficar
 	    										'id' => $metric->getId(),
 	    										'vals' => [],
 	    										'name' => "",
@@ -270,6 +282,7 @@ class Dashboard extends CI_Controller
 
 	    			$values=[];
 	    			$years=[];
+						//Tabla de datos que va al lado del gráfico
 	    			foreach ($measure['measurements'] as $m){
 	    				$s = "<tr>
 	    				  <td>".$count."</td>
@@ -318,6 +331,28 @@ class Dashboard extends CI_Controller
 	    return $result;
 	}
 
+	//Función para exportar datos de tabla al lado de los gráficos en archivo csv
+	function exportData(){
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('id_org', 'Org', 'required|numeric');
+		$this->form_validation->set_rules('id_met', 'Met', 'required|numeric');
+
+		if(!$this->form_validation->run()){
+			redirect('inicio');
+		}
+
+		$id_org = $this->input->post('id_org');
+		$id_met = $this->input->post('id_met');
+
+		$this->load->library('session');
+		$this->session->set_userdata('id_location', $id_org);
+		$this->load->model('Dashboard_model');
+		$data = $this->Dashboard_model->getAllData($id_org, $id_met);
+
+	}
+
+	//función que permite mostrar un dashboard. Se recibe el id de la organizacion correspondiente
+	// y a partir de eso se obtienen las métricas y mediciones asociadas
 	function showDashboard(){
 
 		$this->load->library('session');
@@ -339,96 +374,49 @@ class Dashboard extends CI_Controller
 		else if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
 			redirect('inicio');
 		//-------------
-
-	    $this->load->model('Dashboard_model');
-
 	    //Guardar en variables de sesion
 		$this->session->set_flashdata('id',$id);
+		$show_all = $this->input->post('show_all');
+		//Permite ver si se esta en la pantalla de mostrar todos los gráficos o no
+		if($show_all==null)
+			$show_all = 0;
 
-		if($permits['director'] || $permits['visualizador'] || ((in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
-			&& ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))){
-	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,0);
+		if($show_all){
+			$dashboard_metrics = $this->getAllDashboardMetrics($id, $permits);
 		}
-	    elseif($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])){
-	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,1);
-	    }
-	    elseif(in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad'])){
-	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,2);
-	    }
-	    else{
-	    	$dashboard_metrics=[];
-	    }
-	    $result= $this->auxShowDashboard($dashboard_metrics, $id);
-			$result['validate'] = validation($permits, $this->dashboardModel);
-			$result['role'] = $permits['title'];
-	    $this->session->set_flashdata('id',$id);
-			$add_data = 0;
-	    if($permits['director'] || in_array($id, $permits['encargado_unidad']) ||
-			 	in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) ||
-			 	$permits['asistente_dcc'] || in_array($id, $permits['encargado_finanzas_unidad'])){
-				$add_data = 1;
-	    }
-			$result['add_data'] = $add_data;
+		else {
+			$dashboard_metrics = $this->getDashboardMetrics($id, $permits);
+		}
 
-			if(!$permits['visualizador'] && !$permits['director'] && !$permits['asistente_dcc'] &&
+		$result= $this->auxShowDashboard($dashboard_metrics, $id);
+		$result['validate'] = validation($permits, $this->dashboardModel);
+		$result['show_all'] = $show_all;
+		$result['role'] = $permits['title'];
+	  $this->session->set_flashdata('id',$id);
+		$this->session->set_flashdata('show_all',$show_all);
+		$add_data = 0;
+		//Permite determinar si el usuario deberá o no ver la pestaña de agregar datos
+	  if($permits['director'] || in_array($id, $permits['encargado_unidad']) ||
+		 	in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) ||
+		 	$permits['asistente_dcc'] || in_array($id, $permits['encargado_finanzas_unidad'])){
+			$add_data = 1;
+	  }
+		$result['add_data'] = $add_data;
+		//Si no se tienen permisos para acceder a un dashboard en particular, entonces se muestra un mensaje
+		if(!$permits['visualizador'] && !$permits['director'] && !$permits['asistente_dcc'] &&
 			!in_array($id, $permits['encargado_unidad']) && !in_array($id, $permits['asistente_finanzas_unidad']) &&
 			!in_array($id, $permits['asistente_unidad']) && !in_array($id, $permits['encargado_finanzas_unidad'])){
 	    	$this->load->view('no-dashboard', $result);
-	    }
-	    else
-	    	$this->load->view('dashboard', $result);
-
-			//debug($result);
-
+	  }
+	  else
+	    $this->load->view('dashboard', $result);
 
 	}
 
-	function exportData(){
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('id_org', 'Org', 'required|numeric');
-		$this->form_validation->set_rules('id_met', 'Met', 'required|numeric');
+	//Función que permite obtener todas las métricas, asociadas a una organizacion y a los permisos de un usuario
+	private function getAllDashboardMetrics($id, $permits){
 
-		if(!$this->form_validation->run()){
-			redirect('inicio');
-		}
-
-		$id_org = $this->input->post('id_org');
-		$id_met = $this->input->post('id_met');
-
-		$this->load->library('session');
-		$this->session->set_userdata('id_location', $id_org);
 		$this->load->model('Dashboard_model');
-		$data = $this->Dashboard_model->getAllData($id_org, $id_met);
-
-	}
-
-	function showAllDashboard(){
-
-		$this->load->library('session');
-		$user = $this->session->userdata("rut");
-    	$permits = array('director' => $this->session->userdata("director"),
-    						'visualizador' => $this->session->userdata("visualizador"),
-    						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
-    						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
-    						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
-								'encargado_finanzas_unidad' => $this->session->userdata("encargado_finanzas_unidad"),
-    						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-								'title' =>$this->session->userdata("title"));
-		$id = $this->input->post("direccion"); //Se recibe por POST, es el id de área, unidad, etc que se este considerando
-
-		if($this->session->userdata('id_location')!=FALSE){
-			$id =$this->session->userdata('id_location');
-			$this->session->unset_userdata('id_location');
-		}
-		else if(is_null($id) && is_null(($id=$this->session->flashdata('id'))))
-			redirect('inicio');
-		//-------------
-
-	    $this->load->model('Dashboard_model');
-
-	    //Guardar en variables de sesion
-		$this->session->set_flashdata('id',$id);
-
 		if($permits['director'] || $permits['visualizador'] || ((in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
 			&& ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))){
 	    	$dashboard_metrics = $this->Dashboard_model->getAllDashboardMetrics($id,0);
@@ -443,26 +431,26 @@ class Dashboard extends CI_Controller
 	    	$dashboard_metrics=[];
 	    }
 
-			$result= $this->auxShowDashboard($dashboard_metrics, $id);
-			$result['validate'] = validation($permits, $this->dashboardModel);
-			$result['role'] = $permits['title'];
-	    $this->session->set_flashdata('id',$id);
-			$add_data = 0;
-	    if($permits['director'] || in_array($id, $permits['encargado_unidad']) ||
-			 	in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) ||
-			 	$permits['asistente_dcc'] || in_array($id, $permits['encargado_finanzas_unidad'])){
-				$add_data = 1;
-	    }
-			$result['add_data'] = $add_data;
-
-			if(!$permits['visualizador'] && !$permits['director'] && !$permits['asistente_dcc'] &&
-			!in_array($id, $permits['encargado_unidad']) && !in_array($id, $permits['asistente_finanzas_unidad']) &&
-			!in_array($id, $permits['asistente_unidad']) && !in_array($id, $permits['encargado_finanzas_unidad'])){
-	    	$this->load->view('no-dashboard', $result);
-	    }
-	    else
-	    	$this->load->view('dashboard-all-graphs', $result);
-
+			return $dashboard_metrics;
 	}
 
+	//Función que permite obtener solo las métricas cuyos gráficos tienen posicion = 1, asociadas a una organizacion y a los permisos de un usuario
+	private function getDashboardMetrics($id, $permits){
+
+		$this->load->model('Dashboard_model');
+		if($permits['director'] || $permits['visualizador'] || ((in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
+			&& ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))){
+	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,0);
+		}
+	    elseif($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])){
+	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,1);
+	    }
+	    elseif(in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad'])){
+	    	$dashboard_metrics = $this->Dashboard_model->getDashboardMetrics($id,2);
+	    }
+	    else{
+	    	$dashboard_metrics=[];
+	    }
+			return $dashboard_metrics;
+	}
 }
