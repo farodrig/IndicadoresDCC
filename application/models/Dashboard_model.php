@@ -88,9 +88,9 @@ class Dashboard_model extends CI_Model
         }
         $morgs = $morgs."metorg =".$rows[$size-1]->id.")";
 
-        $query = "SELECT m.id AS id, m.metorg AS org, m.value AS val, m.target AS target, m.expected AS expected, m.year AS year
+        $query = "SELECT m.id AS id, m.metorg AS org, m.old_value AS val, m.old_target AS target, m.old_expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE m.state=1 AND (".$morgs;
+                    WHERE (".$morgs;
 
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
