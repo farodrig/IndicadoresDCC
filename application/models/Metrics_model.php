@@ -63,24 +63,6 @@ class Metrics_model extends CI_Model{
 	}
 
 	function getAllMetrics(){
-		$query = "SELECT id FROM Organization";
-		$q = $this->db->query($query);
-		if($q->num_rows() > 0){
-			foreach ($q->result() as $row){
-				$orgs[]=$row->id;
-				$data[$row->id] = "<table class='table table-bordered table-striped mb-none text-center' id='config-metricas'>
-				<thead>
-												<tr>
-													<th>Métrica</th>
-													<th>Categoria</th>
-													<th>Unidad de medida</th>
-													<th>Acciones</th>
-												</tr>
-											</thead>
-											<tbody>";
-			}
-		}
-
 		$query = "SELECT mo.org AS org, mo.id AS metorg, m.name AS name, c.name AS category, u.name AS unit
 					FROM Metric AS m, MetOrg AS mo, Unit AS u, Category AS c
 		 			WHERE mo.metric=m.id AND u.id=m.unit AND c.id=m.category";
@@ -88,21 +70,12 @@ class Metrics_model extends CI_Model{
 
 		if($q->num_rows() > 0){
 			foreach ($q->result() as $row){
-					$data[$row->org]= $data[$row->org].'<tr class='.$row->metorg.'>
-						<td>'.ucwords($row->name).'</td>
-						<td>'.ucwords($row->category).'</td>
-						<td>'.ucwords($row->unit).'</td>
-						<td class="actions" title='.$row->metorg.'>
-							<a href="#" class="hidden on-editing save-row" ><i class="fa fa-save" id='.$row->metorg.'></i></a>
-							<a href="#" class="hidden on-editing cancel-row" ><i class="fa fa-times" id='.$row->metorg.'></i></a>
-							<a href="#" class="on-default edit-row"><i class="fa fa-pencil" id='.$row->metorg.'></i></a>
-							<a href="#" class="on-default remove-row"><i class="fa fa-trash-o" id='.$row->metorg.'></i></a>
-						</td>
-					</tr>';
+					$data[$row->org][]= array('metorg' => $row->metorg,
+																	'name' => ucwords($row->name),
+																	'category' => ucwords($row->category),
+																	'unit' => ucwords($row->unit));
 				}
 		}
-		for($i=0; $i<sizeof($orgs); $i++)
-			$data[$orgs[$i]] = $data[$orgs[$i]]."</tbody></table>";
 		return $data;
 
 	}

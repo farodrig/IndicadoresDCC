@@ -3,9 +3,9 @@
 	<head>
 	    <?php
         $title = "Configurar métricas";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
-		
+
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/select2/select2.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/css/datatables.css"
 	</head>
@@ -92,7 +92,7 @@
 			            ?>
 			            <h2 style="text-align:center;"><?php echo(ucwords($kind))?></h2>
 			            <hr>
-			            
+
 			            <header class="panel-heading" style="padding-left: 15px; padding-right: 15px;">
 			              <div class="row">
 			                 <div style="background-color:#08C" class="panel-body">
@@ -110,15 +110,15 @@
 							 </div>
 						  </div>
 					    </header>
-			   
+
 					    <div class="panel-body">
-			            <?php 
+			            <?php
 			            foreach ($dpto['areas'] as $area){
 				            if ($counter % 2 == 0 && $counter!=0)
 				                echo ('</div>');
 				            if ($counter % 2 == 0)
 				                echo ('<div class ="row">');
-				            ?>												         							    
+				            ?>
 				            <div class="col-md-6">
 				              <section class="panel panel-info">
 				                  <header class="panel-heading" style="background-color: <?php echo($color);?>">
@@ -149,7 +149,7 @@
 						                  <label class="text-center"><?php echo(ucwords($unidad->getName()));?></label>
 					                    </div>
 				            <?php
-				            }    						            
+				            }
 				            ?>
 				                      </div>
 			                      </div>
@@ -159,7 +159,7 @@
 				            $counter++;
 				            if($counter==count($dpto['areas'])){
 				                echo ('</div>');
-				            }   						                
+				            }
 			            }
 			            echo ('</div>');
 			        }
@@ -273,14 +273,24 @@
 			<?php echo form_close(); ?>
 		</div>
 
-        <?php include 'partials/footer.php'; ?>		
-		
+        <?php include 'partials/footer.php'; ?>
+
 		<script src="<?php echo base_url();?>assets/vendor/select2/select2.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
-		
+
 		<script type="text/javascript">
 		var table_metrics = <?php echo json_encode($metrics); ?>;
+		var org_metrics = Object.keys(table_metrics);
+		var table_head = "<table class='table table-bordered table-striped mb-none text-center' id='config-metricas'>".concat("<thead>",
+									"<tr>",
+											"<th>Métrica</th>",
+											"<th>Categoria</th>",
+											"<th>Unidad de medida</th>",
+											"<th>Acciones</th>",
+										"</tr>",
+									"</thead>",
+									"<tbody>");
 		var values_mod = [];
 
 		function setVal(e,id){
@@ -312,7 +322,25 @@
 			$('<p class="panel-subtitle">'.concat(title,'</p>')).appendTo($('#subtitle2'));
 			var id = $(this)[0]['attributes']['title'].value;
 			$('#rows').empty();
-			$(table_metrics[id]).appendTo($('#rows'));
+
+			var table = table_head;
+			if(org_metrics.indexOf(id)!=-1){
+				for(key in table_metrics[id]){
+					table = table.concat('<tr class=',table_metrics[id][key]['metorg'],'>',
+					'<td>',table_metrics[id][key]['name'],'</td>',
+					'<td>',table_metrics[id][key]['category'],'</td>',
+					'<td>',table_metrics[id][key]['unit'],'</td>',
+					'<td class="actions" title=',table_metrics[id][key]['metorg'],'>',
+						'<a href="#" class="hidden on-editing save-row" ><i class="fa fa-save" id=',table_metrics[id][key]['metorg'],'></i></a>',
+						'<a href="#" class="hidden on-editing cancel-row" ><i class="fa fa-times" id=',table_metrics[id][key]['metorg'],'></i></a>',
+						'<a href="#" class="on-default edit-row"><i class="fa fa-pencil" id=',table_metrics[id][key]['metorg'],'></i></a>',
+						'<a href="#" class="on-default remove-row"><i class="fa fa-trash-o" id=',table_metrics[id][key]['metorg'],'></i></a>',
+					'</td></tr>');
+				}
+
+			}
+			table = table.concat('</tbody></table>');
+			$(table).appendTo($('#rows'));
 		})
 
 		function borrarDatos(){
