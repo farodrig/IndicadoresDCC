@@ -34,6 +34,23 @@
 		<!-- end: page -->
 
 		<?php include 'partials/footer.php'; ?>
+        <script type="text/javascript">
+		   var error = <?php echo($error);?>;
 
+		   if (error==0){
+			   new PNotify({
+					title: 'Exito!',
+					text: 'Su solicitud ha sido realizada con exito.',
+					type: 'success'
+				});
+			   }
+		   if (error==1){
+			   new PNotify({
+					title: 'Error!',
+					text: 'Usted no tiene acceso a esta aplicacion.<br>Comuniquese con el Administrador para poder ingresar.',
+					type: 'error'
+				});
+			}
+		</script>
 	</body>
 </html>

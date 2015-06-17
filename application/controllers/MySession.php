@@ -7,27 +7,29 @@ class MySession extends CI_Controller {
 	{
 	    $this->load->library('session');
 	    $this->load->model('User_model');
-			$this->load->model('Permits_model');
+		$this->load->model('Permits_model');
 	    $result = array();
 	    $result['users'] = $this->User_model->getAllUsers();
+        $result['error'] = $this->session->flashdata('error');        
+        
 	    if($this->input->method()=="post"){
 	        $rut = $this->input->post('user');
 	        $name = $result['users'][$rut];
     	    $this->session->set_userdata('rut', $rut);
     	    $this->session->set_userdata('name', $name);
-					$permits = $this->Permits_model->getAllPermits($rut);
-		    	$permits_array = array(
-		    							'director' => $permits->getDirector(),
-		    							'visualizador' => $permits->getVisualizador(),
-		    							'asistente_unidad' => $permits->getAsistenteUnidad(),
-		    							'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
-		    							'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
-		    							'encargado_unidad' => $permits->getEncargadoUnidad(),
-		    							'asistente_dcc' => $permits->getAsistenteDCC());
-				$title = $this->getTitle($permits_array);
-				$permits_array['title'] = $title;
+			$permits = $this->Permits_model->getAllPermits($rut);
+		    $permits_array = array(
+		    					    'director' => $permits->getDirector(),
+		    					    'visualizador' => $permits->getVisualizador(),
+		    					    'asistente_unidad' => $permits->getAsistenteUnidad(),
+		    					    'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
+		    					    'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
+		    					    'encargado_unidad' => $permits->getEncargadoUnidad(),
+		    					    'asistente_dcc' => $permits->getAsistenteDCC());
+			$title = $this->getTitle($permits_array);
+			$permits_array['title'] = $title;
 
-		    	$this->session->set_userdata($permits_array);
+	    	$this->session->set_userdata($permits_array);
 	        redirect('inicio');
 	    }
 		$this->load->view('login', $result);
@@ -38,12 +40,18 @@ class MySession extends CI_Controller {
 	    session_start();
 	    $data = $_SESSION;
 	    session_destroy();
+        //Aqui se debiesen hacer validaciones para que el usuario pueda ingresar a la aplicación
+	    $this->load->model('User_model');
+	    if(!$this->User_model->getUserById($data['rut'])){
+            $this->session->set_flashdata("error", 1);
+	        redirect('');
+        }
 	    //Aqui se debe agregar las variables de sesion que seran consultadas a futuro en la aplicacion.
 	    $this->load->library('session');
-			$this->load->model('Permits_model');
+		$this->load->model('Permits_model');
 	    $this->session->set_userdata('rut', $data['rut']);
 	    $this->session->set_userdata('name', $data['nombre_completo']);
-			$permits = $this->Permits_model->getAllPermits($data['rut']);
+		$permits = $this->Permits_model->getAllPermits($data['rut']);
     	$permits_array = array(
     							'director' => $permits->getDirector(),
     							'visualizador' => $permits->getVisualizador(),
@@ -56,10 +64,7 @@ class MySession extends CI_Controller {
 		$permits_array['title'] = $title;
 
     	$this->session->set_userdata($permits_array);
-	    //Aqui se debiesen hacer validaciones para que el usuario pueda ingresar a la aplicación
-	    $this->load->model('User_model');
-	    if(!$this->User_model->getUserById($data['rut']))
-	        redirect('salir');
+	    
 	    redirect('inicio');
 	}
 
@@ -68,7 +73,7 @@ class MySession extends CI_Controller {
 	    $this->session->sess_destroy();
 	    redirect('');
 	}
-
+    
 	public function contact(){
 	    $work = true;
 	    if($this->input->method()=="post"){
@@ -99,37 +104,34 @@ class MySession extends CI_Controller {
             redirect('salir');
 
     	$this->load->model('Dashboard_model');
-      $this->load->model('Organization_model');
-			$permits = array('director' => $this->session->userdata("director"),
+        $this->load->model('Organization_model');
+		$permits = array(   'director' => $this->session->userdata("director"),
     						'visualizador' => $this->session->userdata("visualizador"),
     						'asistente_unidad' => $this->session->userdata("asistente_unidad"),
     						'asistente_finanzas_unidad' => $this->session->userdata("asistente_finanzas_unidad"),
-								'encargado_finanzas_unidad' => $this->session->userdata("encargado_finanzas_unidad"),
+							'encargado_finanzas_unidad' => $this->session->userdata("encargado_finanzas_unidad"),
     						'encargado_unidad' => $this->session->userdata("encargado_unidad"),
     						'asistente_dcc' => $this->session->userdata("asistente_dcc"),
-								'title' =>$this->session->userdata("title"));
-      $type = $this->input->get('sector');
-			$department = $this->Organization_model->getDepartment();
-			$areaunit = $this->showAreaUnit();
-			if(is_null($type)){
-				$type="Operación";
-				$name=$type;
-				$aus = $areaunit;
-	    	$areaunit = array();
-				foreach ($aus as $au){
-		    	if ($au['area']->getType()==2)
-		        	array_push($areaunit, $au);
-						}
-					}
-		else{
-			$name = $type;
-	    $type = $this->Organization_model->getTypeByName($type);
+							'title' =>$this->session->userdata("title"));
+        $type = $this->input->get('sector');
+		$department = $this->Organization_model->getDepartment();
+		$areaunit = $this->showAreaUnit();
+        $name=$type;
 		$aus = $areaunit;
 	    $areaunit = array();
-		foreach ($aus as $au){
-		    if ($au['area']->getType()==$type['id'])
-		        array_push($areaunit, $au);
+		if(is_null($type)){
+			$name="Operación";			
+			foreach ($aus as $au){
+		        if ($au['area']->getType()==2)
+		            array_push($areaunit, $au);
+			}
 		}
+		else{
+	        $type = $this->Organization_model->getTypeByName($type);
+		    foreach ($aus as $au){
+		        if ($au['area']->getType()==$type['id'])
+		            array_push($areaunit, $au);
+		    }
 		}
 		$types = $this->Organization_model->getTypes();
 		$result = array('department'=> $department,
