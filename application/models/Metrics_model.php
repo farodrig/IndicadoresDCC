@@ -67,7 +67,7 @@ class Metrics_model extends CI_Model{
 					FROM Metric AS m, MetOrg AS mo, Unit AS u, Category AS c
 		 			WHERE mo.metric=m.id AND u.id=m.unit AND c.id=m.category";
 		$q = $this->db->query($query);
-
+		$data=[];
 		if($q->num_rows() > 0){
 			foreach ($q->result() as $row){
 					$data[$row->org][]= array('metorg' => $row->metorg,

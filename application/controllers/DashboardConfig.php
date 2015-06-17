@@ -66,7 +66,7 @@ class DashboardConfig extends CI_Controller
 	    }
 
 	   if(!$all_areas)
-	    	$result['areas'] = [];
+	    	$result['areas'] = false;
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }
@@ -74,7 +74,7 @@ class DashboardConfig extends CI_Controller
 			$result['role'] = $permits['title'];
 	    $result['id_first']=$id_first;
 	    $this->load->view('configurar-dashboard', $result);
-	    //debug($result['colors'], true);
+	    //debug($result['areas'], true);
 	}
 
 	function configArea(){
@@ -140,7 +140,7 @@ class DashboardConfig extends CI_Controller
 	    }
 
 	    if(!$all_areas)
-	    	$result['areas'] = [];
+	    	$result['areas'] = false;
 	    else{
 	    	$result['areas'] = $all_areas;
 	    }

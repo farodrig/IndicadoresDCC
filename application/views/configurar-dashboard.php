@@ -128,6 +128,7 @@
 					</div>
 					</div>
 					<?php
+						if($areas){
 						if($id_first=="-1")
 							$first_area_key = array_keys($areas)[0];
 						else{
@@ -230,6 +231,7 @@
 
 						</div>
 					</div>
+					<?php } ?>
 					<!-- end: page -->
 				</section>
 
@@ -254,7 +256,7 @@
 			var metricas = <?php echo json_encode($metricas); ?>;
 			$(document).ready(function(){
 				if(id_first!="-1"){
-					var first_area=<?php echo $first_area_key; ?>;
+					var first_area=<?php echo !$areas ? 0 : $first_area_key; ?>;
 					$('#area option[value="'.concat(first_area,'"]')).attr("selected", "selected");
 					$('#unidad option[value="'.concat(id_first,'"]')).attr("selected", "selected");
 					$('#unidad').trigger('change');

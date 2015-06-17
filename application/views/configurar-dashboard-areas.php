@@ -129,6 +129,7 @@
 					</div>
 					</div>
 					<?php
+						if($areas){
 						if($id_first=="-1")
 							$first_area_key = array_keys($areas)[0];
 						else{
@@ -209,6 +210,7 @@
 							</section>
 						</div>
 					</div>
+					<?php } ?>
 					<!-- end: page -->
 				</section>
 
@@ -247,6 +249,7 @@
   							metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>");
     					$(popover).appendTo($('#metricas'));
   					}
+						if(areas){
   					var unidades = areas[area_value]['unidades'];
   					for(i in unidades){
   						var unidad_id = unidades[i]['id'];
@@ -259,6 +262,7 @@
     						$(popover).appendTo($('#metricas'));
   						}
   					}
+					}
   				}
   			});
 
@@ -272,6 +276,7 @@
   						,metricas_area[i]['metorg'], ")'>", metricas_area[i]['name'], "</a>");
     				$(popover).appendTo($('#metricas'));
   				}
+					if(areas){
   				var unidades = areas[area_value]['unidades'];
   				for(i in unidades){
   					var unidad_id = unidades[i]['id'];
@@ -285,6 +290,7 @@
     					$(popover).appendTo($('#metricas'));
   					}
   				}
+				}
 			});
 
 
