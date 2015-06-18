@@ -30,7 +30,7 @@ class ADI extends CI_Controller {
 			'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
 			'encargado_unidad'          => $permits->getEncargadoUnidad(),
 			'asistente_dcc'             => $permits->getAsistenteDCC());
-		$title                  = $this->getTitle($permits_array);
+		$title                  = getTitle($permits_array);
 		$permits_array['title'] = $title;
 
 		$this->session->set_userdata($permits_array);

@@ -30,7 +30,7 @@ class MySession extends CI_Controller {
 				'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
 				'encargado_unidad'          => $permits->getEncargadoUnidad(),
 				'asistente_dcc'             => $permits->getAsistenteDCC());
-			$title                  = $this->getTitle($permits_array);
+			$title                  = getTitle($permits_array);
 			$permits_array['title'] = $title;
 
 			$this->session->set_userdata($permits_array);
@@ -313,28 +313,6 @@ class MySession extends CI_Controller {
 		}
 
 		redirect('cmetrica');
-	}
-
-	private function getTitle($permits_array) {
-		$title = "";
-		$count = 0;
-		if ($permits_array['director']) {
-			$title = $title."Director";
-		} elseif ($permits_array['asistente_dcc']) {
-			$title = $title."Asistente DCC";
-		} elseif (!in_array("-1", $permits_array['encargado_unidad'])) {
-			$title = $title.rtrim("Encargado de unidad");
-		} elseif (!in_array("-1", $permits_array['encargado_finanzas_unidad'])) {
-			$title = $title.rtrim("Encargado de finanzas <br> de unidad");
-		} elseif (!in_array("-1", $permits_array['asistente_unidad'])) {
-			$title = $title.rtrim("Asistente de unidad");
-		} elseif (!in_array("-1", $permits_array['asistente_finanzas_unidad'])) {
-			$title = $title.rtrim("Asistente de finanzas");
-		} elseif ($permits_array['visualizador']) {
-			$title = $title."Visualizador";
-		}
-
-		return $title;
 	}
 }
 ?>
