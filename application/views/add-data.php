@@ -10,7 +10,7 @@
 	<body>
 		<section class="body">
 
-        <?php include 'partials/header_tmpl.php'; ?>
+            <?php include 'partials/header_tmpl.php';?>
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
@@ -60,12 +60,13 @@
 										<i class="fa fa-home"></i>
 									</a>
 								</li>
-								<?php
-									for($i=sizeof($route);$i>0;$i--)
-										echo "<li><span>".$route[$i]."</span></li>";
-								?>
-
-								<li><span>Añadir Datos</span></li>
+                                <?php
+                                for ($i = sizeof($route); $i > 0; $i--) {
+                                	echo "<li><span>".$route[$i]."</span></li>";
+                                }
+                                
+                                ?>
+                                <li><span>Añadir Datos</span></li>
 							</ol>
 							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
 						</div>
@@ -73,8 +74,8 @@
 
 					<!-- start: page -->
 						<div class="col-md-12">
-						<?php echo form_open('agregarDato', array('onSubmit' => "return pageValidate();")); ?>
-							<section class="panel form-horizontal form-bordered">
+                            <?php echo form_open('agregarDato', array('onSubmit' => "return pageValidate();"));?>
+                            <section class="panel form-horizontal form-bordered">
 								<header class="panel-heading">
 
 									<h2 class="panel-title">Añadir Datos</h2>
@@ -91,14 +92,14 @@
 										</div>
 										<div class="col-md-3">
 											<select id="year" name="year" data-placeholder="Seleccione año..." class="chosen-select" style="width:200px;" onchange ="selectYear(); validate_year('year')" tabindex="4">
-											<option value=""></option>
-											<?php
-												$years = array_unique($measurements[1]);
-												foreach ($years as $year) {
-													echo('<option value="'.$year.'">'.$year.'</option>');
-												}
-											?>
-											</select>
+    											<option value=""></option>
+                                                <?php
+                                                $years = array_unique($measurements[1]);
+                                                foreach ($years as $year) {
+                                                	echo ('<option value="'.$year.'">'.$year.'</option>');
+                                                }
+                                                ?>
+                                            </select>
 										</div>
 									</div>
 									<div class="row mb-md">
@@ -116,21 +117,33 @@
 										</div>
 									</div>
 
-									<?php
-										echo ('<input type="hidden" name="id_location" id="id_location" value='.$id_location.'>');
-										foreach ($result as $metrics){
-											echo $metrics;
-										}
-
-									?>
-
-								</div>
+                                    <?php
+                                    echo ('<input type="hidden" name="id_location" id="id_location" value='.$id_location.'>');
+                                    foreach ($metrics as $metric) {?>
+                                    		<div class='row mb-md'>
+                                    			<div class= 'col-md-3'>
+                                    				<label class='text'><?php echo (ucwords($metric->getName()));?></label>
+                                    			</div>
+                                    			<div class='col-md-3'>
+                                    				<input type='text' name='value<?php echo ($metric->getId());?>' id='value<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('value<?php echo ($metric->getId());?>')" onfocus ="validate('value<?php echo ($metric->getId());?>')">
+                                    			</div>
+                                    			<div class='col-md-3'>
+                                    				<input type='text' name='target<?php echo ($metric->getId());?>' id='target<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('target<?php echo ($metric->getId());?>')" onfocus ="validate('target<?php echo ($metric->getId());?>')">
+                                    			</div>
+                                    			<div class='col-md-3'>
+                                    				<input type='text' name='expected<?php echo ($metric->getId());?>' id='expected<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('expected<?php echo ($metric->getId());?>')" onfocus ="validate('target<?php echo ($metric->getId());?>')">
+                                    			</div>
+                                    		</div>
+                                    	<?php
+                                    }
+                                    ?>
+                                    </div>
 								<footer class="panel-footer">
 									<input type="submit" class="btn btn-primary" value="Añadir">
 								</footer>
 							</section>
-							<?php echo form_close(); ?>
-						</div>
+                            <?php echo form_close();?>
+                        </div>
 
 
 					<!-- end: page -->
@@ -138,13 +151,13 @@
 			</div>
 		</section>
 
-		<?php include 'partials/footer.php'; ?>
+        <?php include 'partials/footer.php';?>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
   		<script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
 
   		<script type="text/javascript">
-  	       var success = <?php echo($success);?>;
+  	       var success = <?php echo ($success);?>;
 
 		   if (success==1){
 			   new PNotify({
@@ -194,9 +207,9 @@
 			function selectYear(){
 
 				var year = document.getElementById("year").value;
-				var jArray= <?php echo json_encode($measurements[0]); ?>;
-				var years = <?php echo json_encode($measurements[1]); ?>;
-				var size = <?php echo sizeof($measurements[0]); ?> ;
+				var jArray= <?php echo json_encode($measurements[0]);?>;
+				var years = <?php echo json_encode($measurements[1]);?>;
+				var size = <?php echo sizeof($measurements[0]);?> ;
 				if(year=="" || years.indexOf(year)==-1){
 					var last_metorg = -1;
 					for(i=0;i<size; i++){
@@ -253,8 +266,8 @@
 			}
 
 			function pageValidate(){
-				var jArray= <?php echo json_encode($measurements[0]); ?>;
-				var size = <?php echo sizeof($measurements[0]); ?> ;
+				var jArray= <?php echo json_encode($measurements[0]);?>;
+				var size = <?php echo sizeof($measurements[0]);?>;
 
 				var ids =[];
 

@@ -48,27 +48,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
-*/
+ */
 $route['default_controller'] = 'MySession';
 
-$route['inicio'] = 'MySession/inicio';
-$route['dashboard'] = 'Dashboard/showDashboard';
-$route['dashboardAll'] = 'Dashboard/showAllDashboard';
-$route['validar'] = 'MySession/validar';
-$route['configurar'] = 'MySession/menuConfigurar';
-$route['formAgregarDato'] = 'Dashboard/formAddData';
-$route['agregarDato']= 'Dashboard/addData';
-$route['careaunidad'] = 'ModifyOrg/modifyAreaUnidad';
+$route['inicio']           = 'MySession/inicio';
+$route['dashboard']        = 'Dashboard/showDashboard';
+$route['dashboardAll']     = 'Dashboard/showAllDashboard';
+$route['validar']          = 'MySession/validar';
+$route['configurar']       = 'MySession/menuConfigurar';
+$route['formAgregarDato']  = 'Dashboard/formAddData';
+$route['agregarDato']      = 'Dashboard/addData';
+$route['careaunidad']      = 'ModifyOrg/modifyAreaUnidad';
 $route['cdashboardUnidad'] = 'DashboardConfig/configUnidad';
-$route['cdashboardArea'] = 'DashboardConfig/configArea';
-$route['cdashboardDCC'] = 'DashboardConfig/configDCC';
-$route['addGraph'] = 'DashboardConfig/addGraphUnidad';
-$route['cmetrica'] = 'MySession/configurarMetricas';
-$route['export'] = 'Dashboard/exportData';
-$route['contacto'] = 'MySession/contact';
-$route['salir'] = 'MySession/logout';
-$route['verif_usuario'] = 'MySession/user_verify';
+$route['cdashboardArea']   = 'DashboardConfig/configArea';
+$route['cdashboardDCC']    = 'DashboardConfig/configDCC';
+$route['addGraph']         = 'DashboardConfig/addGraphUnidad';
+$route['cmetrica']         = 'MySession/configurarMetricas';
+$route['export']           = 'Dashboard/exportData';
+$route['contacto']         = 'MySession/contact';
+$route['salir']            = 'MySession/logout';
+$route['verif_usuario']    = 'ADI/user_verify';
 
-
-$route['404_override'] = '';
+$route['404_override']         = '';
 $route['translate_uri_dashes'] = FALSE;

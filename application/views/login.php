@@ -1,9 +1,9 @@
 <!doctype html>
 <html class="fixed">
 	<head>
-	   <?php
+        <?php
         $title = "Login";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
 	</head>
 	<body>
@@ -17,25 +17,27 @@
 				        </a>
 						<h2 class="title text-uppercase text-bold m-none"><i class="fa fa-user mr-xs"></i> Login</h2>
 					</div>
+					<!-- Borrar Desde Aqui -->
 					<div class="panel-body text-center">
-					   <?php echo form_open('');
-					         echo form_dropdown('user', $users);
-					         echo form_submit('submit', 'Ingresar');
-					         echo form_close();
-					   ?>
-					</div>
+                        <?php echo form_open('');
+                        echo form_dropdown('user', $users);
+                        echo form_submit('submit', 'Ingresar');
+                        echo form_close();
+                        ?>
+                    </div>
+					<!-- Hasta Aqui para pasar a PRODUCCION -->
 					<div class="panel-body text-center">
 					    <script language="JavaScript" src="https://www.u-cursos.cl/upasaporte/javascript?servicio=dashboard_dcc&debug=1"></script>
 					</div>
-					
+
 				</div>
 			</div>
 		</section>
 		<!-- end: page -->
 
-		<?php include 'partials/footer.php'; ?>
+        <?php include 'partials/footer.php';?>
         <script type="text/javascript">
-		   var error = <?php echo($error);?>;
+		   var error = <?php echo ($error);?>;
 
 		   if (error==0){
 			   new PNotify({
@@ -47,7 +49,7 @@
 		   if (error==1){
 			   new PNotify({
 					title: 'Error!',
-					text: 'Usted no tiene acceso a esta aplicacion.<br>Comuniquese con el Administrador para poder ingresar.',
+					text: 'Usted no tiene acceso a esta aplicación.<br>Comuniquese con el Administrador para poder ingresar.',
 					type: 'error'
 				});
 			}
