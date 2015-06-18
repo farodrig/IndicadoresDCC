@@ -35,16 +35,15 @@ class DashboardConfig extends CI_Controller {
 		$all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();
 		//$all areas incluye type que representa al DCC padre, 0 si es soporte, 1 si es operacion
 
-		if ($all_metrics == false) {
-			$result['metricas'] = [];
-			$result['years']    = array(
-				'id'    => -1,
-				'type'  => 2,
-				'min'   => 2005,
-				'max'   => 2015,
-				'check' => NULL
-			);
-		} else {
+		$result['metricas'] = [];
+		$result['years']    = array(
+			'id'    => -1,
+			'type'  => 2,
+			'min'   => 2005,
+			'max'   => 2015,
+			'check' => NULL
+		);
+		if ($all_metrics) {
 			$result['metricas'] = $all_metrics;
 			$id_keys            = array_keys($all_metrics);
 			for ($i = 0; $i < sizeof($id_keys); $i++) {
@@ -60,16 +59,11 @@ class DashboardConfig extends CI_Controller {
 			$result['years'] = $years;
 		}
 
-		if (!$all_areas) {
-			$result['areas'] = false;
-		} else {
-			$result['areas'] = $all_areas;
-		}
+		$result['areas']    = (!$all_areas) ? false : $all_areas;
 		$result['validate'] = validation($permits, $this->dashboardModel);
 		$result['role']     = $permits['title'];
 		$result['id_first'] = $id_first;
 		$this->load->view('configurar-dashboard', $result);
-		//debug($result['areas'], true);
 	}
 
 	function configArea() {
@@ -93,16 +87,15 @@ class DashboardConfig extends CI_Controller {
 
 		$all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();//arreglo de areas y sus respectivas unidades id_area =>(nombre, id, arreglo_unidades)
 
-		if ($all_metrics == false) {
-			$result['metricas'] = [];
-			$result['years']    = array(
-				'id'    => -1,
-				'type'  => 2,
-				'min'   => 2005,
-				'max'   => 2015,
-				'check' => NULL
-			);
-		} else {
+		$result['metricas'] = [];
+		$result['years']    = array(
+			'id'    => -1,
+			'type'  => 2,
+			'min'   => 2005,
+			'max'   => 2015,
+			'check' => NULL
+		);
+		if ($all_metrics) {
 			$result['metricas'] = $all_metrics;
 			$id_keys            = array_keys($all_metrics);
 			for ($i = 0; $i < sizeof($id_keys); $i++) {
@@ -128,19 +121,11 @@ class DashboardConfig extends CI_Controller {
 			}
 			$result['years'] = $years;
 		}
-
-		if (!$all_areas) {
-			$result['areas'] = false;
-		} else {
-			$result['areas'] = $all_areas;
-		}
-
+		$result['areas']    = (!$all_areas) ? false : $all_areas;
 		$result['validate'] = validation($permits, $this->dashboardModel);
 		$result['role']     = $permits['title'];
 		$result['id_first'] = $id_first;
 		$this->load->view('configurar-dashboard-areas', $result);
-		//debug($all_metrics, true);
-
 	}
 
 	function configDCC() {
@@ -163,18 +148,19 @@ class DashboardConfig extends CI_Controller {
 		//Si all_metrics es falso es porque no hay areas
 
 		$all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();
-		if ($all_metrics == false) {
-			$result['metricas'] = [];
-			$result['years']    = array(
-				'id'    => -1,
-				'type'  => 2,
-				'min'   => 2005,
-				'max'   => 2015,
-				'check' => NULL
-			);
-			$result['met_operacion'] = [];
-			$result['met_soporte']   = [];
-		} else {
+
+		$result['metricas'] = [];
+		$result['years']    = array(
+			'id'    => -1,
+			'type'  => 2,
+			'min'   => 2005,
+			'max'   => 2015,
+			'check' => NULL
+		);
+		$result['met_operacion'] = [];
+		$result['met_soporte']   = [];
+
+		if ($all_metrics) {
 			$met_op             = [];
 			$met_sop            = [];
 			$result['metricas'] = $all_metrics;
@@ -235,32 +221,22 @@ class DashboardConfig extends CI_Controller {
 						}
 					}
 
-					//debug(array($id,$id_org_dash));
 					$min_max_years = $this->Dashboardconfig_model->getMinMaxYears($id, $id_org_dash);//Si existe config entrego los años correspondientes, junto con valor check
 					$years[$id]    = $min_max_years;
 				}
 
 			}
-			$met_op                  = array_unique($met_op);
-			$met_sop                 = array_unique($met_sop);
-			$result['years']         = $years;
-			$result['met_operacion'] = [];
-			$result['met_soporte']   = [];
+			$met_op          = array_unique($met_op);
+			$met_sop         = array_unique($met_sop);
+			$result['years'] = $years;
 		}
 
-		if (!$all_areas) {
-			$result['areas'] = [];
-		} else {
-			$result['areas'] = $all_areas;
-		}
+		$result['areas']    = (!$all_areas) ? [] : $all_areas;
 		$result['validate'] = validation($permits, $this->dashboardModel);
 		$result['role']     = $permits['title'];
 		$result['id_first'] = $id_first;
 		$result['colors']   = array("1" => "warning", "0" => "success");
-		//debug($all_metrics);
 		$this->load->view('configurar-dashboard-dcc', $result);
-		//debug($all_metrics, true); */
-
 	}
 
 	function addGraphUnidad() {
@@ -323,9 +299,7 @@ class DashboardConfig extends CI_Controller {
 			'id_graph'          => $id_graph);
 
 		$this->load->model('Dashboardconfig_model');
-		//debug($data);
 		$this->Dashboardconfig_model->addGraph($data);
-
 	}
 
 	private function getColors() {
