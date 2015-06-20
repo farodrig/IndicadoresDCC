@@ -481,7 +481,7 @@
 			if (success==0){
 				new PNotify({
 					title: 'Error!',
-					text: 'Solicitud no pudo ser realizada. Puede que haya agregado entradas inválidas',
+					text: 'Solicitud no pudo ser realizada. Recuerde que las entradas no pueden incluir símbolos',
 					type: 'error'
 				});
 			}
