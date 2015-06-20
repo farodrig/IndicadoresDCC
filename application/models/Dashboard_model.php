@@ -90,7 +90,7 @@ class Dashboard_model extends CI_Model
 
         $query = "SELECT m.id AS id, m.metorg AS org, m.old_value AS val, m.old_target AS target, m.old_expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE (".$morgs;
+                    WHERE (m.state=1 OR m.modified = 1) AND (".$morgs;
 
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
