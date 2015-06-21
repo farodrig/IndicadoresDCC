@@ -29,7 +29,9 @@ Manual para el desarrollador}\maketitle
 
 \section{\textbf{Introducción}}
 En el presente documento nos referiremos a temas que nos parecen relevantes para el continuo desarrollo y mantenimiento de U-Dashboard, y que a su vez no se encuentran en el documento de diseño.
+
 \vspace{15mm}
+
 \section{\textbf{Usuarios y Permisos}}
 Usuarios y permisos se encuentran definidos en la base de datos y deben ser administrados desde ahi mismo. Para agregar usuarios, permisos y/o administrarlos seguir los pasos:
 \begin{enumerate}
@@ -42,8 +44,8 @@ Usuarios y permisos se encuentran definidos en la base de datos y deben ser admi
 \end{itemize}
 \end{enumerate}
 
- \vfill
-\vspace{5mm}
+% \vfill
+\vspace{30mm}
 
 \section{\textbf{Inicio del sistema}}
 Para inicializar el sistema siga las siguientes instrucciones:
@@ -97,7 +99,7 @@ Este archivo considera lo siguiente:
 \item Inicialización para tabla Category, que guarda los tipos de métricas. El archivo incluye productividad y Finanzas, con id 1 y 2 respectivamente. Si desea agregar otro tipo de métrica basta agregar un nuevo identificador, junto con un nombre asociado.
 \item Inicialización para tabla GraphType, que guarda los estilos de gráficos que soporta la aplicación. El archivo incluye los tipos Barra y Línea, con id 1 y 2 respectivamente. Para agregar otro estilo de gráfico se debe agregar un nuevo identificador, junto con un nombre asociado.
 \item Inicialización para tabla OrgType, que guarda el tipo de las áreas y unidades. El archivo incluye los tipos Soporte y Operación,con id 1 y 2 respectivamente.Para agregar un nuevo tipo se debe agregar un nuevo identificador, junto con un nombre asociado.
-\item Inicialización para tabla State, que guarda el estado de un conjunto de datos ingresados (valor, esperado y objetivo). El archivo incluye los tipos no_validado, validado y por_borrar con id 0, 1 y -1 respectivamente.
+\item Inicialización para tabla State, que guarda el estado de un conjunto de datos ingresados (valor, esperado y objetivo). El archivo incluye los tipos no\_validado, validado y por\_borrar con id 0, 1 y -1 respectivamente.
 \item Inicialización para tabla Organization, que guarda áreas y unidades. El archivo incluye dos entradas, una para el DCC correspondiente a Soporte, con id y parent 0, y otra para el DCC de Operación con id y parent 1.\\
 Para agregar áreas o unidades se debe ocupar la aplicación. Esta acción puede ser llevada a cabo sólo por usuarios con rol de director.    
 \end{enumerate}    
@@ -105,7 +107,9 @@ Para agregar áreas o unidades se debe ocupar la aplicación. Esta acción puede se
 \end{itemize}
 
 \end{enumerate}
-\clearpage
+
+\vspace{8mm}
+%\clearpage
 
 \section{\textbf{Base de datos}}
 En el documento de diseño del proyecto pueden encontrar detalladamente el modelo de la base de datos. Este modelo permite más flexibilidad de la que se está usando, la cual explicaremos a continuación:
@@ -154,7 +158,8 @@ Metric define generalmente algo que se quisiera medir, por ejemplo ''número de p
 
 Una de las ventajas de esto, es que eventualmente se podría querer comparar una métrica, como el personal contratado, para las distintas áreas, y esta estructura lo facilita. 
 En nuestra implementación no lo usamos, y la interfaz no permite compartir métricas entre áreas. 
-\vfill
+%\vfill
+\vspace{8mm}
 \section{\textbf{Template y librerías}}
 
 En el siguiente link podrán encontrar los template usados para crear las interfaces:\\
