@@ -61,6 +61,10 @@ class Dashboard extends CI_Controller {
 	function addData() {
 		$id = $this->input->post("id_location");
 
+		$borrar=0;
+		if($this->input->post('borrar'))
+			$borrar=1;
+
 		if (is_null($id)) {
 			redirect('inicio');
 		}
@@ -119,6 +123,7 @@ class Dashboard extends CI_Controller {
 			$value    = $this->input->post('value'.$id_met);
 			$target   = $this->input->post('target'.$id_met);
 			$expected = $this->input->post('expected'.$id_met);
+			$delete = $this->input->post('borrar'.$id_met);
 
 			//Si no se ingresaron datos no se agregan a la base de datos
 			if ($value == "" && $target == "" && $expected == "") {
@@ -137,9 +142,11 @@ class Dashboard extends CI_Controller {
 				$validation = 1;
 			}
 
-			if (in_array($id_met, $data) == 1 && ($value != $vals[$id_met]['value'] || $target != $vals[$id_met]['target'] || $expected != $vals[$id_met]['expected'])) {
+			if($borrar && $delete)
+				$q = $this->Dashboard_model->deleteMeasure($id_met, $year, $user, $validation);
+			elseif (!$borrar && in_array($id_met, $data) == 1 && ($value != $vals[$id_met]['value'] || $target != $vals[$id_met]['target'] || $expected != $vals[$id_met]['expected'])) {
 				$q = $this->Dashboard_model->updateData($id_met, $year, $value, $target, $expected, $user, $validation);
-			} else if (in_array($id_met, $data) != 1) {
+			} else if (!$borrar && in_array($id_met, $data) != 1) {
 				$q = $this->Dashboard_model->insertData($id_met, $year, $value, $target, $expected, $user, $validation);// si $q es falso significa que fallo la query
 			} else {
 				$q = -1;

@@ -51,7 +51,7 @@
 
 				<section role="main" class="content-body">
 					<header class="page-header">
-						<h2>Añadir Datos</h2>
+						<h2>Añadir y Borrar Datos</h2>
 
 						<div class="right-wrapper pull-right">
 							<ol class="breadcrumbs">
@@ -78,7 +78,7 @@
                             <section class="panel form-horizontal form-bordered">
 								<header class="panel-heading">
 
-									<h2 class="panel-title">Añadir Datos</h2>
+									<h2 class="panel-title">Añadir y Borrar Datos</h2>
 
 									<p class="panel-subtitle">
 										Deje en blanco campos correspondientes a métricas que no desea considerar. Para modificar datos existentes elija un año
@@ -103,17 +103,20 @@
 										</div>
 									</div>
 									<div class="row mb-md">
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<label horizontal-align="middle" class="control-label"><u><b>Métrica</b></u></label>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<label class="control-label"><u><b>Valor</b></u></label>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<label class="control-label"><u><b>Esperado</b></u></label>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-2">
 											<label class="control-label"><u><b>Meta</b></u></label>
+										</div>
+										<div class="col-md-1">
+											<label class="control-label"><u><b>Borrar</b></u></label>
 										</div>
 									</div>
 
@@ -121,17 +124,20 @@
                                     echo ('<input type="hidden" name="id_location" id="id_location" value='.$id_location.'>');
                                     foreach ($metrics as $metric) {?>
                                     		<div class='row mb-md'>
-                                    			<div class= 'col-md-3'>
+                                    			<div class= 'col-md-2'>
                                     				<label class='text'><?php echo (ucwords($metric->getName()));?></label>
                                     			</div>
-                                    			<div class='col-md-3'>
+                                    			<div class='col-md-2'>
                                     				<input type='text' name='value<?php echo ($metric->getId());?>' id='value<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('value<?php echo ($metric->getId());?>')" onfocus ="validate('value<?php echo ($metric->getId());?>')">
                                     			</div>
-                                    			<div class='col-md-3'>
+                                    			<div class='col-md-2'>
                                     				<input type='text' name='target<?php echo ($metric->getId());?>' id='target<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('target<?php echo ($metric->getId());?>')" onfocus ="validate('target<?php echo ($metric->getId());?>')">
                                     			</div>
-                                    			<div class='col-md-3'>
-                                    				<input type='text' name='expected<?php echo ($metric->getId());?>' id='expected<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('expected<?php echo ($metric->getId());?>')" onfocus ="validate('target<?php echo ($metric->getId());?>')">
+                                    			<div class='col-md-2'>
+                                    				<input type='text' name='expected<?php echo ($metric->getId());?>' id='expected<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('expected<?php echo ($metric->getId());?>')" onfocus ="validate('expected<?php echo ($metric->getId());?>')">
+                                    			</div>
+																					<div class='col-md-1'>
+                                    				<input type='checkbox' disabled value=1 name='borrar<?php echo ($metric->getId());?>' id='borrar<?php echo ($metric->getId());?>' class='form-control'>
                                     			</div>
                                     		</div>
                                     	<?php
@@ -139,7 +145,9 @@
                                     ?>
                                     </div>
 								<footer class="panel-footer">
-									<input type="submit" class="btn btn-primary" value="Añadir">
+									<input type="submit" class="btn btn-primary" value="Añadir" id="anadir" name="anadir">
+									<label>&nbsp;&nbsp;</label>
+									<input type="submit" class="btn btn-danger" value="Borrar seleccionados" id="borrar" name="borrar">
 								</footer>
 							</section>
                             <?php echo form_close();?>
@@ -231,6 +239,7 @@
 						var aux_year = jArray[i]['year'];
 						if(aux_year==year){
 							loadValues(jArray[i]['metorg'],jArray[i]['value'],jArray[i]['target'],jArray[i]['expected']);
+							document.getElementById("borrar".concat(jArray[i]['metorg'])).disabled=false;
 						}
 	    		}
 				}
@@ -240,6 +249,8 @@
 				document.getElementById("value".concat(metorg_id)).value=value;
 				document.getElementById("target".concat(metorg_id)).value=target;
 				document.getElementById("expected".concat(metorg_id)).value=expected;
+				document.getElementById("borrar".concat(metorg_id)).checked=false;
+				document.getElementById("borrar".concat(metorg_id)).disabled=true;
 
 			}
 

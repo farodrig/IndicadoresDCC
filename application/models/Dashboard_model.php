@@ -16,7 +16,7 @@ class Dashboard_model extends CI_Model
     function getValidate($id_metorg){
         $this->load->library('session');
         if($id_metorg==-1){
-            $query = "SELECT * FROM Measure AS m WHERE m.state=0";
+            $query = "SELECT * FROM Measure AS m WHERE m.state=0 OR m.state=-1";
             $q = $this->db->query($query);
             if($q->num_rows() > 0)
                 return true;
@@ -37,7 +37,7 @@ class Dashboard_model extends CI_Model
             }
             foreach ($id_metorg as $id) {
                 $query="SELECT * FROM Measure AS m, MetOrg AS mo, Metric AS met
-                        WHERE m.state=0 AND met.id=mo.metric AND mo.id=m.metorg AND mo.org=".$id.$text;
+                        WHERE (m.state=0 OR m.state = -1) AND met.id=mo.metric AND mo.id=m.metorg AND mo.org=".$id.$text;
                 $q = $this->db->query($query);
                 if($q->num_rows() > 0)
                     return true;
@@ -208,6 +208,22 @@ class Dashboard_model extends CI_Model
         return $measurement_array;
     }
 
+    function deleteMeasure($id_met, $year, $user, $validation){
+      if($validation){
+        $query = "DELETE FROM Measure WHERE metorg= ? AND year = ? AND state= 1";
+        $q = $this->db->query($query, array($id_met, $year));
+    		return $q;
+      }
+
+      $query = " UPDATE Measure SET state = -1, updater = ? , dateup = NOW(), modified = 1
+      WHERE metorg = ? AND year = ?";
+
+      $q = $this->db->query($query, array($user, $id_met, $year));
+
+      return $q;
+
+    }
+
     function insertData($id_met, $year, $value, $target, $expected, $user, $validation){ //Inserta datos en la tabla de mediciones
 
         $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup, old_value, old_target, old_expected)
@@ -259,6 +275,8 @@ class Dashboard_model extends CI_Model
     $this->load->library('session');
 		$query = $this->db->get_where('Measure',array('id' => $id));
 		$measure = $query->row();
+    if($measure->state==-1)
+      return $this->deleteData($id);
 		$data = array(
 		               'state' => 1,
 					   'old_value'=> $measure->value,
@@ -323,9 +341,9 @@ class Dashboard_model extends CI_Model
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year, m.modified AS mod
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year, m.modified AS mod, m.state AS s
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
-					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
+					  WHERE (m.state =0 or m.state=-1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user AND mo.org =?" ;
 		 $q = $this->db->query($querry,array($id_org));
 
@@ -354,9 +372,9 @@ class Dashboard_model extends CI_Model
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year, m.state AS s
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
-					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
+					  WHERE (m.state =0 OR m.state = -1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user  AND c.id= $type  AND mo.org =?";
 		 $q = $this->db->query($querry,array($id_org));
 
@@ -387,9 +405,9 @@ class Dashboard_model extends CI_Model
 	{
 		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year, m.state AS s
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
-					  WHERE m.state =0 AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
+					  WHERE (m.state =0 OR m.state=-1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
             metric.unit = unit.id AND c.id=metric.category AND u.id=p.user";
 		 $q = $this->db->query($querry);
 

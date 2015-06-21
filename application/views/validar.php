@@ -105,9 +105,16 @@
 											<td> <?php  echo ucwords($row->category)?> </td>
 											<td> <?php  echo ucwords($row->type)?> </td>
 											<td> <?php  echo ucwords($row->year)?> </td>
-											<td> <?php  echo strcmp($row->value, $row->o_v)==0 ? $row->value : "<b>".$row->value."</b>" ?> </td>
-											<td> <?php  echo strcmp($row->target, $row->o_t)==0 ? $row->target : "<b>".$row->target."</b>" ?> </td>
-											<td> <?php  echo strcmp($row->expected, $row->o_e)==0 ? $row->expected : "<b>".$row->expected."</b>" ?> </td>
+											<?php if($row->s==0){ ?>
+												<td> <?php  echo strcmp($row->value, $row->o_v)==0 ? $row->value : "<b>".$row->value."</b>" ?> </td>
+												<td> <?php  echo strcmp($row->target, $row->o_t)==0 ? $row->target : "<b>".$row->target."</b>" ?> </td>
+												<td> <?php  echo strcmp($row->expected, $row->o_e)==0 ? $row->expected : "<b>".$row->expected."</b>" ?> </td>
+											<?php	}
+											else{ ?>
+												<td> - </td>
+												<td> - </td>
+												<td> - </td>
+											<?php } ?>
 											<?php if($row->modified){ ?>
 												<td> <?php echo $row->o_v ?> </td>
 												<td> <?php echo $row->o_t ?> </td>
