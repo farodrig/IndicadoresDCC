@@ -124,6 +124,12 @@ class Dashboard extends CI_Controller {
 			if ($value == "" && $target == "" && $expected == "") {
 				continue;
 			}
+			if($value=="")
+				$value=0;
+			if($target=="")
+				$target=0;
+			if($expected=="")
+				$expected=0;
 			$met_type = $this->Dashboard_model->getMetType($id_met);
 
 			if ((in_array($id, $permits['encargado_unidad']) && !strcmp($met_type, "Productividad")) ||

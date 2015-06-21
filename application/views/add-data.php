@@ -64,7 +64,7 @@
                                 for ($i = sizeof($route); $i > 0; $i--) {
                                 	echo "<li><span>".$route[$i]."</span></li>";
                                 }
-                                
+
                                 ?>
                                 <li><span>Añadir Datos</span></li>
 							</ol>
@@ -162,7 +162,7 @@
 		   if (success==1){
 			   new PNotify({
 					title: 'Éxito!',
-					text: 'Su solicitud ha sido realizada con éxito.',
+					text: 'Su solicitud ha sido realizada con éxito. Recuerde que, dependiendo de su rol, una validación será necesaria antes de que su cambio sea visible',
 					type: 'success'
 				});
 			   }
