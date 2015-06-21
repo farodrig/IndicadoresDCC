@@ -1,0 +1,174 @@
+% !TEX encoding = IsoLatin9
+
+
+\documentclass[conference]{IEEEtran}
+\usepackage{blindtext, graphicx}
+\usepackage[latin9]{inputenc}
+\usepackage{hyperref}
+
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\begin{document}
+%
+% paper title
+% can use linebreaks \\ within to get better formatting as desired
+\title{U-Dashboard \\
+Manual para el desarrollador}\maketitle
+
+
+
+
+% make the title area
+\maketitle
+\IEEEpeerreviewmaketitle
+
+
+
+\section{\textbf{Introducción}}
+En el presente documento nos referiremos a temas que nos parecen relevantes para el continuo desarrollo y mantenimiento de U-Dashboard, y que a su vez no se encuentran en el documento de diseño.
+\vspace{15mm}
+\section{\textbf{Usuarios y Permisos}}
+Usuarios y permisos se encuentran definidos en la base de datos y deben ser administrados desde ahi mismo. Para agregar usuarios, permisos y/o administrarlos seguir los pasos:
+\begin{enumerate}
+\item Agregar usuario a la tabla user. El id corresponde al RUT, y name al nombre completo de la persona. El RUT no debe tener puntos, pero sí el guión.
+\item Agregar usuario a la tabla permits. Aquí user corresponde al RUT de la persona.
+\item Para asignar roles a una persona tomar en cuenta lo siguiente:
+\begin{itemize}
+\item director, visualizer y dcc\_assistant corresponden a flags. Una persona con alguna de estas columnas en 1 corresponde a un director, visualizador o asistente del DCC respectivamente.
+\item assistant\_unidad, in\_charge\_unidad, finances\_assistant\_unidad e in\_charge\_unidad\_finances corresponden a texto. Un -1 en alguna de estas columnas indica que el usuario asociado no es asistente, encargado, asistente de finanzas o encargado de finanzas de ninguna unidad. Números separados por espacio en alguna de las columnas indican las unidades que se encuentran bajo la jurisdicción del usuario. Por ejemplo si la columna assistant\_unidad contiene el texto ''3 5 7'', entonces el usuario es asistente de unidad de las unidades 3, 5 y 7, cuyos nombres pueden verse en la tabla Organization. 	
+\end{itemize}
+\end{enumerate}
+
+ \vfill
+\vspace{5mm}
+
+\section{\textbf{Inicio del sistema}}
+Para inicializar el sistema siga las siguientes instrucciones:
+\begin{enumerate}
+\item Instalar Apache 2.4+ , php 5.6+ y MySQL 5.6+
+\item Configurar mod\_rewrite
+\begin{itemize}
+\item Si es ubuntu''sudo a2enmod rewrite''
+\item Luego ''sudo service apache2 restart''
+\item editar el archivo ''/etc/apache2/sites-available/ default'' y agregar: \\
+$<$Directory ''/var/www/html''$>$\\
+AllowOverride All \\
+$</$Directory$>$
+\end{itemize}
+
+\item Abrir php.ini 
+\begin{itemize}
+\item  Cambiar linea ''date.timezone=America/Santiago''
+\end{itemize}
+\item Copiar y pegar la carpeta del proyecto a la ruta donde se alojan los sitios. En este caso ''var/www/html/
+\item Editar .htaccess que se encuentra dentro de la carpeta del proyecto. Editar ''RewriteBase /udashboard/'' o el nombre de la carpeta donde se aloje el proyecto.
+\item Crear Base de datos en MySQL sin ninguna tabla
+\begin{enumerate}
+\item Collation: utf8\_unicode\_ci
+\end{enumerate}
+\item Editar ''/var/www/html/udashboard/application/config/database.php
+\begin{itemize}
+\item Cambiar los datos respectivos de MySQL: hostname, username, password y database.
+\end{itemize}
+\item Subir via phpmyadmin o consola archivo limpia.sql que es la estructura de la BD
+\begin{itemize}
+\item Por consola: mysql -u usuario\_BD -p nombre\_BD $<$ limpia.sql
+\item Por phpmyadmin:
+\begin{enumerate}
+\item seleccionar bd al costado izquierdo.
+\item En la barra superior click en import.
+\item Seleccionar limpia.sql y clickear go.
+\end{enumerate}
+\end{itemize}
+\item Subir via phpmyadmin o consola archivo first\_data.sql que contiene los mínimos datos que debe contener la BD para que funcione la aplicación
+\begin{itemize}
+\item Por consola: mysql -u usuario\_BD -p nombre\_BD $<$ first\_data.sql
+\item Por phpmyadmin:
+\begin{enumerate}
+\item seleccionar bd al costado izquierdo.
+\item En la barra superior click en import.
+\item Seleccionar first\_data.sql y clickear go.
+\end{enumerate}
+\end{itemize}
+
+\end{enumerate}
+\clearpage
+
+\section{\textbf{Base de datos}}
+En el documento de diseño del proyecto pueden encontrar detalladamente el modelo de la base de datos. Este modelo permite más flexibilidad de la que se está usando, la cual explicaremos a continuación:
+\subsection{Tabla Organization }
+La tabla \textit{Organization} corresponde a la estructura del departamento, representada como un árbol. Por ejemplo se tiene la siguiente tabla:
+%tabla
+\begin{table}[htdp]
+\caption{Organization}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\textbf{id} & \textbf{parent} & \textbf{name} \\ 
+ 1 & 0 & área A \\ 
+ 2 & 0 & área B \\ 
+3 & 1 & unidad A \\ 
+ 4 & 2 & unidad B \\ 
+\end{tabular}
+\end{center}
+\label{Organization}
+\end{table}%
+
+En este caso tenemos dos áreas, cada una con una unidad, Unidad A está bajo área A, y unidad B está bajo área B. Este modelo permite mover los nodos del árbol, cambiado las unidades de área, y haciendo que las áreas sean unidades (cuidando que estas no tengan unidades ya que la interfaz no lo permite). Si quisiéramos que ambas unidades fueran de área A simplemente cambiamos en la base de datos el valor de parent para Unidad B (id 4) y cambiamos el valor de parent a 1. Como todas las métricas se refieren a su unidad o área por su id, cambiar su posición en el árbol organizacional no genera problema.
+\subsection{Tabla Metric }
+Metric define generalmente algo que se quisiera medir, por ejemplo ''número de personal contratado en el año'', en esta tabla se definen las unidades de medida, pero no se asocia la métrica a ninguna área. Esta métrica podría querer medirse para más de una área, por lo que existe una tabla MetOrg que las asocia. Luego en la tabla Measure se ingresan los valores medidos y se asocian a algún id de MetOrg. Ejemplificamos:
+\begin{table}[htdp]
+\caption{Metric}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\textbf{id} & \textbf{category} & \textbf{unit} & \textbf{name}  \\ 
+ 1 & productiva & num personas & personal contratado \\ 
+\end{tabular}
+\end{center}
+\label{default}
+\end{table}%
+
+\begin{table}[htdp]
+\caption{MetOrg}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\textbf{id} & \textbf{org} & \textbf{metric}  \\ 
+ 1 & 3 (postgrado) & 1  \\ 
+ 2 & 4 (pregrado) & 1  \\ 
+\end{tabular}
+\end{center}
+\label{default}
+\end{table}%
+
+Una de las ventajas de esto, es que eventualmente se podría querer comparar una métrica, como el personal contratado, para las distintas áreas, y esta estructura lo facilita. 
+En nuestra implementación no lo usamos, y la interfaz no permite compartir métricas entre áreas. 
+\vfill
+\section{\textbf{Template y librerías}}
+
+En el siguiente link podrán encontrar los template usados para crear las interfaces:\\
+\hyperref[http://themeforest.net/item/porto-admin-responsive-html5-template/8539472]{http://themeforest.net/item/porto-admin-responsive-html5-template/8539472}
+\vspace{5mm}\\
+Para la librería de gráficos dirigirse a la siguiente página:\\
+\hyperref[http://www.flotcharts.org]{http://www.flotcharts.org}
+
+
+
+
+%\appendices
+%\section{Proof of the First Zonklar Equation}
+%\blindtext
+%\begin{thebibliography}{1}
+
+%\bibitem{IEEEhowto:kopka}
+%H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
+  %0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+
+%\end{thebibliography}
+
+
+%\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{picture}}]{John Doe}
+%\blindtext
+%\end{IEEEbiography}
+\end{document}
