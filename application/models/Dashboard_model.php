@@ -210,7 +210,7 @@ class Dashboard_model extends CI_Model
 
     function deleteMeasure($id_met, $year, $user, $validation){
       if($validation){
-        $query = "DELETE FROM Measure WHERE metorg= ? AND year = ? AND state= 1";
+        $query = "DELETE FROM Measure WHERE metorg= ? AND year = ?";
         $q = $this->db->query($query, array($id_met, $year));
     		return $q;
       }
@@ -236,14 +236,15 @@ class Dashboard_model extends CI_Model
 
     function updateData($id_met, $year, $value, $target, $expected, $user, $validation){ //Aqui hay que guardar datos antiguos
         if(!$validation){
-          $query = "SELECT value AS val, target AS tar, expected AS exp FROM Measure WHERE metorg = ? AND year = ?";
+          $query = "SELECT value AS val, target AS tar, expected AS exp, state AS s FROM Measure WHERE metorg = ? AND year = ?";
           $q = $this->db->query($query, array($id_met, $year));
 
-          if($q->num_rows() == 1){
+          if($q->num_rows() > 0){
               $row = $q->result()[0];
               $old_value = $row->val;
               $old_target = $row->tar;
               $old_expected = $row->exp;
+              $state = $row->s;
             }
             else{
               return false;
@@ -253,11 +254,21 @@ class Dashboard_model extends CI_Model
           $old_value = $value;
           $old_target = $target;
           $old_expected = $expected;
+          $state = 1;
+        }
+
+        if($state==0 || $state==-1){
+          $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup, old_value, old_target, old_expected)
+                      VALUES (?, ?, ?, ?, ? ,?, ?, NOW(),?,?,?)";
+
+          $q = $this->db->query($query, array($id_met, 0 ,$value, $target, $expected, $year, $user,$old_value, $old_target, $old_expected));
+
+          return $q;
         }
 
         $query = " UPDATE Measure SET state = ?, value =? , target = ?, expected = ?, updater = ? , dateup = NOW(),
-        old_value = ?, old_target = ?, old_expected = ?, modified = 1
-        WHERE metorg = ? AND year = ?";
+          old_value = ?, old_target = ?, old_expected = ?, modified = 1
+          WHERE metorg = ? AND year = ?";
 
         $q = $this->db->query($query, array($validation, $value, $target, $expected, $user,$old_value,
         $old_target, $old_expected, $id_met, $year));
@@ -278,7 +289,7 @@ class Dashboard_model extends CI_Model
     if($measure->state==-1)
       return $this->deleteData($id);
 		$data = array(
-		               'state' => 1,
+		          'state' => 1,
 					   'old_value'=> $measure->value,
 					   'old_target'=> $measure->target,
 					   'old_expected'=> $measure->expected,
@@ -288,7 +299,7 @@ class Dashboard_model extends CI_Model
 		$this->db->where('id', $id);
     $this->db->set('dateval', 'NOW()', FALSE);
 		$q=$this->db->update('Measure',$data);
-		$this->_overrrideData($id);
+		$this->_overrrideData($measure->metorg, $measure->year);
 		return $q;
 	}
 
@@ -307,7 +318,7 @@ class Dashboard_model extends CI_Model
 		$this->db->where('id', $id);
     $this->db->set('dateval', 'NOW()', FALSE);
 		$q=$this->db->update('Measure',$data);
-		$this->_overrrideData($id);
+		$this->_overrrideData($measure->metorg, $measure->year);
 		return $q;
 	}
 
@@ -328,10 +339,10 @@ class Dashboard_model extends CI_Model
 
 	}
 
-	function _overrrideData($id){
-		$q = $this->db->get_where('Measure',array('id' => $id));
+	function _overrrideData($metorg, $year){
+		$q = $this->db->get_where('Measure',array('metorg' => $metorg, 'year' => $year));
 		$newData = $q->row();
-		$q =  $this->db->get_where('Measure',array('id !='=> $id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
+		$q =  $this->db->get_where('Measure',array('id !='=> $newData->id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
 		foreach ($q->result() as $olderData){
 			$this->deleteData($olderData->id);
 		}

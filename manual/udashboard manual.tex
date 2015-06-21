@@ -91,6 +91,16 @@ $</$Directory$>$
 \item seleccionar bd al costado izquierdo.
 \item En la barra superior click en import.
 \item Seleccionar first\_data.sql y clickear go.
+
+Este archivo considera lo siguiente:
+\begin{enumerate}
+\item Inicialización para tabla Category, que guarda los tipos de métricas. El archivo incluye productividad y Finanzas, con id 1 y 2 respectivamente. Si desea agregar otro tipo de métrica basta agregar un nuevo identificador, junto con un nombre asociado.
+\item Inicialización para tabla GraphType, que guarda los estilos de gráficos que soporta la aplicación. El archivo incluye los tipos Barra y Línea, con id 1 y 2 respectivamente. Para agregar otro estilo de gráfico se debe agregar un nuevo identificador, junto con un nombre asociado.
+\item Inicialización para tabla OrgType, que guarda el tipo de las áreas y unidades. El archivo incluye los tipos Soporte y Operación,con id 1 y 2 respectivamente.Para agregar un nuevo tipo se debe agregar un nuevo identificador, junto con un nombre asociado.
+\item Inicialización para tabla State, que guarda el estado de un conjunto de datos ingresados (valor, esperado y objetivo). El archivo incluye los tipos no_validado, validado y por_borrar con id 0, 1 y -1 respectivamente.
+\item Inicialización para tabla Organization, que guarda áreas y unidades. El archivo incluye dos entradas, una para el DCC correspondiente a Soporte, con id y parent 0, y otra para el DCC de Operación con id y parent 1.\\
+Para agregar áreas o unidades se debe ocupar la aplicación. Esta acción puede ser llevada a cabo sólo por usuarios con rol de director.    
+\end{enumerate}    
 \end{enumerate}
 \end{itemize}
 

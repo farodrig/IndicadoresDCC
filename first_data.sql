@@ -55,7 +55,8 @@ INSERT INTO `OrgType` (`id`, `name`) VALUES
 
 INSERT INTO `State` (`id`, `name`) VALUES
 (0, 'no_validado'),
-(1, 'validado');
+(1, 'validado'),
+(-1, 'por_borrar');
 
 
 -- Volcado de datos para la tabla `organization`
