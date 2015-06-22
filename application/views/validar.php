@@ -99,7 +99,7 @@
 											<tr class="">
 											<td> <?php  echo ucwords($row->name)?> </td>
 											<td> <?php echo strcmp(ucwords($row->category),"Finanzas")==0 ? "Asistente de finanzas" :
-												(strcmp($row->adcc,"-1")==0 ? "Asistente de unidad" : "Asistente de DCC") ?></td>
+												(strcmp($row->adcc,"0")==0 ? "Asistente de unidad" : "Asistente de DCC") ?></td>
 											<td> <?php  echo ucwords($row->org_name)?> </td>
 											<td> <?php  echo ucwords($row->metric)?> </td>
 											<td> <?php  echo ucwords($row->category)?> </td>
