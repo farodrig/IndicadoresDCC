@@ -319,13 +319,16 @@ class Dashboard extends CI_Controller {
 
 		if ($show_all) {
 			$dashboard_metrics = $this->getAllDashboardMetrics($id, $permits);
+			$show_button = true;
 		} else {
 			$dashboard_metrics = $this->getDashboardMetrics($id, $permits);
+			$show_button = $this->Dashboard_model->showButton($id);
 		}
 
 		$result             = $this->auxShowDashboard($dashboard_metrics, $id);
 		$result['validate'] = validation($permits, $this->dashboardModel);
 		$result['show_all'] = $show_all;
+		$result['show_button'] = $show_button;
 		$result['role']     = $permits['title'];
 		$this->session->set_flashdata('id', $id);
 		$this->session->set_flashdata('show_all', $show_all);

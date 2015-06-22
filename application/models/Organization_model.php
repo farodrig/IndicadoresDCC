@@ -62,7 +62,7 @@ class Organization_model extends CI_Model{
         }
         if (count($result)==1)
             return $result[0];
-        return $result;
+        return array_reverse($result);
     }
 
     function getAllUnidades($area){

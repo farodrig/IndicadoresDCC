@@ -1,6 +1,20 @@
 <?php
 class Dashboard_model extends CI_Model
 {
+    function showButton($id){
+      $query = "SELECT * FROM Graphic AS g, GraphDash AS gd, Dashboard AS d
+                WHERE g.id=gd.graphic AND gd.dashboard=d.id AND d.org = ? AND g.position=1";
+      $q = $this->db->query($query, array($id));
+      $num_show = $q->num_rows();
+
+      $query = "SELECT * FROM Graphic AS g, GraphDash AS gd, Dashboard AS d
+                WHERE g.id=gd.graphic AND gd.dashboard=d.id AND d.org = ?";
+      $q = $this->db->query($query, array($id));
+
+      return $q->num_rows()>$num_show;
+
+    }
+
     function getMetType($id_met){
       $query = "SELECT c.name AS name FROM Metric AS m, MetOrg AS metorg, Category AS c
       WHERE m.id=metorg.metric AND m.category=c.id AND metorg.id = ?";
@@ -267,8 +281,9 @@ class Dashboard_model extends CI_Model
         }
 
         if($state==0 || $state==-1){
-          $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup, old_value, old_target, old_expected)
-                      VALUES (?, ?, ?, ?, ? ,?, ?, NOW(),?,?,?)";
+          $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup, old_value, old_target,
+            old_expected, modified)
+                      VALUES (?, ?, ?, ?, ? ,?, ?, NOW(),?,?,?,1)";
 
           $q = $this->db->query($query, array($id_met, 0 ,$value, $target, $expected, $year, $user,$old_value, $old_target, $old_expected));
 
@@ -316,6 +331,10 @@ class Dashboard_model extends CI_Model
     $this->load->library('session');
 		$query = $this->db->get_where('Measure',array('id' => $id));
 		$measure = $query->row();
+    $query = $this->db->get_where('Measure',array('year' => $measure->year, 'metorg' => $measure->metorg));
+
+    if($query->num_rows()>0)
+      return $this->deleteData($id);
 		$data = array(
 		               'state' => 1,
 					   'value'=> $measure->old_value,

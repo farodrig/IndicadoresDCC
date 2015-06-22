@@ -74,8 +74,12 @@
 
 					<!-- start: page -->
 						<div class="col-md-12">
-                            <?php echo form_open('agregarDato', array('onSubmit' => "return pageValidate();"));?>
-                            <section class="panel form-horizontal form-bordered">
+							<?php if(sizeof($metrics)==0){ ?>
+								<h2> No hay métricas en el sistema </h2>
+							<?php }
+							else{ ?>
+                <?php echo form_open('agregarDato', array('onSubmit' => "return pageValidate();"));?>
+                <section class="panel form-horizontal form-bordered">
 								<header class="panel-heading">
 
 									<h2 class="panel-title">Añadir y Borrar Datos</h2>
@@ -151,7 +155,8 @@
 								</footer>
 							</section>
                             <?php echo form_close();?>
-                        </div>
+							<?php } ?>
+              </div>
 
 
 					<!-- end: page -->
