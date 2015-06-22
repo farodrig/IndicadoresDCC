@@ -285,7 +285,7 @@ class Dashboard_model extends CI_Model
             old_expected, modified)
                       VALUES (?, ?, ?, ?, ? ,?, ?, NOW(),?,?,?,1)";
 
-          $q = $this->db->query($query, array($id_met, 0 ,$value, $target, $expected, $year, $user,$old_value, $old_target, $old_expected));
+          $q = $this->db->query($query, array($id_met, $state ,$value, $target, $expected, $year, $user,$old_value, $old_target, $old_expected));
 
           return $q;
         }
