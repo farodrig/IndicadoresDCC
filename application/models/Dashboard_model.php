@@ -90,7 +90,7 @@ class Dashboard_model extends CI_Model
 
         $query = "SELECT m.id AS id, m.metorg AS org, m.old_value AS val, m.old_target AS target, m.old_expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE (m.state=1 OR m.modified = 1) AND (".$morgs;
+                    WHERE (m.state=1 OR m.modified = 1) AND (".$morgs." ORDER BY m.year ASC, m.state DESC";
 
         $q = $this->db->query($query);
         if($q->num_rows() > 0)
@@ -188,8 +188,15 @@ class Dashboard_model extends CI_Model
     {
         $this->load->library('Dashboard_library');
         $row = $q->result();
+        $years=[];
+        foreach ($q->result() as $row){
+          $years[$row->org] = [];
+        }
         foreach ($q->result() as $row)
         {
+            if(in_array($row->year, $years[$row->org]))
+              continue;
+
             $parameters = array
             (
                 'id' => $row->id,
@@ -199,6 +206,8 @@ class Dashboard_model extends CI_Model
                 'expected' => $row->expected,
                 'year' => $row->year
             );
+
+            $years[$row->org][] = $row->year;
 
             $measurement = new Dashboard_library();
             $measurement_array[] = $measurement->initializeMeasurement($parameters);
@@ -340,7 +349,7 @@ class Dashboard_model extends CI_Model
 	}
 
 	function _overrrideData($metorg, $year){
-		$q = $this->db->get_where('Measure',array('metorg' => $metorg, 'year' => $year));
+		$q = $this->db->get_where('Measure',array('metorg' => $metorg, 'year' => $year, 'state' => 1));
 		$newData = $q->row();
 		$q =  $this->db->get_where('Measure',array('id !='=> $newData->id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
 		foreach ($q->result() as $olderData){
@@ -518,7 +527,7 @@ class Dashboard_model extends CI_Model
 
             $query = "SELECT m.id AS id, m.metorg AS org, m.old_value AS val, m.old_target AS target, m.old_expected AS expected, m.year AS year
                     FROM Measure AS m
-                    WHERE ((m.modified = 0 AND m.state=1) OR m.modified=1) AND m.metorg= ? AND m.year>= ? AND m.year<=? ORDER BY m.year ASC";
+                    WHERE ((m.modified = 0 AND m.state=1) OR m.modified=1) AND m.metorg= ? AND m.year>= ? AND m.year<=? ORDER BY m.year ASC, m.state DESC";
             $q = $this->db->query($query, array($met->getMetOrg(), $met->getMinYear(), $met->getMaxYear()));
             if(($size=$q->num_rows()) > 0){
                 $rows = $this->buildAllMeasuresments($q);
@@ -536,10 +545,10 @@ class Dashboard_model extends CI_Model
 
     function getAllData($id_org, $id_met){
 
-        $query = "SELECT m.value AS value, m.target AS target, m.expected AS expected, m.year AS year
+        $query = "SELECT m.old_value AS value, m.old_target AS target, m.old_expected AS expected, m.year AS year
          FROM Organization AS org, Dashboard AS d, GraphDash AS gd, Graphic AS g, Measure AS m
-         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND m.state=1
-         AND m.year>=g.min_year AND m.year<=g.max_year ORDER BY m.year ASC";
+         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND (m.state=1 OR m.modified=1)
+         AND m.year>=g.min_year AND m.year<=g.max_year ORDER BY m.year ASC, m.state DESC";
 
          $q= $this->db->query($query, array($id_org, $id_met, $id_met));
 
@@ -566,8 +575,11 @@ class Dashboard_model extends CI_Model
     {
         $this->load->library('Dashboard_library');
         $row = $q->result();
+        $years = [];
         foreach ($q->result() as $row)
         {
+            if(in_array($row->year, $years))
+              continue;
             $parameters = array
             (
                 'value' => $row->value,
@@ -575,6 +587,8 @@ class Dashboard_model extends CI_Model
                 'expected' => $row->expected,
                 'year' => $row->year
             );
+
+            $years[] = $row->year;
 
             $metrica = new Dashboard_library();
             $metrica_array[] = $metrica->initializeData($parameters);
