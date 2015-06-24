@@ -30,14 +30,14 @@ class Organization_model extends CI_Model {
 
 	/*
 	Añade un unidad a la BD dado un padre y la información de la unidad.
-	$parentName debe ser un string con el nombre del padre de la unidad, osea el area a la cual pertenece.
+	$parentId debe ser el Id del padre de la unidad, osea el area a la cual pertenece.
 	$data debe tener un 'name'.
 	En caso de error entrega False.
 	 */
-	function addUnidad($parentName, $data) {
-		$parent       = $this->getByName($parentName);
+	function addUnidad($parentId, $data) {
+		$parent       = $this->getByID($parentId);
 		$data['type'] = $parent->getType();
-		return $this->addChild($parent->getId(), $data);
+		return $this->addChild($parentId, $data);
 	}
 
 	/*
@@ -129,12 +129,12 @@ class Organization_model extends CI_Model {
 	}
 
 	/*
-	Dado el nombre de un elemento, este es eliminado de la BD.
-	$name debe ser un string con el nombre del elemento a eliminar.
+	Dado el id de un elemento, este es eliminado de la BD.
+	$id debe ser un integer con el id del elemento a eliminar.
 	Retorna un booleano indicando si se logró eliminar o no.
 	 */
-	function delByName($name) {
-		$this->db->where(array('name' => $name));
+	function delById($id) {
+		$this->db->where(array('id' => $id));
 		$query = $this->db->delete('Organization');
 		return ($this->db->affected_rows() == 0) ? false : true;
 	}

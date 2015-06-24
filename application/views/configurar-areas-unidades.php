@@ -36,18 +36,21 @@
         	   $("#segment").val(value);
            }
 
-		   function addUnidad(area){
+		   function addUnidad(area, id){
 			   $("#UniName").val("");
         	   $("#UniName").css("border-color", "#cccccc");
-			   $("#addUni").html(area);
+        	   $("#addUniAreaId").html(id);
+			   $("#addUniAreaName").html(area);
 		   }
 
-		   function delUnidad(unidad){
-			   $("#delUni").html(unidad);
+		   function delUnidad(unidad, id){
+			   $("#delUniId").html(id);
+			   $("#delUniName").html(unidad);
 		   }
 
-		   function delArea(area){
-			   $("#delArea").html(area);
+		   function delArea(area, id){
+			   $("#delAreaId").html(id);
+			   $("#delAreaName").html(area);
 		   }
 
 		   function redirectPost(location, args){
@@ -62,7 +65,7 @@
 			    var n = $("#AreaName").val();
 			    var segment = $("#segment").val();
 
-			    if(document.getElementById('AreaName').value==""){
+			    if(n==""){
 			   		alert("Debe ingresar un nombre para el área");
 			   	}
 			   	else{
@@ -71,14 +74,14 @@
 		   }
 
 		   function postDelArea(){
-			   var n = $("#delArea").html();
-			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'name': n});
+			   var n = $("#delAreaId").html();
+			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'id': n});
 		   }
 
 		   function postAddUni(){
-			   var area = $("#addUni").html();
+			   var area = $("#addUniAreaId").html();
 			   var name = $("#UniName").val();
-			   if(document.getElementById('UniName').value==""){
+			   if(name==""){
 			   		alert("Debe ingresar un nombre para la unidad");
 			   }
 			   else{
@@ -87,8 +90,8 @@
 		   }
 
 		   function postDelUni(){
-			   var n = $("#delUni").html();
-			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'name': n});
+			   var n = $("#delUniId").html();
+			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'id': n});
 		   }
 		</script>
 	</head>
@@ -192,7 +195,7 @@
     						                      <h2 class="panel-title text-center">
         						                      <div class="btn-group-horizontal text-center">
         						                          <label class="text-center"><?php echo(ucwords($area['area']->getName()));?></label>
-        						                          <a class="btn modal-with-form" href="#deleteArea" onclick = "delArea('<?php echo(ucwords($area['area']->getName()));?>')" style="color: red"><i class="licon-close"></i></a>
+        						                          <a class="btn modal-with-form" href="#deleteArea" onclick = "delArea('<?php echo(ucwords($area['area']->getName())."', ".$area['area']->getId());?>)" style="color: red"><i class="licon-close"></i></a>
         						                      </div>
     						                      </h2>
 						                      </header>
@@ -202,13 +205,13 @@
     						            foreach ($area['unidades'] as $unidad){
     						                ?>
             						                <div class="btn btn-default btn-group-horizontal text-center">
-            						                  <a class="btn modal-with-form" href="#deleteUnidad" onclick = "delUnidad('<?php echo(ucwords($unidad->getName()));?>')" style="color: red"><i class="licon-close"></i></a>
+            						                  <a class="btn modal-with-form" href="#deleteUnidad" onclick = "delUnidad('<?php echo(ucwords($unidad->getName())."', ".$unidad->getId());?>)" style="color: red"><i class="licon-close"></i></a>
             						                  <label class="text-center"><?php echo(ucwords($unidad->getName()));?></label>
         						                    </div>
     						            <?php
     						            }
     						            ?>
-    						                        <a class="btn modal-with-form" href="#agregarUnidad" onclick = "addUnidad('<?php echo(ucwords($area['area']->getName()));?>')" style="color: green"><i class="licon-plus"></i></a>
+    						                        <a class="btn modal-with-form" href="#agregarUnidad" onclick = "addUnidad('<?php echo(ucwords($area['area']->getName())."', ".$area['area']->getId());?>)" style="color: green"><i class="licon-plus"></i></a>
     						                      </div>
 						                      </div>
 					                      </section>
@@ -273,7 +276,8 @@
 										<section class="panel">
 											<header class="panel-heading">
 												<h2 class="panel-title">Agregar unidad</h2>
-												<p class="panel-subtitle" id = "addUni">Área 1</p>
+												<p hidden id="addUniAreaId"></p>
+												<p class="panel-subtitle" id = "addUniAreaName">Área 1</p>
 											</header>
 											<div class="panel-body">
 												<form id="demo-form" class="form-horizontal mb-lg">
@@ -306,7 +310,8 @@
 														<p>¿Está seguro de que quiere eliminar esta área?</p>
 														<ul class="titulo">
                                                             <li>
-                                                                <p ><strong id="delArea">area 1</strong></p>
+                                                                <p hidden id="delAreaId"></p>
+                                                                <p ><strong id="delAreaName">area 1</strong></p>
 														    </li>
 														</ul>
                                                         <div class="alert alert-warning">
@@ -338,7 +343,8 @@
 														<p>¿Está seguro de que quiere eliminar esta unidad?</p>
 														<ul class="titulo">
                                                             <li>
-                                                                <p><strong id="delUni">unidad 1</strong></p>
+                                                                <p hidden id="delUniId"></p>
+                                                                <p><strong id="delUniName">unidad 1</strong></p>
 														    </li>
 														</ul>
                                                         <div class="alert alert-warning">

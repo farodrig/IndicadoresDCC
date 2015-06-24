@@ -41,14 +41,14 @@ class ModifyOrg extends CI_Controller {
 		}
 
 		$data = array('type' => $this->input->post('type'),
-			'name'              => ucwords($this->input->post('name')));
+			          'name' => ucwords($this->input->post('name')));
 		$result = $this->Organization_model->addArea($data);
 		$this->session->set_flashdata('success', $result);
 		redirect('careaunidad');
 	}
 
 	function addUni() {
-		$this->form_validation->set_rules('area', 'Area', 'trim|required|alphaSpace');
+		$this->form_validation->set_rules('area', 'Area', 'trim|required|integer');
 		$this->form_validation->set_rules('name', 'Name', 'trim|required|alphaSpace');
 
 		if (!$this->form_validation->run()) {
@@ -62,15 +62,14 @@ class ModifyOrg extends CI_Controller {
 	}
 
 	function delAreaUni() {
-		$this->form_validation->set_rules('name', 'Name', 'trim|required|alphaSpace');
+		$this->form_validation->set_rules('id', 'Id', 'trim|required|integer');
 
 		if (!$this->form_validation->run()) {
 			$this->session->set_flashdata('success', 0);
 			redirect('careaunidad');
 		}
 
-		$data   = $this->input->post('name');
-		$result = $this->Organization_model->delByName($data);
+		$result = $this->Organization_model->delById($this->input->post('id'));
 		$this->session->set_flashdata('success', $result);
 		redirect('careaunidad');
 	}
