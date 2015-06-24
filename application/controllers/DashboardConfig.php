@@ -7,6 +7,7 @@ class DashboardConfig extends CI_Controller {
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->model('Dashboard_model');
+		$this->load->model('Dashboardconfig_model');
 		$this->dashboardModel = $this->Dashboard_model;
 	}
 
@@ -28,7 +29,7 @@ class DashboardConfig extends CI_Controller {
 			$this->session->unset_userdata('id_org');
 		}
 		$this->session->set_flashdata('id_first_unidad', $id_first);
-		$this->load->model('Dashboardconfig_model');
+
 		$all_metrics = $this->Dashboardconfig_model->getAllMetricsUnidades();//Retorna arrglo de arreglos de metricas de las unidades correspondientes
 		//Si all_metrics es falso es porque no hay areas
 
@@ -81,7 +82,6 @@ class DashboardConfig extends CI_Controller {
 		}
 
 		$this->session->set_flashdata('id_first_area', $id_first);
-		$this->load->model('Dashboardconfig_model');
 		$all_metrics = $this->Dashboardconfig_model->getAllMetricsArea();//Retorna arrglo de arreglos de metricas de las unidades y areas correspondientes
 		//Si all_metrics es falso es porque no hay areas
 
@@ -143,7 +143,6 @@ class DashboardConfig extends CI_Controller {
 		}
 
 		$this->session->set_flashdata('id_first_dcc', $id_first);
-		$this->load->model('Dashboardconfig_model');
 		$all_metrics = $this->Dashboardconfig_model->getAllMetricsDCC();//Retorna arrglo de arreglos de todas las métricas
 		//Si all_metrics es falso es porque no hay areas
 
@@ -286,10 +285,6 @@ class DashboardConfig extends CI_Controller {
 		$to       = $this->input->post('to');
 		$position = $this->input->post('mostrar') == NULL ? 0 : 1;
 
-		if (intval($to) < intval($from)) {
-			$this->load->model('Dashboardconfig_model');
-		}
-
 		$data = array('type' => $graph,
 			'id_met'            => $id_met,
 			'from'              => $from,
@@ -298,7 +293,6 @@ class DashboardConfig extends CI_Controller {
 			'id_org'            => $org_id,
 			'id_graph'          => $id_graph);
 
-		$this->load->model('Dashboardconfig_model');
 		$this->Dashboardconfig_model->addGraph($data);
 	}
 
