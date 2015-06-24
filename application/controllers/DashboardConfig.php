@@ -98,6 +98,8 @@ class DashboardConfig extends CI_Controller {
 		if ($all_metrics) {
 			$result['metricas'] = $all_metrics;
 			$id_keys            = array_keys($all_metrics);
+
+			//$id_org_dash = -1;
 			for ($i = 0; $i < sizeof($id_keys); $i++) {
 				$id_org     = $id_keys[$i];
 				$met_unidad = $all_metrics[$id_org];
@@ -108,7 +110,8 @@ class DashboardConfig extends CI_Controller {
 						$id_org_dash = $id_org;
 					} else {
 						for ($j = 0; $j < sizeof($keys_areas); $j++) {
-							if (in_array($id_org, $all_areas[$keys_areas[$j]])) {
+							for($k=0; $k < sizeof($all_areas[$keys_areas[$j]]['unidades']); $k++)
+								if (in_array($id_org, $all_areas[$keys_areas[$j]]['unidades'][$k])) {
 								$id_org_dash = $keys_areas[$j];
 								break;
 							}

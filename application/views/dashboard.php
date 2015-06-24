@@ -62,18 +62,23 @@
 
 
 						<?php echo form_open("dashboard");
-						if($show_all){
-						?>
-							<input type="hidden" id="show_all" name="show_all" value="0">
-							<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
-						<?php }
-						else { ?>
-							<input type="hidden" id="show_all" name="show_all" value="1">
-							<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
-						<?php } ?>
-						<hr>
+						if($show_button){
+							if($show_all){
+								?>
+								<input type="hidden" id="show_all" name="show_all" value="0">
+								<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
+								<?php }
+							else { ?>
+								<input type="hidden" id="show_all" name="show_all" value="1">
+								<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
+							<?php } ?>
+							<hr>
+						<?php } ?>	
 						<?php echo form_close(); ?>
 
+						<?php if(sizeof($data)==0){ ?>
+							<h2> No hay gráficos configurados para mostrar. </h2>
+						<?php } ?>
 
 						<?php foreach ($data as $metric):?>
 							<div class='row'>

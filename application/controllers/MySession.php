@@ -226,7 +226,7 @@ class MySession extends CI_Controller {
 	public function agregarMetrica() {
 		$this->load->library('form_validation');
 
-		$this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required|alphaSpace');
+		$this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required');
 		$this->form_validation->set_rules('category', 'Category', 'required|numeric');
 		$this->form_validation->set_rules('name', 'Name', 'required|alphaSpace');
 		$this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
@@ -241,7 +241,7 @@ class MySession extends CI_Controller {
 		$this->load->model('Unit_model');
 
 		$Unit = array(
-			'name' => ucwords($this->input->post('unidad_medida')),
+			'name' => $this->input->post('unidad_medida'),
 		);
 
 		$Metricdata = array(
@@ -250,7 +250,7 @@ class MySession extends CI_Controller {
 			'unit' => $this->Unit_model->checkName($Unit), //-> primero revisa si hay unidad de medida en la base de datos con ese nombre, si existe toma
 			// el id correspondiente y le asocias a la metrica ese id ,si no agrega la unidad, obten
 			// el nuevo id y se lo asocias a la metrica
-			'name' => ucwords($this->input->post('name')), //Nombre que tendrá la métrica//id de la unidad o area a la que se le quiere ingresar la metrica
+			'name' => $this->input->post('name'), //Nombre que tendrá la métrica//id de la unidad o area a la que se le quiere ingresar la metrica
 		);
 
 		$id_metric = $this->Metrics_model->addMetric($Metricdata);

@@ -165,6 +165,8 @@ class Dashboardconfig_model extends CI_Model
 		$q = $this->db->query($query);
 		if($q->num_rows() > 0){
 			$metrics_dcc = $q->result();
+			$r_1=[];
+			$r_0=[];
 			foreach ($metrics_dcc as $metric) {
 				if($metric->org==1)
 					$r_1[] = array('metorg' => $metric->id,

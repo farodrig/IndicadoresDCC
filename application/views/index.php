@@ -3,7 +3,7 @@
 	<head>
         <?php
         $title = "U-Dashboard";
-        include 'partials/head.php'; 
+        include 'partials/head.php';
         ?>
 		<style type="text/css">
             <?php
@@ -50,17 +50,17 @@
 										</a>
 									</li>
 									<?php
-									$second = false;
+									$first = true;
 									foreach ($types as $type){
 									    echo ('<li> <a href="'.base_url().'inicio?sector='.$type['name'].'">');
 									    echo ('<span class="pull-right label label-primary"></span>');
-									    if ($second){
+									    if ($first){
 									       echo ('<i class="fa fa-university" aria-hidden="true"></i>');
-									      
+									       $first = false;
 									    }
 									    else{
 									        echo ('<i class="el-icon-group" aria-hidden="true"></i>');
-													$second = true;
+													
 												}
 									    echo ('<span>'.ucwords($type['name']).'</span></a></li>');
 									}
@@ -141,7 +141,7 @@
 		</section>
 
 		<?php include 'partials/footer.php'; ?>
-		
+
 		<script type="text/javascript">
 			function changePage(){
       			window.location.href = "<?php echo base_url();?>dashboard";

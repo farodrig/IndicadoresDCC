@@ -27,7 +27,7 @@ function alphaSpace($str){
         return true;
     }
     else{
-        $this->form_validation->set_message('alphaSpace', 'El campo {field} contiene caracteres no alfabeticos o espacios');
+        //$this->form_validation->set_message('alphaSpace', 'El campo {field} contiene caracteres no alfabeticos o espacios');
         return false;
     }
 }

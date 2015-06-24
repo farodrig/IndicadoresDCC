@@ -91,7 +91,7 @@ class Organization_model extends CI_Model {
 		foreach ($query->result() as $row) {
 			array_push($result, array('id' => $row->id, 'name' => $row->name, 'color' => $colores[$row->name]));
 		}
-		return (count($result) == 1) ? $result[0] : $result;
+		return (count($result) == 1) ? $result[0] : array_reverse($result);
 	}
 
 	/*
