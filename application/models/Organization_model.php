@@ -2,6 +2,15 @@
 
 class Organization_model extends CI_Model {
 
+	public $title;
+
+	public function __construct()
+	{
+		// Call the CI_Model constructor
+		parent::__construct();
+		$this->title = "Organization";
+	}
+
 	/*
 	Entrega las raices del arbol de organizaciones. El DCC tipicamente se divide en 2 arboles, Operación y Soporte.
 	Si no se obtienen estas dos raices entrega false, a modo de error.
@@ -9,7 +18,7 @@ class Organization_model extends CI_Model {
 	 */
 	function getDepartment() {
 		$this->db->where("id = parent");
-		$query = $this->db->get('Organization');
+		$query = $this->db->get($this->title);
 		return ($query->num_rows() != 2) ? false : $this->buildAllOrganization($query);
 	}
 
@@ -48,7 +57,7 @@ class Organization_model extends CI_Model {
 	 */
 	private function addChild($parent, $data) {
 		$data['parent'] = $parent;
-		return ($this->db->insert("Organization", $data)) ? true : false;
+		return ($this->db->insert($this->title, $data)) ? true : false;
 	}
 
 	/*
@@ -124,7 +133,7 @@ class Organization_model extends CI_Model {
 	function getAllChilds($id) {
 		$this->db->where(array('parent' => $id));
 		$this->db->where('id!=parent');
-		$query = $this->db->get('Organization');
+		$query = $this->db->get($this->title);
 		return $this->buildAllOrganization($query);
 	}
 
@@ -135,7 +144,7 @@ class Organization_model extends CI_Model {
 	 */
 	function delById($id) {
 		$this->db->where(array('id' => $id));
-		$query = $this->db->delete('Organization');
+		$query = $this->db->delete($this->title);
 		return ($this->db->affected_rows() == 0) ? false : true;
 	}
 
@@ -146,7 +155,7 @@ class Organization_model extends CI_Model {
 	 */
 	function getByID($id) {
 		$this->db->where(array('id' => $id));
-		$query = $this->db->get('Organization');
+		$query = $this->db->get($this->title);
 		return ($query->num_rows() != 1) ? false : $this->buildOrganization($query->row());
 	}
 
@@ -157,7 +166,7 @@ class Organization_model extends CI_Model {
 	 */
 	function getByName($name) {
 		$this->db->where(array('name' => $name));
-		$query = $this->db->get('Organization');
+		$query = $this->db->get($this->title);
 		return ($query->num_rows() != 1) ? false : $this->buildOrganization($query->row());
 	}
 
