@@ -11,8 +11,7 @@ class MySession extends CI_Controller {
 	public function index() {
 		$result          = array();
 		$result['error'] = $this->session->flashdata('error');
-		//Descomentar Desde Aqui
-        /*
+		//Comentar Desde Aqui
 		$this->load->model('User_model');
 		$result['users'] = $this->User_model->getAllUsers();
 
@@ -37,8 +36,7 @@ class MySession extends CI_Controller {
 			$this->session->set_userdata($permits_array);
 			redirect('inicio');
 		}
-        */
-		//Hasta Aqui para Pasar a DESARROLLO
+		//Hasta Aqui para Pasar a PRODUCCION
 		$this->load->view('login', $result);
 	}
 
