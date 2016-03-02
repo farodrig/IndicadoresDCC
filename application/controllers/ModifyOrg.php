@@ -7,8 +7,6 @@ class ModifyOrg extends CI_Controller {
 		$this->load->model('Organization_model');
 		$this->load->library('form_validation');
 		$this->load->library('session');
-		$this->Organization_model = $this->Organization_model;
-		$this->dashboardModel     = $this->Dashboard_model;
 	}
 
 	function modifyAreaUnidad() {
@@ -26,7 +24,7 @@ class ModifyOrg extends CI_Controller {
 			array('title'  => 'Configuración de Areas y Unidades',
 				'role'        => $permits['title'],
 				'success'     => $val,
-				'validate'    => validation($permits, $this->dashboardModel),
+				'validate'    => validation($permits, $this->Dashboard_model),
 				'departments' => getAllOrgsByDpto($this->Organization_model)//Notar que funcion esta en helpers
 			));
 	}
