@@ -6,13 +6,11 @@
         include 'partials/head.php'; ?>
 
         <style type="text/css">
+
         .titulo{
             font-size: 15px;
             padding-bottom: 20px;
             padding-top: 10px;
-        }
-        .Areas{
-            margin-bottom: 40px;
         }
         </style>
 
@@ -104,47 +102,12 @@
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
-				<aside id="sidebar-left" class="sidebar-left">
-
-					<div class="sidebar-header">
-						<div class="sidebar-title">
-							Navegación
-						</div>
-						<div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html" data-fire-event="sidebar-left-toggle">
-							<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-						</div>
-					</div>
-
-					<div class="nano">
-						<div class="nano-content">
-							<nav id="menu" class="nav-main" role="navigation">
-								<ul class="nav nav-main">
-									<li>
-										<a href="<?php echo base_url();?>inicio">
-											<i class="fa fa-home" aria-hidden="true"></i>
-											<span>U-Dashboard</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>cmetrica">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-server" aria-hidden="true"></i>
-											<span>Configurar métricas</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>cdashboardUnidad">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-bar-chart" aria-hidden="true"></i>
-											<span>Configurar Dashboard</span>
-										</a>
-									</li>
-								</ul>
-							</nav>
-						</div>
-					</div>
-
-				</aside>
+				<?php
+				$navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
+						  ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
+						  ['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
+				include 'partials/navigation.php';
+				?>
 				<!-- end: sidebar -->
 
 				<section role="main" class="content-body">
@@ -177,12 +140,11 @@
 						            $counter = 0;
 						            $kind = $dpto['type']['name'];
 						            $color = $dpto['type']['color'];
-						            if($c==count($departments))
-						              echo('<section class="panel panel-transparent">');
-						            else
-						              echo('<section class="panel panel-transparent Areas">');
-						            echo('<h2 style="text-align:center;">'.ucwords($kind).'</h2>');
-						            echo('<hr>');
+						  ?>
+								<section class="panel col-md-6">
+						        	<h2 style="text-align:center;"><?php echo(ucwords($kind));?></h2>
+						            <hr>
+						  <?php
 						            foreach ($dpto['areas'] as $area){
     						            if ($counter % 2 == 0 && $counter!=0)
     						                echo ('</div>');
@@ -193,8 +155,8 @@
     						              <section class="panel panel-info">
     						                  <header class="panel-heading" style="background-color: <?php echo($color);?>">
     						                      <h2 class="panel-title text-center">
-        						                      <div class="btn-group-horizontal text-center">
-        						                          <label class="text-center"><?php echo(ucwords($area['area']->getName()));?></label>
+        						                      <div class="btn-group-horizontal">
+        						                          <label><?php echo(ucwords($area['area']->getName()));?></label>
         						                          <a class="btn modal-with-form" href="#deleteArea" onclick = "delArea('<?php echo(ucwords($area['area']->getName())."', ".$area['area']->getId());?>)" style="color: red"><i class="licon-close"></i></a>
         						                      </div>
     						                      </h2>
@@ -204,9 +166,9 @@
     						            <?php
     						            foreach ($area['unidades'] as $unidad){
     						                ?>
-            						                <div class="btn btn-default btn-group-horizontal text-center">
-            						                  <a class="btn modal-with-form" href="#deleteUnidad" onclick = "delUnidad('<?php echo(ucwords($unidad->getName())."', ".$unidad->getId());?>)" style="color: red"><i class="licon-close"></i></a>
-            						                  <label class="text-center"><?php echo(ucwords($unidad->getName()));?></label>
+            						                <div class="btn btn-default text-center">
+            						                    <label><?php echo(ucwords($unidad->getName()));?></label>
+                                                        <a class="btn modal-with-form pull-right" href="#deleteUnidad" onclick = "delUnidad('<?php echo(ucwords($unidad->getName())."', ".$unidad->getId());?>)" style="color: red"><i class="licon-close"></i></a>
         						                    </div>
     						            <?php
     						            }
@@ -234,137 +196,137 @@
 						        }
 						        ?>
 
-							<div id="agregarArea" class="modal-block modal-block-primary mfp-hide">
-										<section class="panel">
-											<header class="panel-heading">
-												<h2 class="panel-title">Agregar área</h2>
-											</header>
-											<div class="panel-body">
-												<form id="demo-form" class="form-horizontal mb-lg">
-													<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Nombre:</label>
-														<div class="col-sm-9">
+                                <div id="agregarArea" class="modal-block modal-block-primary mfp-hide">
+                                    <section class="panel">
+                                        <header class="panel-heading">
+                                            <h2 class="panel-title">Agregar área</h2>
+                                        </header>
+                                        <div class="panel-body">
+                                            <form id="demo-form" class="form-horizontal mb-lg">
+                                                <div class="form-group mt-lg">
+                                                    <label class="col-sm-3 control-label">Nombre:</label>
+                                                    <div class="col-sm-9">
 
-															<input id = "AreaName" onchange = "validateName(this);" type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
+                                                        <input id = "AreaName" onchange = "validateName(this);" type="text" name="name" class="form-control" placeholder="nombre de la nueva área..." required/>
 
-														</div>
-													</div>
-													<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Segmento:</label>
-														<div class="col-sm-9">
-                                                            <select class="form-control" id="segment">
-                                                              <?php
-                                                                foreach ($departments as $dpto){
-                                                                    echo('<option value="'.$dpto['type']['id'].'">'.ucwords($dpto['type']['name']).'</option>');
-                                                                }
-                                                              ?>
-                                                            </select>														</div>
-													</div>
-												</form>
-											</div>
-											<footer class="panel-footer">
-												<div class="row">
-													<div class="col-md-12 text-right">
-														<button class="btn btn-primary" onclick="postAddArea()">Añadir</button>
-														<button class="btn btn-default modal-dismiss">Cancelar</button>
-													</div>
-												</div>
-											</footer>
-										</section>
-							</div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group mt-lg">
+                                                    <label class="col-sm-3 control-label">Segmento:</label>
+                                                    <div class="col-sm-9">
+                                                        <select class="form-control" id="segment">
+                                                          <?php
+                                                            foreach ($departments as $dpto){
+                                                                echo('<option value="'.$dpto['type']['id'].'">'.ucwords($dpto['type']['name']).'</option>');
+                                                            }
+                                                          ?>
+                                                        </select>														</div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <footer class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-md-12 text-right">
+                                                    <button class="btn btn-primary" onclick="postAddArea()">Añadir</button>
+                                                    <button class="btn btn-default modal-dismiss">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        </footer>
+                                    </section>
+                                </div>
 								<div id="agregarUnidad" class="modal-block modal-block-primary mfp-hide">
-										<section class="panel">
-											<header class="panel-heading">
-												<h2 class="panel-title">Agregar unidad</h2>
-												<p hidden id="addUniAreaId"></p>
-												<p class="panel-subtitle" id = "addUniAreaName">Área 1</p>
-											</header>
-											<div class="panel-body">
-												<form id="demo-form" class="form-horizontal mb-lg">
-													<div class="form-group mt-lg">
-														<label class="col-sm-3 control-label">Nombre:</label>
-														<div class="col-sm-9">
-															<input id = "UniName" onchange = "validateName(this);" type="text" name="name" class="form-control" placeholder="nombre de la nueva unidad..." required/>
-														</div>
-													</div>
-												</form>
-											</div>
-											<footer class="panel-footer">
-												<div class="row">
-													<div class="col-md-12 text-right">
-														<button class="btn btn-primary" onclick="postAddUni()">Añadir</button>
-														<button class="btn btn-default modal-dismiss">Cancelar</button>
-													</div>
-												</div>
-											</footer>
-										</section>
-									</div>
-									<div id="deleteArea" class="modal-block mfp-hide">
-										<section class="panel">
-											<header class="panel-heading">
-												<h2 class="panel-title">¿Está seguro?</h2>
-											</header>
-											<div class="panel-body">
-												<div class="modal-wrapper">
-													<div class="modal-text">
-														<p>¿Está seguro de que quiere eliminar esta área?</p>
-														<ul class="titulo">
-                                                            <li>
-                                                                <p hidden id="delAreaId"></p>
-                                                                <p ><strong id="delAreaName">area 1</strong></p>
-														    </li>
-														</ul>
-                                                        <div class="alert alert-warning">
-                                                            <i class="fa fa-warning"></i>
-                                                            <strong>Advertencia</strong><br>Al eliminar esta área se perderá toda la información asociada a ésta.<br>
-                                                            Por favor tener cuidado de respaldar los datos que no quiera que se pierdan.
-                                                        </div>
-													</div>
-												</div>
-											</div>
-											<footer class="panel-footer">
-												<div class="row">
-													<div class="col-md-12 text-right">
-														<button class="btn btn-primary" onclick="postDelArea()">Confirmar</button>
-														<button class="btn btn-default modal-dismiss">Cancelar</button>
-													</div>
-												</div>
-											</footer>
-										</section>
-									</div>
-									<div id="deleteUnidad" class="modal-block mfp-hide">
-										<section class="panel">
-											<header class="panel-heading">
-												<h2 class="panel-title">¿Está seguro?</h2>
-											</header>
-											<div class="panel-body">
-												<div class="modal-wrapper">
-													<div class="modal-text">
-														<p>¿Está seguro de que quiere eliminar esta unidad?</p>
-														<ul class="titulo">
-                                                            <li>
-                                                                <p hidden id="delUniId"></p>
-                                                                <p><strong id="delUniName">unidad 1</strong></p>
-														    </li>
-														</ul>
-                                                        <div class="alert alert-warning">
-                                                            <i class="fa fa-warning"></i>
-                                                            <strong>Advertencia</strong><br>Al eliminar esta unidad se perderá toda la información asociada a ésta.<br>
-                                                            Por favor tener cuidado de respaldar los datos que no quiera que se pierdan.
-                                                        </div>
-													</div>
-												</div>
-											</div>
-											<footer class="panel-footer">
-												<div class="row">
-													<div class="col-md-12 text-right">
-														<button class="btn btn-primary" onclick="postDelUni()">Confirmar</button>
-														<button class="btn btn-default modal-dismiss">Cancelar</button>
-													</div>
-												</div>
-											</footer>
-										</section>
-									</div>
+                                    <section class="panel">
+                                        <header class="panel-heading">
+                                            <h2 class="panel-title">Agregar unidad</h2>
+                                            <p hidden id="addUniAreaId"></p>
+                                            <p class="panel-subtitle" id = "addUniAreaName">Área 1</p>
+                                        </header>
+                                        <div class="panel-body">
+                                            <form id="demo-form" class="form-horizontal mb-lg">
+                                                <div class="form-group mt-lg">
+                                                    <label class="col-sm-3 control-label">Nombre:</label>
+                                                    <div class="col-sm-9">
+                                                        <input id = "UniName" onchange = "validateName(this);" type="text" name="name" class="form-control" placeholder="nombre de la nueva unidad..." required/>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <footer class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-md-12 text-right">
+                                                    <button class="btn btn-primary" onclick="postAddUni()">Añadir</button>
+                                                    <button class="btn btn-default modal-dismiss">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        </footer>
+                                    </section>
+                                </div>
+                                <div id="deleteArea" class="modal-block mfp-hide">
+                                    <section class="panel">
+                                        <header class="panel-heading">
+                                            <h2 class="panel-title">¿Está seguro?</h2>
+                                        </header>
+                                        <div class="panel-body">
+                                            <div class="modal-wrapper">
+                                                <div class="modal-text">
+                                                    <p>¿Está seguro de que quiere eliminar esta área?</p>
+                                                    <ul class="titulo">
+                                                        <li>
+                                                            <p hidden id="delAreaId"></p>
+                                                            <p ><strong id="delAreaName">area 1</strong></p>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="alert alert-warning">
+                                                        <i class="fa fa-warning"></i>
+                                                        <strong>Advertencia</strong><br>Al eliminar esta área se perderá toda la información asociada a ésta.<br>
+                                                        Por favor tener cuidado de respaldar los datos que no quiera que se pierdan.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <footer class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-md-12 text-right">
+                                                    <button class="btn btn-primary" onclick="postDelArea()">Confirmar</button>
+                                                    <button class="btn btn-default modal-dismiss">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        </footer>
+                                    </section>
+                                </div>
+                                <div id="deleteUnidad" class="modal-block mfp-hide">
+                                    <section class="panel">
+                                        <header class="panel-heading">
+                                            <h2 class="panel-title">¿Está seguro?</h2>
+                                        </header>
+                                        <div class="panel-body">
+                                            <div class="modal-wrapper">
+                                                <div class="modal-text">
+                                                    <p>¿Está seguro de que quiere eliminar esta unidad?</p>
+                                                    <ul class="titulo">
+                                                        <li>
+                                                            <p hidden id="delUniId"></p>
+                                                            <p><strong id="delUniName">unidad 1</strong></p>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="alert alert-warning">
+                                                        <i class="fa fa-warning"></i>
+                                                        <strong>Advertencia</strong><br>Al eliminar esta unidad se perderá toda la información asociada a ésta.<br>
+                                                        Por favor tener cuidado de respaldar los datos que no quiera que se pierdan.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <footer class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-md-12 text-right">
+                                                    <button class="btn btn-primary" onclick="postDelUni()">Confirmar</button>
+                                                    <button class="btn btn-default modal-dismiss">Cancelar</button>
+                                                </div>
+                                            </div>
+                                        </footer>
+                                    </section>
+                                </div>
 						</div>
 					</section>
 
