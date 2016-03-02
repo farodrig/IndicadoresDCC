@@ -171,6 +171,79 @@ CREATE TABLE IF NOT EXISTS `Permits` (
   `dcc_assistant` int(11) NOT NULL DEFAULT '0' COMMENT 'asistente dcc'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+
+
+-- -----------------------------------------------------
+-- Table `UDashboard`.`FODA`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `UDashboard`.`FODA` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `org` INT(11) NOT NULL,
+  `year` INT(11) NOT NULL,
+  `comment` TEXT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `UNIQUE` (`org` ASC, `year` ASC),
+  CONSTRAINT `fk_FODA_Organization1`
+    FOREIGN KEY (`org`)
+    REFERENCES `UDashboard`.`Organization` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `UDashboard`.`Priority`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `UDashboard`.`Priority` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+COMMENT = 'High, Medium, Low';
+
+
+-- -----------------------------------------------------
+-- Table `UDashboard`.`FODA_Type`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `UDashboard`.`FODA_Type` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `UDashboard`.`Item`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `UDashboard`.`Item` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `foda` INT(11) NOT NULL,
+  `priority` INT NOT NULL,
+  `type` INT NOT NULL,
+  `description` TEXT NULL,
+  `comment` TEXT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_Item_Priority1_idx` (`priority` ASC),
+  INDEX `fk_Item_FODA_Type1_idx` (`type` ASC),
+  CONSTRAINT `fk_Item_FODA1`
+    FOREIGN KEY (`foda`)
+    REFERENCES `UDashboard`.`FODA` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Item_Priority1`
+    FOREIGN KEY (`priority`)
+    REFERENCES `UDashboard`.`Priority` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Item_FODA_Type1`
+    FOREIGN KEY (`type`)
+    REFERENCES `UDashboard`.`FODA_Type` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+
 -- --------------------------------------------------------
 
 --

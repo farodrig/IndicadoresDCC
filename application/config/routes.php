@@ -69,5 +69,9 @@ $route['contacto']         = 'MySession/contact';
 $route['salir']            = 'MySession/logout';
 $route['verif_usuario']    = 'ADI/user_verify';
 
+$route['foda'] = 'Foda/modifyFoda';
+$route['foda/add'] = 'Foda/addFodaItem';
+
 $route['404_override']         = '';
 $route['translate_uri_dashes'] = FALSE;
+

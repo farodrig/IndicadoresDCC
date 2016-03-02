@@ -13,6 +13,11 @@ function getGeneric($model, $db_name, $columns, $data){
     if (array_key_exists('limit', $data)){
         $model->db->limit($data['limit']);
     }
+    if (array_key_exists('order', $data)){
+        foreach($data['order'] as $order){
+            $model->db->order_by($order[0], $order[1]);
+       }
+    }
     $query = $model->db->get($db_name);
     return $query->result();
 }
