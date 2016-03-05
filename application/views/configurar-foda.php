@@ -17,24 +17,53 @@
             color: lightgrey;
             text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
         }
+
+        #fodaForm{
+            margin-top: 2%;
+        }
+
+        form label{
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .Element{
+            margin-top: 2%;
+        }
     </style>
 
     <script type="text/javascript">
 
+        var element = 0;
+
+        var fodas = <?php echo json_encode($fodas); ?>;
+        var priorities = <?php echo json_encode($priorities); ?>;
+        var types = <?php echo json_encode($types); ?>;
         var greenTicket = -1;
 
+        var prioritiesHTML = "";
+        for(var i = 0; i<priorities.length; i++){
+            prioritiesHTML += '<option value="'+ priorities[i].id +'">' + priorities[i].name + '</option>'
+        }
+        var typesHTML = "";
+        for(var i = 0; i<types.length; i++){
+            typesHTML += '<option value="'+ types[i].id +'">' + types[i].name + '</option>'
+        }
         function changeColor(id){
             if (greenTicket!=id){
                 if (greenTicket!=-1){
                     $('#ticket'+greenTicket).css('color', 'lightgrey');
                 }
                 greenTicket = id;
+                $('#org').val(greenTicket);
                 $('#ticket'+id).css('color', 'forestgreen');
             }
             else{
                 $('#ticket'+id).css('color', 'lightgrey');
+                $('#org').val(null);
                 greenTicket = -1;
             }
+            $('#year').trigger('change');
         }
 
     </script>
@@ -150,7 +179,27 @@
                     ?>
                 </div>
             </section>
-
+            <form id="fodaForm" class="form-horizontal mb-lg " action="<?php echo base_url();?>foda/add" method="post">
+                <input type="hidden" id="org" name="org">
+                <div class="form-group">
+                    <label for="year" class="col-sm-2 control-label">Año:</label>
+                    <div class="col-sm-1">
+                        <select class="form-control" id="year" name="year">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fodaComment" class="col-sm-2 control-label">Comentario:</label>
+                    <div class="col-sm-2">
+                        <textarea class="form-control" id="fodaComment" name="fodaComment" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Agregar elemento al FODA:</label>
+                    <a id="addElement" class="btn" style="color: green"><i class="licon-plus fa-2x"></i></a>
+                </div>
+            </form>
+            <input id = "submit" class="btn btn-success pull-right" type="submit" value="Guardar"/>
             <!-- end: page -->
         </section>
     </div>
@@ -159,6 +208,78 @@
 <?php include 'partials/footer.php'; ?>
 
 <script type="text/javascript">
+
+    //Revisión antes de mandar información
+    $('#submit').click(function(e){
+        if (greenTicket==-1){
+            alert('Para guardar la configuración debe seleccionar un elemento de la organización');
+        }
+        else{
+            $('#fodaForm').submit();
+        }
+    });
+
+
+    //Agrega formulario para elemento del FODA
+    $('#addElement').click(function(e){
+        element++;
+        var html = '<div id = "element'+element+'" class="form-group Element">\
+        <div class="row">\
+            <h3 class="col-md-10 text-center">Elemento '+element+'</h3>\
+        </div>\
+        <hr>\
+        <div class="form-group row">\
+            <div class="form-group col-md-6">\
+            <label class="col-sm-4 control-label">Prioridad:</label>\
+        <div class="col-sm-3">\
+            <select class="form-control" name="priorities[]">'+prioritiesHTML+'\
+            </select>\
+            </div>\
+            </div>\
+            <div class="form-group col-md-6">\
+            <label class="col-sm-3 control-label">Descripción:</label>\
+        <div class="col-sm-6">\
+            <textarea class="form-control" name="descriptions[]" rows="4"></textarea>\
+            </div>\
+            </div>\
+            </div>\
+            <div class="form-group row">\
+            <div class="form-group col-md-6">\
+            <label class="col-sm-4 control-label">Tipo:</label>\
+        <div class="col-sm-3">\
+            <select class="form-control" name="types[]">' + typesHTML +'\
+            </select>\
+            </div>\
+            </div>\
+            <div class="form-group col-md-6">\
+            <label class="col-sm-3 control-label">Comentario:</label>\
+        <div class="col-sm-6">\
+            <textarea class="form-control" name="comments[]" rows="4"></textarea>\
+            </div>\
+            </div>\
+            </div>\
+            </div>';
+        $('#fodaForm').append(html);
+    });
+
+    //agrega comentario que exista previamente en la base de datos
+    $("#year").change(function(e){
+        if (greenTicket==-1 || fodas[greenTicket] === undefined || fodas[greenTicket][this.value] === undefined )
+            return;
+        $("#fodaComment").val(fodas[greenTicket][this.value].comment);
+    });
+
+
+
+    //Carga de los años
+    for(var i = new Date().getFullYear()+1; i>=2000; i--){
+        if (i==new Date().getFullYear()){
+            $('#year').append('<option selected>' + i + '</option>');
+            continue;
+        }
+        $('#year').append('<option>' + i + '</option>');
+    }
+
     var success = <?php echo($success);?>;
 
     if (success==1){

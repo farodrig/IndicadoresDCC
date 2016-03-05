@@ -19,6 +19,10 @@ class Foda_model extends CI_Model{
         return ($this->db->insert($this->title, $data)) ? true : false;
     }
 
+    public function modifyFoda($data){
+        return ($this->db->replace($this->title, $data)) ? true : false;
+    }
+
     public function getFoda($data){
         return getGeneric($this, $this->title, ['org', 'year'], $data);
     }
