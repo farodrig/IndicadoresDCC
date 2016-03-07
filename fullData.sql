@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 02, 2016 at 04:55 
+-- Generation Time: Mar 07, 2016 at 11:02 
 -- Server version: 10.1.9-MariaDB
 -- PHP Version: 5.6.15
 
@@ -54,6 +54,40 @@ CREATE TABLE `Dashboard` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `FODA`
+--
+
+CREATE TABLE `FODA` (
+  `id` int(11) NOT NULL,
+  `org` int(11) NOT NULL,
+  `year` int(11) NOT NULL,
+  `comment` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `FODA_Type`
+--
+
+CREATE TABLE `FODA_Type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `FODA_Type`
+--
+
+INSERT INTO `FODA_Type` (`id`, `name`) VALUES
+(1, 'Fortalezas'),
+(2, 'Oportunidades'),
+(3, 'Debilidades'),
+(4, 'Amenazas');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `GraphDash`
 --
 
@@ -100,6 +134,21 @@ INSERT INTO `GraphType` (`id`, `description`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `Item`
+--
+
+CREATE TABLE `Item` (
+  `id` int(11) NOT NULL,
+  `foda` int(11) NOT NULL,
+  `priority` int(11) NOT NULL,
+  `type` int(11) NOT NULL,
+  `description` text,
+  `comment` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `Measure`
 --
 
@@ -133,6 +182,13 @@ CREATE TABLE `MetOrg` (
   `metric` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `MetOrg`
+--
+
+INSERT INTO `MetOrg` (`id`, `org`, `metric`) VALUES
+(1, 2, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -145,6 +201,13 @@ CREATE TABLE `Metric` (
   `unit` int(11) NOT NULL,
   `name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `Metric`
+--
+
+INSERT INTO `Metric` (`id`, `category`, `unit`, `name`) VALUES
+(1, 1, 1, 'metric');
 
 -- --------------------------------------------------------
 
@@ -245,6 +308,26 @@ INSERT INTO `Permits` (`user`, `director`, `visualizer`, `assistant_unidad`, `in
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `Priority`
+--
+
+CREATE TABLE `Priority` (
+  `id` int(11) NOT NULL,
+  `name` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='High, Medium, Low';
+
+--
+-- Dumping data for table `Priority`
+--
+
+INSERT INTO `Priority` (`id`, `name`) VALUES
+(1, 'Alta'),
+(2, 'Media'),
+(3, 'Baja');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `State`
 --
 
@@ -272,6 +355,13 @@ CREATE TABLE `Unit` (
   `id` int(11) NOT NULL,
   `name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'tipos de unidades.\nej: nº de papers, $, nº alumnos, cursos, etc…'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `Unit`
+--
+
+INSERT INTO `Unit` (`id`, `name`) VALUES
+(1, 'pesos');
 
 -- --------------------------------------------------------
 
@@ -309,6 +399,19 @@ ALTER TABLE `Dashboard`
   ADD KEY `fk_Dashboards_Tree-org1_idx` (`org`);
 
 --
+-- Indexes for table `FODA`
+--
+ALTER TABLE `FODA`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UNIQUE` (`org`,`year`);
+
+--
+-- Indexes for table `FODA_Type`
+--
+ALTER TABLE `FODA_Type`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `GraphDash`
 --
 ALTER TABLE `GraphDash`
@@ -329,6 +432,15 @@ ALTER TABLE `Graphic`
 --
 ALTER TABLE `GraphType`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `Item`
+--
+ALTER TABLE `Item`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_Item_Priority1_idx` (`priority`),
+  ADD KEY `fk_Item_FODA_Type1_idx` (`type`),
+  ADD KEY `fk_Item_FODA1` (`foda`);
 
 --
 -- Indexes for table `Measure`
@@ -375,6 +487,12 @@ ALTER TABLE `Permits`
   ADD PRIMARY KEY (`user`);
 
 --
+-- Indexes for table `Priority`
+--
+ALTER TABLE `Priority`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `State`
 --
 ALTER TABLE `State`
@@ -407,6 +525,16 @@ ALTER TABLE `Category`
 ALTER TABLE `Dashboard`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `FODA`
+--
+ALTER TABLE `FODA`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `FODA_Type`
+--
+ALTER TABLE `FODA_Type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
 -- AUTO_INCREMENT for table `GraphDash`
 --
 ALTER TABLE `GraphDash`
@@ -422,6 +550,11 @@ ALTER TABLE `Graphic`
 ALTER TABLE `GraphType`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
+-- AUTO_INCREMENT for table `Item`
+--
+ALTER TABLE `Item`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+--
 -- AUTO_INCREMENT for table `Measure`
 --
 ALTER TABLE `Measure`
@@ -430,22 +563,27 @@ ALTER TABLE `Measure`
 -- AUTO_INCREMENT for table `MetOrg`
 --
 ALTER TABLE `MetOrg`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `Metric`
 --
 ALTER TABLE `Metric`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Métricas que son creadas con sus respectivas unidades y cotas, para luego poder asociarlas a una  organización en el árbol e ingresar las mediciones.';
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Métricas que son creadas con sus respectivas unidades y cotas, para luego poder asociarlas a una  organización en el árbol e ingresar las mediciones.', AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `Organization`
 --
 ALTER TABLE `Organization`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Organización tipo árbol de DCC/áreas/unidades', AUTO_INCREMENT=34;
 --
+-- AUTO_INCREMENT for table `Priority`
+--
+ALTER TABLE `Priority`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+--
 -- AUTO_INCREMENT for table `Unit`
 --
 ALTER TABLE `Unit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- Constraints for dumped tables
 --
@@ -455,6 +593,12 @@ ALTER TABLE `Unit`
 --
 ALTER TABLE `Dashboard`
   ADD CONSTRAINT `fk_dash_org_id` FOREIGN KEY (`org`) REFERENCES `Organization` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `FODA`
+--
+ALTER TABLE `FODA`
+  ADD CONSTRAINT `fk_FODA_Organization1` FOREIGN KEY (`org`) REFERENCES `Organization` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `GraphDash`
@@ -469,6 +613,14 @@ ALTER TABLE `GraphDash`
 ALTER TABLE `Graphic`
   ADD CONSTRAINT `fk_graficos_Metric-org1` FOREIGN KEY (`metorg`) REFERENCES `MetOrg` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_graficos_graficos-tipos1` FOREIGN KEY (`type`) REFERENCES `GraphType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `Item`
+--
+ALTER TABLE `Item`
+  ADD CONSTRAINT `fk_Item_FODA1` FOREIGN KEY (`foda`) REFERENCES `FODA` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_Item_FODA_Type1` FOREIGN KEY (`type`) REFERENCES `FODA_Type` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_Item_Priority1` FOREIGN KEY (`priority`) REFERENCES `Priority` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Measure`

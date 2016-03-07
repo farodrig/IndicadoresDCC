@@ -77,6 +77,10 @@
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-warning btn-lg btn-block"
 										onclick="changePage('<?php echo base_url();?>careaunidad')">Configurar Áreas y Unidades</button>
 								</div>
+								<div class="panel-body">
+									<button type="button" class="mb-xs mt-xs mr-xs btn btn-danger btn-lg btn-block"
+											onclick="changePage('<?php echo base_url();?>foda/config')">Configurar FODAs</button>
+								</div>
 							</section>
 					</div>
 					<!-- end: page -->

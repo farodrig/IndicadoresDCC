@@ -20,7 +20,9 @@ class Foda_model extends CI_Model{
     }
 
     public function modifyFoda($data){
-        return ($this->db->replace($this->title, $data)) ? true : false;
+        $this->db->where('id', $data['id']);
+        unset($data['id']);
+        return ($this->db->update($this->title, $data)) ? true : false;
     }
 
     public function getFoda($data){
@@ -29,6 +31,16 @@ class Foda_model extends CI_Model{
 
     public function addItem($data){
         return ($this->db->insert($this->item, $data)) ? true : false;
+    }
+
+    public function modifyItem($data){
+        $this->db->where('id', $data['id']);
+        unset($data['id']);
+        return ($this->db->update($this->item, $data)) ? true : false;
+    }
+
+    public function deleteItem($data){
+        return ($this->db->delete($this->item, $data)) ? true : false;
     }
 
     public function getItem($data){

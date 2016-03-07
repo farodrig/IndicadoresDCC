@@ -22,9 +22,13 @@
             margin-top: 2%;
         }
 
-        form label{
-            font-weight: bold;
+        form label, td label, .description{
             font-size: 1.2em;
+        }
+
+        .description{
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
 
         .Element{
@@ -41,6 +45,14 @@
         var types = <?php echo json_encode($types); ?>;
         var greenTicket = -1;
 
+        var prioritiesHTML = "";
+        for(var i = 0; i<priorities.length; i++){
+            prioritiesHTML += '<option value="'+ priorities[i].id +'">' + priorities[i].name + '</option>'
+        }
+        var typesHTML = "";
+        for(var i = 0; i<types.length; i++){
+            typesHTML += '<option value="'+ types[i].id +'">' + types[i].name + '</option>'
+        }
         function changeColor(id){
             if (greenTicket!=id){
                 if (greenTicket!=-1){
@@ -58,117 +70,82 @@
             $('#year').trigger('change');
         }
 
-        function optionHTML(optionArray, selected){
-            var optHTML = "";
-            for(var i = 0; i<optionArray.length; i++){
-                if (selected==optionArray[i].id)
-                    optHTML += '<option value="'+ optionArray[i].id +'" selected>' + optionArray[i].name + '</option>';
-                else
-                    optHTML += '<option value="'+ optionArray[i].id +'">' + optionArray[i].name + '</option>';
-            }
-            return optHTML;
-        }
-
-        function delElem(elemId, itemId){
-            if(itemId==null){
-                $('#element'+elemId).remove();
-                element--;
-                return;
-            }
-            var delItem = confirm("¿Esta seguro que quiere eliminar este elemento? Será eliminado de la Base de Datos");
-            if( delItem == false ){
-                return;
-            }
-            $.ajax({
-                type: "POST",
-                url: "<?php echo base_url();?>foda/delItem",
-                data: {'items[]': [itemId]},
-                dataType: "json",
-                cache:false,
-                success:
-                    function(data){
-                        if (data['success']){
-                            new PNotify({
-                                title: 'Éxito!',
-                                text: 'Su solicitud ha sido realizada con éxito.',
-                                type: 'success'
-                            });
-                        }
-                        else {
-                            new PNotify({
-                                title: 'Error!',
-                                text: 'Ha ocurrido un error. El servidor no logró realizar su solicitud',
-                                type: 'error'
-                            });
-                        }
-                    },
-                error:
-                    function(xhr, textStatus, errorThrown){
-                        new PNotify({
-                            title: 'Error!',
-                            text: 'Ha ocurrido un error. No se logró conectar con el servidor. Intentelo más tarde',
-                            type: 'error'
-                        });
+        function loadItems(itemsByType, itemsByPriority){
+            var html = "";
+            var active = true;
+            var priorClass = ['default', 'danger', 'warning', 'success'];
+            for(var i = 0; i<itemsByType.length; i++) {
+                extra = "";
+                if (active) {
+                    extra = 'active';
+                    active = false;
+                }
+                html += '<div id="' + types[i].name.toLowerCase() + '" class="scrollable-content tab-pane ' + extra + '" tabindex="0" style="padding: 15px; right: -15px;"> \
+                    <div class="table-responsive"> \
+                    <table class="table mb-none"> \
+                    <tbody>';
+                var first = true;
+                for (var j = 0; j < itemsByType[i].length; j++) {
+                    var extra = "";
+                    if (first) {
+                        extra = 'style="border-top: 0px;"';
+                        first = false;
                     }
-            });
-        }
-
-        function addItemHTML(item){
-            element++;
-            if (item!=null) {
-                priorHTML = optionHTML(priorities, item.priority);
-                typeHTML = optionHTML(types, item.type);
-                descrip = item.description;
-                comment = item.comment;
-                idElement = '<input type="hidden" value="' + item.id + '" name="items[]">';
-                id = item.id;
+                    var descrip = "No hay una descripción disponible";
+                    var comment = "No hay un comentario disponible";
+                    if (itemsByType[i][j].description != ""){
+                        descrip = itemsByType[i][j].description;
+                    }
+                    if (itemsByType[i][j].comment != ""){
+                        comment = itemsByType[i][j].comment;
+                    }
+                    html += '<tr> \
+                        <td ' + extra + '>' + (j + 1) + '</td> \
+                        <td ' + extra + '> \
+                        <label>Prioridad: </label>  <label class="text-' + priorClass[itemsByType[i][j].priority] + '">' + priorities[itemsByType[i][j].priority-1].name + '</label> \
+                        <p class="description">' + descrip + '</p> \
+                    <label>Comentario:</label> <p style="display: inline">' + comment + '</p> \
+                    </td> \
+                    </tr>';
+                }
+                html += "</tbody> \
+                    </table> \
+                    </div> \
+                    </div>";
             }
-            else{
-                priorHTML = optionHTML(priorities);
-                typeHTML = optionHTML(types);
-                descrip = "";
-                comment = "";
-                idElement = '<input type="hidden" name="items[]">';
-                id = null;
+            var counter = 1;
+            var first = true;
+            for(var i = 0; i<itemsByPriority.length; i++){
+                html += '<div id="prioridad" class="scrollable-content tab-pane" tabindex="0" style="padding: 15px; right: -15px;"> \
+                    <div class="table-responsive"> \
+                    <table class="table mb-none"> \
+                    <tbody>';
+                for (var j = 0; j < itemsByPriority[i].length; j++) {
+                    var extra = "";
+                    if (first) {
+                        extra = 'style="border-top: 0px;"';
+                        first = false;
+                    }
+                    var descrip = "No hay una descripción disponible";
+                    var comment = "No hay un comentario disponible";
+                    if (itemsByPriority[i][j].description != "") {
+                        descrip = itemsByPriority[i][j].description;
+                    }
+                    if (itemsByPriority[i][j].comment != "") {
+                        comment = itemsByPriority[i][j].comment;
+                    }
+                    html += '<tr> \
+                        <td ' + extra + '>' + counter + '</td> \
+                        <td ' + extra + '> \
+                            <label>Prioridad: </label>  <label class="text-' + priorClass[i+1] + '">' + priorities[i].name + '</label> \
+                            <p class="description">' + descrip + '</p> \
+                            <label>Comentario:</label> <p style="display: inline">' + comment + '</p> \
+                        </td> \
+                    </tr>';
+                    counter++;
+                }
             }
-            var html = '<div id = "element'+element+'" class="form-group Element">\
-        <div class="row">\
-            <h3 class="col-md-2 col-md-offset-5">Elemento '+element+' <a class="btn" onclick = "delElem(' + element + ', ' + id +')" style="color: red"><i class="licon-close"></i></a></h3>\
-            </div>\
-        ' + idElement + '  \
-        <hr>\
-        <div class="form-group row">\
-            <div class="form-group col-md-6">\
-            <label class="col-sm-4 control-label">Prioridad:</label>\
-        <div class="col-sm-3">\
-            <select class="form-control" name="priorities[]">'+priorHTML+'\
-            </select>\
-            </div>\
-            </div>\
-            <div class="form-group col-md-6">\
-            <label class="col-sm-3 control-label">Descripción:</label>\
-        <div class="col-sm-6">\
-            <textarea class="form-control" name="descriptions[]" rows="4">' + descrip + '</textarea>\
-            </div>\
-            </div>\
-            </div>\
-            <div class="form-group row">\
-            <div class="form-group col-md-6">\
-            <label class="col-sm-4 control-label">Tipo:</label>\
-        <div class="col-sm-3">\
-            <select class="form-control" name="types[]">' + typeHTML +'\
-            </select>\
-            </div>\
-            </div>\
-            <div class="form-group col-md-6">\
-            <label class="col-sm-3 control-label">Comentario:</label>\
-        <div class="col-sm-6">\
-            <textarea class="form-control" name="comments[]" rows="4">' + comment + '</textarea>\
-            </div>\
-            </div>\
-            </div>\
-            </div>';
-            $('#elemDiv').append(html);
+            $('#itemContent').html(html);
         }
 
     </script>
@@ -186,14 +163,14 @@
         $navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
             ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
             ['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart'],
-            ['url'=>'foda', 'name'=>'Ver FODAs', 'icon'=>'fa fa-book']];
+            ['url'=>'foda/config', 'name'=>'Configurar FODAs', 'icon'=>'fa fa-pencil']];
         include 'partials/navigation.php';
         ?>
         <!-- end: sidebar -->
 
         <section role="main" class="content-body">
             <header class="page-header">
-                <h2>Configurar áreas y unidades</h2>
+                <h2>FODAs de la Organización</h2>
 
                 <div class="right-wrapper pull-right">
                     <ol class="breadcrumbs">
@@ -202,8 +179,8 @@
                                 <i class="fa fa-home"></i>
                             </a>
                         </li>
-                        <li><span>Configurar</span></li>
-                        <li><span>Foda</span></li>
+                        <li><span>Ver</span></li>
+                        <li><span>FODAs</span></li>
                     </ol>
 
                     <label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -306,16 +283,30 @@
                         <textarea class="form-control" id="fodaComment" name="fodaComment" rows="4"></textarea>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Agregar elemento al FODA:</label>
-                    <a id="addElement" class="btn" style="color: green"><i class="licon-plus fa-2x"></i></a>
-                </div>
-                <div id="elemDiv">
-                </div>
-                <div
             </form>
-            <input id = "submit" class="btn btn-success col-md-1 pull-right" type="submit" value="Guardar"/>
-            <!-- end: page -->
+            <div id="itemSection" class="col-md-9" hidden>
+                <div class="tabs tabs-primary">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a id="fortLink" href="#fortalezas" data-toggle="tab" aria-expanded="true"><i class="glyphicon glyphicon-thumbs-up"></i> Fortalezas</a>
+                        </li>
+                        <li class="">
+                            <a href="#oportunidades" data-toggle="tab" aria-expanded="false"><i class="fa fa-star"></i> Oportunidades</a>
+                        </li>
+                        <li class="">
+                            <a href="#debilidades" data-toggle="tab" aria-expanded="false"><i class="glyphicon glyphicon-thumbs-down"></i> Debilidades</a>
+                        </li>
+                        <li class="">
+                            <a href="#amenazas" data-toggle="tab" aria-expanded="false"><i class="glyphicon glyphicon-warning-sign"></i> Amenazas</a>
+                        </li>
+                        <li class="">
+                            <a href="#prioridad" data-toggle="tab" aria-expanded="false"><i class="glyphicon glyphicon-flag"></i> Más Importantes</a>
+                        </li>
+                    </ul>
+                    <div id="itemContent" class="tab-content scrollable has-scrollbar" data-plugin-scrollable="" style="height: 350px;">
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 </section>
@@ -323,29 +314,11 @@
 <?php include 'partials/footer.php'; ?>
 
 <script type="text/javascript">
-
-    //Revisión antes de mandar información
-    $('#submit').click(function(e){
-        if (greenTicket==-1){
-            alert('Para guardar la configuración debe seleccionar un elemento de la organización');
-        }
-        else{
-            $('#fodaForm').submit();
-        }
-    });
-
-
-    //Agrega formulario para elemento del FODA
-    $('#addElement').click(function(e){
-        addItemHTML();
-    });
-
     //agrega comentario que exista previamente en la base de datos
     $("#year").change(function(e){
         if (greenTicket==-1 || fodas[greenTicket] === undefined || fodas[greenTicket][this.value] === undefined ) {
             $("#fodaComment").val("");
-            $('#elemDiv').html("");
-            element = 0;
+            $('#itemSection').hide();
             return;
         }
         $("#fodaComment").val(fodas[greenTicket][this.value].comment);
@@ -353,19 +326,18 @@
             type: "POST",
             url: "<?php echo base_url();?>foda/items",
             data: {id: $('#org').val(),
-                year: $('#year').val()},
+                   year: $('#year').val()},
             dataType: "json",
             cache:false,
             success:
                 function(data){
-                    for(var i = 0; i<data['items'].length; i++){
-                        console.log(data['items'][i]);
-                        addItemHTML(data['items'][i]);
-                    }
+                    $('#itemSection').show();
+                    console.log(data['itemsByPriority']);
+                    loadItems(data['itemsByType'], data['itemsByPriority']);
                 },
             error:
                 function(xhr, textStatus, errorThrown){
-                    alert('error');
+                    $('#itemSection').hide();
                 }
         });
     });
@@ -379,23 +351,6 @@
             continue;
         }
         $('#year').append('<option>' + i + '</option>');
-    }
-
-    var success = <?php echo($success);?>;
-
-    if (success==1){
-        new PNotify({
-            title: 'Éxito!',
-            text: 'Su solicitud ha sido realizada con éxito.',
-            type: 'success'
-        });
-    }
-    if (success==0){
-        new PNotify({
-            title: 'Error!',
-            text: 'Ha ocurrido un error con su solicitud.',
-            type: 'error'
-        });
     }
 </script>
 </body>

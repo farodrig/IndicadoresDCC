@@ -71,6 +71,9 @@ $route['verif_usuario']    = 'ADI/user_verify';
 
 $route['foda/config'] = 'Foda/modifyFoda';
 $route['foda/add'] = 'Foda/addFodaItem';
+$route['foda'] = 'Foda/fodaIndex';
+$route['foda/items'] = 'Foda/getFodaItems';
+$route['foda/delItem'] = 'Foda/deleteItems';
 
 $route['404_override']         = '';
 $route['translate_uri_dashes'] = FALSE;
