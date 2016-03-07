@@ -186,8 +186,8 @@ CREATE TABLE IF NOT EXISTS `UDashboard`.`FODA` (
   CONSTRAINT `fk_FODA_Organization1`
     FOREIGN KEY (`org`)
     REFERENCES `UDashboard`.`Organization` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -228,18 +228,18 @@ CREATE TABLE IF NOT EXISTS `UDashboard`.`Item` (
   CONSTRAINT `fk_Item_FODA1`
     FOREIGN KEY (`foda`)
     REFERENCES `UDashboard`.`FODA` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Item_Priority1`
     FOREIGN KEY (`priority`)
     REFERENCES `UDashboard`.`Priority` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_Item_FODA_Type1`
     FOREIGN KEY (`type`)
     REFERENCES `UDashboard`.`FODA_Type` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -553,6 +553,32 @@ INSERT INTO `State` (`id`, `name`) VALUES
 INSERT INTO `Organization` (`id`, `parent`, `type`, `name`) VALUES
   (0, 0, 1, 'DCC'),
   (1, 1, 2, 'DCC');
+
+
+-- -----------------------------------------------------
+-- Data for table `UDashboard`.`Priority`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `UDashboard`;
+INSERT INTO `UDashboard`.`Priority` (`id`, `name`) VALUES (1, 'Alta');
+INSERT INTO `UDashboard`.`Priority` (`id`, `name`) VALUES (2, 'Media');
+INSERT INTO `UDashboard`.`Priority` (`id`, `name`) VALUES (3, 'Baja');
+
+COMMIT;
+
+
+-- -----------------------------------------------------
+-- Data for table `UDashboard`.`FODA_Type`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `UDashboard`;
+INSERT INTO `UDashboard`.`FODA_Type` (`id`, `name`) VALUES (1, 'Fortalezas');
+INSERT INTO `UDashboard`.`FODA_Type` (`id`, `name`) VALUES (2, 'Oportunidades');
+INSERT INTO `UDashboard`.`FODA_Type` (`id`, `name`) VALUES (3, 'Debilidades');
+INSERT INTO `UDashboard`.`FODA_Type` (`id`, `name`) VALUES (4, 'Amenazas');
+
+COMMIT;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
