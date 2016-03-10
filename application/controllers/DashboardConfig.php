@@ -11,12 +11,11 @@ class DashboardConfig extends CI_Controller {
 		$this->dashboardModel = $this->Dashboard_model;
 	}
 
-	function configUnidad()// funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
+	function configUnidad(){// funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
 	// y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	// esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
-	{
-		$permits = $this->session->userdata();
 
+		$permits = $this->session->userdata();
 		if (!$permits['director']) {
 			redirect('inicio');
 		}
@@ -32,9 +31,7 @@ class DashboardConfig extends CI_Controller {
 
 		$all_metrics = $this->Dashboardconfig_model->getAllMetricsUnidades();//Retorna arrglo de arreglos de metricas de las unidades correspondientes
 		//Si all_metrics es falso es porque no hay areas
-
-		$all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();
-		//$all areas incluye type que representa al DCC padre, 0 si es soporte, 1 si es operacion
+		$all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();//$all areas incluye type que representa al DCC padre, 0 si es soporte, 1 si es operacion
 
 		$result['metricas'] = [];
 		$result['years']    = array(
@@ -148,7 +145,6 @@ class DashboardConfig extends CI_Controller {
 		$this->session->set_flashdata('id_first_dcc', $id_first);
 		$all_metrics = $this->Dashboardconfig_model->getAllMetricsDCC();//Retorna arrglo de arreglos de todas las métricas
 		//Si all_metrics es falso es porque no hay areas
-
 		$all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();
 
 		$result['metricas'] = [];

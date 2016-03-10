@@ -2,16 +2,17 @@
 
 class Dashboard_library
 {
-    private $name_met;
-	  private $id_measurement;
-	  private $metorg;
-	  private $value;
-	  private $target;
-	  private $expected;
-	  private $year;
+    private $name_met_y;
+    private $name_met_x;
+    private $id_measurement;
+	private $metorg;
+	private $value;
+    private $target;
+	private $expected;
+	private $year;
     private $graph_type;
-	  private $id_org;
-	  private $name_org;
+	private $id_org;
+	private $name_org;
     private $min_year;
     private $max_year;
     private $unit;
@@ -21,7 +22,8 @@ class Dashboard_library
 
 	function initialize($parameters){
 		$this->metorg = element('id', $parameters);
-		$this->name_met = element('name', $parameters);
+		$this->name_met_y = element('y_name', $parameters);
+        $this->name_met_x = element('x_name', $parameters);
 		return $this;
 	}
 
@@ -108,11 +110,18 @@ class Dashboard_library
     }
 
  /**
-     * @return the $name
+     * @return the $name_met_y
      */
-    public function getName()
+    public function getNameY()
     {
-        return $this->name_met;
+        return $this->name_met_y;
+    }
+
+/**
+     * @return the $name_met_x
+     */
+    public function getNameX(){
+        return $this->name_met_x;
     }
 
 /**

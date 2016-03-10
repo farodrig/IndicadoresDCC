@@ -120,6 +120,7 @@ class MySession extends CI_Controller {
 		$this->session->set_flashdata("unidad", $id_unidad);
 	}
 
+
 	public function validar() {
 		$success = $this->session->flashdata('success');
 		if (is_null($success)) {
@@ -133,9 +134,11 @@ class MySession extends CI_Controller {
 
 		$this->load->model('Dashboard_model');
 
-		$result = array('success' => $success,
+		$result = array(
+			'success' => $success,
 			'validate'               => validation($permits, $this->Dashboard_model),
-			'role'                   => $permits['title']);
+			'role'                   => $permits['title']
+		);
 
 		if ($permits['director'] == 1) {
 			$result['data'] = $this->Dashboard_model->getAllnonValidateData();
@@ -216,21 +219,25 @@ class MySession extends CI_Controller {
 		$this->load->model('Dashboard_model');
 		$this->load->model('Metrics_model');
 		$metrics = $this->Metrics_model->getAllMetrics();
-		$this->load->view('configurar-metricas', array('departments' => getAllOrgsByDpto($this->Organization_model),
-				'metrics'                                                  => $metrics,
-				'success'                                                  => $success,
-				'role'                                                     => $permits['title'],
-				'validate'                                                 => validation($permits, $this->Dashboard_model)));
+		$this->load->view('configurar-metricas', array(
+			'departments' => getAllOrgsByDpto($this->Organization_model),
+			'metrics'	=> $metrics,
+			'success'   => $success,
+			'role'      => $permits['title'],
+			'validate'  => validation($permits, $this->Dashboard_model))
+		);
 	}
 
-	public function agregarMetrica() {
+	public function agregarMetrica(){
 		//carga de elementos
 		$this->load->library('form_validation');
 
 		//Validación de inputs
-		$this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required');
-		$this->form_validation->set_rules('category', 'Category', 'required|numeric');
-		$this->form_validation->set_rules('name', 'Name', 'required|alphaSpace');
+		$this->form_validation->set_rules('y_unit', 'Unidad Y', 'required|alphaSpace');
+		$this->form_validation->set_rules('category', 'Categoria', 'required|numeric');
+		$this->form_validation->set_rules('y_name', 'Nombre Y', 'required|alphaSpace');
+		$this->form_validation->set_rules('x_name', 'Nombre X', 'required|alphaSpace');
+		$this->form_validation->set_rules('x_unit', 'Unidad X', 'required|alphaSpace');
 		$this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
 
 		if (!$this->form_validation->run()) {
@@ -243,13 +250,15 @@ class MySession extends CI_Controller {
 		$this->load->model('Metorg_model');
 		$this->load->model('Unit_model');
 
-		//creación de unidad
+		//creación de unidad para Y
 		$unit_data = array(
-			'name' => $this->input->post('unidad_medida'),
+			'name' => $this->input->post('y_unit'),
 		);
 
-		$unit = $this->Unit_model->get_or_create($unit_data);
-		if (!$unit){
+		$y_unit = $this->Unit_model->get_or_create($unit_data);
+		$unit_data['name'] = $this->input->post('x_unit');
+		$x_unit = $this->Unit_model->get_or_create($unit_data);
+		if (!$y_unit || !$x_unit){
 			$this->session->set_flashdata('success', 0);
 			redirect('cmetrica');
 		}
@@ -257,8 +266,10 @@ class MySession extends CI_Controller {
 		//Creación de métrica
 		$Metricdata = array(
 			'category' => $this->input->post('category'), //esto es 1 si es productividad y 2 si es finanzas. Tienes que agregar esos dos valores en la base de datos en la tabla catergory
-			'unit' => $unit, //-> Busca la Unidad, si no existe la crea y entrega el id, si existe, entrega el id.
-			'name' => $this->input->post('name'), //Nombre que tendrá la métrica
+			'y_unit' => $y_unit, //-> Busca la Unidad, si no existe la crea y entrega el id, si existe, entrega el id.
+			'y_name' => $this->input->post('y_name'), //Nombre que tendrá la métrica
+			'x_unit' => $x_unit, //-> Busca la Unidad, si no existe la crea y entrega el id, si existe, entrega el id.
+			'x_name' => $this->input->post('x_name'), //Nombre que tendrá la métrica
 		);
 
 		$metric = $this->Metrics_model->get_or_create($Metricdata);
@@ -278,7 +289,6 @@ class MySession extends CI_Controller {
 		} else {
 			$this->session->set_flashdata('success', 0);
 		}
-
 		redirect('cmetrica');
 	}
 
@@ -289,10 +299,12 @@ class MySession extends CI_Controller {
 
 		//Modifica valor de la métrica
 		if ($this->input->post('modificar')) {
-			$this->form_validation->set_rules('unidad', 'UnidadMedida', 'required|alphaSpace');
+			$this->form_validation->set_rules('unidad_y', 'Unidad Y', 'required|alphaSpace');
 			$this->form_validation->set_rules('tipo', 'Type', 'required|numeric');
-			$this->form_validation->set_rules('metrica', 'Metric', 'required|alphaSpace');
+			$this->form_validation->set_rules('metrica_y', 'Metrica Y', 'required|alphaSpace');
 			$this->form_validation->set_rules('id', 'Id', 'required|numeric');
+			$this->form_validation->set_rules('unidad_x', 'Unidad X', 'required|alphaSpace');
+			$this->form_validation->set_rules('metrica_x', 'Metrica X', 'required|alphaSpace');
 
 			if (!$this->form_validation->run()) {
 				$this->session->set_flashdata('success', 0);
@@ -300,10 +312,12 @@ class MySession extends CI_Controller {
 			}
 
 			$data = array(
-				'id_metorg'     => $this->input->post('id'),
-				'name_metrica'  => ucwords($this->input->post('metrica')),
+				'metorg'     => $this->input->post('id'),
+				'y_name'  => ucwords($this->input->post('metrica_y')),
 				'category'      => $this->input->post('tipo'),
-				'unidad_medida' => ucwords($this->input->post('unidad'))
+				'y_unit' => ucwords($this->input->post('unidad_y')),
+				'x_name'  => ucwords($this->input->post('metrica_x')),
+				'x_unit' => ucwords($this->input->post('unidad_x'))
 			);
 			if ($this->Metrics_model->updateMetric($data)) {
 				$this->session->set_flashdata('success', 1);

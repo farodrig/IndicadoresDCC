@@ -1,6 +1,14 @@
 <?php
-class Dashboard_model extends CI_Model
-{
+class Dashboard_model extends CI_Model{
+
+    public $title;
+    public $GD;
+    function __construct() {
+        parent::__construct();
+        $this->title = "Dashboard";
+        $this->GD = "GraphDash";
+    }
+
     function showButton($id){
         $query = "SELECT * FROM Graphic AS g, GraphDash AS gd, Dashboard AS d
                 WHERE g.id=gd.graphic AND gd.dashboard=d.id AND d.org = ? AND g.position=1";
@@ -62,7 +70,7 @@ class Dashboard_model extends CI_Model
     }
 
     function getAllMetrics($id, $category){
-        $this->db->select('MetOrg.id, Metric.name');
+        $this->db->select('MetOrg.id, Metric.y_name, Metric.x_name');
         $this->db->from('Metric');
         $this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
         $this->db->join('Organization', 'Organization.id = MetOrg.org');
@@ -137,7 +145,8 @@ class Dashboard_model extends CI_Model
         foreach ($q->result() as $row){
             $parameters = array(
                 'id' => $row->id,
-                'name' => $row->name
+                'y_name' => $row->y_name,
+                'x_name' => $row->x_name
             );
 
             $metrica = new Dashboard_library();
@@ -310,12 +319,12 @@ class Dashboard_model extends CI_Model
 	}
 
 	function _getAllnonValidateDataUnidad($id_org){
-		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
+		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.y_name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year, m.modified AS mod, m.state AS s
-					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
+              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year, m.modified AS modified, m.state AS s
+					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric AS metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE (m.state =0 or m.state=-1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
-            metric.unit = unit.id AND c.id=metric.category AND u.id=p.user AND mo.org =?" ;
+            metric.y_unit = unit.id AND c.id=metric.category AND u.id=p.user AND mo.org =?" ;
         $q = $this->db->query($querry,array($id_org));
 
         if($q->num_rows() > 0){
@@ -340,12 +349,12 @@ class Dashboard_model extends CI_Model
 	}
 
 	function _getAllnonValidateDataUnidadByType($id_org,$type){
-		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
+		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.y_name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
               p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year, m.state AS s
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE (m.state =0 OR m.state = -1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
-            metric.unit = unit.id AND c.id=metric.category AND u.id=p.user  AND c.id= $type  AND mo.org =?";
+            metric.y_unit = unit.id AND c.id=metric.category AND u.id=p.user  AND c.id= $type  AND mo.org =?";
         $q = $this->db->query($querry,array($id_org));
 
         if($q->num_rows() > 0){
@@ -371,13 +380,13 @@ class Dashboard_model extends CI_Model
 
 
 	function getAllnonValidateData(){
-		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
+		$query = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.y_name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
               m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
               p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year, m.state AS s
 					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
 					  WHERE (m.state =0 OR m.state=-1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
-            metric.unit = unit.id AND c.id=metric.category AND u.id=p.user";
-        $q = $this->db->query($querry);
+            metric.y_unit = unit.id AND c.id=metric.category AND u.id=p.user";
+        $q = $this->db->query($query);
 
 		if($q->num_rows() > 0){
             foreach($q->result() as $row){
@@ -389,54 +398,40 @@ class Dashboard_model extends CI_Model
 
 
     function getDashboardMetrics($id, $category){
-        $query = "SELECT d.id AS id FROM Dashboard AS d WHERE d.org=".$id;
-        $q = $this->db->query($query);
-        if($q->num_rows() > 0)
-            $dashboard = $q->result()[0]->id;
-        else
+        $dashboard = getGeneric($this, $this->title, ['id', 'org'], array('org'=>[$id], 'limit'=>1));
+        if(count($dashboard) <= 0)
+            return false;
+        $dashboard = $dashboard[0]->id;
+        $graphs = getGeneric($this, $this->GD, ['id', 'graphic', 'dashboard'], array('dashboard'=>[$dashboard]));
+        if(($size=count($graphs)) <= 0)
             return false;
 
-        $query = "SELECT gd.graphic AS graph FROM GraphDash AS gd WHERE gd.dashboard=".$dashboard;
-        $q = $this->db->query($query);
-        if(($size=$q->num_rows()) > 0)
-            $graphs = $q->result();
-        else
-            return false;
+        $this->db->select('Graphic.metorg as org, Graphic.type, Graphic.min_year, Graphic.max_year, Unit.name');
+        $this->db->from('Graphic');
+        $this->db->join('MetOrg', 'MetOrg.id = Graphic.metorg');
+        $this->db->join('Metric', 'MetOrg.metric = Metric.id');
+        $this->db->join('Unit', 'Unit.id = Metric.y_unit');
+        if($category!=0)
+            $this->db->where('Metric.category', $category);
 
-        $g_id = "(";
-        for($i=0; $i<$size-1; $i++){
-            $id = $graphs[$i]->graph;
-            $g_id = $g_id."g.id= ".$id." OR ";
+        $this->db->group_start();
+        for($i=0; $i<$size; $i++){
+            $this->db->or_where('Graphic.id', $graphs[$i]->graphic);
         }
-        $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
-
-        if($category==0){
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
-                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
-                        WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND ".$g_id;
-            $q = $this->db->query($query);
-        }
-        else{
-
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
-                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
-                        WHERE g.position<>0 AND g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND m.category=? AND ".$g_id;
-            $q = $this->db->query($query, array($category));
-        }
-
+        $this->db->group_end();
+        $q = $this->db->get();
         return ($q->num_rows() > 0) ? $this->buildDashboardMetrics($q) : false;
     }
 
     function buildDashboardMetrics($q){
         $this->load->library('Dashboard_library');
-        $row = $q->result();
         foreach ($q->result() as $row){
             $parameters = array(
                 'met_org' => $row->org,
                 'type' => $row->type,
                 'min_year' => $row->min_year,
                 'max_year' => $row->max_year,
-                'unit' => ucwords($row->unit)
+                'unit' => ucwords($row->name)
             );
 
             $metrica = new Dashboard_library();
@@ -455,10 +450,10 @@ class Dashboard_model extends CI_Model
             else
                 return false; //Si llego aca hay problemas
 
-            $query = "SELECT m.name AS name FROM Metric AS m WHERE m.id=".$metric;
+            $query = "SELECT m.y_name FROM Metric AS m WHERE m.id=".$metric;
             $q = $this->db->query($query);
             if(($size=$q->num_rows()) > 0)
-                $name = $q->result()[0]->name;
+                $y_name = $q->result()[0]->y_name;
             else
                 return false;
 
@@ -470,7 +465,7 @@ class Dashboard_model extends CI_Model
                 $rows = $this->buildAllMeasuresments($q);
                 $result[] = array(
                     'id' => $met->getMetOrg(),
-                    'name' => $name,
+                    'name' => $y_name,
                     'measurements' => $rows
                 );
             }
@@ -490,12 +485,12 @@ class Dashboard_model extends CI_Model
          if(($size=$q->num_rows()) > 0){
              $data = $this->buildDataCSV($q);
 
-             $query = "SELECT m.name AS name FROM Metric AS m, MetOrg AS mo WHERE mo.metric=m.id AND mo.id=".$id_met;
+             $query = "SELECT m.y_name FROM Metric AS m, MetOrg AS mo WHERE mo.metric=m.id AND mo.id=".$id_met;
              $q= $this->db->query($query);
              $name = $q->result()[0];
 
              $this->download_send_headers("data_export_" . date("Y-m-d") . ".csv");
-             echo $this->array2csv($data, $name->name);
+             echo $this->array2csv($data, $name->y_name);
              die();
              debug($user_agent);
          }

@@ -23,37 +23,43 @@ class Metrics_model extends CI_Model{
 		$this->load->model('Metorg_model');
 		$this->load->model('Unit_model');
 
-		$metorg = $this->Metorg_model->getMetOrg(array('id' =>[$data['id_metorg']], 'limit' => 1))[0];
-		if(isset($metorg)){
-			$metric_id = $metorg->metric;
-			$id_unidad = $this->Unit_model->get_or_create(array('name'=>$data['unidad_medida']));
-
-			$datos = array(
-				'category'=>$data['category'],
-				'unit'=>$id_unidad,
-				'name'=> $data['name_metrica']
-			);
-			$this->db->where('id', $metric_id);
-			return $this->db->update($this->title, $datos);
+		//Obtiene el metOrg, si no existe hay un error con los datos y retorna falso
+		$metorg = $this->Metorg_model->getMetOrg(array('id' =>[$data['metorg']], 'limit' => 1))[0];
+		if(!isset($metorg)){
+			return false;
 		}
-		return false;
+		$id_unit_y = $this->Unit_model->get_or_create(array('name'=>$data['y_unit']));
+		$id_unit_x = $this->Unit_model->get_or_create(array('name'=>$data['x_unit']));
+
+		$datos = array(
+			'category'=>$data['category'],
+			'y_unit'=>$id_unit_y,
+			'y_name'=> $data['y_name'],
+			'x_unit'=>$id_unit_x,
+			'x_name'=> $data['x_name'],
+		);
+		$this->db->where('id', $metorg->metric);
+		return $this->db->update($this->title, $datos);
 	}
 
 	function getAllMetrics(){
-		$this->db->select('MetOrg.org, MetOrg.id as metorg, Metric.name, Category.name as category, Unit.name as unit');
+		$this->db->select('MetOrg.org, MetOrg.id as metorg, Metric.y_name, Metric.x_name, Category.name as category, Unit.name as unit, XUnit.name as x_unit');
 		$this->db->from('Metric');
 		$this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
 		$this->db->join('Category', 'Category.id = Metric.category');
-		$this->db->join('Unit', 'Unit.id = Metric.unit');
+		$this->db->join('Unit', 'Unit.id = Metric.y_unit');
+		$this->db->join('Unit as XUnit', 'XUnit.id = Metric.x_unit');
 		$q = $this->db->get();
 		$data=[];
 		if($q->num_rows() > 0){
 			foreach ($q->result() as $row){
 				$data[$row->org][]= array(
 					'metorg' => $row->metorg,
-					'name' => ucwords($row->name),
+					'y_name' => ucwords($row->y_name),
 					'category' => ucwords($row->category),
-					'unit' => ucwords($row->unit)
+					'y_unit' => ucwords($row->unit),
+					'x_name' => ucwords($row->x_name),
+					'x_unit' => ucwords($row->x_unit)
 				);
 			}
 		}

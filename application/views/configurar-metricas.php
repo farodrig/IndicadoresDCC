@@ -15,47 +15,15 @@
 			<?php include 'partials/header_tmpl.php'; ?>
 
 			<div class="inner-wrapper">
+
 				<!-- start: sidebar -->
-				<aside id="sidebar-left" class="sidebar-left">
-
-					<div class="sidebar-header">
-						<div class="sidebar-title">
-							Navegación
-						</div>
-						<div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html" data-fire-event="sidebar-left-toggle">
-							<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-						</div>
-					</div>
-
-					<div class="nano">
-						<div class="nano-content">
-							<nav id="menu" class="nav-main" role="navigation">
-								<ul class="nav nav-main">
-									<li>
-										<a href="<?php echo base_url();?>inicio">
-											<i class="fa fa-home" aria-hidden="true"></i>
-											<span>U-Dashboard</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>careaunidad">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-th-large" aria-hidden="true"></i>
-											<span>Configurar áreas y unidades</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>cdashboardUnidad">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-bar-chart" aria-hidden="true"></i>
-											<span>Configurar Dashboard</span>
-										</a>
-									</li>
-								</ul>
-							</nav>
-						</div>
-					</div>
-				</aside>
+				<?php
+				$navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
+					['url'=>'careaunidad', 'name'=>'Configurar Áreas y Unidades', 'icon'=>'fa fa-th-large'],
+					['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart'],
+					['url'=>'foda/config', 'name'=>'Configurar FODAs', 'icon'=>'fa fa-book']];
+				include 'partials/navigation.php';
+				?>
 				<!-- end: sidebar -->
 
 				<section role="main" class="content-body">
@@ -174,19 +142,31 @@
 											<div id="subtitle" name="subtitle"></div>
 										</header>
 										<div class="panel-body">
-												<input type="hidden" name="id_insert" id="id_insert" value="" />
-												<div class="form-group mt-lg">
-													<label class="col-sm-3 control-label">Nombre de la métrica:</label>
-														<div class="col-sm-9">
-															<input type="text" name="name" id='name' class="form-control" required/>
-														</div>
+											<input type="hidden" name="id_insert" id="id_insert" value="" />
+											<div class="form-group mt-lg">
+												<label class="col-sm-3 control-label">Nombre del Eje Y (Valores):</label>
+													<div class="col-sm-9">
+														<input type="text" name="y_name" id='y_name' class="form-control" required/>
+													</div>
+											</div>
+											<div class="form-group mt-lg">
+												<label class="col-sm-3 control-label">Unidad de Medida del Eje Y:</label>
+													<div class="col-sm-9">
+														<input type="text" name="y_unit" id='y_unit' class="form-control"  required/>
+													</div>
+											</div>
+											<div class="form-group mt-lg">
+												<label class="col-sm-3 control-label">Nombre del Eje X (Dimensiones):</label>
+												<div class="col-sm-9">
+													<input type="text" name="x_name" id='x_name' class="form-control" required/>
 												</div>
-												<div class="form-group mt-lg">
-													<label class="col-sm-3 control-label">Unidad de Medida:</label>
-														<div class="col-sm-9">
-															<input type="text" name="unidad_medida" id='unidad_medida' class="form-control"  required/>
-														</div>
+											</div>
+											<div class="form-group mt-lg">
+												<label class="col-sm-3 control-label">Unidad de Medida del Eje X:</label>
+												<div class="col-sm-9">
+													<input type="text" name="x_unit" id='x_unit' class="form-control"  required/>
 												</div>
+											</div>
 												<div class="form-group mt-lg">
 													<label class="col-sm-3 control-label">Categoria:</label> <!-- 1: Productividad 2:Finanzas -->
 														<div class="btn-group dropdown col-sm-9">
@@ -210,7 +190,7 @@
 									<?php echo form_close();?>
 								</div>
 
-								<div id="deleteMetrica" class="modal-block modal-block-primary mfp-hide">
+								<div id="deleteMetrica" class="modal-block modal-block-lg modal-block-primary mfp-hide">
 								<?php echo form_open('MySession/eliminarMetrica', array('id' => 'modificarMetrica')); ?>
 									<section class="panel">
 										<header class="panel-heading">
@@ -220,8 +200,10 @@
 									<div class="panel-body">
 											<input type='hidden' name='modificar' id='modificar' value='' />
 											<input type='hidden' name='id' id='id' value='' />
-											<input type='hidden' name='metrica' id='metrica' value='' />
-											<input type='hidden' name='unidad' id='unidad' value='' />
+											<input type='hidden' name='metrica_y' id='metrica_y' value='' />
+											<input type='hidden' name='unidad_y' id='unidad_y' value='' />
+											<input type='hidden' name='metrica_x' id='metrica_x' value='' />
+											<input type='hidden' name='unidad_x' id='unidad_x' value='' />
 											<input type='hidden' name='tipo' id='tipo' value='' />
 
 											<div id="rows" name="rows"></div>
@@ -284,10 +266,12 @@
 		var org_metrics = Object.keys(table_metrics);
 		var table_head = "<table class='table table-bordered table-striped mb-none text-center' id='config-metricas'>".concat("<thead>",
 									"<tr>",
-											"<th>Métrica</th>",
-											"<th>Categoria</th>",
-											"<th>Unidad de medida</th>",
-											"<th>Acciones</th>",
+											"<th class='text-center'>Medida Eje Y</th>",
+											"<th class='text-center'>Categoria</th>",
+											"<th class='text-center'>Unidad de medida Eje Y</th>",
+											"<th class='text-center'>Medida Eje X</th>",
+											"<th class='text-center'>Unidad de Medida Eje X</th>",
+											"<th class='text-center'>Acciones</th>",
 										"</tr>",
 									"</thead>",
 									"<tbody>");
@@ -298,24 +282,23 @@
 		}
 
 		function checkInput(){
-			if(document.getElementById('name').value=="" || document.getElementById('unidad_medida').value==""){
+			if($('#y_name').val()=="" || $('#y_unit').val()=="" || $('#x_name').val()=="" || $('#x_unit').val()==""){
 				alert("Debe ingresar valores para nombre de métrica y unidad de medida");
 				return false;
 			}
 			return true;
 		}
 
+		//Agrega el id de la organización al input que se enviará y agrega el nombre al subtitulo del modal
 		$('a.insert').click(function( e ) {
 			var title = $(this)[0]['attributes']['id'].value;
 			$('#subtitle').empty();
 			$('<p class="panel-subtitle">'.concat(title,'</p>')).appendTo($('#subtitle'));
 			var id = $(this)[0]['attributes']['title'].value;
-			document.getElementById('id_insert').value= id;
+			$('#id_insert').val(id);
+		});
 
-
-
-		})
-
+		//Carga los datos necesarios para modificar.
 		$('a.modify').click(function( e ) {
 			var title = $(this)[0]['attributes']['id'].value;
 			$('#subtitle2').empty();
@@ -327,9 +310,11 @@
 			if(org_metrics.indexOf(id)!=-1){
 				for(key in table_metrics[id]){
 					table = table.concat('<tr class=',table_metrics[id][key]['metorg'],'>',
-					'<td>',table_metrics[id][key]['name'],'</td>',
+					'<td>',table_metrics[id][key]['y_name'],'</td>',
 					'<td>',table_metrics[id][key]['category'],'</td>',
-					'<td>',table_metrics[id][key]['unit'],'</td>',
+					'<td>',table_metrics[id][key]['y_unit'],'</td>',
+					'<td>',table_metrics[id][key]['x_name'],'</td>',
+					'<td>',table_metrics[id][key]['x_unit'],'</td>',
 					'<td class="actions" title=',table_metrics[id][key]['metorg'],'>',
 						'<a href="#" class="hidden on-editing save-row" ><i class="fa fa-save" id=',table_metrics[id][key]['metorg'],'></i></a>',
 						'<a href="#" class="hidden on-editing cancel-row" ><i class="fa fa-times" id=',table_metrics[id][key]['metorg'],'></i></a>',
@@ -341,23 +326,30 @@
 			}
 			table = table.concat('</tbody></table>');
 			$(table).appendTo($('#rows'));
-		})
+		});
 
+		//Borra los datos que se encuentren en el modal de inputs
 		function borrarDatos(){
-			document.getElementById('name').value="";
-			document.getElementById('unidad_medida').value="";
-			document.getElementById('category').value=1;
+			$('#y_name').val("");
+			$('#y_unit').val("");
+			$('#category').val(1);
+			$('#x_name').val("");
+			$('#x_unit').val("");
 		}
 
-		$('#rows').click(function(e) {
-			if(e['target']['localName']=="i"){
-			if(e['target']['attributes']['class'].value=="fa fa-pencil"){
-				var id = e['target']['attributes']['id'].value;
-				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
-				var tds = row.find('td');
-				var actions = row.find('td.actions');
 
-				var id_location = actions[0]['attributes']['title'].value;
+		$('#rows').click(function(e) {
+			if(e['target']['localName']!="i")
+				return;
+
+			var id = e['target']['attributes']['id'].value;
+			var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
+			var actions = row.find('td.actions');
+			var id_location = actions[0]['attributes']['title'].value;
+
+			//accion de editar los datos de una metrica
+			if(e['target']['attributes']['class'].value=="fa fa-pencil"){
+				var tds = row.find('td');
 				var data = [];
 
 				for(i=0; i<tds['length'];i++)
@@ -379,22 +371,18 @@
 						}
 						else{
 							$this.html( '<input type="hidden" class="form-control input-block" value="' + data[i] + '"/>'+
-							'<input type="text" class="form-control input-block" value="' + data[i] + '" onchange="setVal(this, i)" required/>' );
+								'<input type="text" class="form-control input-block" value="' + data[i] + '" onchange="setVal(this, i)" required/>' );
 						}
 					}
 				});
 			}
+			//Accion de cancelas edicion de datos a una metrica
 			else if(e['target']['attributes']['class'].value=="fa fa-times"){
-				var id = e['target']['attributes']['id'].value;
-				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
 				var inputs = row.find("input[type='hidden']");
-				var actions = row.find('td.actions');
-				var id_location = actions[0]['attributes']['title'].value;
 				var data = [];
 
-				for(i=0; i<3; i++)
+				for(i=0; i<5; i++)
 					data[i]=inputs[i]['value'];
-
 				$(row[0]).children( 'td' ).each(function( i ) {
 					var $this = $( this );
 					if ( $this.hasClass('actions') ) {
@@ -405,69 +393,53 @@
 					}
 				});
 			}
+			//Mandar los datos modificados si estan correctos
 			else if(e['target']['attributes']['class'].value=="fa fa-save"){
-				var id = e['target']['attributes']['id'].value;
-				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
 				var inputs = row.find("input[type!='hidden']");
 				var select = row.find('select')[0]['value'];
 
-				var actions = row.find('td.actions');
-				var id_location = actions[0]['attributes']['title'].value;
-				var data = [];
+				$('#modificar').val(1);
+				$('#id').val(id_location);
+				$('#metrica_y').val(inputs[0]['value']);
+				$('#tipo').val(select);
+				$('#unidad_y').val(inputs[1]['value']);
+				$('#metrica_x').val(inputs[2]['value']);
+				$('#unidad_x').val(inputs[3]['value']);
 
-				for(i=0; i<2;i++)
-					if(i==1){
-						data[i]=select;
-						data[i+1]=inputs[i]['value'];
-					}
-					else
-						data[i] = inputs[i]['value'];
-
-				document.getElementById('modificar').value = 1;
-				document.getElementById('id').value = id_location;
-				document.getElementById('metrica').value = data[0];
-				document.getElementById('tipo').value = data[1];
-				document.getElementById('unidad').value = data[2];
-
-				if(data[0]=="" || data[1]==""){
+				if(inputs[0]['value']=="" || inputs[1]['value']=="" || inputs[2]['value']=="" || inputs[3]['value']==""){
 					alert("No puede dejar campos en blanco");
 				}
 				else{
-					document.getElementById('modificarMetrica').submit();
+					$('#modificarMetrica').submit();
 				}
 
 			}
+			//Eliminar metrica
 			else if(e['target']['attributes']['class'].value=="fa fa-trash-o"){
-				var id = e['target']['attributes']['id'].value;
-				var row = $('a.edit-row').closest( 'tr[class='.concat(id,']') );
 				var inputs = row.find('input');
-
-				var actions = row.find('td.actions');
-				var id_location = actions[0]['attributes']['title'].value;
-
-				document.getElementById('modificar').value = 0;
-				document.getElementById('id2').value = id_location;
+				$('#modificar').val(0);
+				$('#id2').val(id_location);
 
 				$.magnificPopup.open({
-						items: {
-							src: '#dialog',
-							type: 'inline'
+					items: {
+						src: '#dialog',
+						type: 'inline'
+					},
+					preloader: false,
+					modal: true,
+					callbacks: {
+						change: function() {
+							$('#dialog').$confirm.on( 'click', function( e ) {
+								$.magnificPopup.close();
+							});
 						},
-						preloader: false,
-						modal: true,
-						callbacks: {
-							change: function() {
-									$('#dialog').$confirm.on( 'click', function( e ) {
-									$.magnificPopup.close();
-								});
-							},
-							close: function() {
-								$('#dialog').$confirm.off( 'click' );
-							}
+						close: function() {
+							$('#dialog').$confirm.off( 'click' );
 						}
-					});
-			}}
-		})
+					}
+				});
+			}
+		});
 
 		var success = <?php echo($success);?>;
 

@@ -41,139 +41,126 @@ class Dashboardconfig_model extends CI_Model
 					'checked' => 0
 					);
 			}
-
+			$current_year = intval(date("Y"));
 			return array(
 				'id' => -1,
-				'min' => 2005, //Si no hay medidas escribimos los ultimos 10 años
-				'max' => 2015,
+				'min' => $current_year-10, //Si no hay medidas escribimos los ultimos 10 años
+				'max' => $current_year,
 				'type' => 2,
 				'checked' => 0
 				);
 		}
 	}
 
-	function getAllMetricsUnidades()
-	{
-		$query = "SELECT org.id AS id FROM Organization AS org WHERE (org.parent = 1 AND org.id<>1) OR (org.parent = 0 AND org.id<>0)";
-		$q = $this->db->query($query);
-		if($q->num_rows() > 0)
-			$areas = $q->result();
-		else
+	function getAllMetricsUnidades(){
+		$this->load->model('Organization_model');
+		$areas = $this->Organization_model->getAllAreas();
+		if(count($areas) <= 0)
 			return false;
 
 		$result=[];
 		foreach ($areas as $a) {
-			$id_area = $a->id;
+			$unidades = $this->Organization_model->getAllUnidades($a->getId());
+			if(count($unidades) <= 0)
+				continue;
 
-			$query = "SELECT org.id AS id FROM Organization AS org WHERE org.parent=".$id_area;
-			$q = $this->db->query($query);
-			if($q->num_rows() > 0){
-				$unidades = $q->result();
+			foreach ($unidades as $u) { //Sacamos las metricas para cada unidad
 
-				foreach ($unidades as $u) { //Sacamos las metricas para cada unidad
-					$mets_unidad=[];
-					$query = "SELECT mo.id AS metorg, m.name AS name FROM MetOrg AS mo, Metric AS m WHERE m.id = mo.metric AND mo.org=".$u->id;
-					$q = $this->db->query($query);
-					if($q->num_rows() > 0){
-						$met_unidad = $q->result();
+				$this->db->select('MetOrg.id, Metric.y_name, Metric.x_name');
+				$this->db->from('Metric');
+				$this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+				$this->db->where('MetOrg.org', $u->getId());
+				$q = $this->db->get();
 
-						foreach ($met_unidad as $met) {
-							$mets_unidad[]=array(
-								'metorg' => $met->metorg,
-								'name' => $met->name
-								);
-						}
+				if($q->num_rows() <= 0)
+					continue;
 
-
-					$result[$u->id] = $mets_unidad;
-					}
+				$mets_unidad=[];
+				foreach ($q->result() as $met) {
+					$mets_unidad[]=array(
+						'metorg' => $met->id,
+						'name' => $met->y_name
+					);
 				}
+				$result[$u->getId()] = $mets_unidad;
 			}
 		}
-
 		return $result;
 	}
 
-	function getAllMetricsArea()
-	{
-		$query = "SELECT org.id AS id FROM Organization AS org WHERE (org.parent = 1 AND org.id<>1) OR (org.parent = 0 AND org.id<>0)"; //Selecciona areas
-		$q = $this->db->query($query);
-		if($q->num_rows() > 0)
-			$areas = $q->result();
-		else
+	function getAllMetricsArea(){
+		$this->load->model('Organization_model');
+		$areas = $this->Organization_model->getAllAreas();
+		if(count($areas) <= 0)
 			return false;
 
 		$result=[];
 		foreach ($areas as $a) {
-			$id_area = $a->id;
 
-			$mets_area=[];
-			$query = "SELECT mo.id AS metorg, m.name AS name FROM MetOrg AS mo, Metric AS m WHERE m.id = mo.metric AND mo.org=".$a->id;
-			$q = $this->db->query($query);
+			$this->db->select('MetOrg.id, Metric.y_name, Metric.x_name');
+			$this->db->from('Metric');
+			$this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+			$this->db->where('MetOrg.org', $a->getId());
+			$q = $this->db->get();
 			if($q->num_rows() > 0){
-				$met_area = $q->result();
-
-				foreach ($met_area as $met) {
+				foreach ($q->result() as $met) {
 					$mets_area[]=array(
-								'metorg' => $met->metorg,
-								'name' => $met->name
-								);
+						'metorg' => $met->id,
+						'name' => $met->y_name
+					);
 				}
-
-				$result[$a->id] = $mets_area;
+				$result[$a->getId()] = $mets_area;
 			}
 
+			$unidades = $this->Organization_model->getAllUnidades($a->getId());
+			if(count($unidades) <= 0)
+				continue;
 
-			$query = "SELECT org.id AS id FROM Organization AS org WHERE org.parent=".$id_area;
-			$q = $this->db->query($query);
-			if($q->num_rows() > 0){
-				$unidades = $q->result();
+			foreach ($unidades as $u) { //Sacamos las metricas para cada unidad
+				$this->db->select('MetOrg.id, Metric.y_name, Metric.x_name');
+				$this->db->from('Metric');
+				$this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+				$this->db->where('MetOrg.org', $u->getId());
+				$q = $this->db->get();
 
-				foreach ($unidades as $u) { //Sacamos las metricas para cada unidad
-					$mets_unidad=[];
-					$query = "SELECT mo.id AS metorg, m.name AS name FROM MetOrg AS mo, Metric AS m WHERE m.id = mo.metric AND mo.org=".$u->id;
-					$q = $this->db->query($query);
-					if($q->num_rows() > 0){
-						$met_unidad = $q->result();
+				if($q->num_rows() <= 0)
+					continue;
 
-						foreach ($met_unidad as $met) {
-							$mets_unidad[]=array(
-								'metorg' => $met->metorg,
-								'name' => $met->name
-								);
-						}
-
-						$result[$u->id] = $mets_unidad;
-
-					}
+				$mets_unidad=[];
+				foreach ($q->result() as $met) {
+					$mets_unidad[]=array(
+						'metorg' => $met->id,
+						'name' => $met->y_name
+					);
 				}
+				$result[$u->getId()] = $mets_unidad;
 			}
-
 		}
-
 		return $result;
 	}
 
-	function getAllMetricsDCC()
-	{
+	function getAllMetricsDCC(){
 		$metrics = $this->getAllMetricsArea();
 
 		if(!$metrics)
 			$metrics=[];
 
-		$query = "SELECT mo.id AS id, m.name AS name, mo.org AS org FROM MetOrg AS mo, Metric AS m WHERE (mo.org=1 OR mo.org=0) AND mo.metric=m.id";
-		$q = $this->db->query($query);
+		$this->db->select('MetOrg.id, MetOrg.org, Metric.y_name, Metric.x_name');
+		$this->db->from('Metric');
+		$this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+		$this->db->where('MetOrg.org', 0);
+		$this->db->or_where('MetOrg.org', 1);
+		$q = $this->db->get();
 		if($q->num_rows() > 0){
-			$metrics_dcc = $q->result();
 			$r_1=[];
 			$r_0=[];
-			foreach ($metrics_dcc as $metric) {
+			foreach ($q->result() as $metric) {
 				if($metric->org==1)
 					$r_1[] = array('metorg' => $metric->id,
-								'name' => $metric->name );
+								'name' => $metric->y_name );
 				else
 					$r_0[] = array('metorg' => $metric->id,
-								'name' => $metric->name );
+								'name' => $metric->y_name );
 			}
 			$metrics[1] = $r_1;
 			$metrics[0] = $r_0;

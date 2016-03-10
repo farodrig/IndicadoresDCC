@@ -129,7 +129,7 @@
                                     foreach ($metrics as $metric) {?>
                                     		<div class='row mb-md'>
                                     			<div class= 'col-md-2'>
-                                    				<label class='text'><?php echo (ucwords($metric->getName()));?></label>
+                                    				<label class='text'><?php echo (ucwords($metric->getNameY()));?></label>
                                     			</div>
                                     			<div class='col-md-2'>
                                     				<input type='text' name='value<?php echo ($metric->getId());?>' id='value<?php echo ($metric->getId());?>' class='form-control' onkeyup ="validate('value<?php echo ($metric->getId());?>')" onfocus ="validate('value<?php echo ($metric->getId());?>')">
