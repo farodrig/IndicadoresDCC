@@ -61,3 +61,33 @@ function getAllOrgsByDpto($model){
       return $model->getValidate($permits_array['encargado_finanzas_unidad']);
   return  false;
 }
+
+function getRoute($controller, $id){
+    $controller->load->model('Organization_model');
+
+    $aux=$id;
+    $aux_id = 0;
+    $i = 1;
+    $organization = null;
+
+    while($aux_id!=$aux){
+        $org = $controller->Organization_model->getByID($aux);
+        if ($i==1)
+            $organization = $org;
+        $route[$i] = ucwords($org->getName());
+
+        $aux_id = $aux;
+        $aux = $org->getParent();
+        $i++;
+    }
+    //Elimina DCC de la ruta para elementos q no sean el DCC
+    if($id!=0 && $id!=1)
+        $i--;
+
+    //Añade el tipo de organización al final de la ruta
+    $type = $controller->Organization_model->getTypeById($organization->getType());
+    if(!is_null($type) && $type['name']!="")
+        $route[$i] = $type['name'];
+
+    return $route;
+}

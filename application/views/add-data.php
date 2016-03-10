@@ -233,20 +233,19 @@
 						loadValues(metorg,"","","");
 					}
 				}
-
 				else{
 					var metorg;
 					for(i=0;i<size; i++){
 						metorg = jArray[i]['metorg'];
 						loadValues(metorg,"","","");
 					}
-					for (i=0; i<size; i++) {
+					for (i=0; i<size; i++){
 						var aux_year = jArray[i]['year'];
 						if(aux_year==year){
 							loadValues(jArray[i]['metorg'],jArray[i]['value'],jArray[i]['target'],jArray[i]['expected']);
 							document.getElementById("borrar".concat(jArray[i]['metorg'])).disabled=false;
 						}
-	    		}
+	    			}
 				}
 			}
 

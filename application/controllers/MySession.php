@@ -224,8 +224,10 @@ class MySession extends CI_Controller {
 	}
 
 	public function agregarMetrica() {
+		//carga de elementos
 		$this->load->library('form_validation');
 
+		//Validación de inputs
 		$this->form_validation->set_rules('unidad_medida', 'UnidadMedida', 'required');
 		$this->form_validation->set_rules('category', 'Category', 'required|numeric');
 		$this->form_validation->set_rules('name', 'Name', 'required|alphaSpace');
@@ -236,28 +238,39 @@ class MySession extends CI_Controller {
 			redirect('cmetrica');
 		}
 
+		//Carga de los modelos a usar
 		$this->load->model('Metrics_model');
 		$this->load->model('Metorg_model');
 		$this->load->model('Unit_model');
 
-		$Unit = array(
+		//creación de unidad
+		$unit_data = array(
 			'name' => $this->input->post('unidad_medida'),
 		);
 
+		$unit = $this->Unit_model->get_or_create($unit_data);
+		if (!$unit){
+			$this->session->set_flashdata('success', 0);
+			redirect('cmetrica');
+		}
+
+		//Creación de métrica
 		$Metricdata = array(
-			'category' => $this->input->post('category'), //esto es 1 si es productividad y 2 si es finanzas. Tienes que agregar esos dos valores en la base de datos
-			// en la tabla catergory
-			'unit' => $this->Unit_model->checkName($Unit), //-> primero revisa si hay unidad de medida en la base de datos con ese nombre, si existe toma
-			// el id correspondiente y le asocias a la metrica ese id ,si no agrega la unidad, obten
-			// el nuevo id y se lo asocias a la metrica
-			'name' => $this->input->post('name'), //Nombre que tendrá la métrica//id de la unidad o area a la que se le quiere ingresar la metrica
+			'category' => $this->input->post('category'), //esto es 1 si es productividad y 2 si es finanzas. Tienes que agregar esos dos valores en la base de datos en la tabla catergory
+			'unit' => $unit, //-> Busca la Unidad, si no existe la crea y entrega el id, si existe, entrega el id.
+			'name' => $this->input->post('name'), //Nombre que tendrá la métrica
 		);
 
-		$id_metric = $this->Metrics_model->addMetric($Metricdata);
+		$metric = $this->Metrics_model->get_or_create($Metricdata);
+		if (!$metric){
+			$this->session->set_flashdata('success', 0);
+			redirect('cmetrica');
+		}
 
+		//Creación de link entre métrica y organización
 		$metorg = array(
-			'org'    => $this->input->post('id_insert'),
-			'metric' => $id_metric,
+			'org'    => $this->input->post('id_insert'),//id de la unidad o area a la que se le quiere ingresar la metrica
+			'metric' => $metric,
 		);
 
 		if ($this->Metorg_model->addMetOrg($metorg)) {
@@ -270,10 +283,11 @@ class MySession extends CI_Controller {
 	}
 
 	public function eliminarMetrica() {
-
+		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
 		$this->load->library('form_validation');
 
+		//Modifica valor de la métrica
 		if ($this->input->post('modificar')) {
 			$this->form_validation->set_rules('unidad', 'UnidadMedida', 'required|alphaSpace');
 			$this->form_validation->set_rules('tipo', 'Type', 'required|numeric');
@@ -296,7 +310,9 @@ class MySession extends CI_Controller {
 			} else {
 				$this->session->set_flashdata('success', 0);
 			}
-		} else {
+		}
+		//Elimina MetOrg
+		else {
 			$this->form_validation->set_rules('id2', 'Id', 'required|numeric');
 
 			if (!$this->form_validation->run()) {
@@ -304,15 +320,20 @@ class MySession extends CI_Controller {
 				redirect('cmetrica');
 			}
 
-			$data = array('id_metorg' => $this->input->post('id2'));
-			if ($this->Metrics_model->deleteMetric($data)) {
+			$data = array('id' => $this->input->post('id2'));
+			if ($this->Metorg_model->delMetOrg($data)) {
 				$this->session->set_flashdata('success', 1);
 			} else {
 				$this->session->set_flashdata('success', 0);
 			}
 		}
-
 		redirect('cmetrica');
+	}
+
+	function test(){
+		$this->load->model('Unit_model');
+		$data = array('name'=>'pesos');
+		debug($this->Unit_model->get_or_create($data));
 	}
 }
 ?>

@@ -21,3 +21,12 @@ function getGeneric($model, $db_name, $columns, $data){
     $query = $model->db->get($db_name);
     return $query->result();
 }
+
+function get_or_create($model, $data, $column){
+    //get
+    $q = $model->db->get_where($model->title, $data, 1);
+    if($q->num_rows())
+        return (isset($column)) ? $q->result_array()[0][$column] : $q->result_array()[0];
+    //create
+    return ($model->db->insert($model->title, $data)) ?  $model->db->insert_id() : false;
+}

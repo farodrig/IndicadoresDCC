@@ -19,8 +19,7 @@ class Dashboard_library
 	private $dateval;*/
 
 
-	function initialize($parameters)
-	{
+	function initialize($parameters){
 		$this->metorg = element('id', $parameters);
 		$this->name_met = element('name', $parameters);
 		return $this;

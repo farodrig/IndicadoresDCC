@@ -16,13 +16,13 @@ class Foda_model extends CI_Model{
     }
 
     public function addFoda($data){
-        return ($this->db->insert($this->title, $data)) ? true : false;
+        return ($this->db->insert($this->title, $data)) ? $this->db->insert_id() : false;
     }
 
     public function modifyFoda($data){
         $this->db->where('id', $data['id']);
         unset($data['id']);
-        return ($this->db->update($this->title, $data)) ? true : false;
+        return $this->db->update($this->title, $data);
     }
 
     public function getFoda($data){
@@ -30,17 +30,17 @@ class Foda_model extends CI_Model{
     }
 
     public function addItem($data){
-        return ($this->db->insert($this->item, $data)) ? true : false;
+        return ($this->db->insert($this->item, $data)) ? $this->db->insert_id() : false;
     }
 
     public function modifyItem($data){
         $this->db->where('id', $data['id']);
         unset($data['id']);
-        return ($this->db->update($this->item, $data)) ? true : false;
+        return $this->db->update($this->item, $data);
     }
 
     public function deleteItem($data){
-        return ($this->db->delete($this->item, $data)) ? true : false;
+        return $this->db->delete($this->item, $data);
     }
 
     public function getItem($data){
@@ -52,8 +52,7 @@ class Foda_model extends CI_Model{
     }
 
     public function getAllPriority(){
-        $query = $this->db->get($this->priority);
-        return $query->result();
+        return $this->db->get($this->priority)->result();
     }
 
     public function getType($data){
@@ -61,7 +60,6 @@ class Foda_model extends CI_Model{
     }
 
     public function getAllType(){
-        $query = $this->db->get($this->type);
-        return $query->result();
+        return $this->db->get($this->type)->result();
     }
 }

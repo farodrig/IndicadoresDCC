@@ -70,12 +70,14 @@ class Foda extends CI_Controller {
     }
 
     function addFodaItem() {
+        //Revisión de permisos
         $permits = $this->session->userdata();
         if (!$permits['director']) {
             $this->session->set_flashdata('success', 0);
             redirect('foda');
         }
 
+        //Validación de entradas
         $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('year', 'Año', 'numeric|required');
         $this->form_validation->set_rules('fodaComment', 'Comentario', 'trim|alpha_numeric_spaces');
@@ -90,6 +92,7 @@ class Foda extends CI_Controller {
             $this->session->set_flashdata('success', 0);
             redirect('foda');
         }
+
         $data = array('org' => [$this->input->post('org')],
                       'year' => [$this->input->post('year')],
                       'comment' => $this->input->post('fodaComment'));

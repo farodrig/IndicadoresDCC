@@ -1,24 +1,16 @@
 <?php
 class Unit_model extends CI_Model{
 
+	public $title;
 
-	function checkName($name){
+	public function __construct(){
+		// Call the CI_Model constructor
+		parent::__construct();
+		$this->title = "Unit";
+	}
 
-		 	$q =  $this->db->select('id')
-							->from('Unit')
-							->where('name', $name['name'])
-				  ->get();
-    	if($q->num_rows() > 0){
-			return $metric_id = $q->result_array()[0]['id'];
-		}
-		else
-			$this->db->insert('Unit', $name);
-			$this->db->where('name', $name['name']);
-		  $q = $this->db->select('id')
-									->from('Unit')
-									->where('name', $name['name'])
-									->get();
-	    return $metric_id = $q->result_array()[0]['id'];
-	  }
+	function get_or_create($name){
+		return get_or_create($this, $name, 'id');
+	}
 
 }

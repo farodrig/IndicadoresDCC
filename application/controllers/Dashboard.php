@@ -1,5 +1,4 @@
-<?php if (!defined('BASEPATH')) {exit('No direct script access allowed');
-}
+<?php if (!defined('BASEPATH')) {exit('No direct script access allowed');}
 
 class Dashboard extends CI_Controller {
 
@@ -10,28 +9,19 @@ class Dashboard extends CI_Controller {
 		$this->dashboardModel = $this->Dashboard_model;
 	}
 
-	function formAddData()// funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
+	function formAddData(){// funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
 	// y llamar a cada valor del arreglo como liberia ejemplo mas abajo
 	// esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
-	{
 		$permits = $this->session->userdata();
-		$val     = $this->session->flashdata('id');
+		$id     = $this->session->flashdata('id');
 
-		if (!is_null($val)) {
-			$id = $val;
-		} else {
-			$id = $this->input->get('var');//Se recibe por GET, es el id de área, unidad, etc que se este considerando
-
-			if (is_null($id) && is_null(($id = $this->session->flashdata('id')))) {
-				redirect('inicio');
-			}
-		}
+        if (is_null($id))
+            $id = $this->input->get('var');//Se recibe por GET, es el id de área, unidad, etc que se este considerando
+		if (is_null($id))
+            redirect('inicio');
 
 		$this->session->set_flashdata('id', $id);
-		$route = $this->Dashboard_model->getRoute($id);
-
-		//Se obtienen las metricas correspondientes a los permisos del usuario, junto con las mediciones
-		//correspondientes
+		//Se obtienen las metricas correspondientes a los permisos del usuario, junto con las mediciones correspondientes
 		if ($permits['director'] || ((in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
 				 && ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
 			$cat = 0;
@@ -45,10 +35,9 @@ class Dashboard extends CI_Controller {
 
 		$all_metrics      = $this->Dashboard_model->getAllMetrics($id, $cat);
 		$all_measurements = $this->Dashboard_model->getAllMeasurements($id, $cat);
-
 		$res['measurements'] = !$all_measurements ? [[], []] : $this->_parseMeasurements($all_measurements);
 		$res['metrics']      = !$all_metrics ? [] : $all_metrics;
-		$res['route']        = $route;
+		$res['route']        = getRoute($this, $id);
 		$res['id_location']  = $id;
 		$res['validate']     = validation($permits, $this->dashboardModel);
 		$res['success']      = $this->session->flashdata('success') == null ? 2 : $this->session->flashdata('success');
@@ -60,33 +49,29 @@ class Dashboard extends CI_Controller {
 	//Función encargada de llamar a las funciones correspondientes del modelo, para poder actualizar valores en la base de datos
 	function addData() {
 		$id = $this->input->post("id_location");
+		$borrar = ($this->input->post('borrar')) ? 1 : 0;
 
-		$borrar=0;
-		if($this->input->post('borrar'))
-			$borrar=1;
-
-		if (is_null($id)) {
+		if (is_null($id))
 			redirect('inicio');
-		}
 
 		$user    = $this->session->userdata("rut");
 		$permits = $this->session->userdata();
 
-		$metrics_id       = $this->Dashboard_model->getAllMetricOrgIds($id);
+		$metorgs_id       = $this->Dashboard_model->getAllMetricOrgIds($id);
 		$all_measurements = $this->Dashboard_model->getAllMeasurements($id, 0);
 
 		//Se validan los datos ingresados
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('year', 'Year', 'required|exact_length[4]|numeric');
 
-		foreach ($metrics_id as $i) {
+		foreach ($metorgs_id as $i) {
 			$this->form_validation->set_rules('value'.$i->getId(), 'Value'.$i->getId(), 'numeric');
 			$this->form_validation->set_rules('target'.$i->getId(), 'Target'.$i->getId(), 'numeric');
 			$this->form_validation->set_rules('expected'.$i->getId(), 'Expected'.$i->getId(), 'numeric');
 		}
 
 		if (!$this->form_validation->run()) {
-			$this->session->set_flashdata('success', $success);
+			$this->session->set_flashdata('success', 0);
 			redirect('formAgregarDato');
 		}
 
@@ -96,7 +81,7 @@ class Dashboard extends CI_Controller {
 		if ($all_measurements) {
 			foreach ($all_measurements as $measure) {
 				if ($measure->getYear() == $year) {
-					$data[]                      = $measure->getMetOrg();
+                    $data[] = $measure->getMetOrg();
 					$vals[$measure->getMetOrg()] = array(
 						'value'    => $measure->getValue(),
 						'target'   => $measure->getTarget(),
@@ -106,7 +91,7 @@ class Dashboard extends CI_Controller {
 			}
 		}
 
-		$data[] = -1;// Asi el arreglo nunca sera null
+		$data[] = -1; // Asi el arreglo nunca sera null
 
 		if ($permits['director']) {
 			$validation = 1;
@@ -118,36 +103,34 @@ class Dashboard extends CI_Controller {
 		}
 
 		$success = 1;
-		foreach ($metrics_id as $i) {
-			$id_met   = $i->getId();
-			$value    = $this->input->post('value'.$id_met);
-			$target   = $this->input->post('target'.$id_met);
-			$expected = $this->input->post('expected'.$id_met);
-			$delete = $this->input->post('borrar'.$id_met);
+		foreach ($metorgs_id as $i){
+			$id_metorg   = $i->getId();
+			$value    = $this->input->post('value'.$id_metorg);
+			$target   = $this->input->post('target'.$id_metorg);
+			$expected = $this->input->post('expected'.$id_metorg);
+			$delete = $this->input->post('borrar'.$id_metorg);
 
 			//Si no se ingresaron datos no se agregan a la base de datos
-			if ($value == "" && $target == "" && $expected == "") {
+			if ($value == "" && $target == "" && $expected == "")
 				continue;
-			}
 			if($value=="")
 				$value=0;
 			if($target=="")
 				$target=0;
 			if($expected=="")
 				$expected=0;
-			$met_type = $this->Dashboard_model->getMetType($id_met);
+			$metorg_cat = $this->Dashboard_model->getMetType($id_metorg);
 
-			if ((in_array($id, $permits['encargado_unidad']) && !strcmp($met_type, "Productividad")) ||
-				(in_array($id, $permits['encargado_finanzas_unidad']) && !strcmp($met_type, "Finanzas"))) {
+			if ((in_array($id, $permits['encargado_unidad']) && !strcmp($metorg_cat, "Productividad")) ||
+				(in_array($id, $permits['encargado_finanzas_unidad']) && !strcmp($metorg_cat, "Finanzas"))) {
 				$validation = 1;
 			}
-
 			if($borrar && $delete)
-				$q = $this->Dashboard_model->deleteMeasure($id_met, $year, $user, $validation);
-			elseif (!$borrar && in_array($id_met, $data) == 1 && ($value != $vals[$id_met]['value'] || $target != $vals[$id_met]['target'] || $expected != $vals[$id_met]['expected'])) {
-				$q = $this->Dashboard_model->updateData($id_met, $year, $value, $target, $expected, $user, $validation);
-			} else if (!$borrar && in_array($id_met, $data) != 1) {
-				$q = $this->Dashboard_model->insertData($id_met, $year, $value, $target, $expected, $user, $validation);// si $q es falso significa que fallo la query
+				$q = $this->Dashboard_model->deleteMeasure($id_metorg, $year, $user, $validation);
+			elseif (!$borrar && in_array($id_metorg, $data) && ($value != $vals[$id_metorg]['value'] || $target != $vals[$id_metorg]['target'] || $expected != $vals[$id_metorg]['expected'])) {
+				$q = $this->Dashboard_model->updateData($id_metorg, $year, $value, $target, $expected, $user, $validation);
+			} else if (!$borrar && !in_array($id_metorg, $data)) {
+				$q = $this->Dashboard_model->insertData($id_metorg, $year, $value, $target, $expected, $user, $validation);// si $q es falso significa que fallo la query
 			} else {
 				$q = -1;
 			}
@@ -156,9 +139,9 @@ class Dashboard extends CI_Controller {
 				$success = 0;
 			}
 		}
+
 		$this->session->set_flashdata('id', $id);
 		$this->session->set_flashdata('success', $success);
-		//Se redirige a la pantalla de agregar datos
 		redirect('formAgregarDato');
 	}
 
@@ -194,7 +177,7 @@ class Dashboard extends CI_Controller {
 		//-------------
 
 		$result['id_location'] = $id;
-		$route                 = $this->Dashboard_model->getRoute($id);
+		$route                 = getRoute($this, $id);
 
 		//Guardar en variables de sesion
 		$this->session->set_flashdata('id', $id);

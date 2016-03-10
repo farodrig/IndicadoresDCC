@@ -1,80 +1,61 @@
 <?php
 class Metrics_model extends CI_Model{
 
+	public $title;
+	public $MO;
+	public $Unit;
+	public $Category;
 
-	function addMetric($data){
-		//REcuerda insertar en MetOrg
-		$this->db->insert('Metric', $data);
-		$q = $q =  $this->db->select('id')
-							->from('Metric')
-							->where($data)
-							->get();
-		if($q->num_rows() > 0){
-			return $metric_id = $q->result_array()[0]['id'];
-		}
-		else
-			return false;
-
+	public function __construct(){
+		// Call the CI_Model constructor
+		parent::__construct();
+		$this->title = "Metric";
+		$this->MO = "MetOrg";
+		$this->Unit = "Unit";
+		$this->Category = "Category";
 	}
 
-	function deleteMetric($data){
-		$query = "SELECT m.metric AS id FROM MetOrg AS m WHERE m.id=".$data['id_metorg'];
-		$q = $this->db->query($query);
-		if($q->num_rows() > 0){
-			$metric_id = $q->result()[0];
-		}
-		else
-			return false;
-		$query = "DELETE FROM Metric WHERE id=".$metric_id->id;
-		$q = $this->db->query($query);
-		$query = "DELETE FROM MetOrg WHERE id=".$data['id_metorg'];
-		$q = $this->db->query($query);
-
-		return $q;
+	function get_or_create($data){
+		return get_or_create($this, $data, 'id');
 	}
 
 	function updateMetric($data){
-		$query= "SELECT m.metric AS id FROM MetOrg AS m WHERE m.id=".$data['id_metorg'];
-		$q = $this->db->query($query);
-		if($q->num_rows() > 0){
-			$metric_id = $q->result()[0];
+		$this->load->model('Metorg_model');
+		$this->load->model('Unit_model');
 
-			$query = "SELECT id FROM Unit WHERE name='".$data['unidad_medida']."'";
-			$q = $this->db->query($query);
-			if($q->num_rows() > 0){
-				$id_unidad = $q->result()[0];
-			}
-			else{
-				$query = "INSERT INTO Unit (name) VALUES ('".$data['unidad_medida']."')";
-				$q = $this->db->query($query);
-				$query = "SELECT id FROM Unit WHERE name='".$data['unidad_medida']."'";
-				$q = $this->db->query($query);
-				if($q->num_rows() > 0){
-					$id_unidad = $q->result()[0];
-				}
-			}
-			$query = "UPDATE Metric SET category=?, unit=?, name=? WHERE id = ?";
-			$q = $this->db->query($query, array($data['category'], $id_unidad->id, $data['name_metrica'], $metric_id->id));
+		$metorg = $this->Metorg_model->getMetOrg(array('id' =>[$data['id_metorg']], 'limit' => 1))[0];
+		if(isset($metorg)){
+			$metric_id = $metorg->metric;
+			$id_unidad = $this->Unit_model->get_or_create(array('name'=>$data['unidad_medida']));
 
-			return $q;
+			$datos = array(
+				'category'=>$data['category'],
+				'unit'=>$id_unidad,
+				'name'=> $data['name_metrica']
+			);
+			$this->db->where('id', $metric_id);
+			return $this->db->update($this->title, $datos);
 		}
-        else
-            return false;
+		return false;
 	}
 
 	function getAllMetrics(){
-		$query = "SELECT mo.org AS org, mo.id AS metorg, m.name AS name, c.name AS category, u.name AS unit
-					FROM Metric AS m, MetOrg AS mo, Unit AS u, Category AS c
-		 			WHERE mo.metric=m.id AND u.id=m.unit AND c.id=m.category";
-		$q = $this->db->query($query);
+		$this->db->select('MetOrg.org, MetOrg.id as metorg, Metric.name, Category.name as category, Unit.name as unit');
+		$this->db->from('Metric');
+		$this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+		$this->db->join('Category', 'Category.id = Metric.category');
+		$this->db->join('Unit', 'Unit.id = Metric.unit');
+		$q = $this->db->get();
 		$data=[];
 		if($q->num_rows() > 0){
 			foreach ($q->result() as $row){
-					$data[$row->org][]= array('metorg' => $row->metorg,
-																	'name' => ucwords($row->name),
-																	'category' => ucwords($row->category),
-																	'unit' => ucwords($row->unit));
-				}
+				$data[$row->org][]= array(
+					'metorg' => $row->metorg,
+					'name' => ucwords($row->name),
+					'category' => ucwords($row->category),
+					'unit' => ucwords($row->unit)
+				);
+			}
 		}
 		return $data;
 

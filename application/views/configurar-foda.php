@@ -93,6 +93,7 @@
                                 text: 'Su solicitud ha sido realizada con éxito.',
                                 type: 'success'
                             });
+                            $('#element'+elemId).remove();
                         }
                         else {
                             new PNotify({
@@ -193,7 +194,7 @@
 
         <section role="main" class="content-body">
             <header class="page-header">
-                <h2>Configurar áreas y unidades</h2>
+                <h2>Configurar FODA</h2>
 
                 <div class="right-wrapper pull-right">
                     <ol class="breadcrumbs">
