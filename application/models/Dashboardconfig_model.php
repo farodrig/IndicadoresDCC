@@ -26,20 +26,19 @@ class Dashboardconfig_model extends CI_Model
 				$id_dash = $q->result()[0];
 
 
-			$query = "SELECT m.year AS year FROM Measure AS m WHERE m.metorg=".$id;
+			$query = "SELECT year FROM Value WHERE metorg=".$id;
 			$q = $this->db->query($query);
 			if($q->num_rows() > 0){
 				foreach ($q->result() as $row){
 					$years[]=$row->year;
 				}
-
 				return array(
 					'id' => -1,
 					'min' => min($years),
 					'max' => max($years),
 					'type' => 2,
 					'checked' => 0
-					);
+				);
 			}
 			$current_year = intval(date("Y"));
 			return array(
@@ -48,7 +47,7 @@ class Dashboardconfig_model extends CI_Model
 				'max' => $current_year,
 				'type' => 2,
 				'checked' => 0
-				);
+			);
 		}
 	}
 

@@ -79,48 +79,56 @@
 											<td>Usuario</td>
 											<td>Rol</td>
 											<td>Organización</td>
-											<td>Métrica</td>
 											<td>Tipo</td>
-											<td>Unidad</td>
 											<td>Año</td>
-											<td>Valor</td>
+											<td>Eje X</td>
+											<td>Unidad X</td>
+											<td>Eje Y</td>
+											<td>Unidad Y</td>
+											<td>Valor X</td>
+											<td>Valor Y</td>
 											<td>Esperado</td>
 											<td>Meta</td>
-											<td>Valor anterior</td>
-											<td>Esperado anterior</td>
-											<td>Meta anterior</td>
-											<td>Validar</td>
-
+											<td>Valor X Propuesto</td>
+											<td>Valor Y Propuesto</td>
+											<td>Esperado Propuesto</td>
+											<td>Meta Propuesta</td>
+											<td>Seleccionar</td>
 										</tr>
 									</thead>
 									<tbody> <!-- no se que pasa aqui -->
-										<?php if(count($data) >0)  :?>
 										<?php foreach($data as $row) :?>
 											<tr class="">
 											<td> <?php  echo ucwords($row->name)?> </td>
-											<td> <?php echo strcmp(ucwords($row->category),"Finanzas")==0 ? "Asistente de finanzas" :
-												(strcmp($row->adcc,"0")==0 ? "Asistente de unidad" : "Asistente de DCC") ?></td>
+											<td> <?php echo strcmp(ucwords($row->category),"Finanzas")==0 ? "Asistente de finanzas" : (strcmp($row->adcc,"0")==0 ? "Asistente de unidad" : "Asistente de DCC") ?></td>
 											<td> <?php  echo ucwords($row->org_name)?> </td>
-											<td> <?php  echo ucwords($row->metric)?> </td>
 											<td> <?php  echo ucwords($row->category)?> </td>
-											<td> <?php  echo ucwords($row->type)?> </td>
 											<td> <?php  echo ucwords($row->year)?> </td>
-											<?php if($row->s==0){ ?>
-												<td> <?php  echo strcmp($row->value, $row->o_v)==0 ? $row->value : "<b>".$row->value."</b>" ?> </td>
-												<td> <?php  echo strcmp($row->target, $row->o_t)==0 ? $row->target : "<b>".$row->target."</b>" ?> </td>
-												<td> <?php  echo strcmp($row->expected, $row->o_e)==0 ? $row->expected : "<b>".$row->expected."</b>" ?> </td>
+											<td><?php  echo ucwords($row->x_name)?> </td>
+											<td> <?php  echo ucwords($row->type_x)?> </td>
+											<td> <?php  echo ucwords($row->y_name)?> </td>
+											<td> <?php  echo ucwords($row->type_y)?> </td>
+											<?php if($row->modified){ ?>
+												<td> <?php  echo $row->x_value ?> </td>
+												<td> <?php  echo $row->value ?> </td>
+												<td> <?php  echo $row->target ?> </td>
+												<td> <?php  echo $row->expected ?> </td>
 											<?php	}
 											else{ ?>
 												<td> - </td>
 												<td> - </td>
 												<td> - </td>
+												<td> - </td>
 											<?php } ?>
-											<?php if($row->modified){ ?>
-												<td> <?php echo $row->o_v ?> </td>
-												<td> <?php echo $row->o_t ?> </td>
-												<td> <?php echo $row->o_e ?> </td>
-										   <?php	}
+
+											<?php if($row->s==0){ ?>
+												<td> <?php  echo strcmp($row->x_value, $row->p_x)==0 ? $row->x_value : "<b>".$row->p_x."</b>" ?> </td>
+												<td> <?php  echo strcmp($row->value, $row->p_v)==0 ? $row->value : "<b>".$row->p_v."</b>" ?> </td>
+												<td> <?php  echo strcmp($row->target, $row->p_t)==0 ? $row->target : "<b>".$row->p_t."</b>" ?> </td>
+												<td> <?php  echo strcmp($row->expected, $row->p_e)==0 ? $row->expected : "<b>".$row->p_e."</b>" ?> </td>
+											<?php	}
 											else{ ?>
+												<td> - </td>
 												<td> - </td>
 												<td> - </td>
 												<td> - </td>
@@ -130,8 +138,6 @@
 											</td>
 										</tr>
 										<?php endforeach?>
-										<?php endif?>
-
 									</tbody>
 								</table>
 								<div class="row">

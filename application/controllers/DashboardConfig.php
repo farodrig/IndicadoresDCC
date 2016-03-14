@@ -79,7 +79,7 @@ class DashboardConfig extends CI_Controller {
 		}
 
 		$this->session->set_flashdata('id_first_area', $id_first);
-		$all_metrics = $this->Dashboardconfig_model->getAllMetricsArea();//Retorna arrglo de arreglos de metricas de las unidades y areas correspondientes
+		$all_metrics = $this->Dashboardconfig_model->getAllMetricsArea();//Retorna arreglo de arreglos de metricas de las unidades y areas correspondientes
 		//Si all_metrics es falso es porque no hay areas
 
 		$all_areas = $this->Dashboardconfig_model->getAllAreasUnidad();//arreglo de areas y sus respectivas unidades id_area =>(nombre, id, arreglo_unidades)

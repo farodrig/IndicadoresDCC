@@ -54,12 +54,12 @@ function getAllOrgsByDpto($model){
   if($permits_array['director'])
     return $model->getValidate(-1);
   elseif(!in_array(-1,$permits_array['encargado_unidad']) && !in_array(-1,$permits_array['encargado_finanzas_unidad']))
-    return $model->getValidate(-1);
+    return $model->getValidate(array_merge($permits_array['encargado_unidad'], $permits_array['encargado_finanzas_unidad']));
   elseif(!in_array(-1,$permits_array['encargado_unidad']))
       return $model->getValidate($permits_array['encargado_unidad']);
   elseif(!in_array(-1,$permits_array['encargado_finanzas_unidad']))
       return $model->getValidate($permits_array['encargado_finanzas_unidad']);
-  return  false;
+  return false;
 }
 
 function getRoute($controller, $id){

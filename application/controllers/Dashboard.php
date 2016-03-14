@@ -8,14 +8,35 @@ class Dashboard extends CI_Controller {
 		$this->dashboardModel = $this->Dashboard_model;
 	}
 
-	function formAddData(){// funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
-	// y llamar a cada valor del arreglo como liberia ejemplo mas abajo
-	// esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
+    //Función que genera un arreglo de dos arreglos. El primero contiene todas las mediciones
+    //que se reciben en el argumento $m. Y el segundo contiene todos los años que presentan mediciones
+    function _parseMeasurements($measures) {
+        $result = array();
+        if($measures) {
+            foreach ($measures as $measure) {
+                $data['id'] = $measure->getIdMeasurement();
+                $data['metorg'] = $measure->getMetOrg();
+                $data['valueY'] = $measure->getValueY();
+                $data['valueX'] = $measure->getValueX();
+                $data['target'] = $measure->getTarget();
+                $data['expected'] = $measure->getExpected();
+                $data['year'] = $measure->getYear();
+
+                $result[$data['metorg']][$data['year']][] = $data;
+            }
+        }
+        return $result;
+    }
+
+    // funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
+    // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
+    // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
+	function formAddData(){
 		$permits = $this->session->userdata();
 		$id     = $this->session->flashdata('id');
 
         if (is_null($id))
-            $id = $this->input->get('var');//Se recibe por GET, es el id de área, unidad, etc que se este considerando
+            $id = $this->input->get('var');//Es el id de área, unidad, etc que se este considerando
 		if (is_null($id))
             redirect('inicio');
 
@@ -34,7 +55,7 @@ class Dashboard extends CI_Controller {
 
 		$all_metrics      = $this->Dashboard_model->getAllMetrics($id, $cat);
 		$all_measurements = $this->Dashboard_model->getAllMeasurements($id, $cat);
-		$res['measurements'] = !$all_measurements ? [[], []] : $this->_parseMeasurements($all_measurements);
+		$res['measurements'] = $this->_parseMeasurements($all_measurements);
 		$res['metrics']      = !$all_metrics ? [] : $all_metrics;
 		$res['route']        = getRoute($this, $id);
 		$res['id_location']  = $id;
@@ -47,6 +68,8 @@ class Dashboard extends CI_Controller {
 
 	//Función encargada de llamar a las funciones correspondientes del modelo, para poder actualizar valores en la base de datos
 	function addData() {
+        debug($_POST);
+        return;
 		$id = $this->input->post("id_location");
 		$borrar = ($this->input->post('borrar')) ? 1 : 0;
 
@@ -82,7 +105,8 @@ class Dashboard extends CI_Controller {
 				if ($measure->getYear() == $year) {
                     $data[] = $measure->getMetOrg();
 					$vals[$measure->getMetOrg()] = array(
-						'value'    => $measure->getValue(),
+						'valueY'    => $measure->getValueY(),
+                        'valueX'    => $measure->getValueX(),
 						'target'   => $measure->getTarget(),
 						'expected' => $measure->getExpected()
 					);
@@ -104,16 +128,19 @@ class Dashboard extends CI_Controller {
 		$success = 1;
 		foreach ($metorgs_id as $i){
 			$id_metorg   = $i->getId();
-			$value    = $this->input->post('value'.$id_metorg);
+			$valueY    = $this->input->post('valueY'.$id_metorg);
+            $valueX    = $this->input->post('valueX'.$id_metorg);
 			$target   = $this->input->post('target'.$id_metorg);
 			$expected = $this->input->post('expected'.$id_metorg);
 			$delete = $this->input->post('borrar'.$id_metorg);
 
 			//Si no se ingresaron datos no se agregan a la base de datos
-			if ($value == "" && $target == "" && $expected == "")
+			if ($valueY == "" && $valueX == "" && $target == "" && $expected == "")
 				continue;
-			if($value=="")
-				$value=0;
+			if($valueY=="")
+				$valueY=0;
+            if($valueX=="")
+                $valueX=0;
 			if($target=="")
 				$target=0;
 			if($expected=="")
@@ -125,11 +152,11 @@ class Dashboard extends CI_Controller {
 				$validation = 1;
 			}
 			if($borrar && $delete)
-				$q = $this->Dashboard_model->deleteMeasure($id_metorg, $year, $user, $validation);
-			elseif (!$borrar && in_array($id_metorg, $data) && ($value != $vals[$id_metorg]['value'] || $target != $vals[$id_metorg]['target'] || $expected != $vals[$id_metorg]['expected'])) {
-				$q = $this->Dashboard_model->updateData($id_metorg, $year, $value, $target, $expected, $user, $validation);
+				$q = $this->Dashboard_model->deleteValue($id_metorg, $year, $user, $validation);
+			elseif (!$borrar && in_array($id_metorg, $data) && ($valueY != $vals[$id_metorg]['valueY'] || $valueX != $vals[$id_metorg]['valueX'] || $target != $vals[$id_metorg]['target'] || $expected != $vals[$id_metorg]['expected'])) {
+				$q = $this->Dashboard_model->updateData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, $validation);
 			} else if (!$borrar && !in_array($id_metorg, $data)) {
-				$q = $this->Dashboard_model->insertData($id_metorg, $year, $value, $target, $expected, $user, $validation);// si $q es falso significa que fallo la query
+				$q = $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, $validation);// si $q es falso significa que fallo la query
 			} else {
 				$q = -1;
 			}
@@ -142,120 +169,6 @@ class Dashboard extends CI_Controller {
 		$this->session->set_flashdata('id', $id);
 		$this->session->set_flashdata('success', $success);
 		redirect('formAgregarDato');
-	}
-
-	//Función que genera un arreglo de dos arreglos. El primero contiene todas las mediciones
-	//que se reciben en el argumento $m. Y el segundo contiene todos los años que presentan mediciones
-	function _parseMeasurements($m) {
-
-		foreach ($m as $measure) {
-			$data['id']       = $measure->getIdMeasurement();
-			$data['metorg']   = $measure->getMetOrg();
-			$data['value']    = $measure->getValue();
-			$data['target']   = $measure->getTarget();
-			$data['expected'] = $measure->getExpected();
-			$data['year']     = $measure->getYear();
-
-			$valid_years[] = $data['year'];
-			$result[]      = $data;
-		}
-
-		return array(
-			0=> $result,
-			1=> $valid_years);
-	}
-
-	//construye tabla que va al lado de los gráficos, y además genera arreglo con los
-	//datos necesarios para graficar
-	function auxShowDashboard($dashboard_metrics, $id) {
-
-		function cmpPairs($p1, $p2) {
-			return $p1[0] > $p2[0];
-		}
-
-		//-------------
-
-		$result['id_location'] = $id;
-		$route                 = getRoute($this, $id);
-
-		//Guardar en variables de sesion
-		$this->session->set_flashdata('id', $id);
-		//-------------
-
-		$metrics = [];
-		$names   = [];
-
-		if ($dashboard_metrics) {
-			$all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
-			foreach ($dashboard_metrics as $metric) {
-				$metrics[$metric->getId()] = array(//Se obtienen datos que ocupará la librería para graficar
-					'id'             => $metric->getId(),
-					'vals'           => [],
-					'name'           => "",
-					'table'          => "",
-					'graph_type'     => $metric->getGraphType(),
-					'max_y'          => 0,
-					'min_y'          => 0,
-					'measure_number' => 0,
-					'unit'           => $metric->getUnit()
-				);
-			}
-
-			if ($all_measurements) {
-				foreach ($all_measurements as $measure) {
-					$count                    = 1;
-					$id_met                   = $measure['id'];
-					$names[]                  = $id_met;
-					$metrics[$id_met]['name'] = $measure['name'];
-
-					$values = [];
-					$years  = [];
-					//Tabla de datos que va al lado del gráfico
-					foreach ($measure['measurements'] as $m) {
-						$s = "<tr>
-	    				  <td>".$count."</td>
-	    			  	  <td>".$m->getYear()."</td>
-	    			      <td>".$m->getValue()."</td>
-	    			      <td>".$m->getTarget()."</td>
-	    			      <td>".$m->getExpected()."</td>
-	    			      </tr>";
-						$values[]                   = $m->getValue();
-						$years[]                    = $m->getYear();
-						$metrics[$id_met]['table']  = $metrics[$id_met]['table'].$s;
-						$metrics[$id_met]['vals'][] = array($m->getYear(), $m->getValue());
-						$count++;
-
-					}
-
-					usort($metrics[$id_met]['vals'], "cmpPairs");
-					$metrics[$id_met]['measure_number'] = max($years)-min($years);
-					$min                                = min($values);
-
-					$metrics[$id_met]['min_y'] = $min > 0 ? floor(0.85*$min) : floor(1.15*$min);
-					$metrics[$id_met]['max_y'] = ceil(1.15*max($values));
-
-				}
-
-				$res    = [];
-				$id_met = array_keys($metrics);
-				foreach ($id_met as $id) {
-					if ($metrics[$id]['name'] == "") {
-						continue;
-					}
-
-					$res[$id] = $metrics[$id];
-				}
-				$metrics = $res;
-			} else {
-				$metrics = [];//Si la metrica no tiene mediciones => no se muestra
-				$names   = [];
-			}
-		}
-		$result['data']  = $metrics;
-		$result['route'] = $route;
-		$result['names'] = $names;
-
-		return $result;
 	}
 
 	//Función para exportar datos de tabla al lado de los gráficos en archivo csv
@@ -275,6 +188,89 @@ class Dashboard extends CI_Controller {
 		$data = $this->Dashboard_model->getAllData($id_org, $id_met);
 
 	}
+
+    //construye tabla que va al lado de los gráficos, y además genera arreglo con los
+    //datos necesarios para graficar
+    private function auxShowDashboard($dashboard_metrics, $id) {
+
+        function cmpPairs($p1, $p2) {
+            return $p1[0] > $p2[0];
+        }
+
+        //Guardar en variables de sesion
+        $this->session->set_flashdata('id', $id);
+
+        $metrics = [];
+        $names   = [];
+
+        if ($dashboard_metrics){
+            $all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
+            foreach ($dashboard_metrics as $metric) {
+                $metrics[$metric->getId()] = array(//Se obtienen datos que ocupará la librería para graficar
+                    'id'             => $metric->getId(),
+                    'vals'           => [],
+                    'name'           => "",
+                    'table'          => "",
+                    'graph_type'     => $metric->getGraphType(),
+                    'max_y'          => 0,
+                    'min_y'          => 0,
+                    'measure_number' => 0,
+                    'unit'           => $metric->getUnit()
+                );
+            }
+
+            if ($all_measurements) {
+                foreach ($all_measurements as $measure) {
+                    $count                    = 1;
+                    $id_met                   = $measure['id'];
+                    $names[]                  = $id_met;
+                    $metrics[$id_met]['name'] = $measure['name'];
+
+                    $values = [];
+                    $years  = [];
+                    //Tabla de datos que va al lado del gráfico
+                    foreach ($measure['measurements'] as $m) {
+                        $s = "<tr>
+	    				  <td>".$count."</td>
+	    			  	  <td>".$m->getYear()."</td>
+	    			      <td>".$m->getValueY()."</td>
+	    			      <td>".$m->getTarget()."</td>
+	    			      <td>".$m->getExpected()."</td>
+	    			      </tr>";
+                        $values[]                   = $m->getValueY();
+                        $years[]                    = $m->getYear();
+                        $metrics[$id_met]['table']  = $metrics[$id_met]['table'].$s;
+                        $metrics[$id_met]['vals'][] = array($m->getYear(), $m->getValueY());
+                        $count++;
+                    }
+                    //ordena valores por el primer elemento del arreglo = Año
+                    usort($metrics[$id_met]['vals'], "cmpPairs");
+                    $metrics[$id_met]['measure_number'] = max($years)-min($years);
+                    $min                                = min($values);
+
+                    $metrics[$id_met]['min_y'] = $min > 0 ? floor(0.85*$min) : floor(1.15*$min);
+                    $metrics[$id_met]['max_y'] = ceil(1.15*max($values));
+                }
+
+                $res    = [];
+                $id_met = array_keys($metrics);
+                foreach ($id_met as $id) {
+                    if ($metrics[$id]['name'] == "") {
+                        continue;
+                    }
+                    $res[$id] = $metrics[$id];
+                }
+                $metrics = $res;
+            } else {
+                $metrics = [];//Si la metrica no tiene mediciones => no se muestra
+                $names   = [];
+            }
+        }
+        $result['data']  = $metrics;
+        $result['names'] = $names;
+        $result['id_location'] = $id;
+        return $result;
+    }
 
 	//función que permite mostrar un dashboard. Se recibe el id de la organizacion correspondiente
 	// y a partir de eso se obtienen las métricas y mediciones asociadas
@@ -299,21 +295,19 @@ class Dashboard extends CI_Controller {
 			$show_all = 0;
 		}
 
-		if ($show_all) {
-			$dashboard_metrics = $this->getAllDashboardMetrics($id, $permits);
-			$show_button = true;
-		} else {
-			$dashboard_metrics = $this->getDashboardMetrics($id, $permits);
-			$show_button = $this->Dashboard_model->showButton($id);
-		}
+        $dashboard_metrics = $this->getDashboardMetricsGeneric($id, $permits, $show_all);
+        $show_button = ($show_all) ? true : $this->Dashboard_model->showButton($id);
 
 		$result             = $this->auxShowDashboard($dashboard_metrics, $id);
 		$result['validate'] = validation($permits, $this->dashboardModel);
 		$result['show_all'] = $show_all;
 		$result['show_button'] = $show_button;
 		$result['role']     = $permits['title'];
+        $result['route'] = getRoute($this, $id);
+
 		$this->session->set_flashdata('id', $id);
 		$this->session->set_flashdata('show_all', $show_all);
+
 		$add_data = 0;
 		//Permite determinar si el usuario deberá o no ver la pestaña de agregar datos
 		if ($permits['director'] || in_array($id, $permits['encargado_unidad']) ||
@@ -332,20 +326,8 @@ class Dashboard extends CI_Controller {
 		}
 	}
 
-	//Función que permite obtener todas las métricas, asociadas a una organizacion y a los permisos de un usuario
-	private function getAllDashboardMetrics($id, $permits) {
-
-		return $this->getDashboardMetricsGeneric($id, $permits, 'getAllDashboardMetrics');
-	}
-
-	//Función que permite obtener solo las métricas cuyos gráficos tienen posicion = 1, asociadas a una organizacion y a los permisos de un usuario
-	private function getDashboardMetrics($id, $permits) {
-
-		return $this->getDashboardMetricsGeneric($id, $permits, 'getDashboardMetrics');
-	}
-
-	private function getDashboardMetricsGeneric($id, $permits, $func) {
-
+    //Función que permite obtener las métricas, asociadas a una organizacion y a los permisos de un usuario. $all decide si se entregan todos o solo los q tiene posicion 1.
+    private function getDashboardMetricsGeneric($id, $permits, $all) {
 		if ($permits['director'] || $permits['visualizador'] || ((in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
 				 && ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
 			$val = 0;
@@ -354,8 +336,8 @@ class Dashboard extends CI_Controller {
 		} elseif (in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad'])) {
 			$val = 2;
 		} else {
-			$val = -1;
+			return [];
 		}
-		return $val == -1 ? [] : $this->Dashboard_model->$func($id, $val);
+		return $this->Dashboard_model->getDashboardMetrics($id, $val, $all);
 	}
 }

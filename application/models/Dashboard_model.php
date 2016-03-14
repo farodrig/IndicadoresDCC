@@ -3,21 +3,29 @@ class Dashboard_model extends CI_Model{
 
     public $title;
     public $GD;
+    public $value;
     function __construct() {
         parent::__construct();
         $this->title = "Dashboard";
         $this->GD = "GraphDash";
+        $this->value = "Value";
     }
 
+    //Si hay más graficos por mostrar que los mostrados por defecto entrega true, para poner un boton y permitir mostrar los restantes.
     function showButton($id){
-        $query = "SELECT * FROM Graphic AS g, GraphDash AS gd, Dashboard AS d
-                WHERE g.id=gd.graphic AND gd.dashboard=d.id AND d.org = ? AND g.position=1";
-        $q = $this->db->query($query, array($id));
+        $this->db->from('Graphic');
+        $this->db->join('GraphDash', 'Graphic.id = GraphDash.graphic');
+        $this->db->join('Dashboard', 'Dashboard.id = GraphDash.dashboard');
+        $this->db->where('Graphic.position', 1);
+        $this->db->where('Dashboard.org', $id);
+        $q = $this->db->get();
         $num_show = $q->num_rows();
 
-        $query = "SELECT * FROM Graphic AS g, GraphDash AS gd, Dashboard AS d
-                WHERE g.id=gd.graphic AND gd.dashboard=d.id AND d.org = ?";
-        $q = $this->db->query($query, array($id));
+        $this->db->from('Graphic');
+        $this->db->join('GraphDash', 'Graphic.id = GraphDash.graphic');
+        $this->db->join('Dashboard', 'Dashboard.id = GraphDash.dashboard');
+        $this->db->where('Dashboard.org', $id);
+        $q = $this->db->get();
 
         return $q->num_rows()>$num_show;
     }
@@ -34,45 +42,52 @@ class Dashboard_model extends CI_Model{
             $row= $q->result()[0];
             return $row->name;
         }
-        else
-            return false;
+        return false;
     }
 
 
     function getValidate($id_metorg){
-        $this->load->library('session');
         if($id_metorg==-1){
-            $query = "SELECT * FROM Measure AS m WHERE m.state=0 OR m.state=-1";
-            $q = $this->db->query($query);
-            return ($q->num_rows() > 0);
+            $datos = getGeneric($this, $this->value, ['id', 'state'], ['state'=>[-1,0]]);
+            return (count($datos) > 0);
         }
-        else{
-            $encargado_unidad = $this->session->userdata('encargado_unidad');
-            $encargado_finanzas_unidad = $this->session->userdata("encargado_finanzas_unidad");
-            if(!in_array(-1, $encargado_unidad) && !in_array(-1, $encargado_finanzas_unidad)){
-              $text = "";
-            }
-            elseif (!in_array(-1,$encargado_unidad)) {
-              $text = " AND met.category = 1";
-            }
-            else{
-              $text = " AND met.category = 2";
-            }
-            foreach ($id_metorg as $id) {
-                $query="SELECT * FROM Measure AS m, MetOrg AS mo, Metric AS met
-                        WHERE (m.state=0 OR m.state = -1) AND met.id=mo.metric AND mo.id=m.metorg AND mo.org=".$id.$text;
-                $q = $this->db->query($query);
-                if($q->num_rows() > 0)
-                    return true;
-            }
-            return false;
+        $this->load->library('session');
+        $encargado_unidad = $this->session->userdata('encargado_unidad');
+        $encargado_finanzas_unidad = $this->session->userdata("encargado_finanzas_unidad");
+        if (!in_array(-1,$encargado_unidad) && !in_array(-1, $encargado_finanzas_unidad)){
+            //no restringir la categoria
         }
+        elseif (!in_array(-1,$encargado_unidad)) {
+          $cat = 1;
+        }
+        elseif(!in_array(-1, $encargado_finanzas_unidad)){
+          $cat = 2;
+        }
+        foreach ($id_metorg as $id) {
+            $this->db->from('Value');
+            $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
+            $this->db->join('Metric', 'Metric.id = MetOrg.metric');
+            $this->db->where('MetOrg.org', $id);
+            $this->db->group_start();
+            $this->db->where('Value.state', -1);
+            $this->db->or_where('Value.state', 0);
+            $this->db->group_end();
+            if (isset($cat)){
+                $this->db->where('Metric.category', $cat);
+            }
+            $q = $this->db->get();
+            if($q->num_rows() > 0)
+                return true;
+        }
+        return false;
     }
 
     function getAllMetrics($id, $category){
-        $this->db->select('MetOrg.id, Metric.y_name, Metric.x_name');
+        $this->db->select('MetOrg.id as metorg, Metric.y_name, Metric.x_name, X.name as x_unit, Y.name as y_unit');
         $this->db->from('Metric');
         $this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+        $this->db->join('Unit as X', 'X.id = Metric.x_unit');
+        $this->db->join('Unit as Y', 'Y.id = Metric.y_unit');
         $this->db->join('Organization', 'Organization.id = MetOrg.org');
         $this->db->where('Organization.id', $id);
 
@@ -81,7 +96,7 @@ class Dashboard_model extends CI_Model{
 
         $q = $this->db->get();
         if($q->num_rows() > 0)
-            return $this->buildAllMetrics($q);
+            return $q->result();
         return false;
     }
 
@@ -102,8 +117,8 @@ class Dashboard_model extends CI_Model{
         }
         $rows = $q->result();
 
-        $this->db->select('Measure.id, Measure.metorg AS org, Measure.old_value AS val, Measure.old_target AS target, Measure.old_expected AS expected, Measure.year');
-        $this->db->from('Measure');
+        $this->db->select('id, metorg AS org, value, x_value, target, expected, year');
+        $this->db->from('Value');
         $this->db->group_start();
             $this->db->where('state', 1);
             $this->db->or_where('modified', 1);
@@ -117,9 +132,33 @@ class Dashboard_model extends CI_Model{
         $this->db->order_by('state DESC');
         $q = $this->db->get();
         if($q->num_rows() > 0)
-            return $this->buildAllMeasuresments($q);
+            return $this->buildAllMeasuresments($q->result());
         else
             return false;
+    }
+
+    function buildAllMeasuresments($rows){
+        $this->load->library('Dashboard_library');
+        $years=[];
+        foreach ($rows as $row){
+            $years[$row->org] = [];
+        }
+        foreach ($rows as $row){
+            $parameters = array(
+                'id' => $row->id,
+                'metorg' => $row->org,
+                'valueY' => $row->value,
+                'valueX' => $row->x_value,
+                'target' => $row->target,
+                'expected' => $row->expected,
+                'year' => $row->year
+            );
+            $years[$row->org][] = $row->year;
+
+            $measurement = new Dashboard_library();
+            $measurement_array[] = $measurement->initializeMeasurement($parameters);
+        }
+        return $measurement_array;
     }
 
     function getAllMetricOrgIds($id){
@@ -155,249 +194,171 @@ class Dashboard_model extends CI_Model{
         return $metrica_array;
     }
 
-    function buildAllMeasuresments($q){
-        $this->load->library('Dashboard_library');
-        $row = $q->result();
-        $years=[];
-        foreach ($q->result() as $row){
-          $years[$row->org] = [];
-        }
-        foreach ($q->result() as $row){
-            if(in_array($row->year, $years[$row->org]))
-              continue;
-
-            $parameters = array(
-                'id' => $row->id,
-                'metorg' => $row->org,
-                'value' => $row->val,
-                'target' => $row->target,
-                'expected' => $row->expected,
-                'year' => $row->year
-            );
-
-            $years[$row->org][] = $row->year;
-
-            $measurement = new Dashboard_library();
-            $measurement_array[] = $measurement->initializeMeasurement($parameters);
-        }
-        return $measurement_array;
-    }
-
-    function deleteMeasure($id_met, $year, $user, $validation){
+    function deleteValue($id_met, $year, $user, $validation){
       if($validation){
-          $query = "DELETE FROM Measure WHERE metorg= ? AND year = ?";
+          $query = "DELETE FROM Value WHERE metorg= ? AND year = ?";
           $q = $this->db->query($query, array($id_met, $year));
           return $q;
       }
 
-      $query = " UPDATE Measure SET state = -1, updater = ? , dateup = NOW(), modified = 1
+      $query = " UPDATE Value SET state = -1, updater = ? , dateup = NOW(), modified = 1
       WHERE metorg = ? AND year = ?";
 
       $q = $this->db->query($query, array($user, $id_met, $year));
-
       return $q;
     }
 
-    function insertData($id_met, $year, $value, $target, $expected, $user, $validation){ //Inserta datos en la tabla de mediciones
-
-        $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup, old_value, old_target, old_expected)
-                    VALUES (?, ?, ?, ?, ? ,?, ?, NOW(),?,?,?)";
-
-        $q = $this->db->query($query, array($id_met, $validation ,$value, $target, $expected, $year, $user,$value, $target, $expected));
+    function insertData($id_met, $year, $valueY, $valueX, $target, $expected, $user, $validation){ //Inserta datos en la tabla de mediciones
+        $query = "INSERT INTO Value (metorg, state, value, x_value, target, expected, year, updater, dateup, proposed_value, proposed_x_value, proposed_target, proposed_expected)
+                    VALUES (?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?)";
+        $q = $this->db->query($query, array($id_met, $validation ,$valueY, $valueX, $target, $expected, $year, $user, date('Y-m-d H:i:s'), $valueY, $valueX, $target, $expected));
 
         return $q;
     }
 
-    function updateData($id_met, $year, $value, $target, $expected, $user, $validation){ //Aqui hay que guardar datos antiguos
+    function updateData($id_met, $year, $valueY, $valueX, $target, $expected, $user, $validation){ //Aqui hay que guardar datos antiguos
         if(!$validation){
-            $query = "SELECT value AS val, target AS tar, expected AS exp, state AS s FROM Measure WHERE metorg = ? AND year = ?";
+            $query = "SELECT value, x_value, target, expected, state AS s FROM Value WHERE metorg = ? AND year = ?";
             $q = $this->db->query($query, array($id_met, $year));
-            if($q->num_rows() > 0){
-                $row = $q->result()[0];
-                $old_value = $row->val;
-                $old_target = $row->tar;
-                $old_expected = $row->exp;
-                $state = $row->s;
-            }
-            else{
+            if($q->num_rows() <= 0)
               return false;
-            }
+
+            $row = $q->result()[0];
+            $old_value = $row->value;
+            $old_x_value = $row->x_value;
+            $old_target = $row->target;
+            $old_expected = $row->expected;
+            $state = $row->s;
+            $val_date = null;
         }
         else{
-          $old_value = $value;
-          $old_target = $target;
-          $old_expected = $expected;
-          $state = 1;
+            $old_value = $valueY;
+            $old_x_value = $valueX;
+            $old_target = $target;
+            $old_expected = $expected;
+            $val_date = date('Y-m-d H:i:s');
+            $state = 1;
         }
 
         if($state==0 || $state==-1){
-            $query = "INSERT INTO Measure (metorg, state, value, target, expected, year, updater, dateup, old_value, old_target,
-            old_expected, modified)
-                      VALUES (?, ?, ?, ?, ? ,?, ?, NOW(),?,?,?,1)";
+            $query = "INSERT INTO Value (metorg, state, value, x_value,  target, expected, year, updater, dateup, proposed_value, proposed_x_value, proposed_target, proposed_expected, modified)
+                      VALUES (?, ?, ?, ?, ? ,?, ?, ?, NOW(),?,?,?,?,1)";
 
-            $q = $this->db->query($query, array($id_met, $state ,$value, $target, $expected, $year, $user,$old_value, $old_target, $old_expected));
+            $q = $this->db->query($query, array($id_met, $state, $old_value, $old_x_value, $old_target, $old_expected, $year, $user, $valueY, $valueX, $target, $expected));
 
             return $q;
         }
 
-        $query = " UPDATE Measure SET state = ?, value =? , target = ?, expected = ?, updater = ? , dateup = NOW(),
-          old_value = ?, old_target = ?, old_expected = ?, modified = 1
+        $query = " UPDATE Value SET state = ?, value =?, x_value = ? , target = ?, expected = ?, updater = ? , dateup = NOW(), dateval = ?, proposed_value = ?, proposed_x_value = ?, proposed_target = ?, proposed_expected = ?, modified = 1
           WHERE metorg = ? AND year = ?";
 
-        $q = $this->db->query($query, array($validation, $value, $target, $expected, $user,$old_value,
-        $old_target, $old_expected, $id_met, $year));
-
+        $q = $this->db->query($query, array($validation, $old_value, $old_x_value, $old_target, $old_expected, $user, $val_date, $valueY, $valueX, $target, $expected, $id_met, $year));
         return $q;
     }
 
 	function deleteData($id){
 		$this->db->where('id', $id);
-		$q=$this->db->delete('Measure');
+		$q=$this->db->delete('Value');
 		return $q;
 	}
 
 	function validateData($id){
         $this->load->library('session');
-		$query = $this->db->get_where('Measure',array('id' => $id));
+		$query = $this->db->get_where('Value',array('id' => $id));
 		$measure = $query->row();
         if($measure->state==-1)
             return $this->deleteData($id);
 		$data = array(
             'state' => 1,
-            'old_value'=> $measure->value,
-            'old_target'=> $measure->target,
-            'old_expected'=> $measure->expected,
+            'value'=> $measure->proposed_value,
+            'target'=> $measure->proposed_target,
+            'expected'=> $measure->proposed_expected,
             'validator' => $this->session->userdata('user'),
             'modified' => 0
         );
 		$this->db->where('id', $id);
         $this->db->set('dateval', 'NOW()', FALSE);
-		$q=$this->db->update('Measure',$data);
+		$q=$this->db->update('Value',$data);
 		$this->_overrrideData($measure->metorg, $measure->year);
 		return $q;
 	}
 
 	function rejectData($id){
         $this->load->library('session');
-		$query = $this->db->get_where('Measure',array('id' => $id));
+		$query = $this->db->get_where('Value',array('id' => $id));
 		$measure = $query->row();
-        $query = $this->db->get_where('Measure',array('year' => $measure->year, 'metorg' => $measure->metorg));
+        $query = $this->db->get_where('Value',array('year' => $measure->year, 'metorg' => $measure->metorg, 'state'=>1));
 
         if($query->num_rows()>0)
             return $this->deleteData($id);
 		$data = array(
             'state' => 1,
-			'value'=> $measure->old_value,
-			'target'=> $measure->old_target,
-			'expected'=> $measure->old_expected,
+			'proposed_value'=> $measure->value,
+            'proposed_x_value'=> $measure->x_value,
+			'proposed_target'=> $measure->target,
+			'proposed_expected'=> $measure->expected,
             'validator' => $this->session->userdata('user'),
             'modified' => 0
         );
 		$this->db->where('id', $id);
         $this->db->set('dateval', 'NOW()', FALSE);
-		$q=$this->db->update('Measure',$data);
+		$q=$this->db->update('Value',$data);
 		$this->_overrrideData($measure->metorg, $measure->year);
 		return $q;
 	}
 
+    function _overrrideData($metorg, $year){
+        $this->db->order_by('dateval', 'DESC');
+        $q = $this->db->get_where('Value',array('metorg' => $metorg, 'year' => $year, 'state' => 1));
+        $newData = $q->row();
+        $q =  $this->db->get_where('Value',array('id !='=> $newData->id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
+        foreach ($q->result() as $olderData){
+            $this->deleteData($olderData->id);
+        }
+    }
+
 	function checkIfValidate($id){
-		$q = $this->db->get_where('Measure',array('id' => $id));
+		$q = $this->db->get_where('Value',array('id' => $id));
         if($q->num_rows()>0){
-            $q =  $this->db->get_where('Measure',array('id'=> $id,'state' =>1));
+            $q =  $this->db->get_where('Value',array('id'=> $id,'state' =>1));
             return ($q->num_rows()>0);
 		}
         return true;
 	}
 
-	function _overrrideData($metorg, $year){
-		$q = $this->db->get_where('Measure',array('metorg' => $metorg, 'year' => $year, 'state' => 1));
-		$newData = $q->row();
-		$q =  $this->db->get_where('Measure',array('id !='=> $newData->id,'state' =>1 ,'year'=> $newData->year,'metorg'=> $newData->metorg));
-		foreach ($q->result() as $olderData){
-			$this->deleteData($olderData->id);
-		}
-	}
 
-	function _getAllnonValidateDataUnidad($id_org){
-		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.y_name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
-              m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc, m.year AS year, m.modified AS modified, m.state AS s
-					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric AS metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
-					  WHERE (m.state =0 or m.state=-1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
-            metric.y_unit = unit.id AND c.id=metric.category AND u.id=p.user AND mo.org =?" ;
-        $q = $this->db->query($querry,array($id_org));
-
-        if($q->num_rows() > 0){
-			 foreach($q->result() as $row){
-				 $data[]= $row;
-			 }
-		 	 return $data;
-		}
-	}
-
-
-	function getnonValidatebyUnit($array_idorg){
-		$arr = array();
-		foreach($array_idorg as $id){
-			$colums = $this->_getAllnonValidateDataUnidad($id);
-			if($colums!=null){
-				$arr = array_merge ($colums, $arr);
-			}
-		}
-		return $arr;
-
-	}
-
-	function _getAllnonValidateDataUnidadByType($id_org,$type){
-		$querry = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.y_name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
-              m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year, m.state AS s
-					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
-					  WHERE (m.state =0 OR m.state = -1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
-            metric.y_unit = unit.id AND c.id=metric.category AND u.id=p.user  AND c.id= $type  AND mo.org =?";
-        $q = $this->db->query($querry,array($id_org));
-
-        if($q->num_rows() > 0){
-            foreach($q->result() as $row){
-			    $data[]= $row;
+    function getAllNonValidatedData($orgs, $type){
+        $orgs = (is_null($orgs)) ? [] : $orgs;
+        $this->db->select('Value.id as data_id, Value.state AS s, Value.value, Value.x_value, Value.target, Value.expected, Value.proposed_value as p_v, Value.proposed_target as p_t, Value.proposed_expected as p_e, Value.proposed_x_value as p_x, Value.modified, Value.year');
+        $this->db->select('User.name, Organization.name as org_name, Metric.y_name, Metric.x_name, Y.name as type_y, X.name as type_x, Category.name as category, Permits.dcc_assistant as adcc');
+        $this->db->from('Value');
+        $this->db->join('User', 'User.id = Value.updater');
+        $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
+        $this->db->join('Organization', 'MetOrg.org = Organization.id');
+        $this->db->join('Metric', 'MetOrg.metric = Metric.id');
+        $this->db->join('Unit as X', 'X.id = Metric.x_unit');
+        $this->db->join('Unit as Y', 'Y.id = Metric.y_unit');
+        $this->db->join('Category', 'Metric.category = Category.id');
+        $this->db->join('Permits', 'Permits.user = User.id');
+        $this->db->group_start();
+        $this->db->where('Value.state', 0);
+        $this->db->or_where('Value.state', -1);
+        $this->db->group_end();
+        if (!is_null($type))
+            $this->db->where('Category.id', $type);
+        if (count($orgs)>0){
+            $this->db->group_start();
+            foreach ($orgs as $org) {
+                $this->db->or_where('MetOrg.org', $org);
             }
-		 	return $data;
+            $this->db->group_end();
         }
-	}
+        $q = $this->db->get();
+        return $q->result();
+    }
 
 
-
-	function getnonValidatebyUnitByType($array_idorg,$type){
-		$arr = array();
-		foreach($array_idorg as $id){
-			$colums = $this->_getAllnonValidateDataUnidadByType($id,$type);
-			if($colums!=null){
-				$arr = array_merge ($colums, $arr);
-			}
-		}
-		return $arr;
-	}
-
-
-	function getAllnonValidateData(){
-		$query = "SELECT  m.id AS data_id ,u.name AS name, org.name AS org_name, metric.y_name AS metric, unit.name AS type, m.value AS value, m.target AS target, m.expected AS expected,
-              m.old_value AS o_v, m.old_target AS o_t, m.old_expected AS o_e, c.name AS category, p.assistant_unidad AS au,
-              p.finances_assistant_unidad AS fau, p.dcc_assistant AS adcc,m.modified, m.year AS year, m.state AS s
-					  FROM  Measure AS m, User AS u, MetOrg AS mo, Metric as metric, Organization AS org, Unit AS unit, Category AS c, Permits AS p
-					  WHERE (m.state =0 OR m.state=-1) AND m.updater = u.id AND m.metorg = mo.id AND mo.org = org.id AND mo.metric =metric.id AND
-            metric.y_unit = unit.id AND c.id=metric.category AND u.id=p.user";
-        $q = $this->db->query($query);
-
-		if($q->num_rows() > 0){
-            foreach($q->result() as $row){
-			    $data[]= $row;
-            }
-		 	return $data;
-		}
-	}
-
-
-    function getDashboardMetrics($id, $category){
+    function getDashboardMetrics($id, $category, $all){
         $dashboard = getGeneric($this, $this->title, ['id', 'org'], array('org'=>[$id], 'limit'=>1));
         if(count($dashboard) <= 0)
             return false;
@@ -411,6 +372,8 @@ class Dashboard_model extends CI_Model{
         $this->db->join('MetOrg', 'MetOrg.id = Graphic.metorg');
         $this->db->join('Metric', 'MetOrg.metric = Metric.id');
         $this->db->join('Unit', 'Unit.id = Metric.y_unit');
+        if(!$all)
+            $this->db->where('Graphic.position !=', 0);
         if($category!=0)
             $this->db->where('Metric.category', $category);
 
@@ -422,6 +385,7 @@ class Dashboard_model extends CI_Model{
         $q = $this->db->get();
         return ($q->num_rows() > 0) ? $this->buildDashboardMetrics($q) : false;
     }
+
 
     function buildDashboardMetrics($q){
         $this->load->library('Dashboard_library');
@@ -443,26 +407,33 @@ class Dashboard_model extends CI_Model{
     function getDashboardMeasurements($metorgs){
         $result=[];
         foreach ($metorgs as $met) {
-            $query = "SELECT m.metric AS metric FROM MetOrg AS m WHERE m.id= ".$met->getMetOrg();
-            $q = $this->db->query($query);
-            if(($size=$q->num_rows()) > 0)
-                $metric = $q->result()[0]->metric;
-            else
-                return false; //Si llego aca hay problemas
+            $metric = getGeneric($this, 'MetOrg', ['id', 'org'], array('id'=>[$met->getMetOrg()], 'limit'=>1));
+            if(count($metric) <= 0)
+                return false; //Si llego acá hay problemas
+            $metric = $metric[0]->metric;
 
-            $query = "SELECT m.y_name FROM Metric AS m WHERE m.id=".$metric;
-            $q = $this->db->query($query);
-            if(($size=$q->num_rows()) > 0)
-                $y_name = $q->result()[0]->y_name;
-            else
+            $y_name = getGeneric($this, 'Metric', ['id', 'org'], array('id'=>[$metric], 'limit'=>1));
+            if(count($y_name) <= 0)
                 return false;
+            $y_name = $y_name[0]->y_name;
 
-            $query = "SELECT m.id AS id, m.metorg AS org, m.old_value AS val, m.old_target AS target, m.old_expected AS expected, m.year AS year
-                    FROM Measure AS m
-                    WHERE ((m.modified = 0 AND m.state=1) OR m.modified=1) AND m.metorg= ? AND m.year>= ? AND m.year<=? ORDER BY m.year ASC, m.state DESC";
-            $q = $this->db->query($query, array($met->getMetOrg(), $met->getMinYear(), $met->getMaxYear()));
-            if(($size=$q->num_rows()) > 0){
-                $rows = $this->buildAllMeasuresments($q);
+            $this->db->select('id, metorg as org, value, x_value, target, expected, year');
+            $this->db->from('Value');
+            $this->db->group_start();
+                $this->db->group_start();
+                    $this->db->where('modified', 0);
+                    $this->db->where('state', 1);
+                $this->db->group_end();
+                $this->db->or_where('modified', 1);
+            $this->db->group_end();
+            $this->db->where('metorg', $met->getMetOrg());
+            $this->db->where('year >=', $met->getMinYear());
+            $this->db->where('year <=', $met->getMaxYear());
+            $this->db->order_by('year', 'ASC');
+            $this->db->order_by('state', 'DESC');
+            $q = $this->db->get();
+            if($q->num_rows() > 0){
+                $rows = $this->buildAllMeasuresments($q->result());
                 $result[] = array(
                     'id' => $met->getMetOrg(),
                     'name' => $y_name,
@@ -474,39 +445,51 @@ class Dashboard_model extends CI_Model{
     }
 
     function getAllData($id_org, $id_met){
+        $this->db->select('value, x_value, target, expected, Value.year');
+        $this->db->from('Value');
+        $this->db->from('GraphDash');
+        $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
+        $this->db->join('Dashboard', 'GraphDash.dashboard = Dashboard.id');
+        $this->db->join('Graphic', 'Graphic.id = GraphDash.graphic');
+        $this->db->join('Organization', 'Organization.id = Dashboard.org');
+        $this->db->group_start();
+            $this->db->where('modified', 1);
+            $this->db->or_where('state', 1);
+        $this->db->group_end();
+        $this->db->where('Organization.id', $id_org);
+        $this->db->where('Graphic.metorg', $id_met);
+        $this->db->where('Value.metorg', $id_met);
+        $this->db->where('Value.year <= Graphic.max_year');
+        $this->db->where('Value.year >= Graphic.min_year');
+        $this->db->order_by('year', 'ASC');
+        $this->db->order_by('state', 'DESC');
 
-        $query = "SELECT m.old_value AS value, m.old_target AS target, m.old_expected AS expected, m.year AS year
-         FROM Organization AS org, Dashboard AS d, GraphDash AS gd, Graphic AS g, Measure AS m
-         WHERE d.org=org.id AND org.id = ? AND gd.dashboard=d.id AND g.id = gd.graphic AND g.metorg=? AND m.metorg=? AND (m.state=1 OR m.modified=1)
-         AND m.year>=g.min_year AND m.year<=g.max_year ORDER BY m.year ASC, m.state DESC";
+        $q= $this->db->get();
+        if($q->num_rows() <= 0)
+            return false;
 
-         $q= $this->db->query($query, array($id_org, $id_met, $id_met));
-
-         if(($size=$q->num_rows()) > 0){
-             $data = $this->buildDataCSV($q);
-
-             $query = "SELECT m.y_name FROM Metric AS m, MetOrg AS mo WHERE mo.metric=m.id AND mo.id=".$id_met;
-             $q= $this->db->query($query);
-             $name = $q->result()[0];
-
-             $this->download_send_headers("data_export_" . date("Y-m-d") . ".csv");
-             echo $this->array2csv($data, $name->y_name);
-             die();
-             debug($user_agent);
-         }
-         else
-             return false;
+        $data = $this->buildDataCSV($q);
+        $this->db->select('y_name');
+        $this->db->from('Metric');
+        $this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+        $this->db->where('MetOrg.id', $id_met);
+        $q= $this->db->get();
+        $name = $q->result()[0];
+        $this->download_send_headers("data_export_" . date("Y-m-d") . ".csv");
+        echo $this->array2csv($data, $name->y_name);
+        die();
+        debug($user_agent);
     }
 
     function buildDataCSV($q){
         $this->load->library('Dashboard_library');
-        $row = $q->result();
         $years = [];
         foreach ($q->result() as $row){
             if(in_array($row->year, $years))
                 continue;
             $parameters = array(
-                'value' => $row->value,
+                'valueY' => $row->value,
+                'valueX' => $row->x_value,
                 'target' => $row->target,
                 'expected' => $row->expected,
                 'year' => $row->year
@@ -520,6 +503,8 @@ class Dashboard_model extends CI_Model{
     }
 
     function array2csv($array,$name){
+        if (count($array) == 0)
+            return null;
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
 
         if(strpos($user_agent, "Win") !== FALSE)
@@ -527,15 +512,12 @@ class Dashboard_model extends CI_Model{
         else
             $eol = "\n";
 
-        if (count($array) == 0) {
-            return null;
-        }
         ob_start();
         $df = fopen("php://output", 'w');
         fwrite($df, "[".$name."]".$eol);
-        fwrite($df, "Año,Valor,Esperado,Meta".$eol);
+        fwrite($df, "Año,Valor Y,Esperado,Meta".$eol);
         foreach ($array as $row) {
-            $a = $row->getYear().','.$row->getValue().','.$row->getTarget().','.$row->getExpected().$eol;
+            $a = $row->getYear().','.$row->getValueY().','.$row->getTarget().','.$row->getExpected().$eol;
             fwrite($df, $a);
         }
         fclose($df);
@@ -557,46 +539,5 @@ class Dashboard_model extends CI_Model{
         // disposition / encoding on response body
         header("Content-Disposition: attachment;filename={$filename}");
         header("Content-Transfer-Encoding: binary");
-    }
-
-    function getAllDashboardMetrics($id, $category){
-        $query = "SELECT d.id AS id FROM Dashboard AS d WHERE d.org=".$id;
-        $q = $this->db->query($query);
-        if($q->num_rows() > 0)
-            $dashboard = $q->result()[0]->id;
-        else
-            return false;
-
-        $query = "SELECT gd.graphic AS graph FROM GraphDash AS gd WHERE gd.dashboard=".$dashboard;
-        $q = $this->db->query($query);
-        if(($size=$q->num_rows()) > 0)
-            $graphs = $q->result();
-        else
-            return false;
-
-        $g_id = "(";
-        for($i=0; $i<$size-1; $i++){
-            $id = $graphs[$i]->graph;
-            $g_id = $g_id."g.id= ".$id." OR ";
-        }
-        $g_id = $g_id."g.id =".$graphs[$size-1]->graph.")";
-
-        $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
-                    FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
-                    WHERE g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND ".$g_id;
-
-        if($category==0){
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
-                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
-                        WHERE g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND ".$g_id;
-        }
-        else{
-
-            $query = "SELECT g.metorg AS org, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, u.name AS unit
-                        FROM Graphic AS g, MetOrg AS mo, Metric AS m, Unit AS u
-                        WHERE g.metorg=mo.id AND mo.metric=m.id AND u.id=m.unit AND m.category=".$category." AND ".$g_id;
-        }
-        $q = $this->db->query($query);
-        return ($q->num_rows() > 0) ? $this->buildDashboardMetrics($q) : false;
     }
 }

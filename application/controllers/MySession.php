@@ -114,13 +114,6 @@ class MySession extends CI_Controller {
 		return $areaunit;
 	}
 
-	public function dashboard() {
-
-		$id_unidad = $this->input->post("unidad");
-		$this->session->set_flashdata("unidad", $id_unidad);
-	}
-
-
 	public function validar() {
 		$success = $this->session->flashdata('success');
 		if (is_null($success)) {
@@ -139,18 +132,16 @@ class MySession extends CI_Controller {
 			'validate'               => validation($permits, $this->Dashboard_model),
 			'role'                   => $permits['title']
 		);
-
 		if ($permits['director'] == 1) {
-			$result['data'] = $this->Dashboard_model->getAllnonValidateData();
+			$result['data'] = $this->Dashboard_model->getAllNonValidatedData(null, null);
 		} elseif (!in_array('-1', $permits['encargado_unidad']) && !in_array('-1', $permits['encargado_finanzas_unidad'])) {
-			$result['data'] = $this->Dashboard_model->getnonValidatebyUnit($permits['encargado_finanzas_unidad']);
+			$result['data'] = $this->Dashboard_model->getAllNonValidatedData(array_merge($permits['encargado_unidad'], $permits['encargado_finanzas_unidad']), null);
 		} elseif (!in_array('-1', $permits['encargado_unidad'])) {
-			$result['data'] = $this->Dashboard_model->getnonValidatebyUnitByType($permits['encargado_unidad'], 1);
+			$result['data'] = $this->Dashboard_model->getAllNonValidatedData($permits['encargado_unidad'], 1);
 		} elseif (!in_array('-1', $permits['encargado_finanzas_unidad'])) {
-			$result['data'] = $this->Dashboard_model->getnonValidatebyUnitByType($permits['encargado_finanzas_unidad'], 2);
+			$result['data'] = $this->Dashboard_model->getAllNonValidatedData($permits['encargado_finanzas_unidad'], 2);
 		}
 		$this->load->view('validar', $result);
-
 	}
 
 	public function validate_reject() {
@@ -176,7 +167,6 @@ class MySession extends CI_Controller {
 				$success = 1;
 			}
 		}
-
 		$this->session->set_flashdata('success', $success);
 		redirect('validar');
 	}
@@ -198,14 +188,12 @@ class MySession extends CI_Controller {
 		if (!$permits['director']) {
 			redirect('inicio');
 		}
-
 		$this->load->view('menu-configurar', array('validate' => validation($permits, $this->Dashboard_model),
-				'role'                                              => $permits['title']));
+												   'role'     => $permits['title']));
 	}
 
 	public function configurarMetricas() {
 		$permits = $this->session->userdata();
-
 		if (!$permits['director']) {
 			redirect('inicio');
 		}

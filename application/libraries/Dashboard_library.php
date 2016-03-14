@@ -6,7 +6,8 @@ class Dashboard_library
     private $name_met_x;
     private $id_measurement;
 	private $metorg;
-	private $value;
+	private $valueY;
+    private $valueX;
     private $target;
 	private $expected;
 	private $year;
@@ -52,7 +53,8 @@ class Dashboard_library
     {
         $this->id_measurement = element('id', $parameters);
         $this->metorg = element('metorg', $parameters);
-        $this->value = element('value', $parameters);
+        $this->valueY = element('valueY', $parameters);
+        $this->valueX = element('valueX', $parameters);
         $this->target = element('target', $parameters);
         $this->expected = element('expected', $parameters);
         $this->year = element('year', $parameters);
@@ -61,7 +63,8 @@ class Dashboard_library
 
     function initializeData($parameters){
 
-        $this->value = element('value', $parameters);
+        $this->valueY = element('valueY', $parameters);
+        $this->valueX = element('valueX', $parameters);
         $this->target = element('target', $parameters);
         $this->expected = element('expected', $parameters);
         $this->year = element('year', $parameters);
@@ -118,7 +121,7 @@ class Dashboard_library
     }
 
 /**
-     * @return the $name_met_x
+     * @return the $name_met_y
      */
     public function getNameX(){
         return $this->name_met_x;
@@ -165,11 +168,19 @@ class Dashboard_library
     }
 
  /**
-     * @return the $value
+     * @return the $valueY
      */
-    public function getValue()
+    public function getValueY()
     {
-        return $this->value;
+        return $this->valueY;
+    }
+
+    /**
+     * @return the $valueX
+     */
+    public function getValueX()
+    {
+        return $this->valueX;
     }
 
  /**
