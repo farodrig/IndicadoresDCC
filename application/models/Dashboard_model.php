@@ -82,6 +82,24 @@ class Dashboard_model extends CI_Model{
         return false;
     }
 
+    function getBudgetMeasures($org, $metric){
+        $this->db->select('Value.id, Value.metorg AS org, value, x_value, target, expected, year');
+        $this->db->from('Value');
+        $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
+        $this->db->where('MetOrg.org', $org);
+        $this->db->where('MetOrg.metric', $metric);
+        $this->db->group_start();
+            $this->db->where('state', 1);
+            $this->db->or_where('modified', 1);
+        $this->db->group_end();
+        $this->db->order_by('year ASC');
+        $this->db->order_by('state DESC');
+        $q = $this->db->get();
+        if($q->num_rows() > 0)
+            return $q->result();
+        return false;
+    }
+
     function getAllMetrics($id, $category){
         $this->db->select('MetOrg.id as metorg, Metric.y_name, Metric.x_name, X.name as x_unit, Y.name as y_unit');
         $this->db->from('Metric');
@@ -133,8 +151,7 @@ class Dashboard_model extends CI_Model{
         $q = $this->db->get();
         if($q->num_rows() > 0)
             return $this->buildAllMeasuresments($q->result());
-        else
-            return false;
+        return false;
     }
 
     function buildAllMeasuresments($rows){

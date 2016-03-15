@@ -62,7 +62,7 @@ class Dashboard extends CI_Controller {
 		$res['validate']     = validation($permits, $this->dashboardModel);
 		$res['success']      = $this->session->flashdata('success') == null ? 2 : $this->session->flashdata('success');
 		$res['role']         = $permits['title'];
-		$this->load->view('add-data', $res);
+		$this->load->view('add-data2', $res);
 		//debug($all_metrics, true);
 	}
 
