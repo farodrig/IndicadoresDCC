@@ -14,7 +14,6 @@ class MySession extends CI_Controller {
 		//Comentar Desde Aqui
 		$this->load->model('User_model');
 		$result['users'] = $this->User_model->getAllUsers();
-
 		if ($this->input->method() == "post") {
 			$this->load->model('Permits_model');
 			$rut  = $this->input->post('user');
@@ -330,12 +329,6 @@ class MySession extends CI_Controller {
 			}
 		}
 		redirect('cmetrica');
-	}
-
-	function test(){
-		$this->load->model('Unit_model');
-		$data = array('name'=>'pesos');
-		debug($this->Unit_model->get_or_create($data));
 	}
 }
 ?>

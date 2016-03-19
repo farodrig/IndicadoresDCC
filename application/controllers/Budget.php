@@ -7,11 +7,13 @@ class Budget extends CI_Controller {
         $this->load->model('Organization_model');
         $this->load->library('form_validation');
         $this->load->library('session');
+        if (is_null($this->session->rut))
+            redirect('salir');
     }
 
     function index(){
         $permits = $this->session->userdata();
-        if (!$permits['director'] && in_array(-1, $permits['encargado_finanzas_unidad'])) {
+        if (!$permits['director'] && in_array(-1, $permits['encargado_finanzas_unidad'])  && in_array(-1, $permits['asistente_finanzas_unidad'])) {
             redirect('inicio');
         }
         if ($permits['director'])
@@ -20,6 +22,14 @@ class Budget extends CI_Controller {
             $orgs = [];
             $aux = $permits['encargado_finanzas_unidad'];
             foreach($aux as $org){
+                if($org==-1)
+                    continue;
+                $orgs[] = $this->Organization_model->getByID($org);
+            }
+            $aux = $permits['asistente_finanzas_unidad'];
+            foreach($aux as $org){
+                if($org==-1)
+                    continue;
                 $orgs[] = $this->Organization_model->getByID($org);
             }
         }
@@ -45,8 +55,67 @@ class Budget extends CI_Controller {
                 'orgs'        => $aux_org,
                 'data'        => $datos,
                 'validate'    => validation($permits, $this->Dashboard_model),
-                'departments' => getAllOrgsByDpto($this->Organization_model)//Notar que funcion esta en helpers
+                'departments' => $this->Organization_model->getTree($aux_org)//Notar que funcion esta en helpers
             )
         );
+    }
+
+    function modify(){
+        if (!$this->input->is_ajax_request()) {
+            exit('No direct script access allowed');
+        }
+        $org =  $this->input->post("org");
+        $permits = $this->session->userdata();
+        if (!$permits['director'] && !in_array($org, $permits['encargado_finanzas_unidad'])  && !in_array($org, $permits['asistente_finanzas_unidad'])) {
+            redirect('inicio');
+        }
+        $validation = 0;
+        if($permits['director'] || in_array($org, $permits['encargado_finanzas_unidad'])){
+            $validation = 1;
+        }
+
+        $this->form_validation->set_rules('year', 'Año', 'numeric|required|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('value', 'Valor', 'numeric');
+        $this->form_validation->set_rules('expected', 'Esperado', 'numeric');
+        $this->form_validation->set_rules('target', 'Meta', 'numeric');
+
+        if (!$this->form_validation->run()) {
+            $result['success'] = 0;
+            echo json_encode($result);
+            return;
+        }
+
+        $year =  $this->input->post("year");
+        $value =  $this->input->post("value");
+        $expected =  $this->input->post("expected");
+        $target =  $this->input->post("target");
+        $this->load->model('Dashboard_model');
+        $success = $this->Dashboard_model->updateBudgetValue($org, $year, $value, $expected, $target, $validation);
+        $result['success'] = $success;
+        if($success){
+            if ($permits['director'])
+                $orgs = $this->Organization_model->getAllOrgsIds();
+            else {
+                $orgs = [];
+                $aux = $permits['encargado_finanzas_unidad'];
+                foreach($aux as $org){
+                    if($org==-1)
+                        continue;
+                    $orgs[] = $this->Organization_model->getByID($org);
+                }
+                $aux = $permits['asistente_finanzas_unidad'];
+                foreach($aux as $org){
+                    if($org==-1)
+                        continue;
+                    $orgs[] = $this->Organization_model->getByID($org);
+                }
+            }
+            $datos = array();
+            foreach($orgs as $org){
+                $datos[$org->getId()] = $this->Dashboard_model->getBudgetMeasures($org->getId(), 1);
+            }
+            $result['data'] = $datos;
+        }
+        echo json_encode($result);
     }
 }

@@ -6,6 +6,8 @@ class Dashboard extends CI_Controller {
 		$this->load->library('session');
 		$this->load->model('Dashboard_model');
 		$this->dashboardModel = $this->Dashboard_model;
+		if (is_null($this->session->rut))
+			redirect('salir');
 	}
 
     //Función que genera un arreglo de dos arreglos. El primero contiene todas las mediciones

@@ -45,7 +45,6 @@ class Dashboard_model extends CI_Model{
         return false;
     }
 
-
     function getValidate($id_metorg){
         if($id_metorg==-1){
             $datos = getGeneric($this, $this->value, ['id', 'state'], ['state'=>[-1,0]]);
@@ -98,6 +97,16 @@ class Dashboard_model extends CI_Model{
         if($q->num_rows() > 0)
             return $q->result();
         return false;
+    }
+
+    function updateBudgetValue($org, $year, $y_value, $expected, $target, $validation){
+        $this->load->model('Metorg_model');
+        $q = $this->Metorg_model->getMetOrg(array('org'=>[$org], 'metric'=>[1]));
+        if(count($q) != 1){
+            return false;
+        }
+        $row = $q[0];
+        return $this->updateData($row->id, $year, $y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
     }
 
     function getAllMetrics($id, $category){

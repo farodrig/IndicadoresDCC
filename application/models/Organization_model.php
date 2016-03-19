@@ -29,6 +29,27 @@ class Organization_model extends CI_Model {
 		return ($query->num_rows() != 2) ? false : $this->buildAllOrganization($query);
 	}
 
+
+	function getTree($orgs){
+		$all = getAllOrgsByDpto($this->Organization_model);
+		$result = $all;
+		foreach($all as $key_data => $data){
+			foreach($data['areas'] as $key_area => $area){
+				foreach($area['unidades'] as $key_unit => $unidad){
+					if(!in_array($unidad->getId(), $orgs))
+						unset($result[$key_data]['areas'][$key_area]['unidades'][$key_unit]);
+				}
+				$result[$key_data]['areas'][$key_area]['unidades'] = array_values($result[$key_data]['areas'][$key_area]['unidades']);
+				if(count($result[$key_data]['areas'][$key_area]['unidades'])==0 && !in_array($result[$key_data]['areas'][$key_area]['area']->getId(), $orgs))
+					unset($result[$key_data]['areas'][$key_area]);
+			}
+			$result[$key_data]['areas'] = array_values($result[$key_data]['areas']);
+			if(count($result[$key_data]['areas'])==0)
+				unset($result[$key_data]);
+		}
+		return $result;
+	}
+
 	/*
 	Añade un area a la BD. De los posibles padres (root) se relaciona con aquel que tiene el mismo tipo y se guarda.
 	$data debe tener un 'type' y un 'name'.

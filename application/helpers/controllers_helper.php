@@ -23,13 +23,17 @@ function getTitle($permits_array) {
 }
 
 function alphaSpace($str){
-    if (preg_match("^([a-zA-Zñáéíóú]\s?)+^", $str, $data) && $data[0]==$str){
+    if (preg_match("^([a-zA-ZñáéíóúÁÉÍÓÚÑü]\s?)+^", $str, $data) && $data[0]==$str){
         return true;
     }
-    else{
-        //$this->form_validation->set_message('alphaSpace', 'El campo {field} contiene caracteres no alfabeticos o espacios');
-        return false;
+    return false;
+}
+
+function alphaNumericSpace($str){
+    if (preg_match("^([a-zA-Z0-9ñáéíóúÁÉÍÓÚÑü]\s?)+^", $str, $data) && $data[0]==$str){
+        return true;
     }
+    return false;
 }
 
 function getAllOrgsByDpto($model){

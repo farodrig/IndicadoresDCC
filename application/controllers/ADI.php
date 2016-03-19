@@ -32,7 +32,6 @@ class ADI extends CI_Controller {
 			'asistente_dcc'             => $permits->getAsistenteDCC());
 		$title                  = getTitle($permits_array);
 		$permits_array['title'] = $title;
-
 		$this->session->set_userdata($permits_array);
 
 		redirect('inicio');

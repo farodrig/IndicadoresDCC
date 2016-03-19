@@ -9,6 +9,8 @@ class DashboardConfig extends CI_Controller {
 		$this->load->model('Dashboard_model');
 		$this->load->model('Dashboardconfig_model');
 		$this->dashboardModel = $this->Dashboard_model;
+		if (is_null($this->session->rut))
+			redirect('salir');
 	}
 
 	function configUnidad(){// funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo

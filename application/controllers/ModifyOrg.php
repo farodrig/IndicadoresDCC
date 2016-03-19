@@ -7,6 +7,8 @@ class ModifyOrg extends CI_Controller {
 		$this->load->model('Organization_model');
 		$this->load->library('form_validation');
 		$this->load->library('session');
+		if (is_null($this->session->rut))
+			redirect('salir');
 	}
 
 	function modifyAreaUnidad() {

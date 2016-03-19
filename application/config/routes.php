@@ -69,12 +69,13 @@ $route['contacto']         = 'MySession/contact';
 $route['salir']            = 'MySession/logout';
 $route['verif_usuario']    = 'ADI/user_verify';
 
-$route['foda/config'] = 'Foda/modifyFoda';
 $route['foda/add'] = 'Foda/addFodaItem';
 $route['foda'] = 'Foda/fodaIndex';
 $route['foda/items'] = 'Foda/getFodaItems';
 $route['foda/delItem'] = 'Foda/deleteItems';
 
+$route['presupuesto'] = 'Budget/index';
+$route['presupuesto/modify'] = 'Budget/modify';
+
 $route['404_override']         = '';
 $route['translate_uri_dashes'] = FALSE;
-
