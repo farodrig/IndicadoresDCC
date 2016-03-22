@@ -13,7 +13,7 @@ class ModifyOrg extends CI_Controller {
 
 	function modifyAreaUnidad() {
 		$permits = $this->session->userdata();
-		if (!$permits['director']) {
+		if (!$permits['admin']) {
 			redirect('inicio');
 		}
 

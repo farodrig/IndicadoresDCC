@@ -26,7 +26,7 @@ class Foda_model extends CI_Model{
     }
 
     public function getFoda($data){
-        return getGeneric($this, $this->title, ['org', 'year'], $data);
+        return getGeneric($this, $this->title, $data);
     }
 
     public function addItem($data){
@@ -44,11 +44,11 @@ class Foda_model extends CI_Model{
     }
 
     public function getItem($data){
-        return getGeneric($this, $this->item, ['foda', 'priority', 'type'], $data);
+        return getGeneric($this, $this->item, $data);
     }
 
     public function getPriority($data){
-        return getGeneric($this, $this->priority, ['name'], $data);
+        return getGeneric($this, $this->priority, $data);
     }
 
     public function getAllPriority(){
@@ -56,7 +56,7 @@ class Foda_model extends CI_Model{
     }
 
     public function getType($data){
-        return getGeneric($this, $this->type, ['name'], $data);
+        return getGeneric($this, $this->type, $data);
     }
 
     public function getAllType(){

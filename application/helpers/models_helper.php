@@ -1,22 +1,22 @@
 <?php
 
-function getGeneric($model, $db_name, $columns, $data){
-    foreach ($columns as $column){
-        if (array_key_exists($column, $data)){
+function getGeneric($model, $db_name, $data){
+    foreach ($data as $key=>$value){
+        if (strcmp($key,'limit')==0){
+            $model->db->limit($data['limit']);
+        }
+        else if (strcmp($key,'order')==0){
+            foreach($data['order'] as $order){
+                $model->db->order_by($order[0], $order[1]);
+            }
+        }
+        else if (is_array($data[$key])){
             $model->db->group_start();
-            foreach ($data[$column] as $value){
-                $model->db->or_where($column, $value);
+            foreach ($data[$key] as $value){
+                $model->db->or_where($key, $value);
             }
             $model->db->group_end();
         }
-    }
-    if (array_key_exists('limit', $data)){
-        $model->db->limit($data['limit']);
-    }
-    if (array_key_exists('order', $data)){
-        foreach($data['order'] as $order){
-            $model->db->order_by($order[0], $order[1]);
-       }
     }
     $query = $model->db->get($db_name);
     return $query->result();

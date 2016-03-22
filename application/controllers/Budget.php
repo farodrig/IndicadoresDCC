@@ -13,20 +13,14 @@ class Budget extends CI_Controller {
 
     function index(){
         $permits = $this->session->userdata();
-        if (!$permits['director'] && in_array(-1, $permits['encargado_finanzas_unidad'])  && in_array(-1, $permits['asistente_finanzas_unidad'])) {
+        if (!$permits['admin'] && !count($permits['encargado_finanzas'])  &&  !count($permits['asistente_finanzas'])) {
             redirect('inicio');
         }
-        if ($permits['director'])
+        if ($permits['admin'])
             $orgs = $this->Organization_model->getAllOrgsIds();
         else {
             $orgs = [];
-            $aux = $permits['encargado_finanzas_unidad'];
-            foreach($aux as $org){
-                if($org==-1)
-                    continue;
-                $orgs[] = $this->Organization_model->getByID($org);
-            }
-            $aux = $permits['asistente_finanzas_unidad'];
+            $aux = array_merge($permits['encargado_finanzas'], $permits['asistente_finanzas']);
             foreach($aux as $org){
                 if($org==-1)
                     continue;
@@ -66,11 +60,12 @@ class Budget extends CI_Controller {
         }
         $org =  $this->input->post("org");
         $permits = $this->session->userdata();
-        if (!$permits['director'] && !in_array($org, $permits['encargado_finanzas_unidad'])  && !in_array($org, $permits['asistente_finanzas_unidad'])) {
-            redirect('inicio');
+        if (!$permits['admin'] && !in_array($org, $permits['encargado_finanzas'])  && !in_array($org, $permits['asistente_finanzas'])) {
+            echo json_encode(array('success'=>0));
+            return;
         }
         $validation = 0;
-        if($permits['director'] || in_array($org, $permits['encargado_finanzas_unidad'])){
+        if($permits['admin'] || in_array($org, $permits['encargado_finanzas'])){
             $validation = 1;
         }
 
@@ -80,8 +75,7 @@ class Budget extends CI_Controller {
         $this->form_validation->set_rules('target', 'Meta', 'numeric');
 
         if (!$this->form_validation->run()) {
-            $result['success'] = 0;
-            echo json_encode($result);
+            echo json_encode(array('success'=>0));
             return;
         }
 
@@ -90,20 +84,14 @@ class Budget extends CI_Controller {
         $expected =  $this->input->post("expected");
         $target =  $this->input->post("target");
         $this->load->model('Dashboard_model');
-        $success = $this->Dashboard_model->updateBudgetValue($org, $year, $value, $expected, $target, $validation);
+        $success = $this->Dashboard_model->updateCreateBudgetValue($org, $year, $value, $expected, $target, $validation);
         $result['success'] = $success;
         if($success){
-            if ($permits['director'])
+            if ($permits['admin'])
                 $orgs = $this->Organization_model->getAllOrgsIds();
             else {
                 $orgs = [];
-                $aux = $permits['encargado_finanzas_unidad'];
-                foreach($aux as $org){
-                    if($org==-1)
-                        continue;
-                    $orgs[] = $this->Organization_model->getByID($org);
-                }
-                $aux = $permits['asistente_finanzas_unidad'];
+                $aux = array_merge($permits['encargado_finanzas'], $permits['asistente_finanzas']);
                 foreach($aux as $org){
                     if($org==-1)
                         continue;

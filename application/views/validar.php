@@ -100,7 +100,7 @@
 										<?php foreach($data as $row) :?>
 											<tr class="">
 											<td> <?php  echo ucwords($row->name)?> </td>
-											<td> <?php echo strcmp(ucwords($row->category),"Finanzas")==0 ? "Asistente de finanzas" : (strcmp($row->adcc,"0")==0 ? "Asistente de unidad" : "Asistente de DCC") ?></td>
+											<td> <?php echo strcmp(ucwords($row->category),"Finanzas")==0 ? "Asistente de finanzas" : "Asistente de unidad" ?></td>
 											<td> <?php  echo ucwords($row->org_name)?> </td>
 											<td> <?php  echo ucwords($row->category)?> </td>
 											<td> <?php  echo ucwords($row->year)?> </td>

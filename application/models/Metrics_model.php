@@ -15,6 +15,10 @@ class Metrics_model extends CI_Model{
 		$this->Category = "Category";
 	}
 
+	function getMetric($data){
+		return getGeneric($this, $this->title, $data);
+	}
+
 	function get_or_create($data){
 		return get_or_create($this, $data, 'id');
 	}
@@ -64,9 +68,7 @@ class Metrics_model extends CI_Model{
 			}
 		}
 		return $data;
-
 	}
-
 
     function buildAllMetric($q){
         $me = array();
@@ -87,5 +89,4 @@ class Metrics_model extends CI_Model{
         $me = new Metrics_library();
         return $me->initialize($parameters);
     }
-
 }

@@ -10,7 +10,7 @@ class Metorg_model extends CI_Model{
 	}
 
 	function getMetOrg($data){
-		return getGeneric($this, $this->title, ['id', 'org', 'metric'], $data);
+		return getGeneric($this, $this->title, $data);
 	}
 
 	function addMetOrg($data){

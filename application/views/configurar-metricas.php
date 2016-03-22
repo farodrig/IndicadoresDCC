@@ -20,8 +20,7 @@
 				<?php
 				$navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
 					['url'=>'careaunidad', 'name'=>'Configurar Áreas y Unidades', 'icon'=>'fa fa-th-large'],
-					['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart'],
-					['url'=>'foda/config', 'name'=>'Configurar FODAs', 'icon'=>'fa fa-book']];
+					['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
 				include 'partials/navigation.php';
 				?>
 				<!-- end: sidebar -->
@@ -158,24 +157,24 @@
 											<div class="form-group mt-lg">
 												<label class="col-sm-3 control-label">Nombre del Eje X (Dimensiones):</label>
 												<div class="col-sm-9">
-													<input type="text" name="x_name" id='x_name' class="form-control" required/>
+													<input type="text" name="x_name" id='x_name' class="form-control" value=""/>
 												</div>
 											</div>
 											<div class="form-group mt-lg">
 												<label class="col-sm-3 control-label">Unidad de Medida del Eje X:</label>
 												<div class="col-sm-9">
-													<input type="text" name="x_unit" id='x_unit' class="form-control"  required/>
+													<input type="text" name="x_unit" id='x_unit' class="form-control" value=""/>
 												</div>
 											</div>
-												<div class="form-group mt-lg">
-													<label class="col-sm-3 control-label">Categoria:</label> <!-- 1: Productividad 2:Finanzas -->
-														<div class="btn-group dropdown col-sm-9">
-															<select name='category' id='category' class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
-																<option value=1 defaultSelected>Productividad</option>
-																<option value=2>Finanzas</option>
-															</select>
-														</div>
-												</div>
+											<div class="form-group mt-lg">
+												<label class="col-sm-3 control-label">Categoria:</label> <!-- 1: Productividad 2:Finanzas -->
+													<div class="btn-group dropdown col-sm-9">
+														<select name='category' id='category' class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
+															<option value=1 defaultSelected>Productividad</option>
+															<option value=2>Finanzas</option>
+														</select>
+													</div>
+											</div>
 										</div>
 										<footer class="panel-footer">
 											<div class="row">
@@ -198,15 +197,15 @@
 											<div id="subtitle2" name="subtitle2"></div>
 										</header>
 									<div class="panel-body">
-											<input type='hidden' name='modificar' id='modificar' value='' />
-											<input type='hidden' name='id' id='id' value='' />
-											<input type='hidden' name='metrica_y' id='metrica_y' value='' />
-											<input type='hidden' name='unidad_y' id='unidad_y' value='' />
-											<input type='hidden' name='metrica_x' id='metrica_x' value='' />
-											<input type='hidden' name='unidad_x' id='unidad_x' value='' />
-											<input type='hidden' name='tipo' id='tipo' value='' />
+										<input type='hidden' name='modificar' id='modificar' value='' />
+										<input type='hidden' name='id' id='id' value='' />
+										<input type='hidden' name='metrica_y' id='metrica_y' value='' />
+										<input type='hidden' name='unidad_y' id='unidad_y' value='' />
+										<input type='hidden' name='metrica_x' id='metrica_x' value='' />
+										<input type='hidden' name='unidad_x' id='unidad_x' value='' />
+										<input type='hidden' name='tipo' id='tipo' value='' />
 
-											<div id="rows" name="rows"></div>
+										<div id="rows" name="rows"></div>
 
 										<footer class="panel-footer">
 											<div class="row">
@@ -282,7 +281,7 @@
 		}
 
 		function checkInput(){
-			if($('#y_name').val()=="" || $('#y_unit').val()=="" || $('#x_name').val()=="" || $('#x_unit').val()==""){
+			if($('#y_name').val()=="" || $('#y_unit').val()==""){
 				alert("Debe ingresar valores para nombre de métrica y unidad de medida");
 				return false;
 			}
@@ -352,9 +351,10 @@
 				var tds = row.find('td');
 				var data = [];
 
+				console.log(tds);
 				for(i=0; i<tds['length'];i++)
-					data[i] = tds[i]['childNodes'][0]['nodeValue'];
-
+					data[i] = tds[i].innerHTML;
+				console.log(data);
 				$(row[0]).children( 'td' ).each(function( i ) {
 					var $this = $( this );
 					if ( $this.hasClass('actions') ) {
@@ -406,7 +406,7 @@
 				$('#metrica_x').val(inputs[2]['value']);
 				$('#unidad_x').val(inputs[3]['value']);
 
-				if(inputs[0]['value']=="" || inputs[1]['value']=="" || inputs[2]['value']=="" || inputs[3]['value']==""){
+				if(inputs[0]['value']=="" || inputs[1]['value']==""){
 					alert("No puede dejar campos en blanco");
 				}
 				else{

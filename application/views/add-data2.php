@@ -81,10 +81,15 @@
                                 <?php
                                 echo ('<input type="hidden" name="id_location" id="id_location" value='.$id_location.'>');
                                 foreach ($metrics as $metric) { ?>
-                                    <section class="toggle" >
-                                        <label class="text-left"><?php echo (ucwords($metric->y_name));?> V/S <?php echo (ucwords($metric->x_name));?></label >
-                                        <div id="content<?php echo ($metric->metorg);?>" class="toggle-content" style = "display: none;" >
+                                    <section class="toggle active" >
+                                        <label class="text-left"><?php echo (ucwords($metric->y_name));?> por <?php echo (($metric->x_name)? (ucwords($metric->x_name)) : "Año");?></label >
+                                        <div id="content<?php echo ($metric->metorg);?>" class="toggle-content" style = "display: block;" >
                                         </div >
+                                        <?php if($metric->x_name){?>
+                                            <button type="button" onclick="addRow(<?php echo ($metric->metorg);?>)" class="btn btn-success pull-right fa fa-plus" style="margin-bottom: 1%"></button>
+                                        <?php
+                                        }
+                                        ?>
                                     </section >
                                 <?php } ?>
                             </div>
@@ -118,10 +123,12 @@
     for(var metorg in jArray){
         for(var year in jArray[metorg]){
             if ( years.indexOf(year) == -1){
+                console.log(year);
                 years.push(year);
             }
         }
     }
+    years.sort();
 
     //cargar años
     for(var i = 0; i<years.length; i++){
@@ -168,29 +175,49 @@
         }
     });
 
-    function rowWithData(metorg, valueY, valueX, target, expected){
+    function deleteRow(a) {
+        var $this = $(a);
+        row = $this.closest('div.row');
+        row.remove();
+    }
+
+    function rowWithData(metorg, valId, valueY, valueX, target, expected, hasX, eliminable){
+        delButton = '';
+        del = "";
+        xClass = "";
+        if(eliminable) {
+            delButton = '<div class="col-md-1 text-center"> \
+                        <label class="control-label">Quitar</label> \
+                        <div><a class="btn cancel-row row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a></div> \
+                    </div>';
+            del = 'hidden';
+        }
+        if(!hasX)
+            xClass = "hidden";
         row = '<div class="row mb-md form-group"> \
+                    <input type="hidden" name="valId[]" value="' + valId + '">    \
+                    <input type="hidden" name="metorg[]" value="' + metorg + '">    \
                     <div class="col-md-2">\
                         <label class="control-label">Valor Y: </label> \
-                        <input type="text" name="valueY' + metorg + '[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
+                        <input type="text" name="valueY[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
                     </div>\
-                    <div class="col-md-2">\
+                    <div class="col-md-2 ' + xClass + '">\
                         <label class="control-label">Valor X: </label>\
-                        <input type="text" name="valueX' + metorg + '[]" value="' + valueX + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
+                        <input type="text" name="valueX[]" value="' + valueX + '" class="form-control"> \
                     </div> \
                     <div class="col-md-2"> \
-                        <label class="control-label">Esperado: </label> \
-                        <input type="text" name="target' + metorg + '[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
+                        <label class="control-label">Esperado</label> \
+                        <input type="text" name="expected[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
                     </div> \
                     <div class="col-md-2"> \
-                        <label class="control-label">Meta</label> \
-                        <input type="text" name="expected' + metorg + '[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
+                        <label class="control-label">Meta: </label> \
+                        <input type="text" name="target[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
                     </div> \
-                    <div class="col-md-2 text-center"> \
+                    <div class="col-md-1 text-center ' + del + '"> \
                         <label class="control-label">Borrar</label> \
-                        <input type="checkbox" disabled value=1 name="borrar' + metorg + '[]" class="form-control"> \
-                    </div> \
-                </div>';
+                        <input type="checkbox" value=' + valId + ' name="delete[]" class="form-control"> \
+                    </div>';
+        row += delButton + '</div>';
         return row;
     }
 
@@ -204,13 +231,28 @@
                     continue;
                 cont++;
                 for (var xVal in jArray[metorg][year]) {
-                    var row = rowWithData(metorg, jArray[metorg][year][xVal]['valueY'], jArray[metorg][year][xVal]['valueX'], jArray[metorg][year][xVal]['target'], jArray[metorg][year][xVal]['expected']);
+                    var row = rowWithData(metorg, jArray[metorg][year][xVal]['id'], jArray[metorg][year][xVal]['valueY'], jArray[metorg][year][xVal]['valueX'], jArray[metorg][year][xVal]['target'], jArray[metorg][year][xVal]['expected'], metrics[i].x_name,false);
                     $('#content' + metorg).append(row);
                 }
             }
-            var row = rowWithData(metorg, "", "", "", "");
-            $('#content' + metorg).append(row);
+            if (cont==0){
+                var row = rowWithData(metorg, "", "", "", "", "", metrics[i].x_name, false);
+                $('#content' + metorg).append(row);
+            }
         }
+    }
+
+    function addRow(metorg){
+        var hasX="";
+        for(var i in metrics) {
+            if(metorg == metrics[i].metorg){
+                hasX = metrics[i].x_name;
+                break;
+            }
+
+        }
+        row = rowWithData(metorg, "", "", "", "", "", hasX, true);
+        $('#content' + metorg).append(row);
     }
 
     function selectYear(){

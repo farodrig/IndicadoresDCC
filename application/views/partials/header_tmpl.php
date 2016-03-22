@@ -15,7 +15,7 @@
 
         <?php
             $words = explode(' ',$role); //Separa las palabras del titulo y elimina comas al final. "Encargado, de, ..."
-            if($words[0]=="Director"){ //Revisa si el titulo parte con la palabra director?>
+            if($words[0]=="Administrador"){ //Revisa si el titulo parte con la palabra administrador?>
                 <ul class="notifications">
                     <li>
                         <label>Configurar</label>

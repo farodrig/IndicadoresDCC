@@ -14,7 +14,7 @@ class Foda extends CI_Controller {
 
     function fodaIndex(){
         $permits = $this->session->userdata();
-        if (!$permits['director']) {
+        if (!$permits['admin']) {
             redirect('inicio');
         }
 
@@ -44,13 +44,14 @@ class Foda extends CI_Controller {
                 'success'     => $this->session->flashdata('success') == null ? 2 : $this->session->flashdata('success'),
                 'validate'    => validation($permits, $this->Dashboard_model),
                 'departments' => getAllOrgsByDpto($this->Organization_model)//Notar que funcion esta en helpers
-            ));
+            )
+        );
     }
 
     function addFodaItem() {
         //Revisión de permisos
         $permits = $this->session->userdata();
-        if (!$permits['director']) {
+        if (!$permits['admin']) {
             $this->session->set_flashdata('success', 0);
             redirect('foda');
         }
@@ -71,7 +72,7 @@ class Foda extends CI_Controller {
             redirect('foda');
         }
         $verification = false;
-        if($permits['director'] || $permits['encargado_finanzas_unidad'])
+        if($permits['admin'] || $permits['encargado_finanzas'])
             $verification = true;
 
         $data = array('org' => [$this->input->post('org')],
@@ -124,7 +125,7 @@ class Foda extends CI_Controller {
         }
 
         $permits = $this->session->userdata();
-        if (!$permits['director']) {
+        if (!$permits['admin']) {
             return;
         }
 
@@ -145,7 +146,7 @@ class Foda extends CI_Controller {
         }
 
         $permits = $this->session->userdata();
-        if (!$permits['director']) {
+        if (!$permits['admin']) {
             return;
         }
         $this->form_validation->set_rules('items[]', 'Elementos', 'numeric|required|greater_than_equal_to[0]');

@@ -5,6 +5,8 @@ class Dashboard extends CI_Controller {
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->model('Dashboard_model');
+		$this->load->model('Metorg_model');
+		$this->load->model('Metrics_model');
 		$this->dashboardModel = $this->Dashboard_model;
 		if (is_null($this->session->rut))
 			redirect('salir');
@@ -44,17 +46,16 @@ class Dashboard extends CI_Controller {
 
 		$this->session->set_flashdata('id', $id);
 		//Se obtienen las metricas correspondientes a los permisos del usuario, junto con las mediciones correspondientes
-		if ($permits['director'] || ((in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
-				 && ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
+		if ($permits['admin'] || ((in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas']))
+				 && (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
 			$cat = 0;
-		} elseif ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])) {
+		} elseif (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])) {
 			$cat = 1;
-		} elseif (in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad'])) {
+		} elseif (in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas'])) {
 			$cat = 2;
 		} else {
 			redirect('inicio');
 		}
-
 		$all_metrics      = $this->Dashboard_model->getAllMetrics($id, $cat);
 		$all_measurements = $this->Dashboard_model->getAllMeasurements($id, $cat);
 		$res['measurements'] = $this->_parseMeasurements($all_measurements);
@@ -62,7 +63,7 @@ class Dashboard extends CI_Controller {
 		$res['route']        = getRoute($this, $id);
 		$res['id_location']  = $id;
 		$res['validate']     = validation($permits, $this->dashboardModel);
-		$res['success']      = $this->session->flashdata('success') == null ? 2 : $this->session->flashdata('success');
+		$res['success']      = $this->session->flashdata('success') === null ? 2 : $this->session->flashdata('success');
 		$res['role']         = $permits['title'];
 		$this->load->view('add-data2', $res);
 		//debug($all_metrics, true);
@@ -70,105 +71,113 @@ class Dashboard extends CI_Controller {
 
 	//Función encargada de llamar a las funciones correspondientes del modelo, para poder actualizar valores en la base de datos
 	function addData() {
-        debug($_POST);
-        return;
 		$id = $this->input->post("id_location");
-		$borrar = ($this->input->post('borrar')) ? 1 : 0;
-
+		$this->session->set_flashdata('id', $id);
 		if (is_null($id))
 			redirect('inicio');
 
+		$borrar = ($this->input->post('borrar')) ? 1 : 0;
 		$user    = $this->session->userdata("rut");
 		$permits = $this->session->userdata();
-
-		$metorgs_id       = $this->Dashboard_model->getAllMetricOrgIds($id);
-		$all_measurements = $this->Dashboard_model->getAllMeasurements($id, 0);
 
 		//Se validan los datos ingresados
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('year', 'Year', 'required|exact_length[4]|numeric');
 
-		foreach ($metorgs_id as $i) {
-			$this->form_validation->set_rules('value'.$i->getId(), 'Value'.$i->getId(), 'numeric');
-			$this->form_validation->set_rules('target'.$i->getId(), 'Target'.$i->getId(), 'numeric');
-			$this->form_validation->set_rules('expected'.$i->getId(), 'Expected'.$i->getId(), 'numeric');
-		}
+		$this->form_validation->set_rules('valueY[]', 'Value', 'numeric');
+		$this->form_validation->set_rules('metorg[]', 'Value', 'numeric');
+		$this->form_validation->set_rules('target[]', 'Target', 'numeric');
+		$this->form_validation->set_rules('expected[]', 'Expected', 'numeric');
 
 		if (!$this->form_validation->run()) {
 			$this->session->set_flashdata('success', 0);
 			redirect('formAgregarDato');
 		}
-
 		$year = $this->input->post('year');
 
-		$vals[] = [];
-		if ($all_measurements) {
-			foreach ($all_measurements as $measure) {
-				if ($measure->getYear() == $year) {
-                    $data[] = $measure->getMetOrg();
-					$vals[$measure->getMetOrg()] = array(
-						'valueY'    => $measure->getValueY(),
-                        'valueX'    => $measure->getValueX(),
-						'target'   => $measure->getTarget(),
-						'expected' => $measure->getExpected()
-					);
+		if ($permits['admin'] || in_array($id, $permits['encargado_finanzas']) || in_array($id, $permits['encargado_unidad'])) {
+			$validation = 1;
+		} elseif (in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['asistente_unidad'])) {
+			$validation = 0;
+		} else {
+			$this->session->set_flashdata('success', 0);
+			redirect('formAgregarDato');
+		}
+		$success = true;
+
+		if($borrar){
+			foreach ($this->input->post('delete') as $valId){
+				if(!$valId)
+					continue;
+				$success = $success && $this->Dashboard_model->deleteValue($valId, $user, $validation);
+			}
+			$success = ($success) ? 1:0;
+			$this->session->set_flashdata('success', $success);
+			redirect('formAgregarDato');
+		}
+		for($i = 0; $i<count($this->input->post('valueY')); $i++){
+			$id_metorg = $this->input->post('metorg')[$i];
+			$valId = $this->input->post('valId')[$i];
+			$valueY = $this->input->post('valueY')[$i];
+			$valueX    = $this->input->post('valueX')[$i];
+			$target   = $this->input->post('target')[$i];
+			$expected = $this->input->post('expected')[$i];
+			$metorg = $this->Metorg_model->getMetOrg(array('id'=>[$id_metorg]))[0];
+			$metric = $this->Metrics_model->getMetric(array('id'=>[$metorg->metric]))[0];
+
+			//si los datos no cambiaron o no hay valor en y saltamos datos
+			if ((strcmp($valueY, "")==0 && strcmp($valueX, "")==0 && strcmp($expected, "")==0 && strcmp($target, "")==0) || $valueY == "") {
+				$success = false;
+				continue;
+			}
+			//si no se tiene un id para el valor y no se tiene un eje X
+			if (!$valId && (strcmp($metric->x_name, "")==0)){
+				$oldVal = $this->Dashboard_model->getValue(array('metorg'=>[$id_metorg], 'year'=>[$year], 'state'=>[1]));
+				//Si existia un valor previo, se debe hacer un update de la data, sino, simplemente se inserta.
+				if (count($oldVal)==1){
+					$oldVal = $oldVal[0];
+					if ($valueY != $oldVal->value || $expected != $oldVal->expected || $target != $oldVal->target)
+						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, "", $target, $expected, $user, $validation);
+				}
+				else if (count($oldVal)==0){
+					$success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, "", $target, $expected, $user, $validation);
+				}
+				//hubo un error, nunca debería haber más de 1 validado.
+				else{
+					$success = false;
+					debug($oldVal);
 				}
 			}
-		}
-
-		$data[] = -1; // Asi el arreglo nunca sera null
-
-		if ($permits['director']) {
-			$validation = 1;
-		} elseif ($permits['asistente_dcc'] || in_array($id, $permits['asistente_finanzas_unidad']) ||
-			in_array($id, $permits['asistente_unidad'])) {
-			$validation = 0;
-		} elseif (in_array(-1, $permits['encargado_finanzas_unidad']) && in_array(-1, $permits['encargado_unidad'])) {
-			redirect('inicio');
-		}
-
-		$success = 1;
-		foreach ($metorgs_id as $i){
-			$id_metorg   = $i->getId();
-			$valueY    = $this->input->post('valueY'.$id_metorg);
-            $valueX    = $this->input->post('valueX'.$id_metorg);
-			$target   = $this->input->post('target'.$id_metorg);
-			$expected = $this->input->post('expected'.$id_metorg);
-			$delete = $this->input->post('borrar'.$id_metorg);
-
-			//Si no se ingresaron datos no se agregan a la base de datos
-			if ($valueY == "" && $valueX == "" && $target == "" && $expected == "")
-				continue;
-			if($valueY=="")
-				$valueY=0;
-            if($valueX=="")
-                $valueX=0;
-			if($target=="")
-				$target=0;
-			if($expected=="")
-				$expected=0;
-			$metorg_cat = $this->Dashboard_model->getMetType($id_metorg);
-
-			if ((in_array($id, $permits['encargado_unidad']) && !strcmp($metorg_cat, "Productividad")) ||
-				(in_array($id, $permits['encargado_finanzas_unidad']) && !strcmp($metorg_cat, "Finanzas"))) {
-				$validation = 1;
+			//si no se tiene un ID para el valor y se tiene un eje X, 
+			elseif(!$valId && strcmp($metric->x_name, "")!=0 && strcmp($valueX, "")!=0){
+				$oldVal = $this->Dashboard_model->getValue(array('metorg'=>[$id_metorg], 'year'=>[$year], 'x_value'=>[$valueX], 'state'=>[1]));
+				//Si existia un valor previo, se debe hacer un update de la data, sino, simplemente se inserta.
+				if (count($oldVal)==1){
+					$oldVal = $oldVal[0];
+					if ($valueY != $oldVal->value || strcmp($valueX, $oldVal->x_value)!=0 || $expected != $oldVal->expected || $target != $oldVal->target)
+						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, $validation);
+				}
+				else if (count($oldVal)==0){
+					$success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, $validation);
+				}
+				//hubo un error, nunca debería haber más de 1 validado.
+				else{
+					$success = false;
+					debug($oldVal);
+				}
 			}
-			if($borrar && $delete)
-				$q = $this->Dashboard_model->deleteValue($id_metorg, $year, $user, $validation);
-			elseif (!$borrar && in_array($id_metorg, $data) && ($valueY != $vals[$id_metorg]['valueY'] || $valueX != $vals[$id_metorg]['valueX'] || $target != $vals[$id_metorg]['target'] || $expected != $vals[$id_metorg]['expected'])) {
-				$q = $this->Dashboard_model->updateData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, $validation);
-			} else if (!$borrar && !in_array($id_metorg, $data)) {
-				$q = $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, $validation);// si $q es falso significa que fallo la query
-			} else {
-				$q = -1;
+			//si se tiene valId, ya existia el valor por tanto se debe actualizar
+			else if($valId){
+				$oldVal = $this->Dashboard_model->getValue(array('id'=>[$valId]))[0];
+				if ($valueY != $oldVal->value || strcmp($valueX, $oldVal->x_value)!=0 || $expected != $oldVal->expected || $target != $oldVal->target) {
+					$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, $validation);
+				}
 			}
-			if ($q == 0) {
-				//Success es la flag que desplegara el mensaje de exito o fallo según corresponda
-				$success = 0;
+			else{
+				$success = false;
 			}
 		}
-
-		$this->session->set_flashdata('id', $id);
+		$success = ($success) ? 1:0;
 		$this->session->set_flashdata('success', $success);
 		redirect('formAgregarDato');
 	}
@@ -204,7 +213,6 @@ class Dashboard extends CI_Controller {
 
         $metrics = [];
         $names   = [];
-
         if ($dashboard_metrics){
             $all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
             foreach ($dashboard_metrics as $metric) {
@@ -220,7 +228,6 @@ class Dashboard extends CI_Controller {
                     'unit'           => $metric->getUnit()
                 );
             }
-
             if ($all_measurements) {
                 foreach ($all_measurements as $measure) {
                     $count                    = 1;
@@ -312,16 +319,16 @@ class Dashboard extends CI_Controller {
 
 		$add_data = 0;
 		//Permite determinar si el usuario deberá o no ver la pestaña de agregar datos
-		if ($permits['director'] || in_array($id, $permits['encargado_unidad']) ||
-			in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas_unidad']) ||
-			$permits['asistente_dcc'] || in_array($id, $permits['encargado_finanzas_unidad'])) {
+		if ($permits['admin'] || in_array($id, $permits['encargado_unidad']) ||
+			in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas'])
+			|| in_array($id, $permits['encargado_finanzas'])) {
 			$add_data = 1;
 		}
 		$result['add_data'] = $add_data;
 		//Si no se tienen permisos para acceder a un dashboard en particular, entonces se muestra un mensaje
-		if (!$permits['visualizador'] && !$permits['director'] && !$permits['asistente_dcc'] &&
-			!in_array($id, $permits['encargado_unidad']) && !in_array($id, $permits['asistente_finanzas_unidad']) &&
-			!in_array($id, $permits['asistente_unidad']) && !in_array($id, $permits['encargado_finanzas_unidad'])) {
+		if (!$permits['visualizador'] && !$permits['admin'] &&
+			!in_array($id, $permits['encargado_unidad']) && !in_array($id, $permits['asistente_finanzas']) &&
+			!in_array($id, $permits['asistente_unidad']) && !in_array($id, $permits['encargado_finanzas'])) {
 			$this->load->view('no-dashboard', $result);
 		} else {
 			$this->load->view('dashboard', $result);
@@ -330,12 +337,12 @@ class Dashboard extends CI_Controller {
 
     //Función que permite obtener las métricas, asociadas a una organizacion y a los permisos de un usuario. $all decide si se entregan todos o solo los q tiene posicion 1.
     private function getDashboardMetricsGeneric($id, $permits, $all) {
-		if ($permits['director'] || $permits['visualizador'] || ((in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad']))
-				 && ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
+		if ($permits['admin'] || $permits['visualizador'] || ((in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas']))
+				 && (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
 			$val = 0;
-		} elseif ($permits['asistente_dcc'] || in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])) {
+		} elseif (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])) {
 			$val = 1;
-		} elseif (in_array($id, $permits['asistente_finanzas_unidad']) || in_array($id, $permits['encargado_finanzas_unidad'])) {
+		} elseif (in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas'])) {
 			$val = 2;
 		} else {
 			return [];

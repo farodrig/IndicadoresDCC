@@ -18,7 +18,7 @@ class DashboardConfig extends CI_Controller {
 	// esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 
 		$permits = $this->session->userdata();
-		if (!$permits['director']) {
+		if (!$permits['admin']) {
 			redirect('inicio');
 		}
 
@@ -69,7 +69,7 @@ class DashboardConfig extends CI_Controller {
 	function configArea() {
 		$permits = $this->session->userdata();
 
-		if (!$permits['director']) {
+		if (!$permits['admin']) {
 			redirect('inicio');
 		}
 		$id_first = "-1";
@@ -133,7 +133,7 @@ class DashboardConfig extends CI_Controller {
 	function configDCC() {
 		$permits = $this->session->userdata();
 
-		if (!$permits['director']) {
+		if (!$permits['admin']) {
 			redirect('inicio');
 		}
 		$id_first = "-1";
@@ -260,7 +260,7 @@ class DashboardConfig extends CI_Controller {
 	function addGraph() {
 		$permits = $this->session->userdata();
 
-		if (!$permits['director']) {
+		if (!$permits['admin']) {
 			redirect('inicio');
 		}
 

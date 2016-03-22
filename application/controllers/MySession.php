@@ -13,27 +13,21 @@ class MySession extends CI_Controller {
 		$result['error'] = $this->session->flashdata('error');
 		//Comentar Desde Aqui
 		$this->load->model('User_model');
-		$result['users'] = $this->User_model->getAllUsers();
-		if ($this->input->method() == "post") {
-			$this->load->model('Permits_model');
-			$rut  = $this->input->post('user');
-			$name = $result['users'][$rut];
-			$this->session->set_userdata('rut', $rut);
-			$this->session->set_userdata('name', $name);
-			$permits       = $this->Permits_model->getAllPermits($rut);
-			$permits_array = array(
-				'director'                  => $permits->getDirector(),
-				'visualizador'              => $permits->getVisualizador(),
-				'asistente_unidad'          => $permits->getAsistenteUnidad(),
-				'asistente_finanzas_unidad' => $permits->getAsistenteFinanzasUnidad(),
-				'encargado_finanzas_unidad' => $permits->getEncargadoFinanzasUnidad(),
-				'encargado_unidad'          => $permits->getEncargadoUnidad(),
-				'asistente_dcc'             => $permits->getAsistenteDCC());
-			$title                  = getTitle($permits_array);
-			$permits_array['title'] = $title;
-
+		if ($this->input->method() == "post" && $this->input->post('user')) {
+			$user = $this->User_model->getUserById($this->input->post('user'));
+			$this->session->set_userdata('rut', $user->id);
+			$this->session->set_userdata('name', $user->name);
+			$this->session->set_userdata('email', $user->email);
+			$this->session->set_userdata('admin', $user->isAdmin);
+			$permits       = $this->User_model->getPermitByUser($user->id);
+			$permits_array = getPermits($permits, $this->User_model->getSeparator());
+			$permits_array['title'] = getTitle($user, $permits_array);
 			$this->session->set_userdata($permits_array);
 			redirect('inicio');
+		}
+		$users = $this->User_model->getAllUsers();
+		foreach($users as $user){
+			$result['users'][$user->id] = $user->name;
 		}
 		//Hasta Aqui para Pasar a PRODUCCION
 		$this->load->view('login', $result);
@@ -68,7 +62,6 @@ class MySession extends CI_Controller {
 
 	public function inicio() {
 		$user = $this->session->rut;
-
 		if (is_null($user)) {
 			redirect('salir');
 		}
@@ -115,15 +108,13 @@ class MySession extends CI_Controller {
 
 	public function validar() {
 		$success = $this->session->flashdata('success');
-		if (is_null($success)) {
-			$success = 2;
-		}
+		if (is_null($success))
+			$success = 2;		
 
 		$permits = $this->session->userdata();
-		if (!$permits['director'] && in_array(-1, $permits['encargado_unidad']) && in_array(-1, $permits['encargado_finanzas_unidad'])) {
+		if (!$permits['admin'] && !count($permits['encargado_unidad']) && !count($permits['encargado_finanzas'])) {
 			redirect('inicio');
 		}
-
 		$this->load->model('Dashboard_model');
 
 		$result = array(
@@ -131,21 +122,21 @@ class MySession extends CI_Controller {
 			'validate'               => validation($permits, $this->Dashboard_model),
 			'role'                   => $permits['title']
 		);
-		if ($permits['director'] == 1) {
+		if ($permits['admin'] == 1) {
 			$result['data'] = $this->Dashboard_model->getAllNonValidatedData(null, null);
-		} elseif (!in_array('-1', $permits['encargado_unidad']) && !in_array('-1', $permits['encargado_finanzas_unidad'])) {
-			$result['data'] = $this->Dashboard_model->getAllNonValidatedData(array_merge($permits['encargado_unidad'], $permits['encargado_finanzas_unidad']), null);
-		} elseif (!in_array('-1', $permits['encargado_unidad'])) {
+		} elseif (count($permits['encargado_unidad']) && count($permits['encargado_finanzas'])) {
+			$result['data'] = $this->Dashboard_model->getAllNonValidatedData(array_merge($permits['encargado_unidad'], $permits['encargado_finanzas']), null);
+		} elseif (count($permits['encargado_unidad'])) {
 			$result['data'] = $this->Dashboard_model->getAllNonValidatedData($permits['encargado_unidad'], 1);
-		} elseif (!in_array('-1', $permits['encargado_finanzas_unidad'])) {
-			$result['data'] = $this->Dashboard_model->getAllNonValidatedData($permits['encargado_finanzas_unidad'], 2);
+		} elseif (count($permits['encargado_finanzas'])) {
+			$result['data'] = $this->Dashboard_model->getAllNonValidatedData($permits['encargado_finanzas'], 2);
 		}
 		$this->load->view('validar', $result);
 	}
 
 	public function validate_reject() {
 		$this->load->model('Dashboard_model');
-		$success = 2;
+		$success = 0;
 		$data    = $this->input->post();
 		$func    = NULL;
 
@@ -154,37 +145,28 @@ class MySession extends CI_Controller {
 			$func = 'validateData';
 		} elseif ($this->input->post('Rechazar')) {
 			unset($data['Rechazar']);
-			$func = 'rejectData';
+			$func = 'deleteData';
 		}
 
 		if (!is_null($func) && count($data) > 0) {
-			$success = 0;
-			if (!$this->checkIfAlreadyValidate($data)) {
-				foreach ($data as $data_id) {
-					$this->Dashboard_model->$func($data_id);
+			$success = true;
+			foreach ($data as $data_id) {
+				if($this->Dashboard_model->checkIfValidate($data_id)) {
+					$success = $success && $this->Dashboard_model->$func($data_id);
 				}
-				$success = 1;
 			}
+			$success = ($success) ? 1:0;
 		}
 		$this->session->set_flashdata('success', $success);
 		redirect('validar');
 	}
 
-	private function checkIfAlreadyValidate($data) {
-		$this->load->model('Dashboard_model');
-		$isValidate = FALSE;
-		foreach ($data as $data_id) {
-			$isValidate = $isValidate || $this->Dashboard_model->checkIfValidate($data_id);
-		}
-		return $isValidate;
-
-	}
 
 	public function menuConfigurar() {
 		$this->load->model('Dashboard_model');
 		$permits = $this->session->userdata();
 
-		if (!$permits['director']) {
+		if (!$permits['admin']) {
 			redirect('inicio');
 		}
 		$this->load->view('menu-configurar', array('validate' => validation($permits, $this->Dashboard_model),
@@ -193,7 +175,7 @@ class MySession extends CI_Controller {
 
 	public function configurarMetricas() {
 		$permits = $this->session->userdata();
-		if (!$permits['director']) {
+		if (!$permits['admin']) {
 			redirect('inicio');
 		}
 
@@ -223,8 +205,8 @@ class MySession extends CI_Controller {
 		$this->form_validation->set_rules('y_unit', 'Unidad Y', 'required|alphaSpace');
 		$this->form_validation->set_rules('category', 'Categoria', 'required|numeric');
 		$this->form_validation->set_rules('y_name', 'Nombre Y', 'required|alphaSpace');
-		$this->form_validation->set_rules('x_name', 'Nombre X', 'required|alphaSpace');
-		$this->form_validation->set_rules('x_unit', 'Unidad X', 'required|alphaSpace');
+		$this->form_validation->set_rules('x_name', 'Nombre X', 'alphaSpace');
+		$this->form_validation->set_rules('x_unit', 'Unidad X', 'alphaSpace');
 		$this->form_validation->set_rules('id_insert', 'Id', 'required|numeric');
 
 		if (!$this->form_validation->run()) {
@@ -238,16 +220,12 @@ class MySession extends CI_Controller {
 		$this->load->model('Unit_model');
 
 		//creación de unidad para Y
-		$unit_data = array(
-			'name' => $this->input->post('y_unit'),
-		);
-
+		$unit_data = array('name' => $this->input->post('y_unit'));
 		$y_unit = $this->Unit_model->get_or_create($unit_data);
 		$unit_data['name'] = $this->input->post('x_unit');
 		$x_unit = $this->Unit_model->get_or_create($unit_data);
-		if (!$y_unit || !$x_unit){
+		if ($y_unit===false || $x_unit===false || $y_unit<0 || $x_unit<0){
 			$this->session->set_flashdata('success', 0);
-			redirect('cmetrica');
 		}
 
 		//Creación de métrica
@@ -258,13 +236,11 @@ class MySession extends CI_Controller {
 			'x_unit' => $x_unit, //-> Busca la Unidad, si no existe la crea y entrega el id, si existe, entrega el id.
 			'x_name' => $this->input->post('x_name'), //Nombre que tendrá la métrica
 		);
-
 		$metric = $this->Metrics_model->get_or_create($Metricdata);
 		if (!$metric){
 			$this->session->set_flashdata('success', 0);
 			redirect('cmetrica');
 		}
-
 		//Creación de link entre métrica y organización
 		$metorg = array(
 			'org'    => $this->input->post('id_insert'),//id de la unidad o area a la que se le quiere ingresar la metrica
@@ -290,8 +266,8 @@ class MySession extends CI_Controller {
 			$this->form_validation->set_rules('tipo', 'Type', 'required|numeric');
 			$this->form_validation->set_rules('metrica_y', 'Metrica Y', 'required|alphaSpace');
 			$this->form_validation->set_rules('id', 'Id', 'required|numeric');
-			$this->form_validation->set_rules('unidad_x', 'Unidad X', 'required|alphaSpace');
-			$this->form_validation->set_rules('metrica_x', 'Metrica X', 'required|alphaSpace');
+			$this->form_validation->set_rules('unidad_x', 'Unidad X', 'alphaSpace');
+			$this->form_validation->set_rules('metrica_x', 'Metrica X', 'alphaSpace');
 
 			if (!$this->form_validation->run()) {
 				$this->session->set_flashdata('success', 0);
@@ -329,6 +305,12 @@ class MySession extends CI_Controller {
 			}
 		}
 		redirect('cmetrica');
+	}
+
+	public function test(){
+		$this->load->model('User_model');
+		$user = getGeneric($this->User_model, 'Organization', array('id !='=>[2]));
+		debug($user);
 	}
 }
 ?>
