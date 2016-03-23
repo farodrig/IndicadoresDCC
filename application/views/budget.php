@@ -90,12 +90,23 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr role="row" class="treegrid-root treegrid-expanded black">
+                                    <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span>DCC</td>
+                                    <td class="org-id" hidden></td>
+                                    <td class="current-val"></td>
+                                    <td class="min-val"></td>
+                                    <td class="no-editable min-val-diff"></td>
+                                    <td class="max-val"></td>
+                                    <td class="no-editable max-val-diff"></td>
+                                    <td class="actions no-mutable"></td>
+                                </tr>
                             <?php
+
                                 foreach($departments as $data_type){
                             ?>
-                                <tr role="row" class="treegrid-<?php echo ($data_type['department']->getId())?> treegrid-expanded black">
+                                <tr role="row" class="treegrid-<?php echo ($data_type['department']->getId())?> treegrid-parent-root treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($data_type['type']['name'])?></td>
-                                    <td class="org-id no-mutable" hidden><?php echo ($data_type['department']->getId())?></td>
+                                    <td class="org-id" hidden><?php echo ($data_type['department']->getId())?></td>
                                     <td class="current-val"></td>
                                     <td class="min-val"></td>
                                     <td class="no-editable min-val-diff"></td>
@@ -110,24 +121,20 @@
                                 ?>
                                 <tr role="row" class="treegrid-<?php echo ($data_area['area']->getId())?> treegrid-parent-<?php echo ($data_area['area']->getParent())?> treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($data_area['area']->getName())?></td>
-                                    <td class="org-id no-mutable" hidden><?php echo ($data_area['area']->getId())?></td>
+                                    <td class="org-id" hidden><?php echo ($data_area['area']->getId())?></td>
                                     <td class="current-val"></td>
                                     <td class="min-val"></td>
                                     <td class="no-editable min-val-diff"></td>
                                     <td class="max-val"></td>
                                     <td class="no-editable max-val-diff"></td>
-                                    <td class="actions no-mutable">
-                                        <a class="on-editing save-row hidden" href="#"><i class="fa fa-save"></i></a>
-                                        <a class="on-editing cancel-row hidden" href="#"><i class="fa fa-times"></i></a>
-                                        <a class="on-default edit-row" href="#"><i class="fa fa-pencil"></i></a>
-                                    </td>
+                                    <td class="actions no-mutable"></td>
                                 </tr>
                             <?php
                                         foreach($data_area['unidades'] as $unidad){
                             ?>
                                 <tr role="row" class="treegrid-<?php echo ($unidad->getId())?> treegrid-parent-<?php echo ($unidad->getParent())?> black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($unidad->getName())?></td>
-                                    <td class="org-id no-mutable" hidden><?php echo ($unidad->getId())?></td>
+                                    <td class="org-id" hidden><?php echo ($unidad->getId())?></td>
                                     <td class="current-val"></td>
                                     <td class="min-val"></td>
                                     <td class="no-editable min-val-diff"></td>
@@ -193,8 +200,8 @@
     var datos = <?php echo json_encode($data);?>;
     var orgs = <?php echo json_encode($departments);?>;
     var years = <?php echo json_encode($years);?>;
-    for(var i = 0; i<years.length; i++){
-        $('#year').append('<option>' + years[i] + '</option>');
+    for(year in years){
+        $('#year').append('<option>' + years[year] + '</option>');
     }
 
     var config = {
@@ -278,6 +285,11 @@
             var $this = $( this );
             if($this.hasClass('no-mutable'))
                 return;
+            else if($this.hasClass('org-id')){
+                if ($this.find('input').length)
+                    $this.html($this.children(":first").val());
+                return;
+            }
             $this.html('');
         })
     }
@@ -319,18 +331,64 @@
                         $this.html(intToMoney((datos[org][data].target - datos[org][data].value) + ''));
                     }
                 });
-                newClass = "";
-                if(parseInt(datos[org][data].value) < parseInt(datos[org][data].expected))
-                    newClass = "success";
-                else if(parseInt(datos[org][data].value) < parseInt(datos[org][data].target))
-                    newClass = "warning";
-                else
-                    newClass = "danger";
-                row.addClass(newClass);
+                row.addClass(getRowClass(parseInt(datos[org][data].value) , parseInt(datos[org][data].expected), parseInt(datos[org][data].target)));
             }
             if (count==0)
                 restartRow(row);
         }
+        loadRootData();
+    }
+
+    function loadRootData() {
+        var root = $('.treegrid-root');
+        val = getChildrenSumValue('root', 'current-val');
+        min = getChildrenSumValue('root', 'min-val');
+        max = getChildrenSumValue('root', 'max-val');
+        difMinVal = getChildrenSumValue('root', 'min-val-diff');
+        difMaxVal = getChildrenSumValue('root', 'min-val-diff');
+        root.children( 'td' ).each(function() {
+            var $this = $( this );
+            if($this.hasClass('current-val')){
+                $this.html(intToMoney(val));
+            }
+            else if($this.hasClass('min-val')){
+                $this.html(intToMoney(min));
+            }
+            else if($this.hasClass('max-val')){
+                $this.html(intToMoney(max));
+            }
+            else if($this.hasClass('min-val-diff')){
+                $this.html(intToMoney(difMinVal));
+            }
+            else if($this.hasClass('max-val-diff')){
+                $this.html(intToMoney(difMaxVal));
+            }
+        });
+        root.addClass(getRowClass(val, min, max));
+    }
+
+    function getRowClass(val, min, max){
+        if(val < min)
+            return "success";
+        else if(val < max)
+            return "warning";
+        else
+            return "danger";
+    }
+
+    function getChildrenSumValue(id, column) {
+        var sum = 0;
+        $('.treegrid-parent-' + id).each(function () {
+            var $this = $(this);
+            valueRow = $this.children('td.' + column);
+            num = moneyToInt(valueRow.html().trim());
+            if(num.length > 0)
+                num = parseInt(num);
+            else
+                num = 0;
+            sum += num;
+        });
+        return sum;
     }
 
     function ajaxPostBudgetData(org, value, min, max){
@@ -467,11 +525,11 @@
                 this.rowRemove( $row );
                 return;
             }
-            reloadTable();
             $actions = $row.find('td.actions');
             if ( $actions.get(0) ) {
                 this.rowSetActionsDefault( $row );
             }
+            reloadTable();
         },
 
         rowEdit: function( $row ) {

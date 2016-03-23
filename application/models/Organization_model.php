@@ -12,7 +12,6 @@ class Organization_model extends CI_Model {
 	}
 
 	function getAllOrgsIds(){
-		$this->db->where("id !=", 0);
 		$query = $this->db->get($this->title);
 		return ($query->num_rows() <= 0) ? false : $this->buildAllOrganization($query);
 	}

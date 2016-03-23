@@ -84,21 +84,31 @@ class Dashboard_model extends CI_Model{
         return false;
     }
 
-    function getBudgetMeasures($org, $metric){
+    function getBudgetMeasures($org){
         $this->db->select('Value.id, Value.metorg AS org, value, target, expected, year');
         $this->db->from('Value');
         $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
         $this->db->where('MetOrg.org', $org);
-        $this->db->where('MetOrg.metric', $metric);
-        $this->db->group_start();
-            $this->db->where('state', 1);
-            $this->db->or_where('modified', 1);
-        $this->db->group_end();
+        $this->db->where('MetOrg.metric', 1);
+        $this->db->where('state', 1);
         $this->db->order_by('year ASC');
-        $this->db->order_by('state DESC');
         $q = $this->db->get();
         if($q->num_rows() > 0)
             return $q->result();
+        return false;
+    }
+
+    function getBudgetMeasure($org, $year){
+        $this->db->select('Value.id, Value.metorg AS org, value, target, expected, year');
+        $this->db->from('Value');
+        $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
+        $this->db->where('MetOrg.org', $org);
+        $this->db->where('MetOrg.metric', 1);
+        $this->db->where('state', 1);
+        $this->db->where('year', $year);
+        $q = $this->db->get();
+        if($q->num_rows() == 1)
+            return $q->row();
         return false;
     }
 
@@ -110,7 +120,7 @@ class Dashboard_model extends CI_Model{
         }
         $id = $q[0]->id;
         if(count(getGeneric($this, $this->value, ['metorg'=>[$id], 'year'=>[$year]])))
-            return $this->updateData($id, $year, $y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
+            return $this->updateData($id, $year, "",$y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
         return $this->insertData($id, $year, $y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
     }
 
@@ -306,8 +316,14 @@ class Dashboard_model extends CI_Model{
         else{
             $this->db->where('id', $row->id);
             $result = $this->db->update($this->value, $data);
-            $values = $this->getValue(array('metorg'=>[$id_met], 'x_value'=>[$old_x_value], 'id !='=>[$row->id]));
-            $this->updateValuesWith($values, array('value'=>$valueY, 'expected'=>$expected, 'target'=>$target, 'x_value'=>$valueX), 1);
+            if(strcmp($row->x_value, $valueX)!=0) {
+                $values = $this->getValue(array('metorg' => [$id_met], 'x_value' => [$old_x_value], 'id !=' => [$row->id]));
+                $this->updateValuesWith($values, array('x_value' => $valueX), 1);
+            }
+            if(strcmp($row->expected, $expected)!=0 || strcmp($row->target, $target)!=0 || strcmp($row->value, $valueY)!=0){
+                $values = $this->getValue(array('metorg' => [$id_met], 'year'=>[$year],'x_value' => [$old_x_value], 'id !=' => [$row->id]));
+                $this->updateValuesWith($values, array('value' => $valueY, 'expected' => $expected, 'target' => $target, 'x_value' => $valueX), 1);
+            }
         }
         return $result;
     }
