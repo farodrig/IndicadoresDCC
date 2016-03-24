@@ -203,6 +203,7 @@
     for(year in years){
         $('#year').append('<option>' + years[year] + '</option>');
     }
+    years.sort();
 
     var config = {
         '.chosen-select'           : {},

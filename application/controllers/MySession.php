@@ -107,30 +107,54 @@ class MySession extends CI_Controller {
 	}
 
 	public function validar() {
-		$success = $this->session->flashdata('success');
-		if (is_null($success))
-			$success = 2;		
-
 		$permits = $this->session->userdata();
 		if (!$permits['admin'] && !count($permits['encargado_unidad']) && !count($permits['encargado_finanzas'])) {
 			redirect('inicio');
 		}
 		$this->load->model('Dashboard_model');
-
+		$this->load->model('Organization_model');
+		$this->load->model('User_model');
+		$success = $this->session->flashdata('success');
+		if (is_null($success))
+			$success = 2;		
+		
 		$result = array(
 			'success' => $success,
-			'validate'               => validation($permits, $this->Dashboard_model),
-			'role'                   => $permits['title']
+			'validate' => validation($permits, $this->Dashboard_model),
+			'role' => $permits['title']
 		);
 		if ($permits['admin'] == 1) {
-			$result['data'] = $this->Dashboard_model->getAllNonValidatedData(null, null);
+			$orgs = $this->Organization_model->getAllIds();
+			$category = null;
 		} elseif (count($permits['encargado_unidad']) && count($permits['encargado_finanzas'])) {
-			$result['data'] = $this->Dashboard_model->getAllNonValidatedData(array_merge($permits['encargado_unidad'], $permits['encargado_finanzas']), null);
+			$orgs = array_merge($permits['encargado_unidad'], $permits['encargado_finanzas']);
+			$category = null;
 		} elseif (count($permits['encargado_unidad'])) {
-			$result['data'] = $this->Dashboard_model->getAllNonValidatedData($permits['encargado_unidad'], 1);
+			$orgs = $permits['encargado_unidad'];
+			$category = 1;
 		} elseif (count($permits['encargado_finanzas'])) {
-			$result['data'] = $this->Dashboard_model->getAllNonValidatedData($permits['encargado_finanzas'], 2);
+			$orgs = $permits['encargado_finanzas'];
+			$category = 2;
 		}
+		$data = array();
+		foreach ($orgs as $org){
+			$data[$org]['org'] = $this->Organization_model->getByID($org);
+			$metrics = $this->Dashboard_model->getAllMetrics($org, $category);
+			foreach ($metrics as $metric){
+				$data[$org]['metorg'][$metric->metorg]['metric'] = $metric;
+				$data[$org]['metorg'][$metric->metorg]['values'] = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg'=>[$metric->metorg], 'state'=>[0,-1], 'order'=>[['year', 'ASC']]));
+				if (!count($data[$org]['metorg'][$metric->metorg]['values']))
+					unset($data[$org]['metorg'][$metric->metorg]);
+			}
+			if (!count($data[$org]['metorg']))
+				unset($data[$org]);
+		}
+		$users = [];
+		foreach ($this->User_model->getAllUsers() as $user){
+			$users[$user->id] = $user->name;
+		}
+		$result['users'] = $users;
+		$result['data'] = $data;
 		$this->load->view('validar', $result);
 	}
 
@@ -202,6 +226,7 @@ class MySession extends CI_Controller {
 		$this->load->library('form_validation');
 
 		//Validación de inputs
+		$this->form_validation->set_rules('name', 'Nombre Métrica', 'required|alphaSpace');
 		$this->form_validation->set_rules('y_unit', 'Unidad Y', 'required|alphaSpace');
 		$this->form_validation->set_rules('category', 'Categoria', 'required|numeric');
 		$this->form_validation->set_rules('y_name', 'Nombre Y', 'required|alphaSpace');
@@ -231,6 +256,7 @@ class MySession extends CI_Controller {
 		//Creación de métrica
 		$Metricdata = array(
 			'category' => $this->input->post('category'), //esto es 1 si es productividad y 2 si es finanzas. Tienes que agregar esos dos valores en la base de datos en la tabla catergory
+			'name' => $this->input->post('name'),
 			'y_unit' => $y_unit, //-> Busca la Unidad, si no existe la crea y entrega el id, si existe, entrega el id.
 			'y_name' => $this->input->post('y_name'), //Nombre que tendrá la métrica
 			'x_unit' => $x_unit, //-> Busca la Unidad, si no existe la crea y entrega el id, si existe, entrega el id.
@@ -262,6 +288,7 @@ class MySession extends CI_Controller {
 
 		//Modifica valor de la métrica
 		if ($this->input->post('modificar')) {
+			$this->form_validation->set_rules('nameMetric', 'Nombre Métricas', 'required|alphaSpace');
 			$this->form_validation->set_rules('unidad_y', 'Unidad Y', 'required|alphaSpace');
 			$this->form_validation->set_rules('tipo', 'Type', 'required|numeric');
 			$this->form_validation->set_rules('metrica_y', 'Metrica Y', 'required|alphaSpace');
@@ -276,6 +303,7 @@ class MySession extends CI_Controller {
 
 			$data = array(
 				'metorg'     => $this->input->post('id'),
+				'name' => $this->input->post('nameMetric'),
 				'y_name'  => ucwords($this->input->post('metrica_y')),
 				'category'      => $this->input->post('tipo'),
 				'y_unit' => ucwords($this->input->post('unidad_y')),

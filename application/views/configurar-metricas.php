@@ -143,6 +143,12 @@
 										<div class="panel-body">
 											<input type="hidden" name="id_insert" id="id_insert" value="" />
 											<div class="form-group mt-lg">
+												<label class="col-sm-3 control-label">Nombre de la métrica:</label>
+												<div class="col-sm-9">
+													<input type="text" name="name" id='name' class="form-control" required/>
+												</div>
+											</div>
+											<div class="form-group mt-lg">
 												<label class="col-sm-3 control-label">Nombre del Eje Y (Valores):</label>
 													<div class="col-sm-9">
 														<input type="text" name="y_name" id='y_name' class="form-control" required/>
@@ -199,6 +205,7 @@
 									<div class="panel-body">
 										<input type='hidden' name='modificar' id='modificar' value='' />
 										<input type='hidden' name='id' id='id' value='' />
+										<input type='hidden' name='nameMetric' id='nameMetric' value='' />
 										<input type='hidden' name='metrica_y' id='metrica_y' value='' />
 										<input type='hidden' name='unidad_y' id='unidad_y' value='' />
 										<input type='hidden' name='metrica_x' id='metrica_x' value='' />
@@ -265,13 +272,14 @@
 		var org_metrics = Object.keys(table_metrics);
 		var table_head = "<table class='table table-bordered table-striped mb-none text-center' id='config-metricas'>".concat("<thead>",
 									"<tr>",
-											"<th class='text-center'>Medida Eje Y</th>",
-											"<th class='text-center'>Categoria</th>",
-											"<th class='text-center'>Unidad de medida Eje Y</th>",
-											"<th class='text-center'>Medida Eje X</th>",
-											"<th class='text-center'>Unidad de Medida Eje X</th>",
-											"<th class='text-center'>Acciones</th>",
-										"</tr>",
+										"<th class='text-center'>Nombre de la métrica</th>",
+										"<th class='text-center'>Medida Eje Y</th>",
+										"<th class='text-center'>Categoria</th>",
+										"<th class='text-center'>Unidad de medida Eje Y</th>",
+										"<th class='text-center'>Medida Eje X</th>",
+										"<th class='text-center'>Unidad de Medida Eje X</th>",
+										"<th class='text-center'>Acciones</th>",
+									"</tr>",
 									"</thead>",
 									"<tbody>");
 		var values_mod = [];
@@ -309,6 +317,7 @@
 			if(org_metrics.indexOf(id)!=-1){
 				for(key in table_metrics[id]){
 					table = table.concat('<tr class=',table_metrics[id][key]['metorg'],'>',
+					'<td>',table_metrics[id][key]['name'],'</td>',
 					'<td>',table_metrics[id][key]['y_name'],'</td>',
 					'<td>',table_metrics[id][key]['category'],'</td>',
 					'<td>',table_metrics[id][key]['y_unit'],'</td>',
@@ -329,6 +338,7 @@
 
 		//Borra los datos que se encuentren en el modal de inputs
 		function borrarDatos(){
+			$('#name').val("");
 			$('#y_name').val("");
 			$('#y_unit').val("");
 			$('#category').val(1);
@@ -400,11 +410,12 @@
 
 				$('#modificar').val(1);
 				$('#id').val(id_location);
-				$('#metrica_y').val(inputs[0]['value']);
+				$('#nameMetric').val(inputs[0]['value']);
+				$('#metrica_y').val(inputs[1]['value']);
 				$('#tipo').val(select);
-				$('#unidad_y').val(inputs[1]['value']);
-				$('#metrica_x').val(inputs[2]['value']);
-				$('#unidad_x').val(inputs[3]['value']);
+				$('#unidad_y').val(inputs[2]['value']);
+				$('#metrica_x').val(inputs[3]['value']);
+				$('#unidad_x').val(inputs[4]['value']);
 
 				if(inputs[0]['value']=="" || inputs[1]['value']==""){
 					alert("No puede dejar campos en blanco");

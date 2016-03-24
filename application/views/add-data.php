@@ -85,14 +85,29 @@
                                 echo ('<input type="hidden" name="id_location" id="id_location" value='.$id_location.'>');
                                 foreach ($metrics as $metric) { ?>
                                     <section class="toggle active" >
-                                        <label class="text-left"><?php echo (ucwords($metric->y_name));?> por <?php echo (($metric->x_name)? (ucwords($metric->x_name)) : "Año");?></label >
+                                        <label class="text-left"><?php echo (ucwords($metric->name));?></label >
                                         <div id="content<?php echo ($metric->metorg);?>" class="toggle-content" style = "display: block;" >
+                                            <div class="table-responsive">
+                                                <table id="datatable-details" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid">
+                                                    <thead>
+                                                        <tr role="row">
+                                                            <?php if ($metric->x_name){ ?>
+                                                            <th class="text-center"><?php echo (ucwords($metric->x_name));?> [<?php echo (ucwords($metric->x_unit));?>]</th>
+                                                            <?php } ?>
+                                                            <th class="text-center"><?php echo (ucwords($metric->y_name));?> [<?php echo (ucwords($metric->y_unit));?>]</th>
+                                                            <th class="text-center">Esperado</th>
+                                                            <th class="text-center">Meta</th>
+                                                            <th class="text-center">Borrar</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tableContent<?php echo ($metric->metorg);?>">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <?php if($metric->x_name){?>
+                                                <button type="button" onclick="addRow(<?php echo ($metric->metorg);?>)" class="btn btn-success pull-right fa fa-plus" style="margin-bottom: 1%"></button>
+                                            <?php } ?>
                                         </div >
-                                        <?php if($metric->x_name){?>
-                                            <button type="button" onclick="addRow(<?php echo ($metric->metorg);?>)" class="btn btn-success pull-right fa fa-plus" style="margin-bottom: 1%"></button>
-                                        <?php
-                                        }
-                                        ?>
                                     </section >
                                 <?php } ?>
                             </div>
@@ -179,54 +194,40 @@
 
     function deleteRow(a) {
         var $this = $(a);
-        row = $this.closest('div.row');
+        row = $this.closest('tr');
         row.remove();
     }
 
     function rowWithData(metorg, valId, valueY, valueX, target, expected, hasX, eliminable){
         delButton = '';
         del = "";
-        xClass = "";
+        tdX = "";
         if(eliminable) {
-            delButton = '<div class="col-md-1 text-center"> \
-                        <label class="control-label">Quitar</label> \
-                        <div><a class="btn cancel-row row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a></div> \
-                    </div>';
+            delButton = '<a class="btn cancel-row row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a>';
             del = 'hidden';
         }
-        if(!hasX)
-            xClass = "hidden";
-        row = '<div class="row mb-md form-group"> \
+        else{
+            delButton = '<input type="checkbox" value=' + valId + ' name="delete[]" class="form-control">';
+        }
+        if(hasX)
+            tdX = '<td><input type="text" name="valueX[]" value="' + valueX + '" class="form-control"></td>';
+        else
+            tdX = '<input type="hidden" name="valueX[]" value="" class="form-control">';
+        row = '<tr> \
                     <input type="hidden" name="valId[]" value="' + valId + '">    \
-                    <input type="hidden" name="metorg[]" value="' + metorg + '">    \
-                    <div class="col-md-2">\
-                        <label class="control-label">Valor Y: </label> \
-                        <input type="text" name="valueY[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
-                    </div>\
-                    <div class="col-md-2 ' + xClass + '">\
-                        <label class="control-label">Valor X: </label>\
-                        <input type="text" name="valueX[]" value="' + valueX + '" class="form-control"> \
-                    </div> \
-                    <div class="col-md-2"> \
-                        <label class="control-label">Esperado</label> \
-                        <input type="text" name="expected[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
-                    </div> \
-                    <div class="col-md-2"> \
-                        <label class="control-label">Meta: </label> \
-                        <input type="text" name="target[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"> \
-                    </div> \
-                    <div class="col-md-1 text-center ' + del + '"> \
-                        <label class="control-label">Borrar</label> \
-                        <input type="checkbox" value=' + valId + ' name="delete[]" class="form-control"> \
-                    </div>';
-        row += delButton + '</div>';
+                    <input type="hidden" name="metorg[]" value="' + metorg + '">' + tdX + ' \
+                    <td><input type="text" name="valueY[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>\
+                    <td><input type="text" name="expected[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td> \
+                    <td><input type="text" name="target[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></div> \
+                    <td class="text-center">' + delButton + '</td> \
+               </tr>';
         return row;
     }
 
     function loadMetrics(){
         for(var i in metrics) {
             var metorg = metrics[i].metorg;
-            $('#content' + metorg).html("");
+            $('#tableContent' + metorg).html("");
             var cont = 0;
             for (var year in jArray[metorg]) {
                 if (year != $('#year').val())
@@ -234,12 +235,12 @@
                 cont++;
                 for (var xVal in jArray[metorg][year]) {
                     var row = rowWithData(metorg, jArray[metorg][year][xVal]['id'], jArray[metorg][year][xVal]['valueY'], jArray[metorg][year][xVal]['valueX'], jArray[metorg][year][xVal]['target'], jArray[metorg][year][xVal]['expected'], metrics[i].x_name,false);
-                    $('#content' + metorg).append(row);
+                    $('#tableContent' + metorg).append(row);
                 }
             }
             if (cont==0){
                 var row = rowWithData(metorg, "", "", "", "", "", metrics[i].x_name, false);
-                $('#content' + metorg).append(row);
+                $('#tableContent' + metorg).append(row);
             }
         }
     }
@@ -254,7 +255,7 @@
 
         }
         row = rowWithData(metorg, "", "", "", "", "", hasX, true);
-        $('#content' + metorg).append(row);
+        $('#tableContent' + metorg).append(row);
     }
 
     function selectYear(){

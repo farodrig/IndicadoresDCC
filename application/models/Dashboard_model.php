@@ -125,7 +125,7 @@ class Dashboard_model extends CI_Model{
     }
 
     function getAllMetrics($id, $category){
-        $this->db->select('MetOrg.id as metorg, Metric.y_name, Metric.x_name, X.name as x_unit, Y.name as y_unit');
+        $this->db->select('MetOrg.id as metorg, Metric.y_name, Metric.x_name, X.name as x_unit, Y.name as y_unit, Metric.name, Metric.category');
         $this->db->from('Metric');
         $this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
         $this->db->join('Unit as X', 'X.id = Metric.x_unit');
@@ -133,7 +133,7 @@ class Dashboard_model extends CI_Model{
         $this->db->join('Organization', 'Organization.id = MetOrg.org');
         $this->db->where('Organization.id', $id);
 
-        if($category!=0)
+        if(!is_null($category) && $category!=0)
             $this->db->where('Metric.category', $category);
 
         $q = $this->db->get();
@@ -414,7 +414,7 @@ class Dashboard_model extends CI_Model{
 
     function getAllNonValidatedData($orgs, $type){
         $orgs = (is_null($orgs)) ? [] : $orgs;
-        $this->db->select('Value.id as data_id, Value.state AS s, Value.value, Value.x_value, Value.target, Value.expected, Value.proposed_value as p_v, Value.proposed_target as p_t, Value.proposed_expected as p_e, Value.proposed_x_value as p_x, Value.modified, Value.year');
+        $this->db->select('Value.id as data_id, Value.metorg, Value.state AS s, Value.value, Value.x_value, Value.target, Value.expected, Value.proposed_value as p_v, Value.proposed_target as p_t, Value.proposed_expected as p_e, Value.proposed_x_value as p_x, Value.modified, Value.year');
         $this->db->select('User.name, Organization.name as org_name, Metric.y_name, Metric.x_name, Y.name as type_y, X.name as type_x, Category.name as category');
         $this->db->from('Value');
         $this->db->join('User', 'User.id = Value.updater');

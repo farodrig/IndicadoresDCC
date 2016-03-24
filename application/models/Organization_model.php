@@ -16,7 +16,6 @@ class Organization_model extends CI_Model {
 		return ($query->num_rows() <= 0) ? false : $this->buildAllOrganization($query);
 	}
 
-
 	/*
 	Entrega las raices del arbol de organizaciones. El DCC tipicamente se divide en 2 arboles, Operación y Soporte.
 	Si no se obtienen estas dos raices entrega false, a modo de error.
@@ -195,6 +194,15 @@ class Organization_model extends CI_Model {
 		$this->db->where(array('name' => $name));
 		$query = $this->db->get($this->title);
 		return ($query->num_rows() != 1) ? false : $this->buildOrganization($query->row());
+	}
+	
+	function getAllIds(){
+		$orgs = getGeneric($this, $this->title, array());
+		$result = array();
+		foreach ($orgs as $org){
+			$result[] = $org->id;
+		}
+		return $result;
 	}
 
 	/*

@@ -37,6 +37,7 @@ class Metrics_model extends CI_Model{
 
 		$datos = array(
 			'category'=>$data['category'],
+			'name' => $data['name'],
 			'y_unit'=>$id_unit_y,
 			'y_name'=> $data['y_name'],
 			'x_unit'=>$id_unit_x,
@@ -47,7 +48,7 @@ class Metrics_model extends CI_Model{
 	}
 
 	function getAllMetrics(){
-		$this->db->select('MetOrg.org, MetOrg.id as metorg, Metric.y_name, Metric.x_name, Category.name as category, Unit.name as unit, XUnit.name as x_unit');
+		$this->db->select('MetOrg.org, MetOrg.id as metorg, Metric.name, Metric.y_name, Metric.x_name, Category.name as category, Unit.name as unit, XUnit.name as x_unit');
 		$this->db->from('Metric');
 		$this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
 		$this->db->join('Category', 'Category.id = Metric.category');
@@ -59,6 +60,7 @@ class Metrics_model extends CI_Model{
 			foreach ($q->result() as $row){
 				$data[$row->org][]= array(
 					'metorg' => $row->metorg,
+					'name' => ucwords($row->name),
 					'y_name' => ucwords($row->y_name),
 					'category' => ucwords($row->category),
 					'y_unit' => ucwords($row->unit),
