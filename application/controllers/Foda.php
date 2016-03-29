@@ -5,6 +5,7 @@ class Foda extends CI_Controller {
         parent::__construct();
         $this->load->model('Dashboard_model');
         $this->load->model('Foda_model');
+        $this->load->model('Strategy_model');
         $this->load->model('Organization_model');
         $this->load->library('form_validation');
         $this->load->library('session');
@@ -17,6 +18,8 @@ class Foda extends CI_Controller {
         if (!$permits['admin']) {
             redirect('inicio');
         }
+        $this->load->model('User_model');
+        $orgs = null;
 
         $fodas = $this->Foda_model->getFoda(['order'=>[['org', 'ASC'], ['year', 'ASC']]]);
         $fodasByOrg = array();
@@ -30,11 +33,65 @@ class Foda extends CI_Controller {
             }
             $data = array('foda' => [$foda->id], 'order'=>[['type', 'ASC'], ['priority', 'ASC']]);
             $items[$foda->org][$foda->year] = $this->Foda_model->getItem($data);
+            foreach ($items[$foda->org][$foda->year] as $aux_item){
+                $aux_item->goals = [];
+                foreach ($this->Strategy_model->getGoalItem(array('item'=>[$aux_item->id])) as $aux_goal){
+                    $aux_item->goals[] = $aux_goal->goal;
+                }
+            }
             $years[] = $foda->year;
             $fodasByOrg[$index][$foda->year] = $foda;
         }
+        $status = [];
+        $aux_status = $this->Strategy_model->getCompletitionStatus(array());
+        foreach ($aux_status as $stat){
+            $status[$stat->id] = $stat->status;
+        }
+        $users = [];
+        $aux_users = $this->User_model->getAllUsers();
+        foreach ($aux_users as $user){
+            $users[$user->id] = $user;
+        }
+        $strategies = [];
+        $goals = [];
+        $actions = [];
+        $aux_stra = $this->Strategy_model->getStrategicPlan(array());
+        foreach ($aux_stra as $strategy){
+            $strategy->status = $status[$strategy->status];
+            $strategy->deadline = date("d-m-Y", strtotime($strategy->deadline));
+            $collaborators = $this->Strategy_model->getAllCollaborators($strategy->id);
+            $strategies[$strategy->org][$strategy->year]['collaborators'] = [];
+            foreach ($collaborators as $collaborator){
+                $strategies[$strategy->org][$strategy->year]['collaborators'][$collaborator->user]['name'] = $users[$collaborator->user]->name;
+                $strategies[$strategy->org][$strategy->year]['collaborators'][$collaborator->user]['description'] = $collaborator->description;
+            }
+            $strategies[$strategy->org][$strategy->year]['strategy'] = $strategy;
+            $aux_goals = $this->Strategy_model->getGoal(array('strategy'=>[$strategy->id]));
+            foreach ($aux_goals as $goal){
+                $goal->status = $status[$goal->status];
+                $goal->deadline = date("d-m-Y", strtotime($goal->deadline ));
+                $goal->timestamp = date("d-m-Y H:i:s", strtotime($goal->deadline ));
+                $goals[$strategy->org][$strategy->year][$goal->id] = $goal;
+                $goals[$strategy->org][$strategy->year][$goal->id]->items = [];
+                foreach ($this->Strategy_model->getGoalItem(array('goal'=>[$goal->id])) as $aux_item){
+                    $goals[$strategy->org][$strategy->year][$goal->id]->items[] = $aux_item->item;
+                }
+                $strategies[$strategy->org][$strategy->year]['goals'][$goal->id] = $goal;
+                $aux_actions = $this->Strategy_model->getAction(array('goal'=>[$goal->id]));
+                $actions[$goal->id] = [];
+                foreach ($aux_actions as $action){
+                    $action->status = $status[$action->status];
+                    $actions[$goal->id][$action->id] = $action;
+                }
+            }
+        }
         $this->load->view('foda',
             array('title'  => 'Visualización de FODAs',
+                'strategies'  => $strategies,
+                'goals'       => $goals,
+                'actions'     => $actions,
+                'users'       => $users,
+                'status'      => $status,
                 'role'        => $permits['title'],
                 'fodas'       => $fodasByOrg,
                 'items'       => $items,
@@ -43,7 +100,7 @@ class Foda extends CI_Controller {
                 'types'       => $this->Foda_model->getAllType(),
                 'success'     => $this->session->flashdata('success') == null ? 2 : $this->session->flashdata('success'),
                 'validate'    => validation($permits, $this->Dashboard_model),
-                'departments' => getAllOrgsByDpto($this->Organization_model)//Notar que funcion esta en helpers
+                'departments' => $this->Organization_model->getTree($orgs)//Notar que funcion esta en helpers
             )
         );
     }

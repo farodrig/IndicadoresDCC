@@ -13,12 +13,7 @@
             font-size: 1.5em;
         }
 
-        .ticket{
-            color: lightgrey;
-            text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-        }
-
-        #fodaForm{
+        .margin-top{
             margin-top: 2%;
         }
 
@@ -26,13 +21,21 @@
             font-size: 1.2em;
         }
 
-        .description{
-            margin-top: 10px;
-            margin-bottom: 10px;
+        .no-validated{
+            color: red;
+        }
+
+        .validated{
+            color: green;
         }
 
         .table > tbody > tr > td {
             vertical-align: middle;
+        }
+
+        .tooltip.top .tooltip-inner {
+            background-color:white;
+            color: darkgrey;
         }
     </style>
 
@@ -40,9 +43,13 @@
         var years = <?php echo json_encode($years);?>;
         var fodas = <?php echo json_encode($fodas); ?>;
         var priorities = <?php echo json_encode($priorities); ?>;
+        var strategies = <?php echo json_encode($strategies); ?>;
+        var goals = <?php echo json_encode($goals); ?>;
+        var actions = <?php echo json_encode($actions); ?>;
         var types = <?php echo json_encode($types); ?>;
-        var greenTicket = -1;
         var items = <?php echo json_encode($items); ?>;
+        var users = <?php echo json_encode($users); ?>;
+        var estados = <?php echo json_encode($status); ?>;
     </script>
 </head>
 <body>
@@ -57,8 +64,7 @@
         <?php
         $navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
             ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
-            ['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart'],
-            ['url'=>'foda/config', 'name'=>'Configurar FODAs', 'icon'=>'fa fa-pencil']];
+            ['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
         include 'partials/navigation.php';
         ?>
         <!-- end: sidebar -->
@@ -85,125 +91,451 @@
 
             <!-- start: page -->
             <section class="panel panel-transparent">
-                <div class="panel-body">
-                    <div class="form-group col-md-offset-4">
-                        <div class="col-md-2 text-center">
-                            <label class="control-label title">Año:</label>
+                <div class="form-group">
+                    <div class="col-md-2 text-center">
+                        <label class="control-label title">Año:</label>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="year" name="year" data-placeholder="Seleccione año..." class="chosen-select" style="width:200px;" onchange ="validate_year('year')">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="col-md-6">
+                            <label class="control-label title">Organización:</label>
                         </div>
-                        <div class="col-md-3">
-                            <select id="year" name="year" data-placeholder="Seleccione año..." class="chosen-select" style="width:200px;" onchange ="validate_year('year')">
+                        <div class="col-md-6">
+                            <select id="org" name="org" data-placeholder="Seleccione area o sub-area..." class="chosen-select" style="width:200px;">
                                 <option value=""></option>
+                                <?php
+                                foreach ($departments as $dpto){
+                                ?>
+                                <optgroup label="<?php echo(ucwords($dpto['type']['name'])); ?>">
+                                    <?php
+                                    foreach ($dpto['areas'] as $area) {
+                                        ?>
+                                        <option value="<?php echo($area['area']->getId())?>"><?php echo(ucwords($area['area']->getName()));?></option>
+                                        <?php
+                                        foreach ($area['unidades'] as $unidad) {
+                                            ?>
+                                            <option value="<?php echo($unidad->getId())?>" style="padding-left:30px"><?php echo(ucwords($unidad->getName()));?></option>
+                                        <?php
+                                        }
+                                    }?>
+                                </optgroup>
+                                <?php } ?>
                             </select>
                         </div>
                     </div>
-                    <?php
-                    $c = 0;
-                    foreach ($departments as $dpto){
-                        $c++;
-                        $counter = 0;
-                        $kind = $dpto['type']['name'];
-                        $color = $dpto['type']['color'];
-                        if($kind=="Operación"){
-                            $color_button = "btn-warning";
-                        }
-                        else{
-                            $color_button = "btn-success";
-                        }
-                        ?>
-                        <section class="panel col-md-6">
-                            <header class="panel panel-heading" style="background-color: transparent">
+                </div>
+                <div class="panel-body">
+                    <div class="panel-body row">
+                        <div class="col-md-5 foda">
+                            <h4 class="text-center">FODA
+                                <small id="foda_valid"></small>
+                                <a class="btn editFoda hidden" data-toggle="modal" data-target="#editFodaModal" ><i class="fa fa-pencil"></i></a>
+                                <div class="btn-group pull-right">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Acciones <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="btn" data-toggle="modal" data-target="#editItemModal" data-id="-1" data-title="Añadir Item al FODA">Añadir Item</a></li>
+                                        <li><a href="#">Enlazar Item-Objetivo</a></li>
+                                        <li><a href="#">Desenlazar Item-Objetivo</a></li>
+                                    </ul>
+                                </div>
+                            </h4>
+                            <div class="form-group">
+                                <label class="col-sm-2">Comentario:</label>
+                                <label class="col-sm-10 text-left" id="foda_comment"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="col-md-6 strategy">
+                            <h4 class="text-center">Plan Estratégico
+                                <small id="strategy_valid"></small>
+                                <a class="btn editStrategy hidden" data-toggle="modal" data-target="#editStrategyModal" ><i class="fa fa-pencil"></i></a>
+                                <div class="btn-group pull-right">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Acciones <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="btn" data-toggle="modal" data-target="#editGoalModal" data-id="-1" data-title="Añadir Objetivo">Añadir Objetivo</a></li>
+                                        <li><a href="#">Editar Colaboradores</a></li>
+                                        <li><a href="#">Eliminar Colaborador</a></li>
+                                        <li><a href="#">Enlazar Objetivo-Item</a></li>
+                                        <li><a href="#">Desenlazar Objetivo-Item</a></li>
+                                    </ul>
+                                </div>
+                            </h4>
+                            <div class="strategy-data">
                                 <div class="row">
-                                    <div class="btn-block btn-primary panel-body">
-                                        <h2 class="panel-title">
-                                            <div class="btn-group-horizontal text-center">
-                                                <label style="color:white" class="text-center"><?php echo(ucwords($kind));?></label>
-                                            </div>
-                                        </h2>
+                                    <p id="strategy_descrip"></p>
+                                </div>
+                                <div class="row margin-top">
+                                    <label class="col-sm-2">Comentario:</label>
+                                    <div class="col-sm-10 row">
+                                        <p id="strategy_comment"></p>
                                     </div>
                                 </div>
-                            </header>
-
-                            <?php
-                            foreach ($dpto['areas'] as $area){
-                                if ($counter % 2 == 0 && $counter!=0)
-                                    echo ('</div>');
-                                if ($counter % 2 == 0)
-                                    echo ('<div class ="row">');
-                                ?>
-                                <div class="col-md-6">
-                                    <section class="panel panel-info">
-                                        <header class="btn btn-block panel-heading" style="background-color: <?php echo($color);?>" onclick="changeColor(<?php echo($area['area']->getId())?>)">
-                                            <h2 class="<?php echo($color_button)?> panel-title text-center">
-                                                <div class="btn-group-horizontal">
-                                                    <label><?php echo(ucwords($area['area']->getName()));?></label>
-                                                    <i class="ticket pull-right glyphicon glyphicon-ok" id="<?php echo('ticket'.$area['area']->getId())?>"></i>
-                                                </div>
-                                            </h2>
-                                        </header>
-                                        <div class="panel-body">
-                                            <div class="btn-group-vertical col-md-12">
-                                                <?php
-                                                foreach ($area['unidades'] as $unidad){
-                                                    ?>
-                                                    <div class="btn btn-default text-center" onclick="changeColor(<?php echo($unidad->getId())?>)">
-                                                        <label><?php echo(ucwords($unidad->getName()));?></label>
-                                                        <i class="ticket pull-right glyphicon glyphicon-ok" id="<?php echo('ticket'.$unidad->getId())?>"></i>
-                                                    </div>
-                                                    <?php
-                                                }
-                                                ?>
-                                            </div>
-                                        </div>
-                                    </section>
+                                <div class="row margin-top">
+                                    <div class="col-md-6">
+                                        <label class="col-sm-4">Fecha de Término:</label>
+                                        <label class="col-sm-8 text-left" id="strategy_deadline"></label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="col-sm-4">Estado Actual:</label>
+                                        <label class="col-sm-8 text-left" id="strategy_status"></label>
+                                    </div>
                                 </div>
-                                <?php
-                                $counter++;
-                                if($counter==count($dpto['areas'])){
-                                    echo ('</div>');
-                                }
-                            }
-                            ?>
-
-                        </section>
-                        <?php
-                    }
-                    ?>
+                                <div class="row margin-top">
+                                    <label class="col-sm-2">Colaboradores:</label>
+                                    <label class="col-sm-10 text-left" id="strategy_collaborators"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body row">
+                        <div id ="itemData" class="col-md-5" style="display: none;">
+                            <button id="expand-collapse-items" class="expanded pull-right" type="button">Expandir Todos</button>
+                            <div id="itemSection" class="panel-body col-md-12">
+                                <div id="itemTable_wrapper" class="dataTables_wrapper no-footer">
+                                    <div class="table-responsive">
+                                        <table id="itemTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
+                                            <thead>
+                                            <tr role="row">
+                                                <th class="sorting_disabled"></th>
+                                                <th class="sorting">ID</th>
+                                                <th class="sorting" aria-controls="itemTable">Item</th>
+                                                <th class="sorting" aria-controls="itemTable">Tipo</th>
+                                                <th class="sorting" aria-controls="itemTable">Prioridad</th>
+                                                <th class="sorting_disabled" aria-controls="itemTable">Editar</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="itemTableContent">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id ="goalData" class="col-md-7" style="display: none;">
+                            <button id="expand-collapse-goals" class="expanded pull-right" type="button">Expandir Todos</button>
+                            <div id="goalSection" class="panel-body col-md-12">
+                                <div id="goalTable_wrapper" class="dataTables_wrapper no-footer">
+                                    <div class="table-responsive">
+                                        <table id="goalTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
+                                            <thead>
+                                                <tr role="row">
+                                                    <th class="sorting_disabled"></th>
+                                                    <th class="sorting">ID</th>
+                                                    <th class="sorting" aria-controls="goalTable">Objetivo</th>
+                                                    <th class="sorting" aria-controls="goalTable">Encargado</th>
+                                                    <th class="sorting" aria-controls="goalTable">Término</th>
+                                                    <th class="sorting" aria-controls="goalTable">Estado</th>
+                                                    <th class="sorting" aria-controls="goalTable">Validado</th>
+                                                    <th class="sorting_disabled" aria-controls="goalTable">Editar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="goalTableContent">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
-            <form id="fodaForm" class="form-horizontal mb-lg " action="<?php echo base_url();?>foda/add" method="post">
-                <input type="hidden" id="org" name="org">
-                <input type="hidden" id ="fodaYear" name="year">
-                <div class="form-group">
-                    <label for="fodaComment" class="col-sm-2 control-label">Comentario:</label>
-                    <div class="col-sm-4">
-                        <textarea class="form-control" id="fodaComment" name="fodaComment" rows="5"></textarea>
-                    </div>
-                </div>
-            </form>
-            <div id="itemSection" class="panel-body">
-                <div id="datatable-details_wrapper" class="dataTables_wrapper no-footer">
-                    <div class="table-responsive">
-                        <table id="datatable-details" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="datatable-details_info">
-                            <thead>
-                                <tr role="row">
-                                    <th class="sorting_disabled"></th>
-                                    <th class="sorting" aria-controls="datatable-details">Item</th>
-                                    <th class="sorting" aria-controls="datatable-details">Tipo</th>
-                                    <th class="sorting" aria-controls="datatable-details">Prioridad</th>
-                                    <th class="sorting_disabled" aria-controls="datatable-details">Editar</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableContent">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <button class="btn btn-primary pull-right" id="addToTable"><i class="fa fa-plus"></i></button>
-            </div>
         </section>
-        <div><button class="col-md-1 col-md-offset-10 btn btn-success" type="submit" form="fodaForm" id="submit">Guardar</button></div>
     </div>
 </section>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="editFodaModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Editar FODA</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" name="year">
+                    <input type="hidden" name="org">
+                    <div class="form-group">
+                        <label for="fodaComment" class="col-sm-2 control-label">Comentario:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="fodaComment" name="comment"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="editStrategyModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Editar Plan Estratégico</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" name="year">
+                    <input type="hidden" name="org">
+                    <div class="form-group">
+                        <label for="strategyStatus" class="col-sm-2 control-label">Estado Actual:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="strategyStatus" name="status">
+                                <?php
+                                foreach ($status as $id=>$name){
+                                    echo('<option value="'.$id.'">'.$name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="strategyDescription" class="col-sm-2 control-label">Descripción:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="strategyDescription" name="description"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="strategyComment" class="col-sm-2 control-label">Comentario:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="strategyComment" name="comment"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="strategyDeadline" class="col-sm-2 control-label">Fecha límite:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control datepicker" id="strategyDeadline" data-provide="datepicker" name="deadline">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="strategyCollaborators" class="col-sm-3 control-label">Colaboradores:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control chosen-select" multiple="" id="strategyCollaborators" name="collaborators" data-placeholder="Añada a los colaboradores del Plan Estratégico">
+                                <option value=""></option>
+                                <?php
+                                foreach ($users as $id => $user){
+                                    echo('<option value="'.$id.'">'.$user->name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="editItemModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="itemModalTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" name="year">
+                    <input type="hidden" name="org">
+                    <input type="hidden" name="item">
+                    <div class="form-group">
+                        <label for="itemTitle" class="col-sm-2 control-label">Título:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="itemTitle" name="tittle">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemType" class="col-sm-2 control-label">Tipo de Item:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="itemType" name="type">
+                                <?php
+                                foreach ($types as $type){
+                                    echo('<option value="'.$type->id.'">'.$type->name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemPriority" class="col-sm-2 control-label">Prioridad:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="itemPriority" name="priority">
+                                <?php
+                                foreach ($priorities as $priority){
+                                    echo('<option value="'.$priority->id.'">'.$priority->name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemDescription" class="col-sm-2 control-label">Descripción</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="itemDescription" name="description"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="editGoalModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="goalModalTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" name="year">
+                    <input type="hidden" name="org">
+                    <input type="hidden" name="goal">
+                    <div class="form-group">
+                        <label for="goalTitle" class="col-sm-2 control-label">Título:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="goalTitle" name="tittle">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalStatus" class="col-sm-2 control-label">Estado Actual:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="goalStatus" name="status">
+                                <?php
+                                foreach ($status as $id=>$name){
+                                    echo('<option value="'.$id.'">'.$name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalUser" class="col-sm-2 control-label">Encargado:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control chosen-select" id="goalUser" name="goalUser" data-placeholder="Añada al encagado del objetivo">
+                                <option value=""></option>
+                                <?php
+                                foreach ($users as $id => $user){
+                                    echo('<option value="'.$id.'">'.$user->name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalDescription" class="col-sm-2 control-label">Descripción:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="goalDescription" name="description"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalComment" class="col-sm-2 control-label">Comentario:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="goalComment" name="comment"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalDeadline" class="col-sm-2 control-label">Fecha límite:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control datepicker" id="goalDeadline" data-provide="datepicker" name="deadline">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="editActionModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="actionModalTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" name="year">
+                    <input type="hidden" name="org">
+                    <input type="hidden" name="goal">
+                    <input type="hidden" name="action">
+                    <div class="form-group">
+                        <label for="actionTitle" class="col-sm-2 control-label">Título:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="actionTitle" name="tittle">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionStatus" class="col-sm-2 control-label">Estado Actual:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="actionStatus" name="status">
+                                <?php
+                                foreach ($status as $id=>$name){
+                                    echo('<option value="'.$id.'">'.$name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionUser" class="col-sm-2 control-label">Encargado:</label>
+                        <div class="col-sm-10">
+                            <select class="form-control chosen-select" id="actionUser" name="actionUser" data-placeholder="Añada al encagado de la acción">
+                                <option value=""></option>
+                                <?php
+                                foreach ($users as $id => $user){
+                                    echo('<option value="'.$id.'">'.$user->name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionCurrent" class="col-sm-2 control-label">Resultado Actual:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="actionCurrent" name="current"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="actionExpected" class="col-sm-2 control-label">Resultado Esperado:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="actionExpected" name="expected"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include 'partials/footer.php'; ?>
 
@@ -213,126 +545,284 @@
 <script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
 <script type="text/javascript">
 
-    //ADD To Table
-    $('#addToTable').on('click', function (){
-        var actions = '<td class="actions"> \
-                            <a class="btn on-editing cancel-row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a> \
-                        </td>';
-        html = '<tr role="row">' +
-            '<td class="text-center checkDetails"><i data-toggle class="fa fa-minus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>' +
-            '<td class="itemTitle"><input type="hidden" name="ids[]" form="fodaForm"><input class="form-control" type="text" name="titles[]" form="fodaForm"></td>' +
-            '<td class="itemType"><select class="form-control" name="types[]" form="fodaForm">'+optionHTML(types)+'</select></td>' +
-            '<td class="itemPriority"><select class="form-control" name="priorities[]" form="fodaForm">'+optionHTML(priorities)+'</select></td>' +
-            actions + '</tr>';
-        html = html +
-            '<tr role="row">' +
-            '<td class="details" colspan="6">Descripción: <textarea class="form-control" rows="3" name="descriptions[]" form="fodaForm"></textarea></td>'
-                '</tr>';
-        $('#tableContent').append(html);
+    $(document).popover({
+        selector: '[data-toggle=popover]',
+        trigger: 'focus'
+    });
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $("#strategyCollaborators").chosen({ width: '100%' });
+    $("#goalUser").chosen({ width: '100%' });
+    $("#actionUser").chosen({ width: '100%' });
+    $(".datepicker").datepicker({
+        format: "dd-mm-yyyy",
+        language: "es",
     });
 
-    function deleteRow(element){
-        var $this = $(element);
-        var row = $this.closest('tr');
-        row.next().remove();
-        row.remove();
-    }
-
-    function cancelRow(element){
-        var $this = $(element);
-        $this.addClass('hidden');
-        $this.parent().find('.edit-row').removeClass('hidden');
-        row = $this.closest('tr');
-        item = getItemById(row.attr('id').substring(4));
-        row.find('td').each(function(){
-            cell = $(this);
-            value = cell.html();
-            if(cell.hasClass('checkDetails'))
-                cell.html('<i onclick="showHideDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i>');
-            else if(cell.hasClass('itemTitle'))
-                cell.html(item.title);
-            else if(cell.hasClass('itemType'))
-                cell.html(types[item.type-1].name);
-            else if(cell.hasClass('itemPriority'))
-                cell.html(priorities[item.priority-1].name);
-        });
-        row.next().remove();
-    }
-
-    function editRow(element){
-        var $this = $(element);
-        $this.addClass('hidden');
-        var row = $this.closest('tr');
-        $this.parent().find('.cancel-row').removeClass('hidden');
-        item = getItemById(row.attr('id').substring(4));
-        row.find('td').each(function(){
-            cell = $(this);
-            value = cell.html();
-            if(cell.hasClass('checkDetails'))
-                cell.html('<i data-toggle class="fa fa-minus-square-o text-primary h5 m-none" style="cursor: pointer;"></i>');
-            else if(cell.hasClass('itemTitle'))
-                cell.html('<input type="hidden" name="ids[]" value="' + item.id + '" form="fodaForm"><input class="form-control" type="text" value="' + item.title + '" name="titles[]" form="fodaForm">');
-            else if(cell.hasClass('itemType'))
-                cell.html('<select class="form-control" name="types[]" form="fodaForm">'+optionHTML(types, value)+'</select>');
-            else if(cell.hasClass('itemPriority'))
-                cell.html('<select class="form-control" name="priorities[]" form="fodaForm">'+optionHTML(priorities, value)+'</select>');
-        });
-        row.after('<tr role="row"><td class="details" colspan="6">Descripción: <textarea class="form-control" rows="3" name="descriptions[]" form="fodaForm">' + item.description + '</textarea></td></tr>');
-    }
-
-    function optionHTML(optionArray, selected){
-        var optHTML = "";
-        for(var i = 0; i<optionArray.length; i++){
-            if (selected==optionArray[i].id || selected==optionArray[i].name)
-                optHTML += '<option value="'+ optionArray[i].id +'" selected>' + optionArray[i].name + '</option>';
-            else
-                optHTML += '<option value="'+ optionArray[i].id +'">' + optionArray[i].name + '</option>';
+    $('#editFodaModal').on('show.bs.modal', function (e) {
+        year = $('#year').val();
+        org = $('#org').val();
+        if (fodas[org] === undefined || fodas[org][year] === undefined){
+            comment = "";
         }
-        return optHTML;
+        else {
+            comment = fodas[org][year].comment;
+        }
+        $('#fodaComment').html(comment);
+    });
+
+    $('#editStrategyModal').on('show.bs.modal', function (e) {
+        year = $('#year').val();
+        org = $('#org').val();
+        if (strategies[org] === undefined || strategies[org][year] === undefined){
+            descrip = "";
+            comment = "";
+            status = "";
+            collaborators = [];
+        }
+        else {
+            strategy = strategies[org][year]['strategy'];
+            descrip = strategy.description;
+            comment = strategy.comment;
+            status = strategy.status;
+            collaborators = strategies[org][year]['collaborators'];
+        }
+        for(id in users){
+            option = $('#strategyCollaborators option[value="' + id + '"]');
+            if(collaborators[id]=== undefined)
+                option.prop('selected', false);
+            else
+                option.prop('selected', true);
+        }
+        $('#strategyCollaborators').trigger('chosen:updated');
+        $('#strategyStatus option:contains("' + status + '")').prop('selected', true);
+        $('#strategyDescription').html(descrip);
+        $('#strategyComment').html(comment);
+    });
+
+    $('#editStrategyModal').on('shown.bs.modal', function (e) {
+        year = $('#year').val();
+        org = $('#org').val();
+        if (fodas[org] === undefined || fodas[org][year] === undefined){
+            $('#strategyDeadline').datepicker('update', new Date());
+            return;
+        }
+        deadline = strategies[org][year]['strategy'].deadline.split('-');
+        $('#strategyDeadline').datepicker('update', new Date(deadline[2], deadline[1] - 1, deadline[0]));
+    });
+
+    $('#editGoalModal').on('show.bs.modal', function (e) {
+        year = $('#year').val();
+        org = $('#org').val();
+        id = $(e.relatedTarget).data('id');
+        titulo = $(e.relatedTarget).data('title');
+        $('#goalModalTitle').html(titulo);
+        $('input[name=goal]').val(id);
+        if (goals[org] === undefined || goals[org][year] === undefined || goals[org][year][id] === undefined){
+            descrip = "";
+            comment = "";
+            status = "";
+            user = "";
+            title="";
+        }
+        else {
+            goal = goals[org][year][id];
+            descrip = goal.description;
+            comment = goal.comment;
+            status = goal.status;
+            user = goal.userInCharge;
+            title = goal.title;
+        }
+        $('#goalUser option[value="' + user + '"]').prop('selected', true);
+        $('#goalUser').trigger('chosen:updated');
+        $('#goalStatus option:contains("' + status + '")').prop('selected', true);
+        $('#goalTitle').val(title);
+        $('#goalDescription').html(descrip);
+        $('#goalComment').html(comment);
+    });
+
+    $('#editGoalModal').on('shown.bs.modal', function (e) {
+        year = $('#year').val();
+        org = $('#org').val();
+        id = $(e.relatedTarget).data('id');
+        if (goals[org] === undefined || goals[org][year] === undefined || goals[org][year][id] === undefined){
+            $('#goalDeadline').datepicker('update', new Date());
+            return;
+        }
+        deadline = goals[org][year][id].deadline.split('-');
+        $('#goalDeadline').datepicker('update', new Date(deadline[2], deadline[1] - 1, deadline[0]));
+    });
+
+    $('#editItemModal').on('show.bs.modal', function (e) {
+        year = $('#year').val();
+        org = $('#org').val();
+        id = $(e.relatedTarget).data('id');
+        titulo = $(e.relatedTarget).data('title');
+        $('#itemModalTitle').html(titulo);
+        $('input[name=item]').val(id);
+        if (getItemById(id)==""){
+            descrip = "";
+            title = "";
+            type = "";
+            priority = "";
+        }
+        else{
+            item = getItemById(id);
+            descrip = item.description;
+            title = item.title;
+            type = item.type;
+            priority = item.priority;
+        }
+        $('#itemType option[value="' + type + '"]').prop('selected', true);
+        $('#itemPriority option[value="' + priority + '"]').prop('selected', true);
+        $('#itemDescription').html(descrip);
+        $('#itemTitle').val(title);
+    });
+
+    $('#editActionModal').on('show.bs.modal', function (e) {
+        year = $('#year').val();
+        org = $('#org').val();
+        id = $(e.relatedTarget).data('id');
+        goal = $(e.relatedTarget).data('goal');
+        titulo = $(e.relatedTarget).data('title');
+        $('#actionModalTitle').html(titulo);
+        $('input[name=goal]').val(goal);
+        $('input[name=action]').val(id);
+        if (actions[goal] === undefined || actions[goal][id] === undefined){
+            current = "";
+            expected = "";
+            status = "";
+            user = "";
+            title="";
+        }
+        else {
+            action = actions[goal][id];
+            expected = action.expected_result;
+            current = action.current_result;
+            status = action.status;
+            user = action.userInCharge;
+            title = action.title;
+        }
+        $('#actionUser option[value="' + user + '"]').prop('selected', true);
+        $('#actionUser').trigger('chosen:updated');
+        $('#actionStatus option:contains("' + status + '")').prop('selected', true);
+        $('#actionTitle').val(title);
+        $('#actionExpected').html(expected);
+        $('#actionCurrent').html(current);
+    });
+
+    $('#expand-collapse-items').on('click', function () {
+        expandCollapseAll(this, 'itemTableContent');
+    });
+
+    $('#expand-collapse-goals').on('click', function () {
+        expandCollapseAll(this, 'goalTableContent');
+    });
+
+    function expandCollapseAll(element, id) {
+        var $this = $(element);
+        if($this.hasClass('expanded')) {
+            $this.removeClass('expanded').addClass('collapsed');
+            $this.html('Colapsar todos');
+            $('#'+id).find('i.fa-plus-square-o').click();
+        }
+        else{
+            $this.removeClass('collapsed').addClass('expanded');
+            $this.html('Expandir todos');
+            $('#'+id).find('i.fa-minus-square-o').click();
+        }
     }
 
     function getItemById(id){
         if (typeof items == "undefined")
             return "";
-        for (org in items){
-            for(year in items[org]){
-                for(i in items[org][year]){
-                    if (items[org][year][i].id==id)
-                        return items[org][year][i];
-                }
-            }
+        year = $('#year').val();
+        org = $('#org').val();
+        for(i in items[org][year]){
+            if (items[org][year][i].id==id)
+                return items[org][year][i];
         }
         return "";
     }
 
+    //TODO
+    function deleteElement(type, id) {
+        var retVal = confirm("¿Esta seguro de eliminar este elemento? Se borrará toda la información asociada a este.");
+        if(!retVal)
+            return;
+        data = {'class': type, 'id': id};
+        $.post(url, data);
+    }
+
     function loadItems(){
         html = "";
-        var actions = '<td class="actions"> \
-                            <a class="btn on-editing cancel-row hidden" onclick="cancelRow(this)"><i class="fa fa-times"></i></a> \
-                            <a class="btn on-default edit-row" onclick="editRow(this)" ><i class="fa fa-pencil"></i></a> \
-                        </td>';
-        year = $('#fodaYear').val();
+        year = $('#year').val();
         org = $('#org').val();
         for(i = 0; i<items[org][year].length; i++){
             cells = '<tr id="item' + items[org][year][i].id + '" role="row">';
-            cells += '<td class="text-center checkDetails"><i onclick="showHideDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
+            cells += '<td class="text-center checkDetails"><i onclick="showHideItemDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
+            cells += '<td>I' + items[org][year][i].id + '</td>';
             cells += '<td class="itemTitle">' + items[org][year][i].title + '</td>';
             cells += '<td class="itemType">' + types[items[org][year][i].type-1].name + '</td>';
             cells += '<td class="itemPriority">' + priorities[items[org][year][i].priority-1].name + '</td>';
-            html += cells + actions + "</tr>";
+            cells += '<td class="actions"><a class="btn" data-toggle="modal" data-title="Editar Item del FODA" data-target="#editItemModal" data-id="' + items[org][year][i].id + '"><i class="fa fa-pencil"></i></a>' +
+                        '<a class="btn" onclick="deleteElement(\'item\', ' + items[org][year][i].id + ')"><i class="fa fa-trash-o"></i></a></td>';
+            html += cells + "</tr>";
         }
-        $('#tableContent').html(html);
+        $('#itemTableContent').html(html);
         var datatableInit = function() {
-            var $table = $('#datatable-details');
+            var $table = $('#itemTable');
             // initialize
             var datatable = $table.dataTable({
                 destroy: true,
-                aoColumnDefs: [{
-                    bSortable: false,
-                    aTargets: [ 0, 4 ]
-                }],
+                aoColumnDefs: [
+                    { 'bSortable': false, 'aTargets': [ 0, 5 ] }
+                ],
                 aaSorting: [
-                    [2, 'desc']
+                    [3, 'desc']
+                ],
+                bFilter: false,
+                paging: false,
+                bInfo: false,
+            });
+        };
+        datatableInit();
+    }
+    
+    function loadGoals() {
+        html = "";
+        year = $('#year').val();
+        org = $('#org').val();
+        for(i in goals[org][year]){
+            cells = '<tr id="goal' + i + '" role="row">';
+            cells += '<td class="text-center checkDetails"><i onclick="showHideGoalDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
+            cells += '<td>G' + i + '</td>';
+            cells += '<td class="goalTitle">' + goals[org][year][i].title + '</td>';
+            cells += '<td class="goalUser">' + users[goals[org][year][i].userInCharge].name + '</td>';
+            cells += '<td class="goalDeadline">' + goals[org][year][i].deadline + '</td>';
+            cells += '<td class="goalState">' + goals[org][year][i].status + '</td>';
+            if (goals[org][year][i].validated){
+                cells += '<td class="goalValidated"> Si </td>';
+            }
+            else{
+                cells += '<td class="goalValidated"> No </td>';
+            }
+            cells += '<td class="actions"><a class="btn" style="padding: 0px" data-toggle="modal" data-title="Editar Objetivo" data-target="#editGoalModal" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
+                     '<a class="btn" style="padding: 0px" onclick="deleteElement(\'goal\', ' + i + ')"><i class="fa fa-trash-o"></i></a>' +
+                     '<a class="btn" style="padding: 0px" data-toggle="modal" data-title="Añadir Acción" data-target="#editActionModal" data-goal="' + i + '" data-id="-1"><i class="fa fa-plus"></i></a></td>';
+            html += cells + "</tr>";
+        }
+        $('#goalTableContent').html(html);
+        var datatableInit = function() {
+            var $table = $('#goalTable');
+            // initialize
+            var datatable = $table.dataTable({
+                destroy: true,
+                aoColumnDefs: [
+                    { 'bSortable': false, 'aTargets': [ 0, 7 ] }
+                ],
+                aaSorting: [
+                    [4, 'asc']
                 ],
                 bFilter: false,
                 paging: false,
@@ -342,34 +832,178 @@
         datatableInit();
     }
 
-    function showHideDetails(element){
+    function loadStrategy() {
+        year = $('#year').val();
+        org = $('#org').val();
+        strategy = strategies[org][year].strategy;
+        collaborators = strategies[org][year].collaborators;
+        $('#strategy_valid').removeClass('validated');
+        $('#strategy_valid').removeClass('no-validated');
+        if(strategy.validated) {
+            $('#strategy_valid').html('(Validado)');
+            $('#strategy_valid').addClass('validated');
+        }
+        else{
+            $('#strategy_valid').html('(No validado)');
+            $('#strategy_valid').addClass('no-validated');
+        }
+        $('#strategy_descrip').html(strategy.description);
+        $('#strategy_comment').html(strategy.comment);
+        $('#strategy_deadline').html(strategy.deadline);
+        $('#strategy_status').html(strategy.status);
+
+        colls = "<div>";
+        for(id in collaborators){
+            colls += '<a tabindex="0" class="btn btn-default" title="Descripción" role="button" data-toggle="popover" data-content="' + collaborators[id].description + '">' + collaborators[id].name + '</a>';
+        }
+        colls += '</div>';
+        colls += "<div>";
+        for(id in collaborators){
+            colls += '<a class="btn btn-default test" data-toggle="tooltip" data-placement="top" title="' + collaborators[id].description + '">' + collaborators[id].name + '</a>';
+        }
+        colls += '</div>';
+        $('#strategy_collaborators').html(colls);
+        loadGoals();
+    }
+
+    function loadFoda(){
+        year = $('#year').val();
+        org = $('#org').val();
+        $("#foda_comment").html(fodas[org][year].comment);
+        $('#foda_valid').removeClass('validated');
+        $('#foda_valid').removeClass('no-validated');
+        if(fodas[org][year].validated) {
+            $('#foda_valid').html('(Validado)');
+            $('#foda_valid').addClass('validated');
+        }
+        else{
+            $('#foda_valid').html('(No validado)');
+            $('#foda_valid').addClass('no-validated');
+        }
+        loadItems();
+    }
+
+    function loadActions(goal) {
+        html = "";
+        year = $('#year').val();
+        org = $('#org').val();
+        html = '<table id="actionTable' + goal + '" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid"> \
+                        <thead> \
+                            <tr role="row"> \
+                                <th class="sorting_disabled">Acción</th> \
+                                <th class="sorting_disabled">Encargado</th> \
+                                <th class="sorting_disabled">Estado</th> \
+                                <th class="sorting_disabled">Editar</th> \
+                            </tr> \
+                        </thead> \
+                        <tbody id="actionTableContent' + goal + '">';
+        for(i in actions[goal]){
+            action = actions[goal][i];
+            cells = '<tr id="action' + i + '" role="row">';
+            cells += '<td class="actionTitle">' + action.title + '</td>';
+            cells += '<td class="actionUser">' + users[action.userInCharge].name + '</td>';
+            cells += '<td class="actionState">' + action.status + '</td>';
+            cells += '<td class="actions"><a class="btn" data-toggle="modal" data-title="Editar Acción" data-target="#editActionModal" data-goal="' + action.goal + '" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
+                '<a class="btn" onclick="deleteElement(\'action\', ' + i+ ')"><i class="fa fa-trash-o"></i></a></td>';
+            cells += '</tr>';
+            cells += '<tr class="details"><td colspan="5">' ;
+            cells += '<label>Resultado Actual: </label><p class="actionCurrResult">' + action.current_result + '</p>';
+            cells += '<label>Resultado Esperado: </label><p class="actionExpResult">' + action.expected_result + '</p>';
+            cells += '</td></tr>';
+            html += cells;
+        }
+        html += '</tbody></table>';
+        $('#goalActions' + goal).html(html);
+    }
+
+    function cleanStrategy() {
+        $('#strategy_valid').removeClass('validated');
+        $('#strategy_valid').removeClass('no-validated');
+        $('#strategy_valid').html('');
+        $('a.editStrategy').addClass('hidden');
+        $('#strategy_descrip').html('');
+        $('#strategy_comment').html('');
+        $('#strategy_deadline').html('');
+        $('#strategy_status').html('');
+        $('#strategy_collaborators').html('');
+        $('#goalTableContent').html("");
+    }
+
+    function cleanFoda() {
+        $("#foda_comment").html("");
+        $('#foda_valid').removeClass('validated');
+        $('#foda_valid').removeClass('no-validated');
+        $('a.editFoda').addClass('hidden');
+        $('#foda_valid').html('');
+        $('#itemTableContent').html("");
+    }
+
+    function showHideItemDetails(element){
         var $this = $(element);
         var row = $this.closest('tr');
         if ( $this.hasClass('fa-minus-square-o')){
             $this.removeClass( 'fa-minus-square-o' ).addClass( 'fa-plus-square-o' );
-            row.next().remove();
+            if(row.next().hasClass('details'))
+                row.next().remove();
         } else {
             $this.removeClass( 'fa-plus-square-o' ).addClass( 'fa-minus-square-o');
             item = getItemById(row.attr('id').substring(4));
-            row.after('<tr class="details"><td class="details" colspan="6"><p> Descripción: ' + item.description + "</p></td></tr>");
+            html = '<tr class="details"><td colspan="4"><label>Descripción: </label><p class="itemDescription">' + item.description + '</p></td>'
+            html += '<td colspan="2"><label>Objetivos: </label><p class="itemGoals">';
+            if (item.goals.length==0){
+                html += 'No hay Objetivos Estratégicos asociados.'
+            }
+            else {
+                for (i in item.goals) {
+                    html += 'G' + item.goals[i] + ", ";
+                }
+                html = html.substring(0, html.length - 2);
+            }
+            html += '</p></td></tr>';
+            row.after(html);
         }
     }
 
-    function changeColor(id){
-        if (greenTicket!=id){
-            if (greenTicket!=-1){
-                $('#ticket'+greenTicket).css('color', 'lightgrey');
+    function showHideGoalDetails(element){
+        var $this = $(element);
+        var row = $this.closest('tr');
+        if ( $this.hasClass('fa-minus-square-o')){
+            $this.removeClass( 'fa-minus-square-o' ).addClass( 'fa-plus-square-o' );
+            if(row.next().hasClass('details'))
+                row.next().remove();
+        } else {
+            year = $('#year').val();
+            org = $('#org').val();
+            $this.removeClass( 'fa-plus-square-o' ).addClass( 'fa-minus-square-o');
+            id = row.attr('id').substring(4);
+            goal = goals[org][year][id];
+            html = '<tr class="details"><td colspan="8">';
+            html += '<div class="col-sm-9">';
+            html += '<label>Descripción: </label><p class="goalDescription">' + goal.description + '</p>';
+            html += '<label>Comentario: </label><p class="goalComment">' + goal.comment + '</p>';
+            html += '</div><div class="col-sm-3"';
+            html += '<label>Fecha de Creación: </label><p class="goalTimestamp">' + goal.timestamp + '</p>';
+            html += '<label>Items: </label><p class="GoalItems">';
+            if (goal.items.length==0){
+                html += 'No hay Items del FODA asociados.'
             }
-            greenTicket = id;
-            $('#org').val(greenTicket);
-            $('#ticket'+id).css('color', 'forestgreen');
+            else {
+                for (i in goal.items) {
+                    html += 'I' + goal.items[i] + ", ";
+                }
+                html = html.substring(0, html.length - 2);
+            }
+            html += '</p></div>';
+            html += '<div id="goalActions' + id + '"></div>';
+            html += '</td></tr>';
+
+            if(actions[id].length==0){
+                row.after(html);
+                return;
+            }
+            row.after(html);
+            loadActions(id);
         }
-        else{
-            $('#ticket'+id).css('color', 'lightgrey');
-            $('#org').val(null);
-            greenTicket = -1;
-        }
-        $('#year').trigger('change');
     }
 
     for(var i = 0; i<years.length; i++){
@@ -380,7 +1014,7 @@
         '.chosen-select'           : {},
         '.chosen-select-deselect'  : {allow_single_deselect:true},
         '.chosen-select-no-single' : {disable_search_threshold:10},
-        '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+        '.chosen-select-no-results': {no_results_text:'No se ha encontrado nada.'},
         '.chosen-select-width'     : {width:"95%"}
     }
     for (var selector in config) {
@@ -396,7 +1030,7 @@
             }));
             $('#year option[value="'.concat(value,'"]')).attr("selected", "selected");
             $('#year').trigger('chosen:updated');
-            //reloadTable();
+            $("#year").change();
         }
     });
 
@@ -419,35 +1053,73 @@
 
     //agrega comentario que exista previamente en la base de datos
     $("#year").change(function(e){
-        $('#tableContent').html("");
-        if (!validate_year('year') || greenTicket==-1) {
-            $("#fodaComment").val("");
+        org = $("#org").val();
+        cleanStrategy();
+        cleanFoda();
+        $('#itemData').hide();
+        $('#goalData').hide();
+        if (!validate_year('year') || parseInt(org)<0 || isNaN(parseInt(org))) {
             return;
         }
-        $('#fodaYear').val(this.value);
-        if (fodas[greenTicket] === undefined || fodas[greenTicket][this.value] === undefined ){
+        if(fodas[org] === undefined || fodas[org][this.value] === undefined) {
+            $('a.editFoda').removeClass('hidden');
+            $('a.editStrategy').removeClass('hidden');
             return;
         }
-        loadItems();
-        $("#fodaComment").val(fodas[greenTicket][this.value].comment);
-
+        if (items[org]===undefined || items[org][this.value]===undefined){
+            $('#itemData').hide();
+        }
+        else{
+            console.log(items[org][this.value]);
+            $('#itemData').show();
+        }
+        if (goals[org]===undefined || goals[org][this.value]===undefined){
+            $('#goalData').hide();
+        }
+        else{
+            console.log(goals[org][this.value]);
+            $('#goalData').show();
+        }
+        $('a.editFoda').removeClass('hidden');
+        $('a.editStrategy').removeClass('hidden');
+        $('input[name=year]').val(this.value);
+        $('input[name=org]').val(org);
+        loadStrategy();
+        loadFoda();
     });
 
-    var success = <?php echo($success);?>;
+    $('#org').on('change', function () {
+       $('#year').change();
+    });
 
-    if (success==1){
-        new PNotify({
-            title: 'Éxito!',
-            text: 'Su solicitud ha sido realizada con éxito.',
-            type: 'success'
-        });
+    function notify(success) {
+        if (success==1){
+            new PNotify({
+                title: 'Éxito!',
+                text: 'Su solicitud ha sido realizada con éxito.',
+                type: 'success'
+            });
+        }
+        if (success==0){
+            new PNotify({
+                title: 'Error!',
+                text: 'Ha ocurrido un error con su solicitud.<br>Los nombres de Áreas y Unidades solo puede tener letras, tildes y espacios.',
+                type: 'error'
+            });
+        }
     }
-    if (success==0){
-        new PNotify({
-            title: 'Error!',
-            text: 'Ha ocurrido un error con su solicitud.<br>Los nombres de Áreas y Unidades solo puede tener letras, tildes y espacios.',
-            type: 'error'
-        });
+
+    notify(<?php echo($success);?>);
+
+    function optionHTML(optionArray, selected){
+        var optHTML = "";
+        for(var i = 0; i<optionArray.length; i++){
+            if (selected==optionArray[i].id || selected==optionArray[i].name)
+                optHTML += '<option value="'+ optionArray[i].id +'" selected>' + optionArray[i].name + '</option>';
+            else
+                optHTML += '<option value="'+ optionArray[i].id +'">' + optionArray[i].name + '</option>';
+        }
+        return optHTML;
     }
 </script>
 </body>

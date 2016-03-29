@@ -3,6 +3,7 @@
 		<script src="<?php echo base_url();?>assets/vendor/bootstrap/js/bootstrap.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/nanoscroller/nanoscroller.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+		<script src="<?php echo base_url();?>assets/vendor/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/magnific-popup/magnific-popup.js"></script>
 		<script src="<?php echo base_url();?>assets/vendor/jquery-placeholder/jquery.placeholder.js"></script>
 

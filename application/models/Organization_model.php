@@ -34,11 +34,11 @@ class Organization_model extends CI_Model {
 		foreach($all as $key_data => $data){
 			foreach($data['areas'] as $key_area => $area){
 				foreach($area['unidades'] as $key_unit => $unidad){
-					if(!in_array($unidad->getId(), $orgs))
+					if(is_array($orgs) && !in_array($unidad->getId(), $orgs))
 						unset($result[$key_data]['areas'][$key_area]['unidades'][$key_unit]);
 				}
 				$result[$key_data]['areas'][$key_area]['unidades'] = array_values($result[$key_data]['areas'][$key_area]['unidades']);
-				if(count($result[$key_data]['areas'][$key_area]['unidades'])==0 && !in_array($result[$key_data]['areas'][$key_area]['area']->getId(), $orgs))
+				if(count($result[$key_data]['areas'][$key_area]['unidades'])==0 && is_array($orgs) && !in_array($result[$key_data]['areas'][$key_area]['area']->getId(), $orgs))
 					unset($result[$key_data]['areas'][$key_area]);
 			}
 			$result[$key_data]['areas'] = array_values($result[$key_data]['areas']);
