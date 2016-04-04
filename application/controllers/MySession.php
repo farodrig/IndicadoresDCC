@@ -142,7 +142,7 @@ class MySession extends CI_Controller {
 			$metrics = $this->Dashboard_model->getAllMetrics($org, $category);
 			foreach ($metrics as $metric){
 				$data[$org]['metorg'][$metric->metorg]['metric'] = $metric;
-				$data[$org]['metorg'][$metric->metorg]['values'] = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg'=>[$metric->metorg], 'state'=>[0,-1], 'order'=>[['year', 'ASC']]));
+				$data[$org]['metorg'][$metric->metorg]['values'] = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg'=>[$metric->metorg], 'state'=>[0,-1], 'order'=>[['year', 'ASC'], ['x_value', 'ASC']]));
 				if (!count($data[$org]['metorg'][$metric->metorg]['values']))
 					unset($data[$org]['metorg'][$metric->metorg]);
 			}

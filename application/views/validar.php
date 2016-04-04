@@ -5,9 +5,8 @@
         $title = "Validar datos";
         include 'partials/head.php';
         ?>
-		<link rel="stylesheet" href="<?php echo base_url();?>chosen/chosen.css">
-		<link rel="stylesheet" href="assets/vendor/select2/select2.css" />
-		<link rel="stylesheet" href="assets/vendor/jquery-datatables-bs3/assets/css/datatables.css" />
+		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap/css/bootstrap.min.css" />
+
 		<style>
 			.panel-group .panel-heading + .panel-collapse > .panel-body {
 				border: 1px solid #ddd;
@@ -63,6 +62,9 @@
 			.panel-group .panel-body ul:last-child,
 			.panel-group .panel-body ol:last-child {
 				margin-bottom: 0;
+			}
+			.black td {
+				color: black !important;
 			}
 		</style>
 	</head>
@@ -136,14 +138,14 @@
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h4 class="panel-title">
-													<a class="collapsed" data-toggle="collapse" data-parent="#accordion"
+													<a class="" data-toggle="collapse" data-parent="#accordion"
 													   href="#org<?php echo($org['org']->getId()); ?>">
 														<?php echo(ucwords($org['org']->getName())); ?>
 													</a>
 												</h4>
 											</div>
 											<div id="org<?php echo($org['org']->getId()); ?>"
-												 class="panel-collapse collapse">
+												 class="panel-collapse collapse in">
 												<div class="panel-body">
 													<div class="panel-group"
 														 id="nested<?php echo($org['org']->getId()); ?>">
@@ -154,7 +156,7 @@
 																		<a data-toggle="collapse"
 																		   data-parent="#nested<?php echo($org['org']->getId()); ?>"
 																		   href="#metorg<?php echo($metorg['metric']->metorg); ?>">
-																			<?php echo(ucwords($metorg['metric']->name)); ?>
+																			<?php echo(ucwords($metorg['metric']->name)); ?> - <?php echo ($metorg['metric']->category == 2) ? "Finanzas" : "Productividad" ?>
 																		</a>
 																	</h4>
 																</div><!--/.panel-heading -->
@@ -170,7 +172,6 @@
 																				<tr>
 																					<td>Usuario</td>
 																					<td>Rol</td>
-																					<td>Tipo</td>
 																					<td>Año</td>
 																					<?php if ($metorg['metric']->x_name) { ?>
 																						<td><?php echo $metorg['metric']->x_name; ?> </td>
@@ -183,24 +184,30 @@
 																				</thead>
 																				<tbody
 																					id="tableContent<?php echo($metorg['metric']->metorg); ?>">
-																				<?php foreach ($metorg['values'] as $value) { ?>
+																				<?php
+																				$xVal = "";
+																				$year = "";
+																				foreach ($metorg['values'] as $value) {
+																					if($xVal!= $value->x_value || $year != $value->year){
+																						$xVal = $value->x_value;
+																						$year = $value->year;
+																				?>
+																					<tr class="success">
+																						<td></td>
+																						<td></td>
+																						<td style="color: black !important;"><?php echo($value->year); ?></td>
+																						<?php if ($metorg['metric']->x_name) { ?>
+																							<td style="color: black !important;"><?php echo (!is_null($value->x_value) && $value->x_value) ? $value->x_value : '-'; ?></td>
+																						<?php } ?>
+																						<td style="color: black !important;"><?php echo (!is_null($value->value)) ? $value->value : '-'; ?></td>
+																						<td style="color: black !important;"><?php echo (!is_null($value->expected)) ? $value->expected : '-'; ?></td>
+																						<td style="color: black !important;"><?php echo (!is_null($value->target)) ? $value->target : '-'; ?></td>
+																						<td></td>
+																					</tr>
+																					<?php } ?>
 																					<tr>
 																						<td><?php echo($users[$value->updater]); ?></td>
 																						<td><?php echo ($metorg['metric']->category == 2) ? "Asistente de finanzas" : "Asistente de unidad" ?></td>
-																						<td><?php echo ($metorg['metric']->category == 2) ? "Finanzas" : "Productividad" ?></td>
-																						<td><?php echo($value->year); ?></td>
-																						<?php if ($metorg['metric']->x_name) { ?>
-																							<td><?php echo (!is_null($value->x_value) && $value->x_value) ? $value->x_value : '-'; ?></td>
-																						<?php } ?>
-																						<td><?php echo (!is_null($value->value)) ? $value->value : '-'; ?></td>
-																						<td><?php echo (!is_null($value->expected)) ? $value->expected : '-'; ?></td>
-																						<td><?php echo (!is_null($value->target)) ? $value->target : '-'; ?></td>
-																						<td></td>
-																					</tr>
-																					<tr>
-																						<td></td>
-																						<td></td>
-																						<td></td>
 																						<td></td>
 																						<?php if ($metorg['metric']->x_name) { ?>
 																							<td><?php echo (!is_null($value->proposed_x_value) && $value->proposed_x_value && $value->state == 0) ? $value->proposed_x_value : '-'; ?></td>

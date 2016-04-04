@@ -13,41 +13,21 @@ class Budget extends CI_Controller {
 
     function index(){
         $permits = $this->session->userdata();
-        if (!$permits['admin'] && !count($permits['encargado_finanzas'])  &&  !count($permits['asistente_finanzas'])) {
+        if (!$permits['admin'] && !count($permits['encargado_finanzas'])  &&  !count($permits['asistente_finanzas']))
             redirect('inicio');
-        }
-        if ($permits['admin'])
-            $orgs = $this->Organization_model->getAllOrgsIds();
-        else {
-            $orgs = [];
-            $aux = array_merge($permits['encargado_finanzas'], $permits['asistente_finanzas']);
-            foreach($aux as $org){
-                if($org==-1)
-                    continue;
-                $orgs[] = $this->Organization_model->getByID($org);
-            }
-        }
-        $datos = array();
-        $aux_org = array();
-        foreach($orgs as $org){
-            $datos[$org->getId()] = $this->Dashboard_model->getBudgetMeasures($org->getId());
-            $aux_org[] = $org->getId();
-        }
-        $years = [];
-        foreach($datos as $dato){
-            if (!$dato)
-                continue;
-            foreach($dato as $org){
-                $years[] = $org->year;
-            }
-        }
-        $years = array_unique($years);
+
+        $data = $this->budgetData($permits);
+        $aux_org = $data[0];
+        $valid_data = $data[1];
+        $no_valid_data = $data[2];
+        $years = $data[3];
         $this->load->view('budget',
             array('title'  => 'Presupuesto',
                 'role'        => $permits['title'],
                 'years'       => $years,
                 'orgs'        => $aux_org,
-                'data'        => $datos,
+                'valid_data'  => $valid_data,
+                'no_valid_data'  => $no_valid_data,
                 'validate'    => validation($permits, $this->Dashboard_model),
                 'departments' => $this->Organization_model->getTree($aux_org)//Notar que funcion esta en helpers
             )
@@ -78,9 +58,8 @@ class Budget extends CI_Controller {
         $this->load->library('Dashboard_library');
 
         $validation = 0;
-        if($permits['admin'] || in_array($org, $permits['encargado_finanzas'])){
+        if($permits['admin'] || in_array($org, $permits['encargado_finanzas']))
             $validation = 1;
-        }
 
         $year =  $this->input->post("year");
         $value =  $this->input->post("value");
@@ -96,6 +75,9 @@ class Budget extends CI_Controller {
         $parent = $this->Organization_model->getById($org->getParent());
         while($currentOrg->getId()!=$parent->getId()){
             $parentVal = $this->Dashboard_model->getBudgetMeasure($parent->getId(), $year);
+            $currentVal->value = is_null($currentVal->value) ? $currentVal->p_v : $currentVal->value;
+            $currentVal->expected = is_null($currentVal->expected) ? $currentVal->p_e : $currentVal->expected;
+            $currentVal->target = is_null($currentVal->target) ? $currentVal->p_t : $currentVal->target;
             if(!$oldVal){
                 $oldVal = (object) [
                     'value' => 0,
@@ -121,23 +103,49 @@ class Budget extends CI_Controller {
         }
         $result['success'] = $success;
         if($success){
-            if ($permits['admin'])
-                $orgs = $this->Organization_model->getAllOrgsIds();
-            else {
-                $orgs = [];
-                $aux = array_merge($permits['encargado_finanzas'], $permits['asistente_finanzas']);
-                foreach($aux as $org){
-                    if($org==-1)
-                        continue;
-                    $orgs[] = $this->Organization_model->getByID($org);
-                }
-            }
-            $datos = array();
-            foreach($orgs as $org){
-                $datos[$org->getId()] = $this->Dashboard_model->getBudgetMeasures($org->getId());
-            }
-            $result['data'] = $datos;
+            $data = $this->budgetData($permits);
+            $result['valid_data'] = $data[1];
+            $result['no_valid_data'] = $data[2];
         }
         echo json_encode($result);
+    }
+
+    private function budgetData($permits){
+        if ($permits['admin'])
+            $orgs = $this->Organization_model->getAllOrgsIds();
+        else {
+            $orgs = [];
+            $aux = array_merge($permits['encargado_finanzas'], $permits['asistente_finanzas']);
+            foreach($aux as $org){
+                if($org<0)
+                    continue;
+                $orgs[] = $this->Organization_model->getByID($org);
+            }
+        }
+        $org_ids = [];
+        $valid_data = [];
+        $no_valid_data = [];
+        $years = [];
+        foreach($orgs as $org){
+            $org_ids[] = $org->getId();
+            $datos = $this->Dashboard_model->getBudgetMeasures($org->getId());
+            if(!$datos)
+                continue;
+            foreach ($datos as $dato){
+                $years[] = $dato->year;
+                if($dato->state==0){
+                    $dato->value = is_null($dato->p_v) ? $dato->value : $dato->p_v;
+                    $dato->expected = is_null($dato->p_e) ? $dato->expected : $dato->p_e;
+                    $dato->target = is_null($dato->p_t) ? $dato->target : $dato->p_t;
+                    $no_valid_data[$org->getId()][$dato->year] = $dato;
+                }
+                else{
+                    $valid_data[$org->getId()][$dato->year] = $dato;
+                    if(!array_key_exists($org->getId(), $no_valid_data) || !array_key_exists($dato->year, $no_valid_data[$org->getId()]))
+                        $no_valid_data[$org->getId()][$dato->year] = $dato;
+                }
+            }
+        }
+        return [$org_ids, $valid_data, $no_valid_data, array_values(array_unique($years))];
     }
 }

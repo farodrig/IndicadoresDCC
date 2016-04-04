@@ -5,7 +5,11 @@
         $title = "Configurar métricas";
         include 'partials/head.php';
         ?>
-
+		<style>
+			.bigModal{
+				max-width: 950px !important;
+			}
+		</style>
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/select2/select2.css" />
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/css/datatables.css"
 	</head>
@@ -174,12 +178,12 @@
 											</div>
 											<div class="form-group mt-lg">
 												<label class="col-sm-3 control-label">Categoria:</label> <!-- 1: Productividad 2:Finanzas -->
-													<div class="btn-group dropdown col-sm-9">
-														<select name='category' id='category' class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
-															<option value=1 defaultSelected>Productividad</option>
-															<option value=2>Finanzas</option>
-														</select>
-													</div>
+												<div class="btn-group dropdown col-sm-9">
+													<select name='category' id='category' class="mb-xs mt-xs mr-xs btn btn-default dropdown-toggle">
+														<option value=1 defaultSelected>Productividad</option>
+														<option value=2>Finanzas</option>
+													</select>
+												</div>
 											</div>
 										</div>
 										<footer class="panel-footer">
@@ -195,7 +199,7 @@
 									<?php echo form_close();?>
 								</div>
 
-								<div id="deleteMetrica" class="modal-block modal-block-lg modal-block-primary mfp-hide">
+								<div id="deleteMetrica" class="modal-block modal-block-lg modal-block-primary mfp-hide bigModal">
 								<?php echo form_open('MySession/eliminarMetrica', array('id' => 'modificarMetrica')); ?>
 									<section class="panel">
 										<header class="panel-heading">
@@ -212,7 +216,7 @@
 										<input type='hidden' name='unidad_x' id='unidad_x' value='' />
 										<input type='hidden' name='tipo' id='tipo' value='' />
 
-										<div id="rows" name="rows"></div>
+										<div id="rows" name="rows" class="table-responsive"></div>
 
 										<footer class="panel-footer">
 											<div class="row">
@@ -273,8 +277,8 @@
 		var table_head = "<table class='table table-bordered table-striped mb-none text-center' id='config-metricas'>".concat("<thead>",
 									"<tr>",
 										"<th class='text-center'>Nombre de la métrica</th>",
-										"<th class='text-center'>Medida Eje Y</th>",
 										"<th class='text-center'>Categoria</th>",
+										"<th class='text-center'>Medida Eje Y</th>",
 										"<th class='text-center'>Unidad de medida Eje Y</th>",
 										"<th class='text-center'>Medida Eje X</th>",
 										"<th class='text-center'>Unidad de Medida Eje X</th>",
@@ -318,8 +322,8 @@
 				for(key in table_metrics[id]){
 					table = table.concat('<tr class=',table_metrics[id][key]['metorg'],'>',
 					'<td>',table_metrics[id][key]['name'],'</td>',
-					'<td>',table_metrics[id][key]['y_name'],'</td>',
 					'<td>',table_metrics[id][key]['category'],'</td>',
+					'<td>',table_metrics[id][key]['y_name'],'</td>',
 					'<td>',table_metrics[id][key]['y_unit'],'</td>',
 					'<td>',table_metrics[id][key]['x_name'],'</td>',
 					'<td>',table_metrics[id][key]['x_unit'],'</td>',
@@ -391,7 +395,7 @@
 				var inputs = row.find("input[type='hidden']");
 				var data = [];
 
-				for(i=0; i<5; i++)
+				for(i=0; i<6; i++)
 					data[i]=inputs[i]['value'];
 				$(row[0]).children( 'td' ).each(function( i ) {
 					var $this = $( this );

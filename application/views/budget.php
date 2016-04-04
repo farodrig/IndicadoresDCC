@@ -17,6 +17,10 @@
         .dataTables_wrapper{
             margin-bottom: 1%;
         }
+
+        .no_valid{
+            border: 2px solid red !important;
+        }
     </style>
 
     <script type="text/javascript">
@@ -75,8 +79,16 @@
                             </select>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-sm-6 text-center">
+                            <input id="is_valid" type="radio" name="gender" onchange="changeData(true)" checked>Información Validada
+                        </div>
+                        <div class="col-sm-6 text-center">
+                            <input type="radio" name="gender" onchange="changeData(false)">Información Pendiente de Validación
+                        </div>
+                    </div>
                     <div class="table-responsive dataTables_wrapper no-footer" id="datatable-editable_wrapper">
-                        <table id="datatable-editable" class="table table-bordered mb-none dataTable tree" role="grid" aria-describedby="datatable-editable_info">
+                        <table id="datatable-editable" class="table table-bordered table-hover mb-none dataTable tree" role="grid" aria-describedby="datatable-editable_info">
                             <thead>
                                 <tr role="row">
                                     <th>Organizacion</th>
@@ -197,13 +209,20 @@
     $('.tree').treegrid();
 
     //cargar años
-    var datos = <?php echo json_encode($data);?>;
+    var datos = <?php echo json_encode($valid_data);?>;
+    var valid_datos = <?php echo json_encode($valid_data);?>;
+    var no_valid_datos = <?php echo json_encode($no_valid_data);?>;
     var orgs = <?php echo json_encode($departments);?>;
     var years = <?php echo json_encode($years);?>;
+    years.sort();
     for(year in years){
         $('#year').append('<option>' + years[year] + '</option>');
     }
-    years.sort();
+
+    function changeData(valid) {
+        datos = (valid ? valid_datos : no_valid_datos);
+        reloadTable();
+    }
 
     var config = {
         '.chosen-select'           : {},
@@ -284,6 +303,7 @@
         item.removeClass('danger');
         item.children('td').each(function(){
             var $this = $( this );
+            $this.removeClass('no_valid');
             if($this.hasClass('no-mutable'))
                 return;
             else if($this.hasClass('org-id')){
@@ -302,51 +322,51 @@
         for(org in datos){
             row = $('.treegrid-'+org);
             restartRow(row);
-            if(!datos[org]) {
+            if(!datos[org] || !(year in datos[org]))
                 continue;
-            }
-            count = 0;
-            for(data in datos[org]){
-                if(year!=datos[org][data].year) {
-                    continue;
+            $('.treegrid-'+org+' > td').each(function(){
+                var $this = $( this );
+                dato = datos[org][year];
+                if($this.hasClass('org-id')){
+                    $this.html(org);
                 }
-                count++;
-                $('.treegrid-'+org+' > td').each(function(){
-                    var $this = $( this );
-                    if($this.hasClass('org-id')){
-                        $this.html(org);
-                    }
-                    else if($this.hasClass('current-val')){
-                        $this.html(intToMoney(datos[org][data].value));
-                    }
-                    else if($this.hasClass('min-val')){
-                        $this.html(intToMoney(datos[org][data].expected));
-                    }
-                    else if($this.hasClass('max-val')){
-                        $this.html(intToMoney(datos[org][data].target));
-                    }
-                    else if($this.hasClass('min-val-diff')){
-                        $this.html(intToMoney((datos[org][data].expected - datos[org][data].value) + ''));
-                    }
-                    else if($this.hasClass('max-val-diff')){
-                        $this.html(intToMoney((datos[org][data].target - datos[org][data].value) + ''));
-                    }
-                });
-                row.addClass(getRowClass(parseInt(datos[org][data].value) , parseInt(datos[org][data].expected), parseInt(datos[org][data].target)));
-            }
-            if (count==0)
-                restartRow(row);
+                else if($this.hasClass('current-val')){
+                    $this.html(intToMoney(dato.value));
+                    if(dato.state == 0 && dato.p_v != null)
+                        $this.addClass('no_valid');
+                }
+                else if($this.hasClass('min-val')){
+                    $this.html(intToMoney(dato.expected));
+                    if(dato.state == 0 && dato.p_e != null)
+                        $this.addClass('no_valid');
+                }
+                else if($this.hasClass('max-val')){
+                    $this.html(intToMoney(dato.target));
+                    if(dato.state == 0 && dato.p_t != null)
+                        $this.addClass('no_valid');
+                }
+                else if($this.hasClass('min-val-diff')){
+                    $this.html(intToMoney((dato.expected - dato.value) + ''));
+                }
+                else if($this.hasClass('max-val-diff')){
+                    $this.html(intToMoney((dato.target - dato.value) + ''));
+                }
+            });
+            row.addClass(getRowClass(parseInt(dato.value) , parseInt(dato.expected), parseInt(dato.target)));
         }
         loadRootData();
     }
 
     function loadRootData() {
         var root = $('.treegrid-root');
+        root.removeClass('success');
+        root.removeClass('warning');
+        root.removeClass('danger');
         val = getChildrenSumValue('root', 'current-val');
         min = getChildrenSumValue('root', 'min-val');
         max = getChildrenSumValue('root', 'max-val');
         difMinVal = getChildrenSumValue('root', 'min-val-diff');
-        difMaxVal = getChildrenSumValue('root', 'min-val-diff');
+        difMaxVal = getChildrenSumValue('root', 'max-val-diff');
         root.children( 'td' ).each(function() {
             var $this = $( this );
             if($this.hasClass('current-val')){
@@ -369,12 +389,12 @@
     }
 
     function getRowClass(val, min, max){
-        if(val < min)
-            return "success";
-        else if(val < max)
+        if(val > max)
+            return "danger";
+        else if(val >min)
             return "warning";
         else
-            return "danger";
+            return "success";
     }
 
     function getChildrenSumValue(id, column) {
@@ -408,14 +428,15 @@
             cache:false,
             success:
                 function(data){
-                    console.log(data);
                     if (data['success']){
                         new PNotify({
                             title: 'Éxito!',
                             text: 'Su solicitud ha sido realizada con éxito.',
                             type: 'success'
                         });
-                        datos = data['data'];
+                        valid_datos = data['valid_data'];
+                        no_valid_datos = data['no_valid_data'];
+                        datos = (($('#is_valid').is(":checked")) ? valid_datos : no_valid_datos);
                     }
                     else {
                         new PNotify({
@@ -437,7 +458,6 @@
                 }
         });
     }
-
 </script>
 
 <script type="application/javascript">

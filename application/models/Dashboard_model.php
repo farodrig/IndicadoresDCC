@@ -85,13 +85,14 @@ class Dashboard_model extends CI_Model{
     }
 
     function getBudgetMeasures($org){
-        $this->db->select('Value.id, Value.metorg AS org, value, target, expected, year');
+        $this->db->select('Value.id, Value.metorg AS org, value, target, expected, year, state, proposed_value as p_v, proposed_target as p_t, proposed_expected as p_e');
         $this->db->from('Value');
         $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
         $this->db->where('MetOrg.org', $org);
         $this->db->where('MetOrg.metric', 1);
-        $this->db->where('state', 1);
+        $this->db->where('state !=', -1);
         $this->db->order_by('year ASC');
+        $this->db->order_by('state ASC');
         $q = $this->db->get();
         if($q->num_rows() > 0)
             return $q->result();
@@ -99,15 +100,15 @@ class Dashboard_model extends CI_Model{
     }
 
     function getBudgetMeasure($org, $year){
-        $this->db->select('Value.id, Value.metorg AS org, value, target, expected, year');
+        $this->db->select('Value.id, Value.metorg AS org, value, target, expected, year, state, proposed_value as p_v, proposed_target as p_t, proposed_expected as p_e');
         $this->db->from('Value');
         $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
         $this->db->where('MetOrg.org', $org);
         $this->db->where('MetOrg.metric', 1);
-        $this->db->where('state', 1);
         $this->db->where('year', $year);
+        $this->db->order_by('state DESC');
         $q = $this->db->get();
-        if($q->num_rows() == 1)
+        if($q->num_rows() > 0)
             return $q->row();
         return false;
     }
@@ -119,8 +120,23 @@ class Dashboard_model extends CI_Model{
             return false;
         }
         $id = $q[0]->id;
-        if(count(getGeneric($this, $this->value, ['metorg'=>[$id], 'year'=>[$year]])))
-            return $this->updateData($id, $year, "",$y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
+        $old_value = getGeneric($this, $this->value, ['metorg'=>[$id], 'year'=>[$year], 'state'=>[0]]);
+        if(!$validation && count($old_value)){
+            $old_value = $old_value[0];
+            if(strcmp($y_value, "")==0 && !is_null($old_value->proposed_value))
+                $y_value = $old_value->proposed_value;
+            if(strcmp($expected, "")==0 && !is_null($old_value->proposed_expected))
+                $expected = $old_value->proposed_expected;
+            if(strcmp($target, "")==0 && !is_null($old_value->proposed_target))
+                $target = $old_value->proposed_target;
+            //Si existe un valor previo no validado es eliminado antes de proponer el otro, de forma que solo exista un dato por validar
+            if(!$this->deleteData($old_value->id))
+                return false;
+        }
+        $old_value = getGeneric($this, $this->value, ['metorg'=>[$id], 'year'=>[$year], 'state'=>[1]]);
+        if(count($old_value)) {
+            return $this->updateData($id, $year, "", $y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
+        }
         return $this->insertData($id, $year, $y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
     }
 
@@ -267,7 +283,7 @@ class Dashboard_model extends CI_Model{
     }
 
     function updateData($id_met, $year, $old_x_value, $valueY, $valueX, $target, $expected, $user, $validation){ //Aqui hay que guardar datos antiguos
-        $values = $this->getValue(array('metorg'=>[$id_met], 'year'=>[$year], 'x_value'=>[$old_x_value]));
+        $values = $this->getValue(array('metorg'=>[$id_met], 'year'=>[$year], 'x_value'=>[$old_x_value], 'state'=>[1]));
         if (count($values)<=0)
             return false;
         $row = $values[0];

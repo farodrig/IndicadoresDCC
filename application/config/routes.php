@@ -69,10 +69,16 @@ $route['contacto']         = 'MySession/contact';
 $route['salir']            = 'MySession/logout';
 $route['verif_usuario']    = 'ADI/user_verify';
 
-$route['foda/add'] = 'Foda/addFodaItem';
-$route['foda'] = 'Foda/fodaIndex';
-$route['foda/items'] = 'Foda/getFodaItems';
-$route['foda/delItem'] = 'Foda/deleteItems';
+$route['fodaStrategy'] = 'FodaStrategy/fodaIndex';
+
+$route['fodaStrategy/modify/foda'] = 'FodaStrategy/modifyFoda';
+$route['fodaStrategy/modify/strategy'] = 'FodaStrategy/modifyStrategy';
+
+$route['fodaStrategy/add/item'] = 'FodaStrategy/modifyItem';
+$route['fodaStrategy/add/goal'] = 'FodaStrategy/modifyGoal';
+$route['fodaStrategy/add/action'] = 'FodaStrategy/modifyAction';
+
+$route['fodaStrategy/delete'] = 'FodaStrategy/delete';
 
 $route['presupuesto'] = 'Budget/index';
 $route['presupuesto/modify'] = 'Budget/modify';

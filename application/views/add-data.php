@@ -11,6 +11,26 @@
             text-align: center;
         }
     </style>
+    <script type="text/javascript">
+        var success = <?php echo ($success);?>;
+        var jArray= <?php echo json_encode($measurements);?>;
+        var metrics = <?php echo json_encode($metrics);?>;
+        var years = [];
+        var xValues = [];
+        for(metorg in jArray){
+            for(year in jArray[metorg]){
+                if ( years.indexOf(year) == -1){
+                    years.push(year);
+                }
+                for(i in jArray[metorg][year]){
+                    if (jArray[metorg][year][i].valueX && xValues.indexOf(jArray[metorg][year][i].valueX) == -1){
+                        xValues.push(jArray[metorg][year][i].valueX);
+                    }
+                }
+            }
+        }
+        years.sort();
+    </script>
 </head>
 <body>
 <section class="body">
@@ -58,7 +78,7 @@
                     <h2> No hay métricas en el sistema </h2>
                 <?php }
                 else{ ?>
-                    <?php echo form_open('agregarDato', array('onSubmit' => "return pageValidate();"));?>
+                    <?php echo form_open('agregarDato');?>
                     <section class="panel form-horizontal form-bordered">
                         <header class="panel-heading">
 
@@ -133,20 +153,6 @@
 <script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
 
 <script type="text/javascript">
-    var success = <?php echo ($success);?>;
-    var jArray= <?php echo json_encode($measurements);?>;
-    var metrics = <?php echo json_encode($metrics);?>;
-    var years = [];
-    for(var metorg in jArray){
-        for(var year in jArray[metorg]){
-            if ( years.indexOf(year) == -1){
-                console.log(year);
-                years.push(year);
-            }
-        }
-    }
-    years.sort();
-
     //cargar años
     for(var i = 0; i<years.length; i++){
         $('#year').append('<option>' + years[i] + '</option>');
@@ -252,7 +258,6 @@
                 hasX = metrics[i].x_name;
                 break;
             }
-
         }
         row = rowWithData(metorg, "", "", "", "", "", hasX, true);
         $('#tableContent' + metorg).append(row);
@@ -265,13 +270,13 @@
     }
 
     function validate(elem){
-        var opt = elem.value;
-        return changeOnValidation(elem, ((!isNaN(parseFloat(opt)) && isFinite(opt)) || opt.length ==0));
+        var value = elem.value;
+        return changeOnValidation(elem, ((!isNaN(parseFloat(value)) && isFinite(value)) || value.length ==0));
     }
 
     function validate_year(id){
-        var opt = document.getElementById(id).value;
-        return changeOnValidation(document.getElementById(id), ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4 && opt>=1980));
+        var value = document.getElementById(id).value;
+        return changeOnValidation(document.getElementById(id), ((!isNaN(parseFloat(value)) && isFinite(value)) && value.length ==4 && value>=1980));
     }
 
     function changeOnValidation(elem, validator){
@@ -286,9 +291,51 @@
         }
     }
 
+    function getValueById(id) {
+        for(metorg in jArray){
+            for(year in jArray[metorg]){
+                for(i in jArray[metorg][year]){
+                    if (jArray[metorg][year][i].id == id){
+                        return jArray[metorg][year][i];
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     function pageValidate(){
         return true;
     }
+
+    $('form').on('submit', function(e){
+        year = $('#year').val();
+        var result = true;
+        var x_aux = xValues;
+        var newX = [];
+        for(metorg in jArray){
+            $('#tableContent'+metorg + ' input[name="valueX[]"]:visible').each(function () {
+                var $this = $(this);
+                id = $this.closest('tr').children('input[name="valId[]"]').val();
+                value = getValueById(id);
+                if(value && value.valueX != this.value && x_aux.indexOf(this.value) != -1){
+                    alert("No se pueden tener 2 elementos con el mismo valor de X. Añada un nuevo elemento y elimine este para obtener el mismo resultado.");
+                    result = false;
+                    this.value = value.valueX;
+                    return false;
+                }
+                else if(!value && newX.indexOf(this.value) != -1){
+                    alert("No se pueden tener 2 elementos con el mismo valor de X para en año. Modifique el elemento con el mismo nombre.");
+                    result = false;
+                    return false;
+                }
+                if(x_aux.indexOf(this.value) == -1)
+                    x_aux.push(this.value);
+                newX.push(this.value);
+            });
+        }
+        return result;
+    });
 </script>
 </body>
 </html>

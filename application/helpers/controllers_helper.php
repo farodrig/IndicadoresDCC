@@ -117,3 +117,10 @@ function alphaNumericSpace($str){
     }
     return false;
 }
+
+function date_validator($str){
+    if (preg_match("/^(0[1-9]|1[0-9]|2[0-9]|3(0|1))-(0[1-9]|1[0-2])-\d{4}$/", $str, $data) && $data[0]==$str){
+        return true;
+    }
+    return false;
+}
