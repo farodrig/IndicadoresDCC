@@ -22,10 +22,6 @@
             border: 2px solid red !important;
         }
     </style>
-
-    <script type="text/javascript">
-
-    </script>
 </head>
 <body>
 <section class="body">
@@ -70,13 +66,16 @@
                 <div class="panel-body">
                     <div class="panel-body">
                     <div class="form-group col-md-offset-5">
-                        <div class="col-md-1 text-center">
+                        <div class="col-md-2 text-center">
                             <label class="control-label title">Año:</label>
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-4">
                             <select id="year" name="year" data-placeholder="Seleccione año..." class="chosen-select" style="width:200px;" onchange ="reloadTable(); validate_year('year')" tabindex="4">
                                 <option value=""></option>
                             </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <button id="validateAll" type="button" class="btn btn-success pull-right" onclick="validate(-1)"> Validar Presupuesto</button>
                         </div>
                     </div>
                     <div class="row">
@@ -128,8 +127,6 @@
                                 </tr>
                             <?php
                                     foreach($data_type['areas'] as $data_area){
-                                        if(!in_array($data_area['area']->getId(), $orgs))
-                                            continue;
                                 ?>
                                 <tr role="row" class="treegrid-<?php echo ($data_area['area']->getId())?> treegrid-parent-<?php echo ($data_area['area']->getParent())?> treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($data_area['area']->getName())?></td>
@@ -156,6 +153,7 @@
                                         <a class="on-editing save-row hidden" href="#"><i class="fa fa-save"></i></a>
                                         <a class="on-editing cancel-row hidden" href="#"><i class="fa fa-times"></i></a>
                                         <a class="on-default edit-row" href="#"><i class="fa fa-pencil"></i></a>
+                                        <a class="on-default validate-row" href="#"><i class="fa fa-check"></i></a>
                                     </td>
                                 </tr>
                             <?php
@@ -220,7 +218,12 @@
     }
 
     function changeData(valid) {
-        datos = (valid ? valid_datos : no_valid_datos);
+        if (valid){
+            datos= valid_datos;
+        }
+        else{
+            datos = no_valid_datos;
+        }
         reloadTable();
     }
 
@@ -264,6 +267,13 @@
             elem.focus();
             return false;
         }
+    }
+
+    function validate(org) {
+        if (!validate_year('year'))
+            return;
+        var data = {'org': org, 'year': $('#year').val()};
+        ajaxCall("<?php echo base_url();?>presupuesto/validate", data);
     }
 
     function intToMoney(num){
@@ -326,6 +336,10 @@
                 continue;
             $('.treegrid-'+org+' > td').each(function(){
                 var $this = $( this );
+                if($this.html()!=""){
+                    return;
+                }
+
                 dato = datos[org][year];
                 if($this.hasClass('org-id')){
                     $this.html(org);
@@ -369,22 +383,24 @@
         difMaxVal = getChildrenSumValue('root', 'max-val-diff');
         root.children( 'td' ).each(function() {
             var $this = $( this );
-            if($this.hasClass('current-val')){
+            if($this.hasClass('current-val') && !(val===null) ){
                 $this.html(intToMoney(val));
             }
-            else if($this.hasClass('min-val')){
+            else if($this.hasClass('min-val') && !(min===null)){
                 $this.html(intToMoney(min));
             }
-            else if($this.hasClass('max-val')){
+            else if($this.hasClass('max-val') && !(max===null)){
                 $this.html(intToMoney(max));
             }
-            else if($this.hasClass('min-val-diff')){
+            else if($this.hasClass('min-val-diff') && !(difMinVal===null)){
                 $this.html(intToMoney(difMinVal));
             }
-            else if($this.hasClass('max-val-diff')){
+            else if($this.hasClass('max-val-diff') && !(difMaxVal===null)){
                 $this.html(intToMoney(difMaxVal));
             }
         });
+        if(val===null || min===null || max ===null)
+            return;
         root.addClass(getRowClass(val, min, max));
     }
 
@@ -399,16 +415,19 @@
 
     function getChildrenSumValue(id, column) {
         var sum = 0;
+        var hasVal = false;
         $('.treegrid-parent-' + id).each(function () {
             var $this = $(this);
             valueRow = $this.children('td.' + column);
             num = moneyToInt(valueRow.html().trim());
-            if(num.length > 0)
+            if(num.length > 0) {
                 num = parseInt(num);
-            else
-                num = 0;
-            sum += num;
+                sum += num;
+                hasVal = true;
+            }
         });
+        if(!hasVal)
+            return null;
         return sum;
     }
 
@@ -416,14 +435,19 @@
         if (!validate_year('year'))
             return;
         var year = $('#year').val();
+        var data = {'year': year,
+            'org': org,
+            'value': value,
+            'expected': min,
+            'target': max};
+        ajaxCall("<?php echo base_url();?>presupuesto/modify", data);
+    }
+
+    function ajaxCall(url, data) {
         $.ajax({
             type: "POST",
-            url: "<?php echo base_url();?>presupuesto/modify",
-            data: {'year': year,
-                   'org': org,
-                   'value': value,
-                   'expected': min,
-                   'target': max},
+            url: url,
+            data: data,
             dataType: "json",
             cache:false,
             success:
@@ -524,6 +548,12 @@
                         return;
                     _self.rowEdit( $(this).closest( 'tr' ) );
                 })
+                .on('click', 'a.validate-row', function( e ) {
+                    e.preventDefault();
+                    if (!validate_year('year'))
+                        return;
+                    _self.rowValidate( $(this).closest( 'tr' ) );
+                })
 
             this.dialog.$cancel.on( 'click', function( e ) {
                 e.preventDefault();
@@ -615,6 +645,17 @@
 
             this.datatable.draw();
             ajaxPostBudgetData(values[1], values[2], values[3], values[5]);
+        },
+
+        rowValidate: function ($row) {
+            var _self = this, data;
+            var org;
+            $row.children( 'td' ).each(function( i ) {
+                var $this = $( this );
+                if($this.hasClass('org-id'))
+                    org = $this.html();
+            });
+            validate(org);
         },
 
         rowSetActionsEditing: function( $row ) {

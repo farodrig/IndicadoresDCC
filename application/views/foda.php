@@ -33,6 +33,11 @@
             vertical-align: middle;
         }
 
+        div.table-responsive div.row {
+            margin-left: 0px;
+            margin-right: 0px;
+        }
+
         .tooltip.top .tooltip-inner {
             background-color:white;
             color: darkgrey;
@@ -102,17 +107,17 @@
                     <div class="col-md-2 text-center">
                         <label class="control-label title">Año:</label>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <select id="year" name="year" data-placeholder="Seleccione año..." class="chosen-select" style="width:200px;" onchange ="validate_year('year')">
                             <option value=""></option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 col-md-offset-2">
                         <div class="col-md-6">
                             <label class="control-label title">Organización:</label>
                         </div>
                         <div class="col-md-6">
-                            <select id="org" name="org" data-placeholder="Seleccione area o sub-area..." class="chosen-select" style="width:200px;">
+                            <select id="org" name="org" data-placeholder="Seleccione area o sub-area..." class="chosen-select">
                                 <option value=""></option>
                                 <?php
                                 foreach ($departments as $dpto){
@@ -141,6 +146,7 @@
                             <h4 class="text-center">FODA
                                 <small id="foda_valid"></small>
                                 <a class="btn editFoda hidden" data-toggle="modal" data-target="#editFodaModal" ><i class="fa fa-pencil"></i></a>
+                                <button type="button" id="validateFoda" onclick="validateElement('foda', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
                             </h4>
                             <div class="form-group">
                                 <label class="col-sm-2">Comentario:</label>
@@ -152,6 +158,7 @@
                             <h4 class="text-center">Plan Estratégico
                                 <small id="strategy_valid"></small>
                                 <a class="btn editStrategy hidden" data-toggle="modal" data-target="#editStrategyModal" ><i class="fa fa-pencil"></i></a>
+                                <button type="button" id="validateStrategy" onclick="validateElement('strategy', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
                             </h4>
                             <div class="strategy-data">
                                 <div class="row">
@@ -182,7 +189,7 @@
                     </div>
                     <div class="panel-body row">
                         <div id ="itemData" class="col-md-5">
-                            <div class="row" id="itemButtons" style="display: none;">
+                            <div class="row col-md-12" id="itemButtons" style="display: none;">
                                 <button id="addItem" data-toggle="modal" data-target="#editItemModal" data-id="-1" data-title="Añadir Item al FODA" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Item</button>
                                 <button id="expand-collapse-items" class="expanded pull-right" type="button">Expandir Todos</button>
                             </div>
@@ -191,7 +198,7 @@
                                     <div class="table-responsive">
                                         <table id="itemTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
                                             <thead>
-                                                <tr role="row">
+                                                <tr>
                                                     <th class="sorting_disabled"></th>
                                                     <th class="sorting">ID</th>
                                                     <th class="sorting" aria-controls="itemTable">Item</th>
@@ -208,7 +215,7 @@
                             </div>
                         </div>
                         <div id ="goalData" class="col-md-7">
-                            <div class="row col-md-offset-1" id="goalButtons" style="display: none">
+                            <div class="row col-md-12" id="goalButtons" style="display: none">
                                 <button id="addGoal" data-toggle="modal" data-target="#editGoalModal" data-id="-1" data-title="Añadir Objetivo" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Objetivo</button>
                                 <button id="expand-collapse-goals" class="expanded pull-right" type="button">Expandir Todos</button>
                             </div>
@@ -217,7 +224,7 @@
                                     <div class="table-responsive">
                                         <table id="goalTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
                                             <thead>
-                                                <tr role="row">
+                                                <tr>
                                                     <th class="sorting_disabled"></th>
                                                     <th class="sorting">ID</th>
                                                     <th class="sorting" aria-controls="goalTable">Objetivo</th>
@@ -891,6 +898,22 @@
         ajaxCall("<?php echo base_url();?>fodaStrategy/delete", data);
     }
 
+    function validateElement(type, id) {
+        var retVal = confirm("¿Está seguro que desea validar este elemento?");
+        if(!retVal)
+            return;
+        var org = $('#org').val();
+        var year = $('#year').val();
+        if(id===null){
+            if(type=='foda')
+                id = fodas[org][year].id;
+            else if(type=='strategy')
+                id = strategies[org][year].strategy.id;
+        }
+        var data = {'type': type, 'id': id};
+        ajaxCall("<?php echo base_url();?>fodaStrategy/validate", data);
+    }
+
     function ajaxCall(url, data) {
         $.ajax({
             type: "POST",
@@ -940,11 +963,13 @@
         $("#foda_comment").html(fodas[org][year].comment);
         $('#foda_valid').removeClass('validated');
         $('#foda_valid').removeClass('no-validated');
-        if(fodas[org][year].validated) {
+        $('#validateFoda').hide();
+        if(fodas[org][year].validated==1) {
             $('#foda_valid').html('(Validado)');
             $('#foda_valid').addClass('validated');
         }
         else{
+            $('#validateFoda').show();
             $('#foda_valid').html('(No validado)');
             $('#foda_valid').addClass('no-validated');
         }
@@ -958,7 +983,7 @@
         if(items[org]===undefined || items[org][year]===undefined)
             return;
         for(i = 0; i<items[org][year].length; i++){
-            cells = '<tr id="item' + items[org][year][i].id + '" role="row">';
+            cells = '<tr id="item' + items[org][year][i].id + '" >';
             cells += '<td class="text-center checkDetails"><i onclick="showHideItemDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
             cells += '<td>I' + items[org][year][i].id + '</td>';
             cells += '<td class="itemTitle">' + items[org][year][i].title + '</td>';
@@ -997,11 +1022,13 @@
         collaborators = strategies[org][year].collaborators;
         $('#strategy_valid').removeClass('validated');
         $('#strategy_valid').removeClass('no-validated');
-        if(strategy.validated) {
+        $('#validateStrategy').hide();
+        if(strategy.validated==1) {
             $('#strategy_valid').html('(Validado)');
             $('#strategy_valid').addClass('validated');
         }
         else{
+            $('#validateStrategy').show();
             $('#strategy_valid').html('(No validado)');
             $('#strategy_valid').addClass('no-validated');
         }
@@ -1027,23 +1054,26 @@
         if(goals[org] === undefined || goals[org][year]===undefined)
             return;
         for(i in goals[org][year]){
-            cells = '<tr id="goal' + i + '" role="row">';
+            cells = '<tr id="goal' + i + '" >';
             cells += '<td class="text-center checkDetails"><i onclick="showHideGoalDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
             cells += '<td>O' + i + '</td>';
             cells += '<td class="goalTitle">' + goals[org][year][i].title + '</td>';
             cells += '<td class="goalUser">' + users[goals[org][year][i].userInCharge].name + '</td>';
             cells += '<td class="goalDeadline">' + goals[org][year][i].deadline + '</td>';
             cells += '<td class="goalState">' + goals[org][year][i].status + '</td>';
-            if (goals[org][year][i].validated){
+            if (goals[org][year][i].validated==1){
                 cells += '<td class="goalValidated"> Si </td>';
+                validate = '';
             }
             else{
                 cells += '<td class="goalValidated"> No </td>';
+                validate = '<a class="btn icons" onclick="validateElement(\'goal\', ' + i + ')" data-toggle="tooltip" title="Validar Objetivo"><i class="fa fa-check"></i></a>';
             }
             cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Objetivo" data-target="#editGoalModal" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
                 '<a class="btn icons" onclick="deleteElement(\'goal\', ' + i + ')"><i class="fa fa-trash-o"></i></a>' +
-                '<a class="btn icons" data-toggle="modal" data-title="Añadir Acción" data-target="#editActionModal" data-goal="' + i + '" data-id="-1"><i class="fa fa-plus"></i></a></td>';
-            html += cells + "</tr>";
+                '<a class="btn icons" data-toggle="modal" data-title="Añadir Acción" data-target="#editActionModal" data-goal="' + i + '" data-id="-1"><i class="fa fa-plus"></i></a>';
+
+            html += cells + validate + "</td></tr>";
         }
         $('#goalTable').dataTable().fnDestroy();
         $('#goalTableContent').html(html);
@@ -1074,7 +1104,7 @@
             return;
         html = '<table id="actionTable' + goal + '" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid"> \
                         <thead> \
-                            <tr role="row"> \
+                            <tr > \
                                 <th class="sorting_disabled">Acción</th> \
                                 <th class="sorting_disabled">Encargado</th> \
                                 <th class="sorting_disabled">Estado</th> \
@@ -1084,7 +1114,7 @@
                         <tbody id="actionTableContent' + goal + '">';
         for(i in actions[goal]){
             action = actions[goal][i];
-            cells = '<tr id="action' + i + '" role="row">';
+            cells = '<tr id="action' + i + '" >';
             cells += '<td class="actionTitle">' + action.title + '</td>';
             cells += '<td class="actionUser">' + users[action.userInCharge].name + '</td>';
             cells += '<td class="actionState">' + action.status + '</td>';

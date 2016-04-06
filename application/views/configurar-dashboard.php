@@ -56,49 +56,12 @@
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
-				<aside id="sidebar-left" class="sidebar-left">
-
-					<div class="sidebar-header">
-						<div class="sidebar-title">
-							Navegación
-						</div>
-						<div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html" data-fire-event="sidebar-left-toggle">
-							<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-						</div>
-					</div>
-
-					<div class="nano">
-						<div class="nano-content">
-							<nav id="menu" class="nav-main" role="navigation">
-								<ul class="nav nav-main">
-									<li>
-										<a href="<?php echo base_url();?>inicio">
-											<i class="fa fa-home" aria-hidden="true"></i>
-											<span>U-Dashboard</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>careaunidad">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-th-large" aria-hidden="true"></i>
-											<span>Configurar áreas y unidades</span>
-										</a>
-									</li>
-									<li>
-										<a href="<?php echo base_url();?>cmetrica">
-											<span class="pull-right label label-primary"></span>
-											<i class="fa fa-server" aria-hidden="true"></i>
-											<span>Configurar métricas</span>
-										</a>
-									</li>
-								</ul>
-							</nav>
-
-						</div>
-
-					</div>
-
-				</aside>
+				<?php
+				$navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
+					['url'=>'careaunidad', 'name'=>'Configurar áreas y unidades', 'icon'=>'fa fa-th-large'],
+					['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server']];
+				include 'partials/navigation.php';
+				?>
 				<!-- end: sidebar -->
 				<section role="main" class="content-body">
 					<header class="page-header">
@@ -121,14 +84,13 @@
 					<!-- start: page -->
 					<div class="row">
 					<div class="text-center col-sm-12 btn-group-horizontal">
-						<button class= "mb-xs mt-xs mr-xs btn btn-danger btn-lg" onclick="changePage('cdashboardDCC')">Configurar Dashboard DCC</button>
-						<button class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" onclick="changePage('cdashboardArea')">Configurar Dashboard áreas</button>
-						<button class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" onclick="changePage('cdashboardUnidad')">Configurar Dashboard unidades</button>
-
+						<a class= "mb-xs mt-xs mr-xs btn btn-danger btn-lg" href="<?php echo base_url();?>cdashboardDCC">Configurar Dashboard DCC</a>
+						<a class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" href="<?php echo base_url();?>cdashboardArea">Configurar Dashboard áreas</a>
+						<a class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" href="<?php echo base_url();?>cdashboardUnidad">Configurar Dashboard unidades</a>
 					</div>
 					</div>
 					<?php
-						if($areas){
+					if($areas){
 						if($id_first=="-1")
 							$first_area_key = array_keys($areas)[0];
 						else{
@@ -163,7 +125,7 @@
 													<form>
 													<?php
 														$first_area_unidades = $areas[$first_area_key]['unidades'];?>
-													<select name="area" id= "area" class="<?php echo("form-control btn ".$color_button);?>" onchange= "selectUnidades();">
+													<select name="area" id= "area" class="<?php echo("form-control btn ".$color_button);?>" onchange="selectUnidades();">
 													<?php
 														foreach ($areas as $area) {
 															echo "<option class='select' value='".$area['id']."'>".$area['name']."</option>";
@@ -231,7 +193,9 @@
 
 						</div>
 					</div>
-					<?php } ?>
+					<?php
+					}
+					?>
 					<!-- end: page -->
 				</section>
 
@@ -248,10 +212,6 @@
 		<script>
 			var id_first= <?php echo $id_first; ?>;
 			var years = <?php echo json_encode($years); ?>;
-
-			function changePage(page){
-      			window.location.href = "<?php echo base_url();?>".concat(page);
-    		}
 
 			var metricas = <?php echo json_encode($metricas); ?>;
 			$(document).ready(function(){
@@ -319,9 +279,6 @@
     				$(popover).appendTo($('#metricas'));
   				}
 			});
-
-
-
 		</script>
 	<script src="<?php echo base_url();?>js/functions.js"></script>
 	</body>

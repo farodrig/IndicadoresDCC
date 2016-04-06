@@ -1,6 +1,27 @@
 <?php
-class Dashboardconfig_model extends CI_Model
-{
+class Dashboardconfig_model extends CI_Model{
+
+	public $serie;
+	public $type;
+	public $graphic;
+	public $aggregation;
+
+	public function __construct(){
+		parent::__construct();
+		$this->serie = "Serie";
+		$this->type = "Serie_Type";
+		$this->graphic = "Graphic";
+		$this->aggregation = "Aggregation_Type";
+	}
+
+	function getSerieType($data){
+		return getGeneric($this, $this->type, $data);
+	}
+	
+	function getAggregationType($data){
+		return getGeneric($this, $this->aggregation, $data);
+	}
+
 	function getMinMaxYears($id,$id_org){
 		$query = "SELECT g.id AS graph, g.type AS type, g.min_year AS min_year, g.max_year AS max_year, g.position AS position
 			FROM Dashboard AS d, GraphDash as gd, Graphic AS g
@@ -261,5 +282,4 @@ class Dashboardconfig_model extends CI_Model
 			$q = $this->db->query($query, array($id_dash->id, $id_graph->id));
 		}
 	}
-
 }

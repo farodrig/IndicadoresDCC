@@ -15,7 +15,6 @@ class Budget extends CI_Controller {
         $permits = $this->session->userdata();
         if (!$permits['admin'] && !count($permits['encargado_finanzas'])  &&  !count($permits['asistente_finanzas']))
             redirect('inicio');
-
         $data = $this->budgetData($permits);
         $aux_org = $data[0];
         $valid_data = $data[1];
@@ -47,9 +46,9 @@ class Budget extends CI_Controller {
         }
 
         $this->form_validation->set_rules('year', 'Año', 'numeric|required|greater_than_equal_to[0]');
-        $this->form_validation->set_rules('value', 'Valor', 'numeric');
-        $this->form_validation->set_rules('expected', 'Esperado', 'numeric');
-        $this->form_validation->set_rules('target', 'Meta', 'numeric');
+        $this->form_validation->set_rules('value', 'Valor', 'numeric|required');
+        $this->form_validation->set_rules('expected', 'Esperado', 'numeric|required');
+        $this->form_validation->set_rules('target', 'Meta', 'numeric|required');
 
         if (!$this->form_validation->run()) {
             echo json_encode(array('success'=>0));
@@ -58,40 +57,57 @@ class Budget extends CI_Controller {
         $this->load->library('Dashboard_library');
 
         $validation = 0;
-        if($permits['admin'] || in_array($org, $permits['encargado_finanzas']))
+        $order = "ASC";
+        if($permits['admin'] || in_array($org, $permits['encargado_finanzas'])) {
             $validation = 1;
-
+            $order = "DESC";
+        }
         $year =  $this->input->post("year");
         $value =  $this->input->post("value");
         $expected =  $this->input->post("expected");
         $target =  $this->input->post("target");
-        $this->load->model('Dashboard_model');
-        $this->load->model('Organization_model');
         $org = $this->Organization_model->getById($org);
-        $oldVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year);
+        $oldVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year, $order);
         $success = $this->Dashboard_model->updateCreateBudgetValue($org->getId(), $year, $value, $expected, $target, $validation);
-        $currentVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year);
+        $currentVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year, $order);
         $currentOrg = $org;
         $parent = $this->Organization_model->getById($org->getParent());
         while($currentOrg->getId()!=$parent->getId()){
-            $parentVal = $this->Dashboard_model->getBudgetMeasure($parent->getId(), $year);
-            $currentVal->value = is_null($currentVal->value) ? $currentVal->p_v : $currentVal->value;
-            $currentVal->expected = is_null($currentVal->expected) ? $currentVal->p_e : $currentVal->expected;
-            $currentVal->target = is_null($currentVal->target) ? $currentVal->p_t : $currentVal->target;
             if(!$oldVal){
                 $oldVal = (object) [
                     'value' => 0,
                     'expected' => 0,
                     'target' => 0,
+                    'state' => 1
                 ];
             }
+            elseif($oldVal->state==0){
+                $oldVal->value = $oldVal->p_v;
+                $oldVal->expected = $oldVal->p_e;
+                $oldVal->target = $oldVal->p_t;
+            }
+
+            $parentVal = $this->Dashboard_model->getBudgetMeasure($parent->getId(), $year, $order);
             if(!$parentVal){
                 $parentVal = (object) [
                     'value' => 0,
                     'expected' => 0,
                     'target' => 0,
+                    'state' => 1
                 ];
             }
+            elseif ($parentVal->state==0){
+                $parentVal->value = $parentVal->p_v;
+                $parentVal->expected = $parentVal->p_e;
+                $parentVal->target = $parentVal->p_t;
+            }
+
+            if(!$validation){
+                $currentVal->value = $currentVal->p_v;
+                $currentVal->expected = $currentVal->p_e;
+                $currentVal->target = $currentVal->p_t;
+            }
+
             $newVal = $parentVal->value + $currentVal->value - $oldVal->value;
             $newExpected = $parentVal->expected + $currentVal->expected - $oldVal->expected;
             $newTarget = $parentVal->target + $currentVal->target - $oldVal->target;
@@ -99,10 +115,66 @@ class Budget extends CI_Controller {
             $currentOrg = $parent;
             $parent = $this->Organization_model->getById($parent->getParent());
             $oldVal = $parentVal;
-            $currentVal = $this->Dashboard_model->getBudgetMeasure($currentOrg->getId(), $year);
+            $currentVal = $this->Dashboard_model->getBudgetMeasure($currentOrg->getId(), $year, $order);
         }
         $result['success'] = $success;
         if($success){
+            $data = $this->budgetData($permits);
+            $result['valid_data'] = $data[1];
+            $result['no_valid_data'] = $data[2];
+        }
+        echo json_encode($result);
+    }
+
+    public function validate(){
+        if (!$this->input->is_ajax_request()) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        //Validación de Entradas
+        $this->form_validation->set_rules('org', 'Organización', 'numeric|required');
+        $this->form_validation->set_rules('year', 'Año', 'numeric|required|greater_than_equal_to[1950]');
+        if (!$this->form_validation->run()) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        $org =  $this->input->post("org");
+        $year =  $this->input->post("year");
+        $permits = $this->session->userdata();
+        //Validación de Permisos
+        if (!$permits['admin'] && !in_array($org, $permits['encargado_finanzas'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        $data = $this->budgetData($permits);
+        $done = true;
+        if($org==-1) {
+            foreach ($data[2] as $org_id => $dataByYear) {
+                if (array_key_exists($year, $dataByYear)) {
+                    $value = $dataByYear[$year];
+                    if ($value->state != 0)
+                        continue;
+                    $done = $done && $this->Dashboard_model->validateData($value->id);
+                }
+            }
+        }
+        else{
+            $organization = $this->Organization_model->getByID($org);
+            if(!$organization){
+                echo json_encode(array('success'=>0));
+                return;
+            }
+            while ($organization->getParent()!=$organization->getId()){
+                if (array_key_exists($year, $data[2][$organization->getId()])) {
+                    $value = $data[2][$organization->getId()][$year];
+                    if ($value->state == 0)
+                        $done = $done && $this->Dashboard_model->validateData($value->id);
+                }
+                $organization = $this->Organization_model->getByID($organization->getParent());
+            }
+        }
+        $result['success'] = $done;
+        if($done){
             $data = $this->budgetData($permits);
             $result['valid_data'] = $data[1];
             $result['no_valid_data'] = $data[2];

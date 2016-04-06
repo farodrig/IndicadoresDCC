@@ -62,6 +62,7 @@ $route['careaunidad']      = 'ModifyOrg/modifyAreaUnidad';
 $route['cdashboardUnidad'] = 'DashboardConfig/configUnidad';
 $route['cdashboardArea']   = 'DashboardConfig/configArea';
 $route['cdashboardDCC']    = 'DashboardConfig/configDCC';
+$route['dconfig'] = 'DashboardConfig/dashboardConfig';
 $route['addGraph']         = 'DashboardConfig/addGraphUnidad';
 $route['cmetrica']         = 'MySession/configurarMetricas';
 $route['export']           = 'Dashboard/exportData';
@@ -70,6 +71,7 @@ $route['salir']            = 'MySession/logout';
 $route['verif_usuario']    = 'ADI/user_verify';
 
 $route['fodaStrategy'] = 'FodaStrategy/fodaIndex';
+$route['fodaStrategy/validate'] = 'FodaStrategy/validate';
 
 $route['fodaStrategy/modify/foda'] = 'FodaStrategy/modifyFoda';
 $route['fodaStrategy/modify/strategy'] = 'FodaStrategy/modifyStrategy';
@@ -82,6 +84,7 @@ $route['fodaStrategy/delete'] = 'FodaStrategy/delete';
 
 $route['presupuesto'] = 'Budget/index';
 $route['presupuesto/modify'] = 'Budget/modify';
+$route['presupuesto/validate'] = 'Budget/validate';
 
 $route['404_override']         = '';
 $route['translate_uri_dashes'] = FALSE;

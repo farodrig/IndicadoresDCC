@@ -6,11 +6,56 @@ class DashboardConfig extends CI_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->library('session');
+		$this->load->model('Organization_model');
+
 		$this->load->model('Dashboard_model');
 		$this->load->model('Dashboardconfig_model');
 		$this->dashboardModel = $this->Dashboard_model;
 		if (is_null($this->session->rut))
 			redirect('salir');
+	}
+	
+	function dashboardConfig(){
+		$permits = $this->session->userdata();
+		if (!$permits['admin']) {
+			redirect('inicio');
+		}
+
+		$this->load->model('Metorg_model');
+		$this->load->model('Metrics_model');
+
+		$org_ids = $this->Organization_model->getAllIds();
+		$orgs = [];
+		$metrics = [];
+		foreach ($org_ids as $org_id){
+			$org = $this->Organization_model->getByID($org_id);
+			$all_childs = $this->Organization_model->getAllChilds($org_id);
+			$childs = [];
+			foreach ($all_childs as $child){
+				$childs[] = $child->getId();
+			}
+			$org->children = $childs;
+			$orgs[] = $org;
+			$metorgs = $this->Metorg_model->getMetOrg(['org'=>[$org_id]]);
+			foreach ($metorgs as $metorg){
+				$metric = $this->Metrics_model->getMetric(['id'=>[$metorg->metric]])[0];
+				$metric->metorg = $metorg;
+				$metrics[$org_id][] = $metric;
+			}
+		}
+
+		$this->load->view('configurar-dashboard2',
+			array('orgs' => $orgs,
+				'title'  => 'Configuración de Dashboard',
+				'role'        => $permits['title'],
+				'types' => $this->Dashboardconfig_model->getSerieType([]),
+				'aggregation' => $this->Dashboardconfig_model->getAggregationType([]),
+				'metrics' => $metrics,
+				'success'     => is_null($this->session->flashdata('success')) ? 2 : $this->session->flashdata('success'),
+				'validate'    => validation($permits, $this->Dashboard_model),
+				'departments' => $this->Organization_model->getTree(-1)
+			)
+		);
 	}
 
 	function configUnidad(){// funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo

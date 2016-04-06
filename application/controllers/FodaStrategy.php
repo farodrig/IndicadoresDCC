@@ -395,6 +395,53 @@ class FodaStrategy extends CI_Controller {
         echo json_encode($result);
     }
 
+    function validate(){
+        if (!$this->input->is_ajax_request()) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!$permits['admin']) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+
+        //Validación de entradas
+        $this->form_validation->set_rules('type', 'Tipo de elemento', 'trim|required|alpha_dash');
+        $this->form_validation->set_rules('id', 'ID', 'numeric|required|greater_than_equal_to[0]');
+
+        if (!$this->form_validation->run()) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        $type = $this->input->post('type');
+        $id = $this->input->post('id');
+        $data = ['id'=>$id, 'validated'=>1];
+        $done = $validator = $this->validationByType($type, $data);
+        if(strcmp($type, "strategy")==0){
+            $goals = $this->Strategy_model->getGoal(['strategy'=>[$id]]);
+            foreach ($goals as $goal){
+                if(!$goal->validated){
+                    $done = $done && $this->Strategy_model->modifyGoal(['id'=>$goal->id, 'validated'=>1]);
+                }
+            }
+        }
+        $result['success'] = $done;
+        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        echo json_encode($result);
+    }
+
+    private function validationByType($type, $data){
+        if(strcmp($type, "foda")==0)
+            return $this->Foda_model->modifyFoda($data);
+        elseif (strcmp($type, "strategy")==0)
+            return $this->Strategy_model->modifyStrategicPlan($data);
+        elseif (strcmp($type, "goal")==0)
+            return $this->Strategy_model->modifyGoal($data);
+    }
+
     function delete(){
         if (!$this->input->is_ajax_request()) {
             echo json_encode(array('success'=>0));

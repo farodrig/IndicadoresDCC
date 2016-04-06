@@ -99,14 +99,14 @@ class Dashboard_model extends CI_Model{
         return false;
     }
 
-    function getBudgetMeasure($org, $year){
+    function getBudgetMeasure($org, $year, $order){
         $this->db->select('Value.id, Value.metorg AS org, value, target, expected, year, state, proposed_value as p_v, proposed_target as p_t, proposed_expected as p_e');
         $this->db->from('Value');
         $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
         $this->db->where('MetOrg.org', $org);
         $this->db->where('MetOrg.metric', 1);
         $this->db->where('year', $year);
-        $this->db->order_by('state DESC');
+        $this->db->order_by('state', $order);
         $q = $this->db->get();
         if($q->num_rows() > 0)
             return $q->row();
@@ -399,7 +399,7 @@ class Dashboard_model extends CI_Model{
         }
         $this->db->where('id', $id);
         $this->db->set('dateval', 'NOW()', FALSE);
-		$q=$this->db->update($this->value,$data);
+		$q = $this->db->update($this->value, $data);
 		$this->_overrrideData($value->metorg, $value->year);
         $query = $this->db->get_where('Value',array('id' => $id));
         $value = $query->row();
