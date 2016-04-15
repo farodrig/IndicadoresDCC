@@ -25,25 +25,21 @@ class FodaStrategy extends CI_Controller {
         
         $sData = $this->getAllStrategyData();
         $years = array_merge($years, $sData['years']);
-        
-        $this->load->view('foda',
-            array('title'  => 'Visualización de FODAs',
-                'strategies'  => $sData['strategies'],
-                'goals'       => $sData['goals'],
-                'actions'     => $sData['actions'],
-                'users'       => $sData['users'],
-                'status'      => $sData['status'],
-                'role'        => $permits['title'],
-                'fodas'       => $fData['fodas'],
-                'items'       => $fData['items'],
-                'years'       => array_unique($years),
-                'priorities'  => $this->Foda_model->getAllPriority(),
-                'types'       => $this->Foda_model->getAllType(),
-                'success'     => is_null($this->session->flashdata('success')) ? 2 : $this->session->flashdata('success'),
-                'validate'    => validation($permits, $this->Dashboard_model),
-                'departments' => $this->Organization_model->getTree($orgs)
-            )
+        $result = array('title'     => 'Visualización de FODAs',
+            'strategies'  => $sData['strategies'],
+            'goals'       => $sData['goals'],
+            'actions'     => $sData['actions'],
+            'users'       => $sData['users'],
+            'status'      => $sData['status'],
+            'fodas'       => $fData['fodas'],
+            'items'       => $fData['items'],
+            'years'       => array_unique($years),
+            'priorities'  => $this->Foda_model->getAllPriority(),
+            'types'       => $this->Foda_model->getAllType(),
+            'success'     => is_null($this->session->flashdata('success')) ? 2 : $this->session->flashdata('success'),
+            'departments' => $this->Organization_model->getTree($orgs)
         );
+        $this->load->view('foda', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
     }
 
     function modifyFoda(){
@@ -154,6 +150,12 @@ class FodaStrategy extends CI_Controller {
         else{
             $item = $this->Foda_model->addItem($data);
             $done = $done && ($item ? true : false);
+        }
+
+        if(!$validated && $foda->validated){
+            $data['id'] = $foda->id;
+            $data['validated'] = $validated;
+            $done = $done && $this->Foda_model->modifyFoda($data);
         }
         $aux_goals = $this->Strategy_model->getGoalItem(['item'=>[$item]]);
         $goals = [];
@@ -289,7 +291,8 @@ class FodaStrategy extends CI_Controller {
             $validated = true;
 
         $data = array('org' => [$this->input->post('org')],
-            'year' => [$this->input->post('year')]);
+            'year' => [$this->input->post('year')]
+        );
         $strategic = $this->Strategy_model->getStrategicPlan($data);
         $data['org'] = $data['org'][0];
         $data['year'] = $data['year'][0];
@@ -320,6 +323,12 @@ class FodaStrategy extends CI_Controller {
         else{
             $goal = $this->Strategy_model->addGoal($data);
             $done = $done && ($goal ? true : false);
+        }
+
+        if(!$validated && $strategic->validated){
+            $data['id'] = $strategic->id;
+            $data['validated'] = $validated;
+            $done = $done && $this->Strategy_model->modifyStrategicPlan($data);
         }
 
         $aux_items = $this->Strategy_model->getGoalItem(['goal'=>[$goal]]);
@@ -390,6 +399,23 @@ class FodaStrategy extends CI_Controller {
             $done = $done && ($this->Strategy_model->addAction($data) ? true : false);
         }
 
+        $validated = false;
+        if($permits['admin'])
+            $validated = true;
+
+        $goal = $this->Strategy_model->getGoal(['id' => [$data['goal']]])[0];
+        if(!$validated && $goal->validated){
+            $data['id'] = $goal->id;
+            $data['validated'] = $validated;
+            $done = $done && $this->Strategy_model->modifyGoal($data);
+            $strategic = $this->Strategy_model->getStrategicPlan($data);
+            if($strategic->validated){
+                $data['id'] = $strategic->id;
+                $data['validated'] = $validated;
+                $done = $done && $this->Strategy_model->modifyStrategicPlan($data);
+            }
+        }
+
         $result['success'] = $done;
         $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
         echo json_encode($result);
@@ -426,6 +452,15 @@ class FodaStrategy extends CI_Controller {
                 if(!$goal->validated){
                     $done = $done && $this->Strategy_model->modifyGoal(['id'=>$goal->id, 'validated'=>1]);
                 }
+            }
+        }
+        if(strcmp($type, "goal")==0){
+            $goal = $this->Strategy_model->getGoal(['id'=>[$id]])[0];
+            $goal = $this->Strategy_model->getGoal(['strategy'=>[$goal->strategy], 'limit'=>1, 'order'=>[['validated','ASC']]])[0];
+            if($goal->validated){
+                $data['id'] = $goal->strategy;
+                $data['validated'] = $goal->validated;
+                $done = $done && $this->Strategy_model->modifyStrategicPlan($data);
             }
         }
         $result['success'] = $done;

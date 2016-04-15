@@ -17,18 +17,12 @@ class ModifyOrg extends CI_Controller {
 			redirect('inicio');
 		}
 
-		$val = $this->session->flashdata('success');
-		if (is_null($val)) {
-			$val = 2;
-		}
-
-		$this->load->view('configurar-areas-unidades',
-			array('title'  => 'Configuración de Areas y Unidades',
-				'role'        => $permits['title'],
-				'success'     => $val,
-				'validate'    => validation($permits, $this->Dashboard_model),
-				'departments' => getAllOrgsByDpto($this->Organization_model)//Notar que funcion esta en helpers
-			));
+		$val = (is_null($this->session->flashdata('success')) ? 2 : $this->session->flashdata('success'));
+		$result = array('title'  	  => 'Configuración de Areas y Unidades',
+						'success'     => $val,
+						'departments' => getAllOrgsByDpto($this->Organization_model)//Notar que funcion esta en helpers
+		);
+		$this->load->view('configurar-areas-unidades', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
 	}
 
 	function addArea() {

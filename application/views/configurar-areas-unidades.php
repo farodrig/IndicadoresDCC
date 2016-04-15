@@ -103,9 +103,8 @@
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
 				<?php
-				$navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
-						  ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
-						  ['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
+				$navData=[['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
+						  ['url'=>'cdashboard', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
 				include 'partials/navigation.php';
 				?>
 				<!-- end: sidebar -->

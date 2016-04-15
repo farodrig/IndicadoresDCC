@@ -40,8 +40,7 @@
     <div class="inner-wrapper">
         <!-- start: sidebar -->
         <?php
-        $navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
-            ['url'=>'dashboard', 'name'=>'Volver al Dashboard', 'icon'=>'fa fa-line-chart']];
+        $navData=[['url'=>'dashboard?org='.$org, 'name'=>'Volver al Dashboard', 'icon'=>'fa fa-line-chart']];
         include 'partials/navigation.php';
         ?>
         <!-- end: sidebar -->
@@ -101,8 +100,8 @@
                                 </div>
                             </div>
                             <div id="metrics" data-plugin-toggle="" class="toggle" hidden>
+                                <input type="hidden" name="org" value="<?php echo ($org);?>">
                                 <?php
-                                echo ('<input type="hidden" name="id_location" id="id_location" value='.$id_location.'>');
                                 foreach ($metrics as $metric) { ?>
                                     <section class="toggle active" >
                                         <label class="text-left"><?php echo (ucwords($metric->name));?></label >
@@ -216,7 +215,7 @@
             delButton = '<input type="checkbox" value=' + valId + ' name="delete[]" class="form-control">';
         }
         if(hasX)
-            tdX = '<td><input type="text" name="valueX[]" value="' + valueX + '" class="form-control"></td>';
+            tdX = '<td><input type="text" name="valueX[]" value="' + valueX + '" class="form-control" onkeyup ="validateX(this)" onfocus ="validateX(this)"></td>';
         else
             tdX = '<input type="hidden" name="valueX[]" value="" class="form-control">';
         row = '<tr> \
@@ -269,6 +268,12 @@
         loadMetrics();
     }
 
+    function validateX(elem) {
+        var value = elem.value;
+        var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*$");
+        return changeOnValidation(elem, (value.match(re)));
+    }
+
     function validate(elem){
         var value = elem.value;
         return changeOnValidation(elem, ((!isNaN(parseFloat(value)) && isFinite(value)) || value.length ==0));
@@ -319,13 +324,13 @@
                 id = $this.closest('tr').children('input[name="valId[]"]').val();
                 value = getValueById(id);
                 if(value && value.valueX != this.value && x_aux.indexOf(this.value) != -1){
-                    alert("No se pueden tener 2 elementos con el mismo valor de X. Añada un nuevo elemento y elimine este para obtener el mismo resultado.");
+                    alert("El valor de X ya se encuentra en algún otro año. Añada un nuevo elemento y elimine este para obtener el mismo resultado.");
                     result = false;
                     this.value = value.valueX;
                     return false;
                 }
                 else if(!value && newX.indexOf(this.value) != -1){
-                    alert("No se pueden tener 2 elementos con el mismo valor de X para en año. Modifique el elemento con el mismo nombre.");
+                    alert("No se pueden tener 2 elementos con el mismo valor de X para un mismo año. Modifique el elemento con el mismo nombre.");
                     result = false;
                     return false;
                 }

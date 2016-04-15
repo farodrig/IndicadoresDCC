@@ -3,16 +3,19 @@ class User_model extends CI_Model{
 
     public $title;
     public $permit;
-    public $separator;
     public $role;
+    public $position;
+    public $resource;
+
 
     public function __construct(){
         // Call the CI_Model constructor
         parent::__construct();
         $this->title = "User";
         $this->permit = "Permit";
-        $this->separator = ",";
         $this->role = "Role";
+        $this->position = "Position";
+        $this->resource = "Resource";
     }
 
     function getUser($data){
@@ -38,14 +41,14 @@ class User_model extends CI_Model{
     }
 
     function getPermitByUser($user){
-        return getGeneric($this, $this->permit, array('user' =>[$user]));
-    }
-
-    function getPermitByUserByOrg($user, $org){
-        return getGeneric($this, $this->permit, array('user' =>[$user], 'org' => [$org], 'limit'=>1))[0];
-    }
-
-    function getSeparator(){
-        return $this->separator;
+        $this->db->select($this->permit.'.id, '.$this->permit.'.org, '.$this->permit.'.position, resource, view, edit, validate');
+        $this->db->from($this->position);
+        $this->db->join($this->role, $this->position.'.id = '.$this->role.'.position');
+        $this->db->join($this->permit, $this->permit.'.position = '.$this->position .'.id');
+        $this->db->where($this->role.'.user', $user);
+        $this->db->order_by('resource', 'ASC');
+        $this->db->order_by('org', 'ASC');
+        $q = $this->db->get();
+        return $q->result();
     }
 }

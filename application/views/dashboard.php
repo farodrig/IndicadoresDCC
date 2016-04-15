@@ -1,184 +1,229 @@
-<!doctype html>
 <html class="fixed sidebar-left-collapsed">
-	<head>
-	   <?php
-        $title = "Dashboard";
-        include 'partials/head.php';
+<head>
+    <?php
+    $title = "Dashboard";
+    include 'partials/head.php';
+    ?>
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/select2/select2.css" />
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/css/datatables.css" />
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap-colorpicker/css/bootstrap-colorpicker.css">
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/morris/morris.css" />
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/chartist/chartist.css" />
+    <style type="text/css">
+        div.table-responsive div.row {
+            margin-left: 0px;
+            margin-right: 0px;
+        }
+
+        .margin-top{
+            margin-top: 2%;
+        }
+
+        .margin-left{
+            margin-left: 1%;
+        }
+
+        .fa-square-o {
+            border-radius: 20%;
+            height: 0.7em;
+            width: 0.75em;
+        }
+    </style>
+    <script type="text/javascript">
+        var graphics = <?php echo json_encode($graphics); ?>;
+        var tables = [];
+    </script>
+</head>
+<body>
+<section class="body">
+
+    <?php include 'partials/header_tmpl.php'; ?>
+
+    <div class="inner-wrapper">
+        <!-- start: sidebar -->
+        <?php
+        $navData=[];
+        if($add_data==1)
+            $navData[] = ['url'=>'formAgregarDato?org='.$org, 'name'=>'Modificar Datos', 'icon'=>'fa fa-plus-square'];
+
+        include 'partials/navigation.php';
         ?>
-		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/select2/select2.css" />
-		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/css/datatables.css" />
-		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/morris/morris.css" />
-		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/chartist/chartist.css" />
-	</head>
-	<body>
-		<section class="body">
+        <!-- end: sidebar -->
 
-        <?php include 'partials/header_tmpl.php'; ?>
+        <section role="main" class="content-body">
+            <header class="page-header">
+                <h2>Dashboard</h2>
 
-			<div class="inner-wrapper">
-				<!-- start: sidebar -->
-				<aside id="sidebar-left" class="sidebar-left">
+                <div class="right-wrapper pull-right">
+                    <ol class="breadcrumbs">
+                        <li>
+                            <a href="<?php echo base_url();?>inicio">
+                                <i class="fa fa-home"></i>
+                            </a>
+                        </li>
+                        <?php
+                        for($i=sizeof($route);$i>0;$i--)
+                            echo "<li><span>".$route[$i]."</span></li>";
+                        ?>
+                    </ol>
+                    <label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                </div>
+            </header>
+            <!-- start: page -->
+            <?php
+            if($show_button){
+                if($show_all){
+                    ?>
+                    <button class="btn btn-primary" onclick="changePage(0)">Ver gráficos seleccionados</button>
+                <?php }
+                else { ?>
+                    <button class="btn btn-primary" onclick="changePage(1)">Ver todos los gráficos</button>
+                <?php } ?>
+                <hr>
+            <?php } ?>
 
-					<div class="sidebar-header">
-						<div class="sidebar-title">
-							Navegación
-						</div>
-						<div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html" data-fire-event="sidebar-left-toggle">
-							<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-						</div>
-					</div>
+            <?php if(sizeof($graphics)==0){ ?>
+                <h2> No hay gráficos configurados para mostrar. </h2>
+            <?php } ?>
 
-					<?php include 'partials/navegation_tmpl.php'; ?>
+            <?php foreach ($graphics as $graphic):
+                $title = $graphic->title;
+                if($graphic->ver_x){
+                    $title .= " Periodo (".$graphic->min_year." - ".$graphic->max_year.")";
+                }?>
+                <div class='panel margin-top'>
+                    <?php echo form_open("export"); ?>
+                    <div class='panel-heading'>
+                        <input type="hidden" name="graphic" value="<?php echo $graphic->id;?>">
+                        <input class="all" " type="hidden" name="all" value="0">
+                        <h2 class='panel-title'><?php echo ($title); ?>
+                            <button id="exportAll" class="btn btn-primary pull-right margin-left exportAll" type="submit">Exportar Métricas</button>
+                            <button class="btn btn-primary pull-right margin-left" type="submit">Exportar Tabla</button>
+                        </h2>
+                    </div>
+                    <div class='panel-body'>
+                        <div id="graphic<?php echo $graphic->id;?>" class="col-md-6"></div>
+                        <div id="graphicTable_wrapper" class="dataTables_wrapper no-footer col-md-6">
+                            <div class="table-responsive">
+                                <table id="graphicTable<?php echo $graphic->id;?>" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="graphicTable_info">
+                                    <thead>
+                                        <tr>
+                                            <th class="sorting text-center">Serie</th>
+                                            <th class="sorting text-center"><?php echo $graphic->x_name;?></th>
+                                            <th class="sorting text-center">Valor</th>
+                                            <th class="sorting text-center">Esperado</th>
+                                            <th class="sorting text-center">Meta</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="graphicTableContent<?php echo $graphic->id;?>">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <?php echo form_close(); ?>
+                </div>
+            <?php endforeach; ?>
+            <!-- end: page -->
+        </section>
+    </div>
 
-				</aside>
-				<!-- end: sidebar -->
+</section>
 
-				<section role="main" class="content-body">
-					<header class="page-header">
-						<h2>Dashboard</h2>
+<?php include 'partials/footer.php'; ?>
 
-						<div class="right-wrapper pull-right">
-							<ol class="breadcrumbs">
-								<li>
-									<a href="<?php echo base_url();?>inicio">
-										<i class="fa fa-home"></i>
-									</a>
-								</li>
-								<?php
-									for($i=sizeof($route);$i>0;$i--)
-										echo "<li><span>".$route[$i]."</span></li>";
-								?>
-							</ol>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</div>
-					</header>
+<!-- Specific Page Vendor -->
+<script src="<?php echo base_url();?>assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
+<script src="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
+<script src="<?php echo base_url();?>assets/vendor/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
 
-					<!-- start: page -->
-						<script type="text/javascript">
-							var data = [];
-							var graph_info = [];
-							var index = 0;
-						</script>
+<script src="<?php echo base_url();?>assets/vendor/highcharts/js/highcharts.js" type="text/javascript"></script>
+<script src="<?php echo base_url();?>assets/vendor/highcharts/js/modules/exporting.js" type="text/javascript"></script>
+<script src="<?php echo base_url();?>js/functions.js"></script>
 
 
-						<?php echo form_open("dashboard");
-						if($show_button){
-							if($show_all){
-								?>
-								<input type="hidden" id="show_all" name="show_all" value="0">
-								<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver gráficos seleccionados</button>
-								<?php }
-							else { ?>
-								<input type="hidden" id="show_all" name="show_all" value="1">
-								<button name="id_org" id="id_org" type="submit" class="btn btn-primary" value="<?php echo $id_location;?>" >Ver todos los gráficos</button>
-							<?php } ?>
-							<hr>
-						<?php } ?>	
-						<?php echo form_close(); ?>
+<script type="text/javascript">
+    
+    $('.exportAll').on('click', function () {
+        console.log("gola");
+        $('.all').val("1");
+    });
 
-						<?php if(sizeof($data)==0){ ?>
-							<h2> No hay gráficos configurados para mostrar. </h2>
-						<?php } ?>
+    $(window).resize( function () {
+        for(var i in tables){
+            var table = tables[i];
+            table.columns.adjust();
+        }
+    } );
 
-						<?php foreach ($data as $metric):?>
-							<div class='row'>
-								<div class='col-md-6'>
-									<section class='panel'>
-										<header class='panel-heading'>
-											<h2 class='panel-title'><?php echo ucwords(element('name',$metric)); ?></h2>
-										</header>
-										<div class='panel-body'>
-											<div class='chart chart-md' id='<?php echo str_replace(' ', '', $metric['id']); ?>'>
-											<script type='text/javascript'>
-												var info = <?php echo json_encode($metric['vals']) ?>;
-												graph_info[index] = {
-													max :  <?php echo $metric['max_y']?>,
-													min :  <?php echo $metric['min_y']?>,
-													graph_type :  <?php echo $metric['graph_type']?>,
-													measure_number : <?php echo $metric['measure_number'] ?>,
-													unit : "<?php echo $metric['unit'] ?>"
-												};
+    for(var i in graphics){
+        var graphic = graphics[i];
+        loadGraphic(graphic);
+        tables.push(loadTable(graphic.id, graphic.series));
+    }
+    
+    function changePage(all) {
+        window.location.href = "<?php echo base_url();?>dashboard?org=<?php echo $org;?>&all=" + all;
+    }
 
-												data[index] = [{
-													data: info,
-													label: "<?php echo ucwords($metric['name']);?>",
-													color: "#0088cc"
-												}];
-												index++;
-											</script>
-										</div>
-									</section>
-							</div>
-							<div class='col-md-6'>
-								<section class='panel'>
-								<?php echo form_open("export"); ?>
-									<header class='panel-heading'>
-										<input type="hidden" name="id_org" id="id_org" value="<?php echo $id_location;?>">
-										<input type="hidden" name="id_met" id="id_met" value="<?php echo $metric['id'];?>">
-										<h2 class='panel-title'><?php echo ucwords($metric['name']); ?> &nbsp;&nbsp;&nbsp;
-										<button name="export" id="export" class="btn btn-primary" type="submit">Exportar</button></h2>
-									</header>
-									<div class='panel-body'>
-										<table class="table table-bordered table-striped mb-none" id='datatable-default'>
-											<thead>
-												<tr>
-													<th>#</th>
-													<th>Año</th>
-													<th>Valor</th>
-													<th>Esperado</th>
-													<th>Meta</th>
-												</tr>
-											</thead>
-											<tbody><?php echo $metric['table'];?></tbody>
-										</table>
-									</div>
-									<?php echo form_close(); ?>
-								</section>
+    function loadGraphic(graphic) {
+        var data = createGraphicData(graphic.series, graphic.y_unit);
+        var options = getGraphicOptions('', graphic.x_name, graphic.x_values, graphic.y_name, graphic.y_unit, data);
+        $('#graphic' + graphic.id).highcharts(options);
+    }
 
-							</div>
-						</div>
+    function loadTable(graphic, series) {
+        var html = "";
+        var c = series.length;
+        var first = 1;
+        if(c==1){
+            $('#graphicTable' + graphic + ' tr').children().first().remove();
+            first = 0;
+        }
+        for(var i in series){
+            var serie = series[i];
+            var graphSerie = $('#graphic'+graphic).highcharts().get(serie.id);
+            for(var j in serie.values){
+                var value = serie.values[j];
+                if(value.expected===undefined)
+                    continue;
+                cells = '<tr>';
 
-						<?php endforeach; ?>
-					<!-- end: page -->
-				</section>
-			</div>
+                if(c!=1){
+                    cells += '<td class="text-center"><i class="fa fa-square-o fa-lg" aria-hidden="true" style="background: ' + graphSerie.color + ';"></i></td>';
+                }
+                cells += '<td>' + value.x + '</td>';
+                cells += '<td>' + value.value + '</td>';
+                cells += '<td>' + value.expected + '</td>';
+                cells += '<td>' + value.target + '</td>';
+                html += cells + "</tr>";
+            }
+        }
+        $('#graphicTable' + graphic).dataTable().fnDestroy();
+        $('#graphicTableContent' + graphic).html(html);
+        $('.colorpicker-component').colorpicker();
+        var datatable;
+        var datatableInit = function() {
+            var $table = $('#graphicTable' + graphic);
 
-		</section>
-
-		<?php include 'partials/footer.php'; ?>
-
-		<!-- Specific Page Vendor -->
-		<script src="<?php echo base_url();?>assets/vendor/jquery-appear/jquery.appear.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/jquery-easypiechart/jquery.easypiechart.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot-tooltip/jquery.flot.tooltip.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.pie.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.categories.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.resize.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/jquery-sparkline/jquery.sparkline.js"></script>
-		<script type="text/javascript" src="<?php echo base_url();?>assets/vendor/flot/jquery.flot.axislabels.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/raphael/raphael.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/morris/morris.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/gauge/gauge.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/snap-svg/snap.svg.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/liquid-meter/liquid.meter.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/chartist/chartist.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/select2/select2.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/jquery-datatables/extras/TableTools/js/dataTables.tableTools.min.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
-
-		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.row.with.details.js"></script>
-
-		<!-- Examples -->
-		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.row.with.details.js"></script>
-		<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.tabletools.js"></script>
-		<!--<script src="<?php echo base_url();?>assets/javascripts/tables/examples.datatables.default.js"></script>-->
-
-		<script type="text/javascript">
-		var names = <?php echo json_encode($names); ?>; //id's de las metricas
-		console.log(graph_info);
-		</script>
-		<script src="<?php echo base_url();?>js/plot.js"></script>
-	</body>
+            // initialize
+            datatable = $table.DataTable({
+                destroy: true,
+                aoColumnDefs: [
+                    { bSortable: false, aTargets: [ 0 ] }
+                ],
+                aaSorting: [
+                    [first, 'asc']
+                ],
+                scrollY: 360,
+                bFilter: false,
+                paging: false,
+                bInfo: false
+            });
+        };
+        datatableInit();
+        return datatable;
+    }
+</script>
+</body>
 </html>

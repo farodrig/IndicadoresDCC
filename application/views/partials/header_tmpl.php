@@ -14,8 +14,7 @@
     <div class="header-right">
 
         <?php
-            $words = explode(' ',$role); //Separa las palabras del titulo y elimina comas al final. "Encargado, de, ..."
-            if($words[0]=="Administrador"){ //Revisa si el titulo parte con la palabra administrador?>
+            if($admin){ //Revisa si el titulo parte con la palabra administrador?>
                 <ul class="notifications">
                     <li>
                         <label>Configurar</label>
@@ -25,7 +24,7 @@
                         <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
                     </li>
                     <li>
-                        <label>Validar</label>
+                        <label>Validar Métricas</label>
                         <a href="<?php echo base_url();?>validar" class="notification-icon">
                             <i class="fa fa-check-circle" style="color:green"></i>
                             <?php
@@ -37,10 +36,10 @@
                 </ul>
         <?php
             }
-            else if($words[0]=="Encargado"){ ?>
+            else if($validator){ ?>
                 <ul class="notifications">
                     <li>
-                        <label>Validar</label>
+                        <label>Validar Métricas</label>
                         <a href="<?php echo base_url();?>validar" class="notification-icon">
                             <i class="fa fa-check-circle" style="color:green"></i>
                             <?php

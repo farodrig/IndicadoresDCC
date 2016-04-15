@@ -4,10 +4,11 @@ class Dashboard extends CI_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->library('session');
+		$this->load->library('form_validation');
 		$this->load->model('Dashboard_model');
+		$this->load->model('Dashboardconfig_model');
 		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
-		$this->dashboardModel = $this->Dashboard_model;
 		if (is_null($this->session->rut))
 			redirect('salir');
 	}
@@ -37,42 +38,36 @@ class Dashboard extends CI_Controller {
     // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	function formAddData(){
 		$permits = $this->session->userdata();
-		$id     = $this->session->flashdata('id');
-
-        if (is_null($id))
-            $id = $this->input->get('var');//Es el id de área, unidad, etc que se este considerando
-		if (is_null($id))
+		$org= $this->input->get('org');//Es el id de área, unidad, etc que se este considerando
+		if (is_null($org))
             redirect('inicio');
 
-		$this->session->set_flashdata('id', $id);
 		//Se obtienen las metricas correspondientes a los permisos del usuario, junto con las mediciones correspondientes
-		if ($permits['admin'] || ((in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas']))
-				 && (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
+		if ($permits['admin'] || ((in_array($org, $permits['asistente_finanzas']) || in_array($org, $permits['encargado_finanzas']))
+				 && (in_array($org, $permits['encargado_unidad']) || in_array($org, $permits['asistente_unidad'])))) {
 			$cat = 0;
-		} elseif (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])) {
+		} elseif (in_array($org, $permits['encargado_unidad']) || in_array($org, $permits['asistente_unidad'])) {
 			$cat = 1;
-		} elseif (in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas'])) {
+		} elseif (in_array($org, $permits['asistente_finanzas']) || in_array($org, $permits['encargado_finanzas'])) {
 			$cat = 2;
 		} else {
 			redirect('inicio');
 		}
-		$all_metrics      = $this->Dashboard_model->getAllMetrics($id, $cat);
-		$all_measurements = $this->Dashboard_model->getAllMeasurements($id, $cat);
+		$all_metrics      = $this->Dashboard_model->getAllMetrics($org, $cat, 0);
+		$all_measurements = $this->Dashboard_model->getAllMeasurements($org, $cat);
+		$res = defaultResult($permits, $this->Dashboard_model);
 		$res['measurements'] = $this->_parseMeasurements($all_measurements);
 		$res['metrics']      = !$all_metrics ? [] : $all_metrics;
-		$res['route']        = getRoute($this, $id);
-		$res['id_location']  = $id;
-		$res['validate']     = validation($permits, $this->dashboardModel);
+		$res['route']        = getRoute($this, $org);
+		$res['org']  = $org;
 		$res['success']      = $this->session->flashdata('success') === null ? 2 : $this->session->flashdata('success');
-		$res['role']         = $permits['title'];
 		$this->load->view('add-data', $res);
 		//debug($all_metrics, true);
 	}
 
 	//Función encargada de llamar a las funciones correspondientes del modelo, para poder actualizar valores en la base de datos
 	function addData() {
-		$id = $this->input->post("id_location");
-		$this->session->set_flashdata('id', $id);
+		$id = $this->input->post("org");
 		if (is_null($id))
 			redirect('inicio');
 
@@ -81,9 +76,7 @@ class Dashboard extends CI_Controller {
 		$permits = $this->session->userdata();
 
 		//Se validan los datos ingresados
-		$this->load->library('form_validation');
 		$this->form_validation->set_rules('year', 'Year', 'required|exact_length[4]|numeric');
-
 		$this->form_validation->set_rules('valueY[]', 'Value', 'numeric');
 		$this->form_validation->set_rules('metorg[]', 'Value', 'numeric');
 		$this->form_validation->set_rules('target[]', 'Target', 'numeric');
@@ -184,169 +177,82 @@ class Dashboard extends CI_Controller {
 
 	//Función para exportar datos de tabla al lado de los gráficos en archivo csv
 	function exportData() {
-		$this->load->library('form_validation');
-		$this->form_validation->set_rules('id_org', 'Org', 'required|numeric');
-		$this->form_validation->set_rules('id_met', 'Met', 'required|numeric');
+
+		function build_sorter($key) {
+			return function ($a, $b) use ($key) {
+				return strnatcmp($a->$key, $b->$key);
+			};
+		}
+
+		$this->form_validation->set_rules('graphic', 'Gráfico', 'required|numeric|greater_than_equal_to[0]');
+		$this->form_validation->set_rules('all', 'Todo', 'required|numeric|in_list[0,1]');
 
 		if (!$this->form_validation->run()) {
 			redirect('inicio');
 		}
 
-		$id_org = $this->input->post('id_org');
-		$id_met = $this->input->post('id_met');
-
-		$this->session->set_userdata('id_location', $id_org);
-		$data = $this->Dashboard_model->getAllData($id_org, $id_met);
-
-	}
-
-    //construye tabla que va al lado de los gráficos, y además genera arreglo con los
-    //datos necesarios para graficar
-    private function auxShowDashboard($dashboard_metrics, $id) {
-
-        function cmpPairs($p1, $p2) {
-            return $p1[0] > $p2[0];
-        }
-
-        //Guardar en variables de sesion
-        $this->session->set_flashdata('id', $id);
-
-        $metrics = [];
-        $names   = [];
-        if ($dashboard_metrics){
-            $all_measurements = $this->Dashboard_model->getDashboardMeasurements($dashboard_metrics);
-            foreach ($dashboard_metrics as $metric) {
-                $metrics[$metric->getId()] = array(//Se obtienen datos que ocupará la librería para graficar
-                    'id'             => $metric->getId(),
-                    'vals'           => [],
-                    'name'           => "",
-                    'table'          => "",
-                    'graph_type'     => $metric->getGraphType(),
-                    'max_y'          => 0,
-                    'min_y'          => 0,
-                    'measure_number' => 0,
-                    'unit'           => $metric->getUnit()
-                );
-            }
-            if ($all_measurements) {
-                foreach ($all_measurements as $measure) {
-                    $count                    = 1;
-                    $id_met                   = $measure['id'];
-                    $names[]                  = $id_met;
-                    $metrics[$id_met]['name'] = $measure['name'];
-
-                    $values = [];
-                    $years  = [];
-                    //Tabla de datos que va al lado del gráfico
-                    foreach ($measure['measurements'] as $m) {
-                        $s = "<tr>
-	    				  <td>".$count."</td>
-	    			  	  <td>".$m->getYear()."</td>
-	    			      <td>".$m->getValueY()."</td>
-	    			      <td>".$m->getTarget()."</td>
-	    			      <td>".$m->getExpected()."</td>
-	    			      </tr>";
-                        $values[]                   = $m->getValueY();
-                        $years[]                    = $m->getYear();
-                        $metrics[$id_met]['table']  = $metrics[$id_met]['table'].$s;
-                        $metrics[$id_met]['vals'][] = array($m->getYear(), $m->getValueY());
-                        $count++;
-                    }
-                    //ordena valores por el primer elemento del arreglo = Año
-                    usort($metrics[$id_met]['vals'], "cmpPairs");
-                    $metrics[$id_met]['measure_number'] = max($years)-min($years);
-                    $min                                = min($values);
-
-                    $metrics[$id_met]['min_y'] = $min > 0 ? floor(0.85*$min) : floor(1.15*$min);
-                    $metrics[$id_met]['max_y'] = ceil(1.15*max($values));
-                }
-
-                $res    = [];
-                $id_met = array_keys($metrics);
-                foreach ($id_met as $id) {
-                    if ($metrics[$id]['name'] == "") {
-                        continue;
-                    }
-                    $res[$id] = $metrics[$id];
-                }
-                $metrics = $res;
-            } else {
-                $metrics = [];//Si la metrica no tiene mediciones => no se muestra
-                $names   = [];
-            }
-        }
-        $result['data']  = $metrics;
-        $result['names'] = $names;
-        $result['id_location'] = $id;
-        return $result;
-    }
-
-	//función que permite mostrar un dashboard. Se recibe el id de la organizacion correspondiente
-	// y a partir de eso se obtienen las métricas y mediciones asociadas
-	function showDashboard() {
-
-		$permits = $this->session->userdata();
-		$id      = $this->input->post("direccion");//Se recibe por POST, es el id de área, unidad, etc que se este considerando
-
-		if ($this->session->userdata('id_location') != FALSE) {
-			$id = $this->session->userdata('id_location');
-			$this->session->unset_userdata('id_location');
-		} else if (is_null($id) && is_null(($id = $this->session->flashdata('id')))) {
-			redirect('inicio');
+		$graphic = $this->input->post('graphic');
+		$all = (strcmp($this->input->post('all'), "1")==0 ? true : false);
+		$graphic = ($all ? $this->Dashboard_model->getAllGraphicData($graphic) : $this->Dashboard_model->getGraphicData($graphic));
+		$key = ($all ? 'year' : 'x');
+		$data = [];
+		foreach ($graphic->series as $serie){
+			$prename = ($all || strcmp($serie->aggregation,"")==0 ? "" : $serie->aggregation . " de ");
+			foreach ($serie->values as $value) {
+				if(!key_exists('target', $value))
+					continue;
+				$value->metric =  $prename . $serie->name . " de " . $serie->org;
+				$data[] = $value;
+			}
 		}
 
-		//-------------
-		//Guardar en variables de sesion
-		$this->session->set_flashdata('id', $id);
-		$show_all = $this->input->post('show_all');
+		$title = $graphic->title;
+		if($graphic->ver_x){
+			$title .= " Periodo (".$graphic->min_year." - ".$graphic->max_year.")";
+		}
+		usort($data, build_sorter($key));
+		download_send_headers(str_replace(" ", "_", $title)."_".date("d-m-Y").".csv");
+		echo(array2csv($data,$title, $graphic->x_name, $graphic->y_name));
+		return;
+	}
+	
+	
+	private function getAllDashboardData($org, $all){
+		$graphics = $this->Dashboardconfig_model->getAllGraphicByOrg($org, $all);
+		$aux_graphs = [];
+		foreach ($graphics as $graphic){
+			$aux_graphs[] = $this->Dashboard_model->getGraphicData($graphic->id);
+		}
+		return $aux_graphs;
+	}
+	
+	//función que permite mostrar un dashboard. Se recibe el id de la organizacion correspondiente
+	// y a partir de eso se obtienen las métricas y mediciones asociadas
+	function showDashboard(){
+		$permits = $this->session->userdata();
+		$org      = $this->input->get("org");//$this->input->post("direccion");//Se recibe por POST, es el id de área, unidad, etc que se este considerando
+		$show_all = $this->input->get('all');
+		if(is_null($org))
+			redirect('inicio');
 		//Permite ver si se esta en la pantalla de mostrar todos los gráficos o no
 		if ($show_all == null) {
 			$show_all = 0;
 		}
 
-        $dashboard_metrics = $this->getDashboardMetricsGeneric($id, $permits, $show_all);
-        $show_button = ($show_all) ? true : $this->Dashboard_model->showButton($id);
-
-		$result             = $this->auxShowDashboard($dashboard_metrics, $id);
-		$result['validate'] = validation($permits, $this->dashboardModel);
+		$graphics = $this->getAllDashboardData($org, $show_all);
+		$show_button = ($show_all) ? true : $this->Dashboard_model->showButton($org);
+		$aggregation = [];
+		foreach ($this->Dashboardconfig_model->getAggregationType([]) as $type){
+			$aggregation[$type->id] = $type;
+		}
+		$result = defaultResult($permits, $this->Dashboard_model);
+		$result['add_data'] = 1;
 		$result['show_all'] = $show_all;
 		$result['show_button'] = $show_button;
-		$result['role']     = $permits['title'];
-        $result['route'] = getRoute($this, $id);
-
-		$this->session->set_flashdata('id', $id);
-		$this->session->set_flashdata('show_all', $show_all);
-
-		$add_data = 0;
-		//Permite determinar si el usuario deberá o no ver la pestaña de agregar datos
-		if ($permits['admin'] || in_array($id, $permits['encargado_unidad']) ||
-			in_array($id, $permits['asistente_unidad']) || in_array($id, $permits['asistente_finanzas'])
-			|| in_array($id, $permits['encargado_finanzas'])) {
-			$add_data = 1;
-		}
-		$result['add_data'] = $add_data;
-		//Si no se tienen permisos para acceder a un dashboard en particular, entonces se muestra un mensaje
-		if (!$permits['visualizador'] && !$permits['admin'] &&
-			!in_array($id, $permits['encargado_unidad']) && !in_array($id, $permits['asistente_finanzas']) &&
-			!in_array($id, $permits['asistente_unidad']) && !in_array($id, $permits['encargado_finanzas'])) {
-			$this->load->view('no-dashboard', $result);
-		} else {
-			$this->load->view('dashboard', $result);
-		}
-	}
-
-    //Función que permite obtener las métricas, asociadas a una organizacion y a los permisos de un usuario. $all decide si se entregan todos o solo los q tiene posicion 1.
-    private function getDashboardMetricsGeneric($id, $permits, $all) {
-		if ($permits['admin'] || $permits['visualizador'] || ((in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas']))
-				 && (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])))) {
-			$val = 0;
-		} elseif (in_array($id, $permits['encargado_unidad']) || in_array($id, $permits['asistente_unidad'])) {
-			$val = 1;
-		} elseif (in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['encargado_finanzas'])) {
-			$val = 2;
-		} else {
-			return [];
-		}
-		return $this->Dashboard_model->getDashboardMetrics($id, $val, $all);
+		$result['aggregation'] = $aggregation;
+		$result['route'] = getRoute($this, $org);
+		$result['graphics'] = $graphics;
+		$result['org'] = $org;
+		$this->load->view('dashboard', $result);
 	}
 }

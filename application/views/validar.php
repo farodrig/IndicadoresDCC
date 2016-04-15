@@ -75,34 +75,10 @@
 
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
-				<aside id="sidebar-left" class="sidebar-left">
-
-					<div class="sidebar-header">
-						<div class="sidebar-title">
-							Navegación
-						</div>
-						<div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html" data-fire-event="sidebar-left-toggle">
-							<i class="fa fa-bars" aria-label="Toggle sidebar"></i>
-						</div>
-					</div>
-
-					<div class="nano">
-						<div class="nano-content">
-							<nav id="menu" class="nav-main" role="navigation">
-								<ul class="nav nav-main">
-									<li>
-										<a href="<?php echo base_url();?>inicio">
-											<i class="fa fa-home" aria-hidden="true"></i>
-											<span>U-Dashboard</span>
-										</a>
-									</li>
-
-								</ul>
-							</nav>
-						</div>
-					</div>
-
-				</aside>
+				<?php
+				$navData=[];
+				include 'partials/navigation.php';
+				?>
 				<!-- end: sidebar -->
 
 				<section role="main" class="content-body">
@@ -160,9 +136,7 @@
 																		</a>
 																	</h4>
 																</div><!--/.panel-heading -->
-																<div
-																	id="metorg<?php echo($metorg['metric']->metorg); ?>"
-																	class="panel-collapse collapse in">
+																<div id="metorg<?php echo($metorg['metric']->metorg); ?>" class="panel-collapse collapse in">
 																	<div class="panel-body">
 																		<div class="table-responsive">
 																			<table id="datatable-details"

@@ -21,6 +21,11 @@
         .no_valid{
             border: 2px solid red !important;
         }
+
+        div.table-responsive div.row {
+            margin-left: 0px;
+            margin-right: 0px;
+        }
     </style>
 </head>
 <body>
@@ -33,10 +38,7 @@
     <div class="inner-wrapper">
         <!-- start: sidebar -->
         <?php
-        $navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
-            ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
-            ['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart'],
-            ['url'=>'foda/config', 'name'=>'Configurar FODAs', 'icon'=>'fa fa-pencil']];
+        $navData=[];
         include 'partials/navigation.php';
         ?>
         <!-- end: sidebar -->
@@ -118,10 +120,10 @@
                                 <tr role="row" class="treegrid-<?php echo ($data_type['department']->getId())?> treegrid-parent-root treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($data_type['type']['name'])?></td>
                                     <td class="org-id" hidden><?php echo ($data_type['department']->getId())?></td>
-                                    <td class="current-val"></td>
-                                    <td class="min-val"></td>
+                                    <td class="current-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="min-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable min-val-diff"></td>
-                                    <td class="max-val"></td>
+                                    <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable max-val-diff"></td>
                                     <td class="actions no-mutable"></td>
                                 </tr>
@@ -131,10 +133,10 @@
                                 <tr role="row" class="treegrid-<?php echo ($data_area['area']->getId())?> treegrid-parent-<?php echo ($data_area['area']->getParent())?> treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($data_area['area']->getName())?></td>
                                     <td class="org-id" hidden><?php echo ($data_area['area']->getId())?></td>
-                                    <td class="current-val"></td>
-                                    <td class="min-val"></td>
+                                    <td class="current-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="min-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable min-val-diff"></td>
-                                    <td class="max-val"></td>
+                                    <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable max-val-diff"></td>
                                     <td class="actions no-mutable"></td>
                                 </tr>
@@ -144,10 +146,10 @@
                                 <tr role="row" class="treegrid-<?php echo ($unidad->getId())?> treegrid-parent-<?php echo ($unidad->getParent())?> black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($unidad->getName())?></td>
                                     <td class="org-id" hidden><?php echo ($unidad->getId())?></td>
-                                    <td class="current-val"></td>
-                                    <td class="min-val"></td>
+                                    <td class="current-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="min-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable min-val-diff"></td>
-                                    <td class="max-val"></td>
+                                    <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable max-val-diff"></td>
                                     <td class="actions no-mutable">
                                         <a class="on-editing save-row hidden" href="#"><i class="fa fa-save"></i></a>
@@ -172,28 +174,7 @@
         </section>
     </div>
 </section>
-<div class="modal-block mfp-hide" id="dialog">
-    <section class="panel">
-        <header class="panel-heading">
-            <h2 class="panel-title">Are you sure?</h2>
-        </header>
-        <div class="panel-body">
-            <div class="modal-wrapper">
-                <div class="modal-text">
-                    <p>Are you sure that you want to delete this row?</p>
-                </div>
-            </div>
-        </div>
-        <footer class="panel-footer">
-            <div class="row">
-                <div class="col-md-12 text-right">
-                    <button class="btn btn-primary" id="dialogConfirm">Confirm</button>
-                    <button class="btn btn-default" id="dialogCancel">Cancel</button>
-                </div>
-            </div>
-        </footer>
-    </section>
-</div>
+
 <?php include 'partials/footer.php'; ?>
 
 <script src="<?php echo base_url();?>assets/vendor/select2/select2.js"></script>
@@ -204,6 +185,7 @@
 <script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
 
 <script type="text/javascript">
+    $('[data-toggle="tooltip"]').tooltip();
     $('.tree').treegrid();
 
     //cargar años
@@ -322,6 +304,7 @@
                 return;
             }
             $this.html('');
+            $this.tooltip('disable');
         })
     }
 
@@ -341,23 +324,42 @@
                 }
 
                 dato = datos[org][year];
+                valDato = null;
+                if(!(valid_datos[org]===undefined || valid_datos[org][year]===undefined)){
+                    valDato = valid_datos[org][year];
+                }
                 if($this.hasClass('org-id')){
                     $this.html(org);
                 }
                 else if($this.hasClass('current-val')){
                     $this.html(intToMoney(dato.value));
-                    if(dato.state == 0 && dato.p_v != null)
+                    if(dato.state == 0 && dato.p_v != null) {
                         $this.addClass('no_valid');
+                        if(!(valDato===null || valDato.value===undefined || valDato.value===null)){
+                            $this.attr('title', intToMoney(valDato.value)).tooltip('fixTitle');
+                            $this.tooltip('enable');
+                        }
+                    }
                 }
                 else if($this.hasClass('min-val')){
                     $this.html(intToMoney(dato.expected));
-                    if(dato.state == 0 && dato.p_e != null)
+                    if(dato.state == 0 && dato.p_e != null) {
                         $this.addClass('no_valid');
+                        if (!(valDato === null || valDato.expected === undefined || valDato.expected === null)) {
+                            $this.attr('title', intToMoney(valDato.expected)).tooltip('fixTitle');
+                            $this.tooltip('enable');
+                        }
+                    }
                 }
                 else if($this.hasClass('max-val')){
                     $this.html(intToMoney(dato.target));
-                    if(dato.state == 0 && dato.p_t != null)
+                    if(dato.state == 0 && dato.p_t != null) {
                         $this.addClass('no_valid');
+                        if (!(valDato === null || valDato.target === undefined || valDato.target === null)) {
+                            $this.attr('title', intToMoney(valDato.target)).tooltip('fixTitle');
+                            $this.tooltip('enable');
+                        }
+                    }
                 }
                 else if($this.hasClass('min-val-diff')){
                     $this.html(intToMoney((dato.expected - dato.value) + ''));

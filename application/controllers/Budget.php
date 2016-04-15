@@ -20,17 +20,14 @@ class Budget extends CI_Controller {
         $valid_data = $data[1];
         $no_valid_data = $data[2];
         $years = $data[3];
-        $this->load->view('budget',
-            array('title'  => 'Presupuesto',
-                'role'        => $permits['title'],
-                'years'       => $years,
-                'orgs'        => $aux_org,
-                'valid_data'  => $valid_data,
-                'no_valid_data'  => $no_valid_data,
-                'validate'    => validation($permits, $this->Dashboard_model),
-                'departments' => $this->Organization_model->getTree($aux_org)//Notar que funcion esta en helpers
-            )
+        $result =  array('title'  => 'Presupuesto',
+            'years'       => $years,
+            'orgs'        => $aux_org,
+            'valid_data'  => $valid_data,
+            'no_valid_data'  => $no_valid_data,
+            'departments' => $this->Organization_model->getTree($aux_org)//Notar que funcion esta en helpers
         );
+        $this->load->view('budget', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
     }
 
     function modify(){

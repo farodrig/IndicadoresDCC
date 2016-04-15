@@ -1,46 +1,45 @@
 <?php
 
-function getPermits($permits, $separator){
-    $result = array();
-    $helper = array('VIS'=>'visualizador',
-                    'VEF'=>'ver_foda',
-                    'MOF'=>'modif_foda',
-                    'VAF'=>'valid_foda',
-                    'ENF'=>'encargado_finanzas',
-                    'ASF'=>'asistente_finanzas',
-                    'ENP'=>'encargado_unidad',
-                    'ASP'=>'asistente_unidad',
+function defaultResult($permits, $model){
+    return array('validate'  => validation($permits, $model),
+                 'validator' => count(array_merge($permits['foda']['validate'], $permits['metaP']['validate'], $permits['valorF']['validate'], $permits['metaF']['validate'])) > 0,
+                 'admin'	 => (count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0,
+                 'foda'		 => seeFODAStrategy($permits),
+                 'budget'    => seeBudget($permits),
+                 'role'      => $permits['title']
     );
+    
+}
+
+function getPermits($permits){
+    $result = array();
+    $resources = array('foda', 'metaP', 'valorF', 'metaF', 'pos', 'conf', 'permit');
+    $actions = array('view', 'edit', 'validate');
     foreach ($permits as $permit) {
-        $permisos = explode($separator, $permit->permit);
-        foreach($permisos as $permiso){
-            $permiso = trim($permiso);
-            if (array_key_exists($permiso, $helper)){
-                $result[$helper[$permiso]][] = $permit->org;
-            }
+        if($permit->view){
+            $result[$resources[$permit->resource-1]]['view'][] = $permit->org;
+        }
+        if($permit->edit){
+            $result[$resources[$permit->resource-1]]['edit'][] = $permit->org;
+        }
+        if($permit->validate){
+            $result[$resources[$permit->resource-1]]['validate'][] = $permit->org;
         }
     }
-    foreach($helper as $key){
-        if(!array_key_exists($key, $result))
-            $result[$key] = array();
+    foreach($resources as $resource){
+        if(!array_key_exists($resource, $result))
+            $result[$resource] = array();
+        foreach ($actions as $action)
+            if(!array_key_exists($action, $result[$resource]))
+                $result[$resource][$action] = array();
     }
     return $result;
 }
 
-function getTitle($user, $permits) {
+function getTitle($user) {
     $title = "";
     if ($user->isAdmin) {
         $title = "Administrador";
-    } elseif (count($permits['encargado_unidad'])) {
-        $title = trim("Encargado de unidad");
-    } elseif (count($permits['encargado_finanzas'])) {
-        $title = trim("Encargado de finanzas");
-    } elseif (count($permits['asistente_unidad'])) {
-        $title = trim("Asistente de unidad");
-    } elseif (count($permits['asistente_finanzas'])) {
-        $title = trim("Asistente de finanzas");
-    } elseif (count($permits['visualizador'])) {
-        $title = "Visualizador";
     }
     return $title;
 }
@@ -63,16 +62,10 @@ function getAllOrgsByDpto($model){
     return $result;
 }
 
- function validation($permits_array, $model){
-  if($permits_array['admin'])
-    return $model->getValidate(-1);
-  elseif(count($permits_array['encargado_unidad']) && count($permits_array['encargado_finanzas']))
-    return $model->getValidate(array_merge($permits_array['encargado_unidad'], $permits_array['encargado_finanzas']));
-  elseif(count($permits_array['encargado_unidad']))
-      return $model->getValidate($permits_array['encargado_unidad']);
-  elseif(count($permits_array['encargado_finanzas']))
-      return $model->getValidate($permits_array['encargado_finanzas']);
-  return false;
+ function validation($permits, $model){
+    if($permits['admin'])
+        return $model->getValidate(-1);
+    return $model->getValidate(array_merge($permits['foda']['validate'], $permits['metaP']['validate'], $permits['valorF']['validate'], $permits['metaF']['validate']));
 }
 
 function getRoute($controller, $id){
@@ -123,4 +116,69 @@ function date_validator($str){
         return true;
     }
     return false;
+}
+
+function color_validator($str){
+    if (preg_match("/^#([a-fA-F0-9]{6})$/", $str, $data) && $data[0]==$str){
+        return true;
+    }
+    return false;
+}
+
+function seeBudget($permits){
+    $value = count($permits['valorF']['view']) + count($permits['valorF']['edit']) + count($permits['valorF']['validate']);
+    $expected = count($permits['metaF']['view']) + count($permits['metaF']['edit']) + count($permits['metaF']['validate']);
+    return ($value + $expected) > 0;
+}
+
+function seeFODAStrategy($permits){
+    return (count($permits['foda']['view']) + count($permits['foda']['edit']) + count($permits['conf']['validate'])) > 0;
+}
+
+function array2csv($array, $title, $x_name, $y_name){
+    if (count($array) == 0)
+        return null;
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+    if (strpos($user_agent, "Win") !== FALSE)
+        $eol = "\r\n";
+    else
+        $eol = "\n";
+
+    ob_start();
+    $df = fopen("php://output", 'w');
+    fwrite($df, "[" . $title . "]" . $eol);
+    if (property_exists($array[0], "year")) {
+        fwrite($df, "Métrica,Año" . $x_name . "," . $y_name . ",Esperado,Meta" . $eol);
+        foreach ($array as $row) {
+            $a = $row->metric . "," . $row->year . "," . $row->x_value . ',' . $row->value . ',' . $row->expected . ',' . $row->target . $eol;
+            fwrite($df, $a);
+        }
+    }
+    else{
+        fwrite($df, "Métrica," . $x_name . "," . $y_name . ",Esperado,Meta" . $eol);
+        foreach ($array as $row) {
+            $a = $row->metric . "," . $row->x . ',' . $row->value . ',' . $row->expected . ',' . $row->target . $eol;
+            fwrite($df, $a);
+        }
+    }
+    fclose($df);
+    return ob_get_clean();
+}
+
+function download_send_headers($filename){
+    // disable caching
+    $now = gmdate("D, d M Y H:i:s");
+    header("Expires: Tue, 03 Jul 2001 06:00:00 GMT");
+    header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
+    header("Last-Modified: {$now} GMT");
+
+    // force download
+    header("Content-Type: application/force-download");
+    header("Content-Type: application/octet-stream");
+    header("Content-Type: application/download");
+
+    // disposition / encoding on response body
+    header("Content-Disposition: attachment;filename={$filename}");
+    header("Content-Transfer-Encoding: binary");
 }

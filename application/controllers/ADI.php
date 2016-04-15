@@ -26,9 +26,9 @@ class ADI extends CI_Controller {
 		$this->session->set_userdata('name', $data['nombre_completo']);
 		$this->session->set_userdata('email', $user->email);
 		$this->session->set_userdata('admin', $user->isAdmin);
-		$permits       = $this->User_model->getPermitByUser($data['rut']);
-		$permits_array = getPermits($permits, $this->User_model->getSeparator());
-		$permits_array['title'] = getTitle($user, $permits_array);
+		$permits       = $this->User_model->getPermitByUser($user->id);
+		$permits_array = getPermits($permits);
+		$permits_array['title'] = getTitle($user);
 		$this->session->set_userdata($permits_array);
 		redirect('inicio');
 	}

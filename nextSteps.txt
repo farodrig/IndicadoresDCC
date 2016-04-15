@@ -1,0 +1,5 @@
+Next Steps:
+ - Poder en vez de seleccionar el rango de años, la cantidad de años previos al actual para visualizar.
+ - Poder mostrar los valores en miles, millones, etc
+ - Valor mínimo y máximo para el eje Y.
+ - poder cambiar rango de años por el usuario en el dashboard

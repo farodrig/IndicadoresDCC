@@ -22,9 +22,8 @@
 
 				<!-- start: sidebar -->
 				<?php
-				$navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
-					['url'=>'careaunidad', 'name'=>'Configurar Áreas y Unidades', 'icon'=>'fa fa-th-large'],
-					['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
+				$navData=[['url'=>'careaunidad', 'name'=>'Configurar Áreas y Unidades', 'icon'=>'fa fa-th-large'],
+						  ['url'=>'cdashboard', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
 				include 'partials/navigation.php';
 				?>
 				<!-- end: sidebar -->

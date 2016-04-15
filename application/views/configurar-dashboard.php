@@ -1,285 +1,735 @@
 <!doctype html>
 <html class="fixed sidebar-left-collapsed">
-	<head>
-	    <?php
-        $title = "Configurar Dashboard Unidades";
-        include 'partials/head.php';
+<head>
+    <?php
+    //Para usar head.php debe ser dentro del tag head y debe haberse creado una variable $title.
+    include 'partials/head.php'; ?>
+
+    <link rel="stylesheet" href="<?php echo base_url();?>chosen/chosen.css">
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap-colorpicker/css/bootstrap-colorpicker.css">
+
+    <style type="text/css">
+        .title{
+            font-size: 1.5em;
+        }
+        .margin-top{
+            margin-top: 2%;
+        }
+        .margin-bottom{
+            margin-bottom: 2%;
+        }
+        .icons {
+            padding: 0px;
+        }
+        div.table-responsive div.row {
+            margin-left: 0px;
+            margin-right: 0px;
+        }
+        .chosen-container{
+            width: 100% !important;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var types = <?php echo json_encode($types); ?>;
+        var aggregation = <?php echo json_encode($aggregation); ?>;
+        var metrics = <?php echo json_encode($metrics); ?>;
+        var orgs = <?php echo json_encode($orgs); ?>;
+        var graphics = <?php echo json_encode($graphics); ?>;
+        var values = null;
+    </script>
+</head>
+<body class="loading-overlay-showing" data-loading-overlay="">
+<section class="body">
+
+    <?php
+    //Para usar header_tmpl.php se debe haber creado la variable $name y $role. Se pueden crear tanto aqui como en el controlador.
+    include 'partials/header_tmpl.php'; ?>
+
+    <div class="inner-wrapper">
+        <!-- start: sidebar -->
+        <?php
+        $navData=[['url'=>'careaunidad', 'name'=>'Configurar áreas y unidades', 'icon'=>'fa fa-th-large'],
+            ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server']];
+        include 'partials/navigation.php';
         ?>
-		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+        <!-- end: sidebar -->
 
-		<style type="text/css">
-    		.container {
-        		width: 214px;
-        		clear: both;
-    		}
-    		.container input {
-        		width: 100px;
-        		clear: both;
-    		}
-    		input.rounded {
+        <section role="main" class="content-body">
+            <header class="page-header">
+                <h2>Configuración del Dashboard</h2>
 
-        	    border: 1px solid #ccc;
+                <div class="right-wrapper pull-right">
+                    <ol class="breadcrumbs">
+                        <li>
+                            <a href="<?php echo base_url();?>inicio">
+                                <i class="fa fa-home"></i>
+                            </a>
+                        </li>
+                        <li><span>Configurar</span></li>
+                        <li><span>Dashboard</span></li>
+                    </ol>
+                    <label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                </div>
+            </header>
 
-        	    -moz-border-radius: 10px;
+            <!-- start: page -->
+            <section class="panel panel-transparent">
+                <div class="panel-body col-md-10 col-md-offset-1">
+                    <div class="panel-body ">
+                        <form>
+                            <div class="margin-bottom row">
+                                <h4 class="text-center margin-bottom"><strong>Configuración de Gráficos del Dashboard</strong></h4>
+                            </div>
+                            <div class="row margin-top">
+                                <div class="col-md-6 text-center">
+                                    <label class="control-label title">Organización:</label>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="org" name="org" data-placeholder="Seleccione area o sub-area..." class="chosen-select">
+                                        <option value=""></option>
+                                        <?php
+                                        foreach ($departments as $dpto){
+                                            ?>
+                                            <option value="<?php echo(ucwords($dpto['department']->getId()));?>">DCC <?php echo(ucwords($dpto['type']['name'])); ?></option>
+                                                <?php
+                                                foreach ($dpto['areas'] as $area) {
+                                                    ?>
+                                                    <option value="<?php echo($area['area']->getId())?>" style="padding-left:20px"><?php echo(ucwords($area['area']->getName()));?></option>
+                                                    <?php
+                                                    foreach ($area['unidades'] as $unidad) {
+                                                        ?>
+                                                        <option value="<?php echo($unidad->getId())?>" style="padding-left:40px"><?php echo(ucwords($unidad->getName()));?></option>
+                                                        <?php
+                                                    }
+                                                }?>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row margin-top">
+                                <div id ="graphicData" class="col-md-12">
+                                    <div class="row col-md-12" id="graphicButtons" style="display: none;">
+                                        <button id="addGraphic" data-toggle="modal" data-target="#editGraphicModal" data-id="-1" data-title="Añadir Gráfico al Dashboard" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Gráfico</button>
+                                        <button id="expand-collapse-graphics" class="expanded pull-right" type="button">Expandir Todos</button>
+                                    </div>
+                                    <div id="graphicSection" class="panel-body col-md-12" style="display: none;">
+                                        <div id="graphicTable_wrapper" class="dataTables_wrapper no-footer">
+                                            <div class="table-responsive">
+                                                <table id="graphicTable" class="table table-bordered table-striped mb-none dataTable no-footer text-center" role="grid" aria-describedby="graphicTable_info">
+                                                    <thead>
+                                                    <tr role="row">
+                                                        <th class="sorting_disabled"></th>
+                                                        <th class="sorting text-center" aria-controls="itemTable">Gráfico</th>
+                                                        <th class="sorting text-center" aria-controls="itemTable">Año mínimo</th>
+                                                        <th class="sorting text-center" aria-controls="itemTable">Año máximo</th>
+                                                        <th class="sorting text-center" aria-controls="itemTable">Por año</th>
+                                                        <th class="sorting text-center" aria-controls="itemTable">Mostrar</th>
+                                                        <th class="sorting text-center" aria-controls="itemTable">Posición</th>
+                                                        <th class="sorting_disabled text-center" aria-controls="itemTable">Editar</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody id="graphicTableContent">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </div>
+</section>
 
-        	    -webkit-border-radius: 10px;
+<div class="modal fade" tabindex="-1" role="dialog" id="editGraphicModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 id="graphicModalTitle" class="modal-title">Editar Configuración del Gráfico</h4>
+            </div>
+            <div class="modal-body">
+                <form id="graphicForm" class="form-horizontal">
+                    <input type="hidden" name="graphic">
+                    <div class="form-group">
+                        <label for="graphicTitle" class="col-sm-3 control-label">Título:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="graphicTitle" name="title" required >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicMinYear" class="col-sm-3 control-label">Año Mínimo:</label>
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="graphicMinYear" name="minYear" required >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicMaxYear" class="col-sm-3 control-label">Año Máximo:</label>
+                        <div class="col-sm-3">
+                            <input type="number" class="form-control" id="graphicMaxYear" name="maxYear" required >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicPosition" class="col-sm-3 control-label">Posición:</label>
+                        <div class="col-sm-2">
+                            <input type="number" class="form-control" id="graphicPosition" name="position" required >
+                        </div>
+                    </div>
+                    <div class="form-group" id="graphByYear">
+                        <label for="graphicByYear" class="col-sm-3 control-label">Por Año:</label>
+                        <div class="col-sm-1">
+                            <input type="checkbox" checked class="form-control" id="graphicByYear" name="byYear">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphicDisplay" class="col-sm-3 control-label">Mostrar:</label>
+                        <div class="col-sm-1">
+                            <input type="checkbox" checked class="form-control" id="graphicDisplay" name="display">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                <button type="button" onclick="editGraphic()" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="editSerieModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 id="serieModalTitle" class="modal-title">Editar Serie del Gráfico</h4>
+            </div>
+            <div class="modal-body">
+                <form id="serieForm" class="form-horizontal">
+                    <input type="hidden" name="graphic">
+                    <input type="hidden" name="serie">
+                    <div class="form-group">
+                        <label for="serieOrg" class="col-sm-3 control-label">Organización:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control chosen-select no-search" onchange="loadSerieMetric(this.value)" id="serieOrg" name="org" data-placeholder="Seleccione la organización de la métrica a mostrar" required>
+                                <option value="" selected></option>
+                                <?php
+                                foreach ($departments as $dpto){
+                                    ?>
+                                    <option value="<?php echo(ucwords($dpto['department']->getId()));?>">DCC <?php echo(ucwords($dpto['type']['name'])); ?></option>
+                                    <?php
+                                    foreach ($dpto['areas'] as $area) {
+                                        ?>
+                                        <option value="<?php echo($area['area']->getId())?>" style="padding-left:20px"><?php echo(ucwords($area['area']->getName()));?></option>
+                                        <?php
+                                        foreach ($area['unidades'] as $unidad) {
+                                            ?>
+                                            <option value="<?php echo($unidad->getId())?>" style="padding-left:40px"><?php echo(ucwords($unidad->getName()));?></option>
+                                            <?php
+                                        }
+                                    }?>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="serieMetric" class="col-sm-3 control-label">Métrica:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control chosen-select no-search" id="serieMetric" name="metric" data-placeholder="Seleccione la métrica a mostrar" required>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="serieType" class="col-sm-3 control-label">Tipo Visualización:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control chosen-select no-search" id="serieType" name="type" data-placeholder="Seleccione la forma en la que se verá la serie" required>
+                                <?php
+                                foreach ($types as $id => $type){
+                                    echo('<option value="'.$id.'">'.$type->name.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="serieAggregationYear" class="col-sm-3 control-label">Tipo de Agregación para los Años:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control chosen-select no-search" id="serieAggregationYear" name="aggregation_year" data-placeholder="Seleccione la forma en la que se agregará la serie" required>
+                                <?php
+                                foreach ($aggregation as $id => $aggr){
+                                    $val = ($id=="0" ? "Ninguno" : $aggr->name);
+                                    echo('<option value="'.$id.'">'.$val.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="serieAggregationX" class="col-sm-3 control-label">Tipo de Agregación para el eje X:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control chosen-select no-search" id="serieAggregationX" name="aggregation_x" data-placeholder="Seleccione la forma en la que se agregará la serie" required>
+                                <?php
+                                foreach ($aggregation as $id => $aggr){
+                                    $val = ($id=="0" ? "Ninguno" : $aggr->name);
+                                    echo('<option value="'.$id.'">'.$val.'</option>');
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
 
-        	    border-radius: 10px;
+                    <div class="form-group">
+                        <label for="serieColor" class="col-sm-3 control-label">Color:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="colorpicker-default form-control colorpicker-element" id="serieColor" name="color" data-plugin-colorpicker="" >
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                <button type="button" onclick="editSerie()" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="previewModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 id="previewModalTitle" class="modal-title">Previsualización del Gráfico</h4>
+            </div>
+            <div class="modal-body loading-overlay-showing">
+                <div id="ajaxLoader" style="min-height: 150px; position: relative;" data-loading-overlay-options="{ &quot;startShowing&quot;: true }" data-loading-overlay="" class="">
+                    <div class="loading-overlay" style="background-color: rgb(253, 253, 253);">
+                        <div class="loader black"></div>
+                    </div>
+                </div>
+                <div id="graphicContainer" class="col-md-12"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        	    -moz-box-shadow: 2px 2px 3px #666;
+<?php include 'partials/footer.php'; ?>
+<script src="<?php echo base_url();?>assets/vendor/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
+<script src="<?php echo base_url();?>assets/vendor/select2/select2.js"></script>
+<script src="<?php echo base_url();?>assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
+<script src="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
+<script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
+<script src="<?php echo base_url();?>assets/vendor/jquery-validation/jquery.validate.js" type="text/javascript"></script>
+<script src="<?php echo base_url();?>assets/vendor/jquery-validation/additional-methods.js" type="text/javascript"></script>
+<script src="<?php echo base_url();?>assets/vendor/highcharts/js/highcharts.js" type="text/javascript"></script>
+<script src="<?php echo base_url();?>js/functions.js"></script>
 
-        	    -webkit-box-shadow: 2px 2px 3px #666;
+<script type="text/javascript">
+    $(function() { $('#serieColor').colorpicker(); });
 
-        	    box-shadow: 2px 2px 3px #666;
+    $('.no-search').chosen({"disable_search": true});
 
-        	    font-size: 20px;
+    $('#expand-collapse-graphics').on('click', function () {
+        expandCollapseAll(this, 'graphicTableContent');
+    });
 
-        	    padding: 4px 7px;
+    function expandCollapseAll(element, id) {
+        var $this = $(element);
+        if($this.hasClass('expanded')) {
+            $this.removeClass('expanded').addClass('collapsed');
+            $this.html('Colapsar todos');
+            $('#'+id).find('i.fa-plus-square-o').click();
+        }
+        else{
+            $this.removeClass('collapsed').addClass('expanded');
+            $this.html('Expandir todos');
+            $('#'+id).find('i.fa-minus-square-o').click();
+        }
+    }
 
-        	    outline: 0;
+    $('#editGraphicModal').on('show.bs.modal', function (e) {
+        var org = $('#org').val();
+        var id = $(e.relatedTarget).data('id');
+        var titulo = $(e.relatedTarget).data('title');
+        $('#graphicModalTitle').html(titulo);
+        $('input[name=graphic]').val(id);
+        $('#graphicByYear').prop("disabled", false);
+        $('#graphByYear').show();
+        if (graphics[org] === undefined || graphics[org][id] === undefined){
+            var title = "";
+            var min_year = new Date().getFullYear();
+            var max_year = min_year;
+            var position = 0;
+            var ver_x = false;
+            var display = false;
+            $('#graphByYear').hide();
+        }
+        else {
+            var graphic = graphics[org][id];
+            var ver_x = graphic.ver_x=="1";
+            if(!(graphic.series[0]===undefined)){
+                var metric = getMetricById(graphic.series[0].metorg);
+                if(!(metric===null) && !metric.x_name){
+                    ver_x = false;
+                    $('#graphicByYear').prop("disabled", true);
+                }
+            }
+            var title = graphic.title;
+            var min_year = graphic.min_year;
+            var max_year = graphic.max_year;
+            var position = graphic.position;
+            var display = graphic.display=="1";
+        }
+        $('#graphicTitle').val(title);
+        $('#graphicMinYear').val(min_year);
+        $('#graphicMaxYear').val(max_year);
+        $('#graphicPosition').val(position);
+        $('#graphicDisplay').prop('checked', display);
+        $('#graphicByYear').prop('checked', !ver_x);
+    });
 
-        	    -webkit-appearance: none;
+    $('#editSerieModal').on('show.bs.modal', function (e) {
+        var org = $('#org').val();
+        var id = $(e.relatedTarget).data('id');
+        var graphic = $(e.relatedTarget).data('graphic');
+        var titulo = $(e.relatedTarget).data('title');
+        var serieOrg = $(e.relatedTarget).data('org');
+        $('#serieModalTitle').html(titulo);
+        $('input[name=graphic]').val(graphic);
+        if (graphics[org] === undefined || graphics[org][graphic]===undefined || graphics[org][graphic].series[id]===undefined){
+            $('input[name=serie]').val(-1);
+            var type = "";
+            var aggregYear = 0;
+            var aggregX = 0;
+            var color = '';
+            var metorg = "";
+        }
+        else {
+            var serie = graphics[org][graphic].series[id];
+            $('input[name=serie]').val(serie.id);
+            var metorg = serie.metorg;
+            var type = serie.type;
+            var aggregYear = serie.year_aggregation;
+            var aggregX = serie.x_aggregation;
+            var color = serie.color;
+        }
+        org = (serieOrg!=-1 ? serieOrg : org);
+        $('#serieOrg option[value="' + org + '"]').prop('selected', true);
+        $('#serieOrg').trigger('chosen:updated');
+        $('#serieOrg').change();
+        $('#serieMetric option[value="' + metorg + '"]').prop('selected', true);
+        $('#serieMetric').trigger('chosen:updated');
+        $('#serieType option[value="' + type + '"]').prop('selected', true);
+        $('#serieType').trigger('chosen:updated');
+        $('#serieAggregationX option[value="' + aggregX + '"]').prop('selected', true);
+        $('#serieAggregationX').trigger('chosen:updated');
+        $('#serieAggregationYear option[value="' + aggregYear + '"]').prop('selected', true);
+        $('#serieAggregationYear').trigger('chosen:updated');
+        $('#serieColor').val(color);
+    });
 
-        	}
+    $('#previewModal').on('shown.bs.modal', function (e) {
+        var graphic = $(e.relatedTarget).data('graphic');
+        $.ajax({url: "<?php echo base_url();?>cdashboard/values",
+                type: "POST",
+                async: false,
+                dataType: "json",
+                cache: false,
+                data: {'graphic': graphic},
+                success: function(data){
+                            values = data['values'];
+                        },
+                error: function () {
+                    $('#previewModal').modal('hide');
+                }
+        });
+        var title = values.title;
+        if(values.ver_x){
+            title += " Periodo (" + values.min_year + " - " + values.max_year + ")";
+        }
+        $('#previewModalTitle').html(title);
+        $('#ajaxLoader').hide();
+        var data = createGraphicData(values.series, values.y_unit);
+        var options = getGraphicOptions('', values.x_name, values.x_values, values.y_name, values.y_unit, data);
+        $('#graphicContainer').highcharts(options);
+    });
 
-        	input.rounded:focus {
-        	    border-color: #339933;
-        	    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(51, 153, 51, 0.6);
-                outline: 0 none;
-        	}
-    	</style>
-	</head>
-	<body>
-		<section class="body">
+    $('#previewModal').on('hidden.bs.modal', function (e) {
+        $('#ajaxLoader').show();
+        $('#graphicContainer').html('');
+    });
 
-			<?php include 'partials/header_tmpl.php'; ?>
+    $('#org').on('change', function () {
+        $('#graphicButtons').hide();
+        $('#graphicSection').hide();
+        $('#graphicTableContent').html('');
+        if (this.value=="")
+            return;
+        $('#graphicButtons').show();
+        if(!(graphics[this.value] === undefined)) {
+            loadGraphics(this.value);
+            $('#graphicSection').show();
+        }
+    });
 
-			<div class="inner-wrapper">
-				<!-- start: sidebar -->
-				<?php
-				$navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
-					['url'=>'careaunidad', 'name'=>'Configurar áreas y unidades', 'icon'=>'fa fa-th-large'],
-					['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server']];
-				include 'partials/navigation.php';
-				?>
-				<!-- end: sidebar -->
-				<section role="main" class="content-body">
-					<header class="page-header">
-						<h2>Configurar Dashboard unidades</h2>
+    function loadGraphics(org) {
+        var html = "";
+        for(var i in graphics[org]){
+            var cells = '<tr id="graphic' + i + '" role="row">';
+            var hidden = (graphics[org][i].series.length ? '' : 'hidden');
+            cells += '<td class="text-center checkDetails"><i onclick="showHideGraphicDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none ' + hidden + '" style="cursor: pointer;"></i></td>';
+            cells += '<td class="graphicTitle">' + graphics[org][i].title + '</td>';
+            cells += '<td class="graphicMinYear">' + graphics[org][i].min_year + '</td>';
+            cells += '<td class="graphicMaxYear">' + graphics[org][i].max_year + '</td>';
+            var bin = (graphics[org][i].ver_x=="1" ? 'No' : 'Si');
+            cells += '<td class="graphicState">' + bin + '</td>';
+            bin = (graphics[org][i].display=="1" ? 'Si' : 'No');
+            cells += '<td class="graphicDisplay">' + bin + '</td>';
+            cells += '<td class="graphicPosition">' + graphics[org][i].position + '</td>';
+            cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Gráfico" data-target="#editGraphicModal" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
+                '<a class="btn icons" onclick="deleteElement(\'graphic\', ' + i + ')"><i class="fa fa-trash-o"></i></a>' +
+                '<a class="btn icons" data-toggle="modal" data-title="Añadir Serie" data-target="#editSerieModal" data-graphic="' + i + '" data-org="-1" data-id="-1"><i class="fa fa-plus"></i></a>' +
+                '<a class="btn icons" data-toggle="modal" data-target="#previewModal" data-graphic="' + i + '"><i class="fa fa-eye"></i></a></td>';
 
-						<div class="right-wrapper pull-right">
-							<ol class="breadcrumbs">
-								<li>
-									<a href="<?php echo base_url();?>inicio">
-										<i class="fa fa-home"></i>
-									</a>
-								</li>
-								<li><span>Configurar</span></li>
-								<li><span>Dashboard</span></li>
-							</ol>
-							<label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
-						</div>
-					</header>
+            html += cells + "</tr>";
+        }
+        $('#graphicTable').dataTable().fnDestroy();
+        $('#graphicTableContent').html(html);
+        var datatableInit = function() {
+            var $table = $('#graphicTable');
+            // initialize
+            var datatable = $table.dataTable({
+                destroy: true,
+                aoColumnDefs: [
+                    { 'bSortable': false, 'aTargets': [ 0, 6 ] }
+                ],
+                aaSorting: [
+                    [1, 'asc']
+                ],
+                bFilter: false,
+                paging: false,
+                bInfo: false
+            });
+        };
+        datatableInit();
+    }
 
-					<!-- start: page -->
-					<div class="row">
-					<div class="text-center col-sm-12 btn-group-horizontal">
-						<a class= "mb-xs mt-xs mr-xs btn btn-danger btn-lg" href="<?php echo base_url();?>cdashboardDCC">Configurar Dashboard DCC</a>
-						<a class= "mb-xs mt-xs mr-xs btn btn-info btn-lg" href="<?php echo base_url();?>cdashboardArea">Configurar Dashboard áreas</a>
-						<a class= "mb-xs mt-xs mr-xs btn btn-primary btn-lg" href="<?php echo base_url();?>cdashboardUnidad">Configurar Dashboard unidades</a>
-					</div>
-					</div>
-					<?php
-					if($areas){
-						if($id_first=="-1")
-							$first_area_key = array_keys($areas)[0];
-						else{
-							$first_area_key="";
-							foreach ($areas as $a) {
-								foreach ($a['unidades'] as $unidad) {
-									if($unidad['id']==intval($id_first)){
-										$first_area_key = $a['id'];
-										break;
-									}
-								}
-								if($first_area_key!="")
-									break;
-							}
-						}
-						if($areas[$first_area_key]['type']=="Operación"){
-							$color_panel="panel-warning";
-							$color_button = "btn-warning";
-						}
-						else{
-							$color_panel="panel-success";
-							$color_button = "btn-success";
-						}
-					?>
-					<div class="row">
-						<div class="col-md-6">
-							<section name="section" id="section" class="<?php echo $color_panel; ?>">
-								<header class="panel-heading">
-									<h2 class="panel-title">
-											<div class="form-group mt-lg">
-												<div class="btn-group-horizontal text-center">
-													<form>
-													<?php
-														$first_area_unidades = $areas[$first_area_key]['unidades'];?>
-													<select name="area" id= "area" class="<?php echo("form-control btn ".$color_button);?>" onchange="selectUnidades();">
-													<?php
-														foreach ($areas as $area) {
-															echo "<option class='select' value='".$area['id']."'>".$area['name']."</option>";
-														}
-													?>
-													</select>
-													<select name="unidad" id="unidad" class="<?php echo("form-control btn ".$color_button);?>">
-													<?php
+    function loadMetrics(id) {
+        var html = "";
+        var org = $('#org').val();
+        html = '<table id="serieTable' + id + '" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid"> \
+                    <thead> \
+                        <tr > \
+                            <th class="sorting_disabled">Organización</th>\
+                            <th class="sorting_disabled">Métrica</th> \
+                            <th class="sorting_disabled">Tipo de Serie</th> \
+                            <th class="sorting_disabled">Agregación para Año</th> \
+                            <th class="sorting_disabled">Agregación para X</th> \
+                            <th class="sorting_disabled">Color</th> \
+                            <th class="sorting_disabled">Acciones</th> \
+                        </tr> \
+                    </thead> \
+                    <tbody id="serieTableContent' + id + '">';
 
-														foreach ($first_area_unidades as $unidad) {
-															echo "<option class='select' value='".$unidad['id']."'>".$unidad['name']."</option>";
-														}
-													?>
-													</select>
-													</form>
-												</div>
-											</div>
-										</form>
-									</h2>
+        for(var i in graphics[org][id].series){
+            var serie = graphics[org][id].series[i];
+            var metric = getMetricById(serie.metorg);
+            if(metric===null)
+                continue;
 
-								</header>
-								<div class="panel-body">
+            var serieOrg = getOrgByMetric(serie.metorg);
+            var cells = '<tr id="serie' + serie.id + '" >';
+            cells += '<td class="serieOrg">' + orgs[serieOrg].name + '</td>';
+            cells += '<td class="serieTitle">' + metric.name + '</td>';
+            cells += '<td class="serieType">' + types[serie.type].name + '</td>';
+            cells += '<td class="serieYear">' + (aggregation[serie.year_aggregation].name=="" ? 'No Agrega' : aggregation[serie.year_aggregation].name)+ '</td>';
+            cells += '<td class="serieX">' + (aggregation[serie.x_aggregation].name=="" ? 'No Agrega' : aggregation[serie.x_aggregation].name)+ '</td>';
+            cells += '<td class="serieColor">' + (serie.color===null ? "Indefinido" : serie.color) + '</td>';
+            cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Serie" data-target="#editSerieModal" data-graphic="' + id + '" data-org="' + serieOrg + '"  data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
+                    '<a class="btn icons" onclick="deleteElement(\'serie\', ' + serie.id + ')"><i class="fa fa-trash-o"></i></a></td>';
+            cells += '</tr>';
+            html += cells;
+        }
+        html += '</tbody></table>';
+        $('#GraphicMetrics' + id).html(html);
+    }
 
-									<div class="btn-group-vertical col-md-12" name="popover" id="popover">
-									<div class="btn-group-vertical col-md-12" name="metricas" id="metricas"></div>
+    function loadSerieMetric(org){
+        var html = '';
+        for(var id in metrics[org]){
+            var metric = metrics[org][id];
+            html += '<option value="' + id + '">' + metric.name + '</option>';
+        }
+        $('#serieMetric').html(html);
+        $('#serieMetric').trigger('chosen:updated');
+    }
 
-										<div id="popover-head" class="hide">Configurar gráfico para métrica</div>
-										<div id="popover-content" data-placement="right" class="hide">
-										<?php echo form_open('DashboardConfig/addGraphUnidad', array('onSubmit' => "return checkInput();")); ?>
-												<label>Tipo de gráfico:</label>
-												<input type="hidden" id="id_org" name="id_org" value=""/>
-												<input type="hidden" id="id_met" name="id_met" value=""/>
-												<input type="hidden" id="id_graph" name="id_graph" value=""/>
-												<select class="form-control btn btn-default" id="type" name="type">
-														<option value=2>Líneas</option>
-														<option value=1>Barra</option>
-												</select>
-												<div class="container btn-group-vertical col-md-12">
-													<div class="form-group">
-    													<label for="from">Desde:</label>
-    													<input type="number" class="form-control rounded"id="from" name="from" onchange ="saveValFrom(this)" onkeyup="validate_year('from',from)" >
-													</div>
-													<div class="form-group">
-    													<label for="to">Hasta:</label>
-    													<input type="number" class="form-control rounded" id="to" name="to" onchange="saveValTo(this)" onkeyup="validate_year('to',to)"  >
-													</div>
-													<hr style="width:250px;">
-												</div>
-												<br>
-												<br>
-												<label></label>
-												<label>Mostrar en dashboard:</label>
-												<input id="mostrar" type="checkbox" name="mostrar" value="1" />
-												</br>
-												</br>
-												<button type="submit" onclick="$('#popover').popover('hide');" class="btn btn-primary"> Guardar</button>
-											<?php echo form_close(); ?>
-										</div>
+    function showHideGraphicDetails(element){
+        var $this = $(element);
+        var row = $this.closest('tr');
+        if ( $this.hasClass('fa-minus-square-o')){
+            $this.removeClass( 'fa-minus-square-o' ).addClass( 'fa-plus-square-o' );
+            if(row.next().hasClass('details'))
+                row.next().remove();
+        } else {
+            var org = $('#org').val();
+            $this.removeClass( 'fa-plus-square-o' ).addClass( 'fa-minus-square-o');
+            var id = row.attr('id').substring(7);
+            var html = '<tr class="details"><td colspan="8">';
+            html += '<div id="GraphicMetrics' + id + '"></div>';
+            html += '</td></tr>';
 
+            if(graphics[org][id].series.length==0){
+                row.after(html);
+                return;
+            }
+            row.after(html);
+            loadMetrics(id);
+        }
+    }
 
-									</div>
+    function getMetricById(id) {
+        for(var org in metrics){
+            if(metrics[org].hasOwnProperty(id)){
+                return metrics[org][id];
+            }
+        }
+        return null;
+    }
 
-								</div>
-							</section>
+    function getOrgByMetric(id) {
+        for(var org in metrics){
+            if(metrics[org].hasOwnProperty(id)){
+                return org;
+            }
+        }
+        return null;
+    }
 
-						</div>
-					</div>
-					<?php
-					}
-					?>
-					<!-- end: page -->
-				</section>
+    function deleteElement(type, id) {
+        var retVal = confirm("¿Esta seguro de eliminar este elemento? Se borrará toda la información asociada a este.");
+        if(!retVal)
+            return;
+        var data = {'type': type, 'id': id};
+        ajaxCall("<?php echo base_url();?>cdashboard/delete", data);
+    }
+    
+    function editGraphic() {
+        if(!$("#graphicForm").valid()) {
+            return;
+        }
+        var data = {'org': $('#org').val(),
+                    'graphic': $('input[name=graphic]').val(),
+                    'title': $('#graphicTitle').val(),
+                    'minYear': $('#graphicMinYear').val(),
+                    'maxYear': $('#graphicMaxYear').val(),
+                    'position': $('#graphicPosition').val(),
+                    'byYear': ($("#graphicByYear").is(':checked') ? 1 : 0),
+                    'display': ($("#graphicDisplay").is(':checked') ? 1 : 0)
+        };
+        ajaxCall("<?php echo base_url();?>cdashboard/modify/graphic", data);
+        $('#editGraphicModal').modal('hide');
+    }
 
-        <?php include 'partials/footer.php'; ?>
+    function editSerie() {
+        if(!$("#serieForm").valid() || $('#serieType').val()=="" || $('#serieMetric').val()=="") {
+            return;
+        }
+        var data = {'graphic': $('input[name=graphic]').val(),
+                    'serie': $('input[name=serie]').val(),
+                    'metorg': $('#serieMetric').val(),
+                    'type': $('#serieType').val(),
+                    'aggregYear': $('#serieAggregationYear').val(),
+                    'aggregX': $('#serieAggregationX').val(),
+                    'color': $('#serieColor').val()
+        };
+        ajaxCall("<?php echo base_url();?>cdashboard/modify/serie", data);
+        $('#editSerieModal').modal('hide');
+    }
 
-		<!-- Specific Page Vendor -->
-		<script src="<?php echo base_url();?>assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
-		<script src="<?php echo base_url();?>assets/vendor/jquery-ui-touch-punch/jquery.ui.touch-punch.js"></script>
+    function ajaxCall(url, data) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: data,
+            dataType: "json",
+            success:
+                function(data){
+                    metrics = data['metrics'];
+                    graphics = data['graphics'];
+                    $("#org").change();
+                    if (data['success']){
+                        new PNotify({
+                            title: 'Éxito!',
+                            text: 'Su solicitud ha sido realizada con éxito.',
+                            type: 'success'
+                        });
+                    }
+                    else {
+                        new PNotify({
+                            title: 'Error!',
+                            text: 'Ha ocurrido un error. El servidor no logró realizar su solicitud',
+                            type: 'error'
+                        });
+                    }
+                },
+            error:
+                function(xhr, textStatus, errorThrown){
+                    new PNotify({
+                        title: 'Error!',
+                        text: 'Ha ocurrido un error. No se logró conectar con el servidor. Intentelo más tarde',
+                        type: 'error'
+                    });
+                }
+        });
+    }
 
-		<!-- Examples -->
-		<script src="<?php echo base_url();?>assets/javascripts/ui-elements/popover.js"></script>
+    var config = {
+        '.chosen-select'           : {},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-no-single' : {disable_search_threshold:10},
+        '.chosen-select-no-results': {no_results_text:'No se ha encontrado nada.'},
+        '.chosen-select-width'     : {width:"95%"}
+    };
+    
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
 
-		<!-- Demo Purpose Only -->
-		<script>
-			var id_first= <?php echo $id_first; ?>;
-			var years = <?php echo json_encode($years); ?>;
+    function notify(success) {
+        if (success==1){
+            new PNotify({
+                title: 'Éxito!',
+                text: 'Su solicitud ha sido realizada con éxito.',
+                type: 'success'
+            });
+        }
+        if (success==0){
+            new PNotify({
+                title: 'Error!',
+                text: 'Ha ocurrido un error con su solicitud.<br>Los nombres de Áreas y Unidades solo puede tener letras, tildes y espacios.',
+                type: 'error'
+            });
+        }
+    }
 
-			var metricas = <?php echo json_encode($metricas); ?>;
-			$(document).ready(function(){
-				if(id_first!="-1"){
-					var first_area=<?php echo !$areas ? 0 : $first_area_key; ?>;
-					$('#area option[value="'.concat(first_area,'"]')).attr("selected", "selected");
-					$('#unidad option[value="'.concat(id_first,'"]')).attr("selected", "selected");
-					$('#unidad').trigger('change');
-				}
-				else{
-					var unidad_value = $( "#unidad" ).val();
-					$('#metricas').empty();
-					var metricas_unidad = metricas[unidad_value];
-					$('#id_org').attr('value',unidad_value);
-  					for (i in metricas_unidad) {
-  						var popover = "<button href='#popover' id='id".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
-  							"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>");
-    					$(popover).appendTo($('#metricas'));
-  					}
-  				}
-  			});
+    notify(<?php echo($success);?>);
 
-
-			function selectUnidades(){
-
-				var id_area = document.getElementById("area").value;
-				var areas = <?php echo json_encode($areas); ?>;
-				var unidades = areas[id_area]['unidades'];
-				var color = areas[id_area]['type']=="Operación" ? "warning" : "success";
-
-				$('#section').attr('class',"panel-".concat(color));
-				$('#area').attr('class', "form-control btn btn-".concat(color));
-				$('#unidad').attr('class', "form-control btn btn-".concat(color));
-
-				var select_unidad = document.getElementById('unidad');
-				$('#metricas').empty();
-
-				select_unidad.options.length = 0; //Resetear select
-
-				for(i in unidades){
- 					opt = new Option(unidades[i]['name'], unidades[i]['id']);
- 					opt.className="select";
- 					select_unidad.options[select_unidad.options.length]=opt;
-				}
-				var unidad_value = $( "#unidad" ).val();
-				$('#id_org').attr('value',unidad_value);
-				$('#metricas').empty();
-				var metricas_unidad = metricas[unidad_value];
-  				for (i in metricas_unidad) {
-  					var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
-  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>");
-    				$(popover).appendTo($('#metricas'));
-  				}
-			}
-
-
-			$('#unidad').change(function() {
-				var unidad_value = $( "#unidad" ).val();
-				$('#metricas').empty();
-				$('#id_org').attr('value',unidad_value);
-				var metricas_unidad = metricas[unidad_value];
-  				for (i in metricas_unidad) {
-  					var popover = "<button href='#popover' id='".concat(metricas_unidad[i]['metorg'], "' value='", metricas_unidad[i]['metorg'],
-  					"' class='btn btn-default' onclick='updateYears(",metricas_unidad[i]['metorg'], ")'>", metricas_unidad[i]['name'], "</button>");
-    				$(popover).appendTo($('#metricas'));
-  				}
-			});
-		</script>
-	<script src="<?php echo base_url();?>js/functions.js"></script>
-	</body>
+    function optionHTML(optionArray, selected){
+        var optHTML = "";
+        for(var i = 0; i<optionArray.length; i++){
+            if (selected==optionArray[i].id || selected==optionArray[i].name)
+                optHTML += '<option value="'+ optionArray[i].id +'" selected>' + optionArray[i].name + '</option>';
+            else
+                optHTML += '<option value="'+ optionArray[i].id +'">' + optionArray[i].name + '</option>';
+        }
+        return optHTML;
+    }
+</script>
+</body>
 </html>

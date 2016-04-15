@@ -20,8 +20,8 @@ class MySession extends CI_Controller {
 			$this->session->set_userdata('email', $user->email);
 			$this->session->set_userdata('admin', $user->isAdmin);
 			$permits       = $this->User_model->getPermitByUser($user->id);
-			$permits_array = getPermits($permits, $this->User_model->getSeparator());
-			$permits_array['title'] = getTitle($user, $permits_array);
+			$permits_array = getPermits($permits);
+			$permits_array['title'] = getTitle($user);
 			$this->session->set_userdata($permits_array);
 			redirect('inicio');
 		}
@@ -52,22 +52,20 @@ class MySession extends CI_Controller {
 			if (!$this->email->send()) {
 				$work = false;
 			} else {
-
 				redirect('inicio');
 			}
 		}
-
 		$this->load->view('contact', array('work' => $work));
 	}
 
 	public function inicio() {
 		$user = $this->session->rut;
-		if (is_null($user)) {
+		if (is_null($user))
 			redirect('salir');
-		}
 
 		$this->load->model('Dashboard_model');
 		$this->load->model('Organization_model');
+
 		$permits    = $this->session->userdata();
 		$type       = is_null($this->input->get('sector')) ? "Operación" : $this->input->get('sector');
 		$department = $this->Organization_model->getDepartment();
@@ -87,10 +85,9 @@ class MySession extends CI_Controller {
 			'areaunit'                  => $areaunit,
 			'types'                     => $this->Organization_model->getTypes(),
 			'name'                      => $name,
-			'user'                      => $user,
-			'validate'                  => validation($permits, $this->Dashboard_model),
-			'role'                      => $permits['title']);
-		$this->load->view('index', $result);
+			'user'                      => $user
+		);
+		$this->load->view('index', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
 	}
 
 	private function showAreaUnit() {
@@ -100,7 +97,7 @@ class MySession extends CI_Controller {
 		$areas    = $this->Organization_model->getAllAreas();
 		foreach ($areas as $area) {
 			array_push($areaunit, array('area' => $area,
-					'unidades'                       => $this->Organization_model->getAllUnidades($area->getId()))
+										'unidades' => $this->Organization_model->getAllUnidades($area->getId()))
 			);
 		}
 		return $areaunit;
@@ -108,7 +105,9 @@ class MySession extends CI_Controller {
 
 	public function validar() {
 		$permits = $this->session->userdata();
-		if (!$permits['admin'] && !count($permits['encargado_unidad']) && !count($permits['encargado_finanzas'])) {
+		$prod = array_merge($permits['foda']['validate'], $permits['metaP']['validate']);
+		$finan = array_merge($permits['valorF']['validate'], $permits['metaF']['validate']);
+		if (!$permits['admin'] && !count($prod) && !count($finan)) {
 			redirect('inicio');
 		}
 		$this->load->model('Dashboard_model');
@@ -117,29 +116,24 @@ class MySession extends CI_Controller {
 		$success = $this->session->flashdata('success');
 		if (is_null($success))
 			$success = 2;		
-		
-		$result = array(
-			'success' => $success,
-			'validate' => validation($permits, $this->Dashboard_model),
-			'role' => $permits['title']
-		);
+
 		if ($permits['admin'] == 1) {
 			$orgs = $this->Organization_model->getAllIds();
 			$category = null;
-		} elseif (count($permits['encargado_unidad']) && count($permits['encargado_finanzas'])) {
-			$orgs = array_merge($permits['encargado_unidad'], $permits['encargado_finanzas']);
+		} elseif (count($prod) && count($finan)) {
+			$orgs = array_merge($prod, $finan);
 			$category = null;
-		} elseif (count($permits['encargado_unidad'])) {
-			$orgs = $permits['encargado_unidad'];
+		} elseif (count($prod)) {
+			$orgs = $prod;
 			$category = 1;
-		} elseif (count($permits['encargado_finanzas'])) {
-			$orgs = $permits['encargado_finanzas'];
+		} elseif (count($finan)) {
+			$orgs = $finan;
 			$category = 2;
 		}
 		$data = array();
 		foreach ($orgs as $org){
 			$data[$org]['org'] = $this->Organization_model->getByID($org);
-			$metrics = $this->Dashboard_model->getAllMetrics($org, $category);
+			$metrics = $this->Dashboard_model->getAllMetrics($org, $category, 1);
 			foreach ($metrics as $metric){
 				$data[$org]['metorg'][$metric->metorg]['metric'] = $metric;
 				$data[$org]['metorg'][$metric->metorg]['values'] = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg'=>[$metric->metorg], 'state'=>[0,-1], 'order'=>[['year', 'ASC'], ['x_value', 'ASC']]));
@@ -153,6 +147,9 @@ class MySession extends CI_Controller {
 		foreach ($this->User_model->getAllUsers() as $user){
 			$users[$user->id] = $user->name;
 		}
+
+		$result = defaultResult($permits, $this->Dashboard_model);
+		$result['success'] = $success;
 		$result['users'] = $users;
 		$result['data'] = $data;
 		$this->load->view('validar', $result);
@@ -193,8 +190,8 @@ class MySession extends CI_Controller {
 		if (!$permits['admin']) {
 			redirect('inicio');
 		}
-		$this->load->view('menu-configurar', array('validate' => validation($permits, $this->Dashboard_model),
-												   'role'     => $permits['title']));
+		$result = defaultResult($permits, $this->Dashboard_model);
+		$this->load->view('menu-configurar', $result);
 	}
 
 	public function configurarMetricas() {
@@ -212,13 +209,12 @@ class MySession extends CI_Controller {
 		$this->load->model('Dashboard_model');
 		$this->load->model('Metrics_model');
 		$metrics = $this->Metrics_model->getAllMetrics();
-		$this->load->view('configurar-metricas', array(
+		$result = array(
 			'departments' => getAllOrgsByDpto($this->Organization_model),
 			'metrics'	=> $metrics,
-			'success'   => $success,
-			'role'      => $permits['title'],
-			'validate'  => validation($permits, $this->Dashboard_model))
+			'success'   => $success
 		);
+		$this->load->view('configurar-metricas', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
 	}
 
 	public function agregarMetrica(){
@@ -333,12 +329,6 @@ class MySession extends CI_Controller {
 			}
 		}
 		redirect('cmetrica');
-	}
-
-	public function test(){
-		$this->load->model('User_model');
-		$user = getGeneric($this->User_model, 'Organization', array('id !='=>[2]));
-		debug($user);
 	}
 }
 ?>

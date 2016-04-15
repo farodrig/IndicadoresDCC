@@ -17,6 +17,10 @@
             margin-top: 2%;
         }
 
+        .margin-bottom{
+            margin-bottom: 5%;
+        }
+
         form label, td label, .description{
             font-size: 1.2em;
         }
@@ -74,9 +78,7 @@
     <div class="inner-wrapper">
         <!-- start: sidebar -->
         <?php
-        $navData=[['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home'],
-            ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
-            ['url'=>'cdashboardUnidad', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
+        $navData=[];
         include 'partials/navigation.php';
         ?>
         <!-- end: sidebar -->
@@ -142,62 +144,63 @@
                 </div>
                 <div class="panel-body">
                     <div class="panel-body row">
-                        <div class="col-md-5 foda">
-                            <h4 class="text-center">FODA
-                                <small id="foda_valid"></small>
-                                <a class="btn editFoda hidden" data-toggle="modal" data-target="#editFodaModal" ><i class="fa fa-pencil"></i></a>
-                                <button type="button" id="validateFoda" onclick="validateElement('foda', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
-                            </h4>
-                            <div class="form-group">
-                                <label class="col-sm-2">Comentario:</label>
-                                <label class="col-sm-10 text-left" id="foda_comment"></label>
+                        <div class="row">
+                            <div class="col-md-5 foda">
+                                <h4 class="text-center">FODA
+                                    <small id="foda_valid"></small>
+                                    <a class="btn editFoda hidden" data-toggle="modal" data-target="#editFodaModal" ><i class="fa fa-pencil"></i></a>
+                                    <button type="button" id="validateFoda" onclick="validateElement('foda', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
+                                </h4>
+                                <div class="form-group">
+                                    <label class="col-sm-2">Comentario:</label>
+                                    <label class="col-sm-10 text-left" id="foda_comment"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-1"></div>
+                            <div class="col-md-6 strategy">
+                                <h4 class="text-center">Plan Estratégico
+                                    <small id="strategy_valid"></small>
+                                    <a class="btn editStrategy hidden" data-toggle="modal" data-target="#editStrategyModal" ><i class="fa fa-pencil"></i></a>
+                                    <button type="button" id="validateStrategy" onclick="validateElement('strategy', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
+                                </h4>
+                                <div class="strategy-data">
+                                    <div class="row">
+                                        <div class="col-sm-10" id="strategy_descrip"></div>
+                                    </div>
+                                    <div class="row margin-top">
+                                        <div class="col-sm-2">Comentario:</div>
+                                        <div class="col-sm-10">
+                                            <p id="strategy_comment"></p>
+                                        </div>
+                                    </div>
+                                    <div class="row margin-top">
+                                        <div class="col-md-5 row">
+                                            <div class="col-sm-6">Fecha de Término:</div>
+                                            <div class="col-sm-6 row" id="strategy_deadline"></div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="col-sm-6">Estado Actual:</div>
+                                            <div class="col-sm-6" id="strategy_status"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row margin-top">
+                                        <div class="col-sm-2">Colaboradores:</div>
+                                        <div class="col-sm-10" id="strategy_collaborators"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-1"></div>
-                        <div class="col-md-6 strategy">
-                            <h4 class="text-center">Plan Estratégico
-                                <small id="strategy_valid"></small>
-                                <a class="btn editStrategy hidden" data-toggle="modal" data-target="#editStrategyModal" ><i class="fa fa-pencil"></i></a>
-                                <button type="button" id="validateStrategy" onclick="validateElement('strategy', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
-                            </h4>
-                            <div class="strategy-data">
-                                <div class="row">
-                                    <div class="col-sm-10" id="strategy_descrip"></div>
-                                </div>
-                                <div class="row margin-top">
-                                    <div class="col-sm-2">Comentario:</div>
-                                    <div class="col-sm-10">
-                                        <p id="strategy_comment"></p>
-                                    </div>
-                                </div>
-                                <div class="row margin-top">
-                                    <div class="col-md-5 row">
-                                        <div class="col-sm-6">Fecha de Término:</div>
-                                        <div class="col-sm-6 row" id="strategy_deadline"></div>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <div class="col-sm-6">Estado Actual:</div>
-                                        <div class="col-sm-6" id="strategy_status"></div>
-                                    </div>
-                                </div>
-                                <div class="row margin-top">
-                                    <div class="col-sm-2">Colaboradores:</div>
-                                    <div class="col-sm-10" id="strategy_collaborators"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel-body row">
-                        <div id ="itemData" class="col-md-5">
-                            <div class="row col-md-12" id="itemButtons" style="display: none;">
-                                <button id="addItem" data-toggle="modal" data-target="#editItemModal" data-id="-1" data-title="Añadir Item al FODA" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Item</button>
-                                <button id="expand-collapse-items" class="expanded pull-right" type="button">Expandir Todos</button>
-                            </div>
-                            <div id="itemSection" class="panel-body col-md-12" style="display: none;">
-                                <div id="itemTable_wrapper" class="dataTables_wrapper no-footer">
-                                    <div class="table-responsive">
-                                        <table id="itemTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
-                                            <thead>
+                        <div class="row margin-top">
+                            <div id ="itemData" class="col-md-5">
+                                <div id="itemSection" class="panel-body col-md-12" style="display: none;">
+                                    <div id="itemTable_wrapper" class="dataTables_wrapper no-footer">
+                                        <div id="itemButtons" class="row" style="display: none;">
+                                            <button id="addItem" data-toggle="modal" data-target="#editItemModal" data-id="-1" data-title="Añadir Item al FODA" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Item</button>
+                                            <button id="expand-collapse-items" class="expanded pull-right" type="button">Expandir Todos</button>
+                                        </div>
+                                        <div class="row table-responsive">
+                                            <table id="itemTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
+                                                <thead>
                                                 <tr>
                                                     <th class="sorting_disabled"></th>
                                                     <th class="sorting">ID</th>
@@ -206,24 +209,24 @@
                                                     <th class="sorting" aria-controls="itemTable">Prioridad</th>
                                                     <th class="sorting_disabled" aria-controls="itemTable">Editar</th>
                                                 </tr>
-                                            </thead>
-                                            <tbody id="itemTableContent">
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody id="itemTableContent">
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div id ="goalData" class="col-md-7">
-                            <div class="row col-md-12" id="goalButtons" style="display: none">
-                                <button id="addGoal" data-toggle="modal" data-target="#editGoalModal" data-id="-1" data-title="Añadir Objetivo" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Objetivo</button>
-                                <button id="expand-collapse-goals" class="expanded pull-right" type="button">Expandir Todos</button>
-                            </div>
-                            <div id="goalSection" class="panel-body col-md-12" style="display: none;">
-                                <div id="goalTable_wrapper" class="dataTables_wrapper no-footer">
-                                    <div class="table-responsive">
-                                        <table id="goalTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
-                                            <thead>
+                            <div id ="goalData" class="col-md-7">
+                                <div id="goalSection" class="panel-body col-md-12" style="display: none;">
+                                    <div id="goalTable_wrapper" class="dataTables_wrapper no-footer">
+                                        <div id="goalButtons" class="row" style="display: none">
+                                            <button id="addGoal" data-toggle="modal" data-target="#editGoalModal" data-id="-1" data-title="Añadir Objetivo" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Objetivo</button>
+                                            <button id="expand-collapse-goals" class="expanded pull-right" type="button">Expandir Todos</button>
+                                        </div>
+                                        <div class="row table-responsive">
+                                            <table id="goalTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
+                                                <thead>
                                                 <tr>
                                                     <th class="sorting_disabled"></th>
                                                     <th class="sorting">ID</th>
@@ -231,13 +234,13 @@
                                                     <th class="sorting" aria-controls="goalTable">Encargado</th>
                                                     <th class="sorting" aria-controls="goalTable">Término</th>
                                                     <th class="sorting" aria-controls="goalTable">Estado</th>
-                                                    <th class="sorting" aria-controls="goalTable">Validado</th>
                                                     <th class="sorting_disabled" aria-controls="goalTable">Editar</th>
                                                 </tr>
-                                            </thead>
-                                            <tbody id="goalTableContent">
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody id="goalTableContent">
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -929,11 +932,11 @@
                             text: 'Su solicitud ha sido realizada con éxito.',
                             type: 'success'
                         });
-                        fodas = data['fodas'];
-                        items = data['items'];
                         strategies = data['strategies'];
                         goals = data['goals'];
                         actions = data['actions'];
+                        fodas = data['fodas'];
+                        items = data['items'];
                         $("#year").change();
                     }
                     else {
@@ -1057,18 +1060,19 @@
             cells = '<tr id="goal' + i + '" >';
             cells += '<td class="text-center checkDetails"><i onclick="showHideGoalDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
             cells += '<td>O' + i + '</td>';
-            cells += '<td class="goalTitle">' + goals[org][year][i].title + '</td>';
+            if (goals[org][year][i].validated==1){
+                var valText = '<p class="validated">(Validado)</p>';
+                validate = "";
+            }
+            else{
+                var valText = '<p class="no-validated">(No Validado)</p>';
+                validate = '<a class="btn icons" onclick="validateElement(\'goal\', ' + i + ')" data-toggle="tooltip" title="Validar Objetivo"><i class="fa fa-check"></i></a>';
+            }
+            cells += '<td class="goalTitle">' + goals[org][year][i].title + valText + '</td>';
             cells += '<td class="goalUser">' + users[goals[org][year][i].userInCharge].name + '</td>';
             cells += '<td class="goalDeadline">' + goals[org][year][i].deadline + '</td>';
             cells += '<td class="goalState">' + goals[org][year][i].status + '</td>';
-            if (goals[org][year][i].validated==1){
-                cells += '<td class="goalValidated"> Si </td>';
-                validate = '';
-            }
-            else{
-                cells += '<td class="goalValidated"> No </td>';
-                validate = '<a class="btn icons" onclick="validateElement(\'goal\', ' + i + ')" data-toggle="tooltip" title="Validar Objetivo"><i class="fa fa-check"></i></a>';
-            }
+
             cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Objetivo" data-target="#editGoalModal" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
                 '<a class="btn icons" onclick="deleteElement(\'goal\', ' + i + ')"><i class="fa fa-trash-o"></i></a>' +
                 '<a class="btn icons" data-toggle="modal" data-title="Añadir Acción" data-target="#editActionModal" data-goal="' + i + '" data-id="-1"><i class="fa fa-plus"></i></a>';
@@ -1083,14 +1087,14 @@
             var datatable = $table.dataTable({
                 destroy: true,
                 aoColumnDefs: [
-                    { 'bSortable': false, 'aTargets': [ 0, 7 ] }
+                    { 'bSortable': false, 'aTargets': [ 0, 6 ] }
                 ],
                 aaSorting: [
-                    [4, 'asc']
+                    [1, 'asc']
                 ],
                 bFilter: false,
                 paging: false,
-                bInfo: false,
+                bInfo: false
             });
         };
         datatableInit();

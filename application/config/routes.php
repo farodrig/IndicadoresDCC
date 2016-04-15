@@ -52,23 +52,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'MySession';
 
 $route['inicio']           = 'MySession/inicio';
-$route['dashboard']        = 'Dashboard/showDashboard';
-$route['dashboardAll']     = 'Dashboard/showAllDashboard';
 $route['validar']          = 'MySession/validar';
 $route['configurar']       = 'MySession/menuConfigurar';
-$route['formAgregarDato']  = 'Dashboard/formAddData';
-$route['agregarDato']      = 'Dashboard/addData';
-$route['careaunidad']      = 'ModifyOrg/modifyAreaUnidad';
-$route['cdashboardUnidad'] = 'DashboardConfig/configUnidad';
-$route['cdashboardArea']   = 'DashboardConfig/configArea';
-$route['cdashboardDCC']    = 'DashboardConfig/configDCC';
-$route['dconfig'] = 'DashboardConfig/dashboardConfig';
-$route['addGraph']         = 'DashboardConfig/addGraphUnidad';
 $route['cmetrica']         = 'MySession/configurarMetricas';
-$route['export']           = 'Dashboard/exportData';
 $route['contacto']         = 'MySession/contact';
 $route['salir']            = 'MySession/logout';
+
+$route['dashboard']        = 'Dashboard/showDashboard';
+$route['formAgregarDato']  = 'Dashboard/formAddData';
+$route['agregarDato']      = 'Dashboard/addData';
+$route['export']           = 'Dashboard/exportData';
+
+$route['careaunidad']      = 'ModifyOrg/modifyAreaUnidad';
+
 $route['verif_usuario']    = 'ADI/user_verify';
+
+$route['cdashboard'] = 'DashboardConfig/dashboardConfig';
+$route['cdashboard/modify/graphic'] = 'DashboardConfig/modifyGraphic';
+$route['cdashboard/modify/serie'] = 'DashboardConfig/modifySerie';
+$route['cdashboard/delete'] = 'DashboardConfig/delete';
+
+$route['cdashboard/values'] = 'DashboardConfig/graphicValues';
 
 $route['fodaStrategy'] = 'FodaStrategy/fodaIndex';
 $route['fodaStrategy/validate'] = 'FodaStrategy/validate';
