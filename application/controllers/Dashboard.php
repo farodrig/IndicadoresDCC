@@ -37,18 +37,20 @@ class Dashboard extends CI_Controller {
     // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
     // esto sirve para cuando se llama de una vista para completar por ejemplo una tabla
 	function formAddData(){
-		$permits = $this->session->userdata();
 		$org= $this->input->get('org');//Es el id de área, unidad, etc que se este considerando
 		if (is_null($org))
             redirect('inicio');
 
+        $permits = $this->session->userdata();
+        $prod = in_array($org, $permits['foda']['edit']) || in_array($org, $permits['metaP']['edit']);
+        $finan = in_array($org, $permits['valorF']['edit']) || in_array($org, $permits['metaF']['edit']);
+
 		//Se obtienen las metricas correspondientes a los permisos del usuario, junto con las mediciones correspondientes
-		if ($permits['admin'] || ((in_array($org, $permits['asistente_finanzas']) || in_array($org, $permits['encargado_finanzas']))
-				 && (in_array($org, $permits['encargado_unidad']) || in_array($org, $permits['asistente_unidad'])))) {
+		if ($prod && $finan){
 			$cat = 0;
-		} elseif (in_array($org, $permits['encargado_unidad']) || in_array($org, $permits['asistente_unidad'])) {
+		} elseif ($prod) {
 			$cat = 1;
-		} elseif (in_array($org, $permits['asistente_finanzas']) || in_array($org, $permits['encargado_finanzas'])) {
+		} elseif ($finan) {
 			$cat = 2;
 		} else {
 			redirect('inicio');
@@ -56,102 +58,141 @@ class Dashboard extends CI_Controller {
 		$all_metrics      = $this->Dashboard_model->getAllMetrics($org, $cat, 0);
 		$all_measurements = $this->Dashboard_model->getAllMeasurements($org, $cat);
 		$res = defaultResult($permits, $this->Dashboard_model);
+        $res['editP'] = in_array($org, $permits['foda']['edit']);
+        $res['editF'] = in_array($org, $permits['valorF']['edit']);
+        $res['superEditP'] = in_array($org, $permits['metaP']['edit']);
+        $res['superEditF'] = in_array($org, $permits['metaF']['edit']);
 		$res['measurements'] = $this->_parseMeasurements($all_measurements);
 		$res['metrics']      = !$all_metrics ? [] : $all_metrics;
 		$res['route']        = getRoute($this, $org);
 		$res['org']  = $org;
 		$res['success']      = $this->session->flashdata('success') === null ? 2 : $this->session->flashdata('success');
 		$this->load->view('add-data', $res);
-		//debug($all_metrics, true);
 	}
 
 	//Función encargada de llamar a las funciones correspondientes del modelo, para poder actualizar valores en la base de datos
 	function addData() {
-		$id = $this->input->post("org");
-		if (is_null($id))
-			redirect('inicio');
+		$org = $this->input->post("org");
+		if (is_null($org)) {
+            redirect('inicio');
+        }
 
-		$borrar = ($this->input->post('borrar')) ? 1 : 0;
-		$user    = $this->session->userdata("rut");
-		$permits = $this->session->userdata();
+        $permits = $this->session->userdata();
+        if (!(in_array($org, $permits['foda']['edit']) || in_array($org, $permits['metaP']['edit']) || in_array($org, $permits['valorF']['edit']) || in_array($org, $permits['metaF']['edit']))) {
+            $this->session->set_flashdata('success', 0);
+            redirect('formAgregarDato?org='.$org);
+        }
 
 		//Se validan los datos ingresados
 		$this->form_validation->set_rules('year', 'Year', 'required|exact_length[4]|numeric');
-		$this->form_validation->set_rules('valueY[]', 'Value', 'numeric');
 		$this->form_validation->set_rules('metorg[]', 'Value', 'numeric');
-		$this->form_validation->set_rules('target[]', 'Target', 'numeric');
-		$this->form_validation->set_rules('expected[]', 'Expected', 'numeric');
 
 		if (!$this->form_validation->run()) {
 			$this->session->set_flashdata('success', 0);
-			redirect('formAgregarDato');
-		}
-		$year = $this->input->post('year');
+            redirect('formAgregarDato?org='.$org);
+        }
 
-		if ($permits['admin'] || in_array($id, $permits['encargado_finanzas']) || in_array($id, $permits['encargado_unidad'])) {
-			$validation = 1;
-		} elseif (in_array($id, $permits['asistente_finanzas']) || in_array($id, $permits['asistente_unidad'])) {
-			$validation = 0;
-		} else {
-			$this->session->set_flashdata('success', 0);
-			redirect('formAgregarDato');
-		}
+        $borrar = ($this->input->post('borrar')) ? 1 : 0;
+        $user    = $this->session->userdata("rut");
+		$year = $this->input->post('year');
 		$success = true;
 
 		if($borrar){
 			foreach ($this->input->post('delete') as $valId){
 				if(!$valId)
 					continue;
+                $metorg = $this->Metorg_model->getMetOrgDataByValue($valId);
+                $validation = ($metorg->category==1 ? in_array($org, $permits['metaP']['validate']) : in_array($org, $permits['metaF']['validate']));
 				$success = $success && $this->Dashboard_model->deleteValue($valId, $user, $validation);
 			}
 			$success = ($success) ? 1:0;
 			$this->session->set_flashdata('success', $success);
-			redirect('formAgregarDato');
-		}
-		for($i = 0; $i<count($this->input->post('valueY')); $i++){
+            redirect('formAgregarDato?org='.$org);
+        }
+		for($i = 0; $i<count($this->input->post('metorg')); $i++){
 			$id_metorg = $this->input->post('metorg')[$i];
-			$valId = $this->input->post('valId')[$i];
-			$valueY = $this->input->post('valueY')[$i];
-			$valueX    = $this->input->post('valueX')[$i];
-			$target   = $this->input->post('target')[$i];
-			$expected = $this->input->post('expected')[$i];
-			$metorg = $this->Metorg_model->getMetOrg(array('id'=>[$id_metorg]))[0];
-			$metric = $this->Metrics_model->getMetric(array('id'=>[$metorg->metric]))[0];
+            $metorg = $this->Metorg_model->getMetOrg(array('id'=>[$id_metorg]))[0];
+            $metric = $this->Metrics_model->getMetric(array('id'=>[$metorg->metric]))[0];
+            $valId = $this->input->post('valId')[$i];
+            $valueY = (strcmp($this->input->post('valueY')[$i], "null")==0 ? null : $this->input->post('valueY')[$i]);
+            $valueX = (strcmp($this->input->post('valueX')[$i], "null")==0 ? null : $this->input->post('valueX')[$i]);
+            $target = (strcmp($this->input->post('target')[$i], "null")==0 ? null : $this->input->post('target')[$i]);
+            $expected = (strcmp($this->input->post('expected')[$i], "null")==0 ? null : $this->input->post('expected')[$i]);
 
-			//si los datos no cambiaron o no hay valor en y saltamos datos
-			if ((strcmp($valueY, "")==0 && strcmp($valueX, "")==0 && strcmp($expected, "")==0 && strcmp($target, "")==0) || $valueY == "") {
+            if($metric->category==1){
+                $validValue = in_array($org, $permits['foda']['validate']);
+                $validMeta = in_array($org, $permits['metaP']['validate']);
+                if(!in_array($org, $permits['foda']['edit'])){
+                    $valueY = null;
+                    $valueX = null;
+                }
+                if(!in_array($org, $permits['metaP']['edit'])){
+                    $target = null;
+                    $expected = null;
+                }
+            }
+            else{
+                $validValue = in_array($org, $permits['valorF']['validate']);
+                $validMeta = in_array($org, $permits['metaF']['validate']);
+                if(!in_array($org, $permits['valorF']['edit'])){
+                    $valueY = null;
+                    $valueX = null;
+                }
+                if(!in_array($org, $permits['metaF']['edit'])){
+                    $target = null;
+                    $expected = null;
+                }
+            }
+            if((!is_null($valueY) && !is_numeric($valueY)) || (!is_null($target) && !is_numeric($target)) || (!is_null($expected) && !is_numeric($expected))){
+                continue;
+            }
+			//si no hay valores saltamos los datos
+			if ((strcmp($valueY, "")==0 && strcmp($valueX, "")==0 && strcmp($expected, "")==0 && strcmp($target, "")==0) || (is_null($valueY) && is_null($valueX) && is_null($target) && is_null($expected))) {
 				$success = false;
 				continue;
 			}
-			//si no se tiene un id para el valor y no se tiene un eje X
-			if (!$valId && (strcmp($metric->x_name, "")==0)){
-				$oldVal = $this->Dashboard_model->getValue(array('metorg'=>[$id_metorg], 'year'=>[$year], 'state'=>[1]));
-				//Si existia un valor previo, se debe hacer un update de la data, sino, simplemente se inserta.
-				if (count($oldVal)==1){
-					$oldVal = $oldVal[0];
-					if ($valueY != $oldVal->value || $expected != $oldVal->expected || $target != $oldVal->target)
-						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, "", $target, $expected, $user, $validation);
-				}
-				else if (count($oldVal)==0){
-					$success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, "", $target, $expected, $user, $validation);
-				}
-				//hubo un error, nunca debería haber más de 1 validado.
-				else{
-					$success = false;
-					debug($oldVal);
-				}
-			}
-			//si no se tiene un ID para el valor y se tiene un eje X, 
-			elseif(!$valId && strcmp($metric->x_name, "")!=0 && strcmp($valueX, "")!=0){
+
+			//si no se tiene un id para el valor
+			if (!$valId){
+                if(is_null($valueY))
+                    continue;
+                if (strcmp($metric->x_name, "")==0)
+                    $valueX = "";
+                elseif (is_null($valueX)){
+                    continue;
+                }
 				$oldVal = $this->Dashboard_model->getValue(array('metorg'=>[$id_metorg], 'year'=>[$year], 'x_value'=>[$valueX], 'state'=>[1]));
 				//Si existia un valor previo, se debe hacer un update de la data, sino, simplemente se inserta.
 				if (count($oldVal)==1){
 					$oldVal = $oldVal[0];
-					if ($valueY != $oldVal->value || strcmp($valueX, $oldVal->x_value)!=0 || $expected != $oldVal->expected || $target != $oldVal->target)
-						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, $validation);
+					if ($valueY != $oldVal->value || $expected != $oldVal->expected || $target != $oldVal->target) {
+                        if ($validMeta && $validValue)
+                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 1);
+                        elseif ($validMeta){
+                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, null, $target, $expected, $user, 1);
+                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, null, null, $user, 0);
+                        }
+                        elseif ($validValue){
+                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, null, null, $user, 1);
+                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, null, $target, $expected, $user, 0);
+                        }
+                        else
+                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 0);
+                    }
 				}
 				else if (count($oldVal)==0){
-					$success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, $validation);
+                    if ($validMeta && $validValue)
+                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, 1);
+                    elseif ($validMeta){
+                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, null, null, $target, $expected, $user, 1);
+                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, null, null, $user, 0);
+                    }
+                    elseif ($validValue){
+                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, null, null, $user, 1);
+                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, null, null, $target, $expected, $user, 0);
+                    }
+                    else
+                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, 0);
 				}
 				//hubo un error, nunca debería haber más de 1 validado.
 				else{
@@ -163,7 +204,18 @@ class Dashboard extends CI_Controller {
 			else if($valId){
 				$oldVal = $this->Dashboard_model->getValue(array('id'=>[$valId]))[0];
 				if ($valueY != $oldVal->value || strcmp($valueX, $oldVal->x_value)!=0 || $expected != $oldVal->expected || $target != $oldVal->target) {
-					$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, $validation);
+                    if ($validMeta && $validValue)
+                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 1);
+                    elseif ($validMeta){
+                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, null, $target, $expected, $user, 1);
+                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, null, null, $user, 0);
+                    }
+                    elseif ($validValue){
+                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, null, null, $user, 1);
+                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, null, $target, $expected, $user, 0);
+                    }
+                    else
+                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 0);
 				}
 			}
 			else{
@@ -172,8 +224,8 @@ class Dashboard extends CI_Controller {
 		}
 		$success = ($success) ? 1:0;
 		$this->session->set_flashdata('success', $success);
-		redirect('formAgregarDato');
-	}
+        redirect('formAgregarDato?org='.$org);
+    }
 
 	//Función para exportar datos de tabla al lado de los gráficos en archivo csv
 	function exportData() {
@@ -196,8 +248,11 @@ class Dashboard extends CI_Controller {
 		$graphic = ($all ? $this->Dashboard_model->getAllGraphicData($graphic) : $this->Dashboard_model->getGraphicData($graphic));
 		$key = ($all ? 'year' : 'x');
 		$data = [];
+		$metric = (object) ["x_name"=>"Año"];
 		foreach ($graphic->series as $serie){
 			$prename = ($all || strcmp($serie->aggregation,"")==0 ? "" : $serie->aggregation . " de ");
+			$metorg = $this->Metorg_model->getMetOrg(['id'=>[$serie->metorg]])[0];
+			$metric = $this->Metrics_model->getMetric(['id'=>[$metorg->metric]])[0];
 			foreach ($serie->values as $value) {
 				if(!key_exists('target', $value))
 					continue;
@@ -205,14 +260,14 @@ class Dashboard extends CI_Controller {
 				$data[] = $value;
 			}
 		}
-
+		$graphic->x_name = ($all ? $metric->x_name : $graphic->x_name);
 		$title = $graphic->title;
 		if($graphic->ver_x){
 			$title .= " Periodo (".$graphic->min_year." - ".$graphic->max_year.")";
 		}
 		usort($data, build_sorter($key));
 		download_send_headers(str_replace(" ", "_", $title)."_".date("d-m-Y").".csv");
-		echo(array2csv($data,$title, $graphic->x_name, $graphic->y_name));
+		echo(array2csv($data,$title, $graphic->x_name, $graphic->y_name, $all));
 		return;
 	}
 	
@@ -229,15 +284,19 @@ class Dashboard extends CI_Controller {
 	//función que permite mostrar un dashboard. Se recibe el id de la organizacion correspondiente
 	// y a partir de eso se obtienen las métricas y mediciones asociadas
 	function showDashboard(){
-		$permits = $this->session->userdata();
 		$org      = $this->input->get("org");//$this->input->post("direccion");//Se recibe por POST, es el id de área, unidad, etc que se este considerando
-		$show_all = $this->input->get('all');
 		if(is_null($org))
 			redirect('inicio');
+
+		$permits = $this->session->userdata();
+		$show_all = $this->input->get('all');
+		$prod = array_merge($permits['foda']['edit'], $permits['metaP']['edit']);
+		$finan = array_merge($permits['valorF']['edit'], $permits['metaF']['edit']);
+
 		//Permite ver si se esta en la pantalla de mostrar todos los gráficos o no
-		if ($show_all == null) {
-			$show_all = 0;
-		}
+        $show_all = (is_null($show_all) ? 0 : $show_all);
+
+		$add = (count($prod) + count($finan)) > 0;
 
 		$graphics = $this->getAllDashboardData($org, $show_all);
 		$show_button = ($show_all) ? true : $this->Dashboard_model->showButton($org);
@@ -246,7 +305,7 @@ class Dashboard extends CI_Controller {
 			$aggregation[$type->id] = $type;
 		}
 		$result = defaultResult($permits, $this->Dashboard_model);
-		$result['add_data'] = 1;
+		$result['add_data'] = $add;
 		$result['show_all'] = $show_all;
 		$result['show_button'] = $show_button;
 		$result['aggregation'] = $aggregation;

@@ -15,15 +15,16 @@ class FodaStrategy extends CI_Controller {
 
     function fodaIndex(){
         $permits = $this->session->userdata();
-        if (!$permits['admin']) {
+        $orgs = array_merge($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']);
+
+        if (!count($orgs)) {
             redirect('inicio');
         }
 
-        $orgs = -1;
-        $fData = $this->getAllFodaData();
+        $fData = $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']);
         $years = $fData['years'];
         
-        $sData = $this->getAllStrategyData();
+        $sData = $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']);
         $years = array_merge($years, $sData['years']);
         $result = array('title'     => 'Visualización de FODAs',
             'strategies'  => $sData['strategies'],
@@ -47,14 +48,7 @@ class FodaStrategy extends CI_Controller {
             echo json_encode(array('success'=>0));
             return;
         }
-
-        //Revisión de permisos
-        $permits = $this->session->userdata();
-        if (!$permits['admin']) {
-            echo json_encode(array('success'=>0));
-            return;
-        }
-
+        
         //Validación de entradas
         $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('year', 'Año', 'numeric|required');
@@ -66,10 +60,15 @@ class FodaStrategy extends CI_Controller {
             return;
         }
 
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!in_array($this->input->post('org'), $permits['foda']['edit'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+
         $done = true;
-        $validated = false;
-        if($permits['admin'])
-            $validated = true;
+        $validated = in_array($this->input->post('org'), $permits['foda']['validate']);
 
         $data = array('org' => $this->input->post('org'),
             'year' => $this->input->post('year'),
@@ -86,19 +85,12 @@ class FodaStrategy extends CI_Controller {
         }
 
         $result['success'] = $done;
-        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        $result = array_merge($result, $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']), $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']));
         echo json_encode($result);
     }
 
     function modifyItem() {
         if (!$this->input->is_ajax_request()) {
-            echo json_encode(array('success'=>0));
-            return;
-        }
-
-        //Revisión de permisos
-        $permits = $this->session->userdata();
-        if (!$permits['admin']) {
             echo json_encode(array('success'=>0));
             return;
         }
@@ -118,12 +110,18 @@ class FodaStrategy extends CI_Controller {
             return;
         }
 
-        $validated = false;
-        if($permits['admin'])
-            $validated = true;
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!in_array($this->input->post('org'), $permits['foda']['edit'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+
+        $validated = in_array($this->input->post('org'), $permits['foda']['validate']);
 
         $data = array('org' => [$this->input->post('org')],
-                      'year' => [$this->input->post('year')]);
+                      'year' => [$this->input->post('year')]
+        );
         $foda = $this->Foda_model->getFoda($data);
         $data['org'] = $data['org'][0];
         $data['year'] = $data['year'][0];
@@ -176,7 +174,7 @@ class FodaStrategy extends CI_Controller {
             $done = $done && $this->Strategy_model->deleteGoalItem($goal, $item);
         }
         $result['success'] = $done;
-        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        $result = array_merge($result, $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']), $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']));
         echo json_encode($result);
     }
 
@@ -185,13 +183,7 @@ class FodaStrategy extends CI_Controller {
             echo json_encode(array('success'=>0));
             return;
         }
-
-        //Revisión de permisos
-        $permits = $this->session->userdata();
-        if (!$permits['admin']) {
-            echo json_encode(array('success'=>0));
-            return;
-        }
+        
         //Validación de entradas
         $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('year', 'Año', 'numeric|required');
@@ -207,9 +199,14 @@ class FodaStrategy extends CI_Controller {
             return;
         }
 
-        $validated = false;
-        if($permits['admin'])
-            $validated = true;
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!in_array($this->input->post('org'), $permits['foda']['edit'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+
+        $validated = in_array($this->input->post('org'), $permits['foda']['validate']);
 
         $done = true;
         $data = array('org' => $this->input->post('org'),
@@ -252,19 +249,12 @@ class FodaStrategy extends CI_Controller {
         }
 
         $result['success'] = $done;
-        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        $result = array_merge($result, $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']), $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']));
         echo json_encode($result);
     }
 
     function modifyGoal(){
         if (!$this->input->is_ajax_request()) {
-            echo json_encode(array('success'=>0));
-            return;
-        }
-
-        //Revisión de permisos
-        $permits = $this->session->userdata();
-        if (!$permits['admin']) {
             echo json_encode(array('success'=>0));
             return;
         }
@@ -286,9 +276,14 @@ class FodaStrategy extends CI_Controller {
             return;
         }
 
-        $validated = false;
-        if($permits['admin'])
-            $validated = true;
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!in_array($this->input->post('org'), $permits['foda']['edit'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+
+        $validated = in_array($this->input->post('org'), $permits['foda']['validate']);
 
         $data = array('org' => [$this->input->post('org')],
             'year' => [$this->input->post('year')]
@@ -352,7 +347,7 @@ class FodaStrategy extends CI_Controller {
         }
 
         $result['success'] = $done;
-        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        $result = array_merge($result, $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']), $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']));
         echo json_encode($result);
     }
 
@@ -362,14 +357,8 @@ class FodaStrategy extends CI_Controller {
             return;
         }
 
-        //Revisión de permisos
-        $permits = $this->session->userdata();
-        if (!$permits['admin']) {
-            echo json_encode(array('success'=>0));
-            return;
-        }
-
         //Validación de entradas
+        $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('goal', 'Objetivo', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('action', 'Acción', 'numeric|required');
         $this->form_validation->set_rules('current', 'Resultado Actual', 'trim|alphaNumericSpace');
@@ -383,7 +372,16 @@ class FodaStrategy extends CI_Controller {
             return;
         }
 
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!in_array($this->input->post('org'), $permits['foda']['edit'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        
         $done = true;
+        $validated = in_array($this->input->post('org'), $permits['foda']['validate']);
+        
         $data = array('goal' => $this->input->post('goal'),
                     'status' => $this->input->post('status'),
                     'userInCharge' => $this->input->post('actionUser'),
@@ -399,10 +397,6 @@ class FodaStrategy extends CI_Controller {
             $done = $done && ($this->Strategy_model->addAction($data) ? true : false);
         }
 
-        $validated = false;
-        if($permits['admin'])
-            $validated = true;
-
         $goal = $this->Strategy_model->getGoal(['id' => [$data['goal']]])[0];
         if(!$validated && $goal->validated){
             $data['id'] = $goal->id;
@@ -417,7 +411,7 @@ class FodaStrategy extends CI_Controller {
         }
 
         $result['success'] = $done;
-        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        $result = array_merge($result, $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']), $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']));
         echo json_encode($result);
     }
 
@@ -427,14 +421,8 @@ class FodaStrategy extends CI_Controller {
             return;
         }
 
-        //Revisión de permisos
-        $permits = $this->session->userdata();
-        if (!$permits['admin']) {
-            echo json_encode(array('success'=>0));
-            return;
-        }
-
         //Validación de entradas
+        $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('type', 'Tipo de elemento', 'trim|required|alpha_dash');
         $this->form_validation->set_rules('id', 'ID', 'numeric|required|greater_than_equal_to[0]');
 
@@ -442,10 +430,18 @@ class FodaStrategy extends CI_Controller {
             echo json_encode(array('success'=>0));
             return;
         }
+
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!in_array($this->input->post('org'), $permits['foda']['validate'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        
         $type = $this->input->post('type');
         $id = $this->input->post('id');
         $data = ['id'=>$id, 'validated'=>1];
-        $done = $validator = $this->validationByType($type, $data);
+        $done = $this->validationByType($type, $data);
         if(strcmp($type, "strategy")==0){
             $goals = $this->Strategy_model->getGoal(['strategy'=>[$id]]);
             foreach ($goals as $goal){
@@ -464,7 +460,7 @@ class FodaStrategy extends CI_Controller {
             }
         }
         $result['success'] = $done;
-        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        $result = array_merge($result, $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']), $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']));
         echo json_encode($result);
     }
 
@@ -482,23 +478,26 @@ class FodaStrategy extends CI_Controller {
             echo json_encode(array('success'=>0));
             return;
         }
-        //se chequean permisos
-        $permits = $this->session->userdata();
-        if (!$permits['admin']) {
-            echo json_encode(array('success'=>0));
-            return;
-        }
-
+        
+        $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('type', 'Tipo de elemento', 'trim|required|alpha_dash');
         $this->form_validation->set_rules('id', 'ID', 'numeric|required|greater_than_equal_to[0]');
         if (!$this->form_validation->run()) {
             echo json_encode(array('success'=>0));
             return;
         }
+
+        //Revisión de permisos
+        $permits = $this->session->userdata();
+        if (!in_array($this->input->post('org'), $permits['foda']['edit'])) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        
         $type = $this->input->post('type');
         $id = $this->input->post('id');
         $result['success'] = $this->deleteElement($type, $id);
-        $result = array_merge($result, $this->getAllStrategyData(), $this->getAllFodaData());
+        $result = array_merge($result, $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']), $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']));
         echo json_encode($result);
     }
 
@@ -516,7 +515,7 @@ class FodaStrategy extends CI_Controller {
         return $result;
     }
 
-    private function getAllStrategyData(){
+    private function getAllStrategyData($view, $edit, $validate){
         $this->load->model('User_model');
         $status = [];
         $aux_status = $this->Strategy_model->getCompletitionStatus(array());
@@ -534,10 +533,13 @@ class FodaStrategy extends CI_Controller {
         $goals = [];
         $actions = [];
         $years = [];
-        $aux_stra = $this->Strategy_model->getStrategicPlan(array());
+        $aux_stra = $this->Strategy_model->getStrategicPlan(['org' => array_merge($view, $edit, $validate)]);
         foreach ($aux_stra as $strategy){
             if(!in_array($strategy->year, $years))
                 $years[] = $strategy->year;
+            $strategy->view = in_array($strategy->org, $view);
+            $strategy->edit = in_array($strategy->org, $edit);
+            $strategy->validate = in_array($strategy->org, $validate);
             $strategy->status = $status[$strategy->status];
             $strategy->deadline = date("d-m-Y", strtotime($strategy->deadline));
             $collaborators = $this->Strategy_model->getAllCollaborators($strategy->id);
@@ -568,8 +570,8 @@ class FodaStrategy extends CI_Controller {
         return ['strategies'=>$strategies, 'goals' => $goals, 'actions' => $actions, 'years' => $years, 'status' => $status, 'users'=>$users];
     }
 
-    private function getAllFodaData(){
-        $fodas = $this->Foda_model->getFoda(['order'=>[['org', 'ASC'], ['year', 'ASC']]]);
+    private function getAllFodaData($view, $edit, $validate){
+        $fodas = $this->Foda_model->getFoda(['org' => array_merge($view, $edit, $validate),'order'=>[['org', 'ASC'], ['year', 'ASC']]]);
         $fodasByOrg = array();
         $index = -1;
 
@@ -580,6 +582,9 @@ class FodaStrategy extends CI_Controller {
                 $index = $foda->org;
                 $fodasByOrg[$index] = array();
             }
+            $foda->view = in_array($foda->org, $view);
+            $foda->edit = in_array($foda->org, $edit);
+            $foda->validate = in_array($foda->org, $validate);
             $data = array('foda' => [$foda->id], 'order'=>[['type', 'ASC'], ['priority', 'ASC']]);
             $items[$foda->org][$foda->year] = $this->Foda_model->getItem($data);
             foreach ($items[$foda->org][$foda->year] as $aux_item){

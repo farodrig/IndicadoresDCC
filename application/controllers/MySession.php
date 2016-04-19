@@ -104,9 +104,11 @@ class MySession extends CI_Controller {
 	}
 
 	public function validar() {
+		if (is_null($this->session->rut))
+			redirect('salir');
 		$permits = $this->session->userdata();
-		$prod = array_merge($permits['foda']['validate'], $permits['metaP']['validate']);
-		$finan = array_merge($permits['valorF']['validate'], $permits['metaF']['validate']);
+		$prod = array_unique(array_merge($permits['foda']['validate'], $permits['metaP']['validate']));
+		$finan = array_unique(array_merge($permits['valorF']['validate'], $permits['metaF']['validate']));
 		if (!$permits['admin'] && !count($prod) && !count($finan)) {
 			redirect('inicio');
 		}
@@ -115,13 +117,10 @@ class MySession extends CI_Controller {
 		$this->load->model('User_model');
 		$success = $this->session->flashdata('success');
 		if (is_null($success))
-			$success = 2;		
+			$success = 2;
 
-		if ($permits['admin'] == 1) {
-			$orgs = $this->Organization_model->getAllIds();
-			$category = null;
-		} elseif (count($prod) && count($finan)) {
-			$orgs = array_merge($prod, $finan);
+		if (count($prod) && count($finan)) {
+			$orgs = array_unique(array_merge($prod, $finan));
 			$category = null;
 		} elseif (count($prod)) {
 			$orgs = $prod;
@@ -135,9 +134,19 @@ class MySession extends CI_Controller {
 			$data[$org]['org'] = $this->Organization_model->getByID($org);
 			$metrics = $this->Dashboard_model->getAllMetrics($org, $category, 1);
 			foreach ($metrics as $metric){
+                $perm['valor'] = ($metric->category==1 ? in_array($org, $permits['foda']['validate']) : in_array($org, $permits['valorF']['validate']));
+                $perm['meta'] = ($metric->category==1 ? in_array($org, $permits['metaP']['validate']) : in_array($org, $permits['metaF']['validate']));
+                $data[$org]['metorg'][$metric->metorg]['permits'] = $perm;
 				$data[$org]['metorg'][$metric->metorg]['metric'] = $metric;
-				$data[$org]['metorg'][$metric->metorg]['values'] = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg'=>[$metric->metorg], 'state'=>[0,-1], 'order'=>[['year', 'ASC'], ['x_value', 'ASC']]));
-				if (!count($data[$org]['metorg'][$metric->metorg]['values']))
+				$values = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg'=>[$metric->metorg], 'state'=>[0,-1], 'order'=>[['year', 'ASC'], ['x_value', 'ASC']]));
+                $data[$org]['metorg'][$metric->metorg]['values'] = $values;
+                for ($i = 0; $i<count($values); $i++){
+                    $value = $values[$i];
+                    if (((is_null($value->proposed_x_value) || !$value->proposed_x_value) && is_null($value->proposed_value) && $perm['valor'] && !$perm['meta']) || (is_null($value->proposed_expected) && is_null($value->proposed_target) && !$perm['valor'] && $perm['meta'])){
+                        unset($data[$org]['metorg'][$metric->metorg]['values'][$i]);
+                    }
+                }
+                if (!count($data[$org]['metorg'][$metric->metorg]['values']))
 					unset($data[$org]['metorg'][$metric->metorg]);
 			}
 			if (!count($data[$org]['metorg']))
@@ -147,7 +156,6 @@ class MySession extends CI_Controller {
 		foreach ($this->User_model->getAllUsers() as $user){
 			$users[$user->id] = $user->name;
 		}
-
 		$result = defaultResult($permits, $this->Dashboard_model);
 		$result['success'] = $success;
 		$result['users'] = $users;
@@ -157,23 +165,39 @@ class MySession extends CI_Controller {
 
 	public function validate_reject() {
 		$this->load->model('Dashboard_model');
-		$success = 0;
-		$data    = $this->input->post();
-		$func    = NULL;
+        $this->load->model('Metorg_model');
+        $this->load->library('form_validation');
 
+        $success = 0;
+        $permits = $this->session->userdata();
+        //Validación de inputs
+        $this->form_validation->set_rules('ids[]', 'ID', 'required|numeric|greater_than_equal_to[0]');
+        if (!$this->form_validation->run()) {
+            $this->session->set_flashdata('success', 0);
+            redirect('validar');
+        }
+
+		$data    = $this->input->post('ids');
+		$func    = NULL;
 		if ($this->input->post('Validar')) {
-			unset($data['Validar']);
 			$func = 'validateData';
 		} elseif ($this->input->post('Rechazar')) {
-			unset($data['Rechazar']);
 			$func = 'deleteData';
 		}
-
 		if (!is_null($func) && count($data) > 0) {
 			$success = true;
 			foreach ($data as $data_id) {
 				if($this->Dashboard_model->checkIfValidate($data_id)) {
-					$success = $success && $this->Dashboard_model->$func($data_id);
+                    $metorg = $this->Metorg_model->getMetOrgDataByValue($data_id);
+                    if ($metorg->category==1){
+                        $validVal = in_array($metorg->org, $permits['foda']['validate']);
+                        $validMet = in_array($metorg->org, $permits['metaP']['validate']);
+                    }
+                    else{
+                        $validVal = in_array($metorg->org, $permits['foda']['validate']);
+                        $validMet = in_array($metorg->org, $permits['metaP']['validate']);
+                    }
+                    $success = $success && $this->Dashboard_model->$func($data_id, $validVal, $validMet);
 				}
 			}
 			$success = ($success) ? 1:0;

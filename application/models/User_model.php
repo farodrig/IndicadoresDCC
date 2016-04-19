@@ -46,6 +46,16 @@ class User_model extends CI_Model{
         $this->db->join($this->role, $this->position.'.id = '.$this->role.'.position');
         $this->db->join($this->permit, $this->permit.'.position = '.$this->position .'.id');
         $this->db->where($this->role.'.user', $user);
+        $this->db->group_start();
+            $this->db->group_start();
+                $this->db->where($this->role.'.final_date = ', null);
+                $this->db->where($this->role.'.initial_date <= ', date('Y-m-d H:i:s'));
+            $this->db->group_end();
+            $this->db->or_group_start();
+                $this->db->where($this->role.'.final_date >= ', date('Y-m-d H:i:s'));
+                $this->db->where($this->role.'.initial_date <= ', date('Y-m-d H:i:s'));
+            $this->db->group_end();
+        $this->db->group_end();
         $this->db->order_by('resource', 'ASC');
         $this->db->order_by('org', 'ASC');
         $q = $this->db->get();

@@ -15,6 +15,10 @@
         var success = <?php echo ($success);?>;
         var jArray= <?php echo json_encode($measurements);?>;
         var metrics = <?php echo json_encode($metrics);?>;
+        var editP = <?php echo json_encode($editP);?>;
+        var editF = <?php echo json_encode($editF);?>;
+        var sEditP = <?php echo json_encode($superEditP);?>;
+        var sEditF = <?php echo json_encode($superEditF);?>;
         var years = [];
         var xValues = [];
         for(metorg in jArray){
@@ -123,7 +127,7 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <?php if($metric->x_name){?>
+                                            <?php if($metric->x_name && (($metric->category==1 && $editP) || ($metric->category==2 && $editF))){?>
                                                 <button type="button" onclick="addRow(<?php echo ($metric->metorg);?>)" class="btn btn-success pull-right fa fa-plus" style="margin-bottom: 1%"></button>
                                             <?php } ?>
                                         </div >
@@ -203,10 +207,11 @@
         row.remove();
     }
 
-    function rowWithData(metorg, valId, valueY, valueX, target, expected, hasX, eliminable){
-        delButton = '';
-        del = "";
-        tdX = "";
+    function rowWithData(metorg, valId, valueY, valueX, target, expected, hasX, eliminable, edit, editSensitive){
+        var delButton = '';
+        var del = "";
+        var tdX = "";
+        var tdV = "";
         if(eliminable) {
             delButton = '<a class="btn cancel-row row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a>';
             del = 'hidden';
@@ -214,18 +219,30 @@
         else{
             delButton = '<input type="checkbox" value=' + valId + ' name="delete[]" class="form-control">';
         }
-        if(hasX)
+        if (edit){
             tdX = '<td><input type="text" name="valueX[]" value="' + valueX + '" class="form-control" onkeyup ="validateX(this)" onfocus ="validateX(this)"></td>';
-        else
+            tdV = '<td><input type="text" name="valueY[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>';
+        }
+        else{
+            tdX = '<td>' + valueX + '<input type="hidden" name="valueX[]" value="' + null + '"></td>';
+            tdV = '<td>' + valueY + '<input type="hidden" name="valueY[]" value="' + null + '"></td>';
+        }
+        if(!hasX)
             tdX = '<input type="hidden" name="valueX[]" value="" class="form-control">';
-        row = '<tr> \
-                    <input type="hidden" name="valId[]" value="' + valId + '">    \
-                    <input type="hidden" name="metorg[]" value="' + metorg + '">' + tdX + ' \
-                    <td><input type="text" name="valueY[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>\
-                    <td><input type="text" name="expected[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td> \
-                    <td><input type="text" name="target[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></div> \
-                    <td class="text-center">' + delButton + '</td> \
-               </tr>';
+
+        var row = '<tr> \
+                    <input type="hidden" name="valId[]" value="' + valId + '"> \
+                    <input type="hidden" name="metorg[]" value="' + metorg + '">' + tdX + tdV;
+
+        if(editSensitive){
+            row += '<td><input type="text" name="expected[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td> \
+                    <td><input type="text" name="target[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>';
+        }
+        else{
+            row += '<td>' + expected + '<input type="hidden" name="expected[]" value="' + null + '"></td> \ ' +
+                '<td>' + target + '<input type="hidden" name="target[]" value="' + null + '"></td>';
+        }
+        row += '<td class="text-center">' + delButton + '</td></tr>';
         return row;
     }
 
@@ -233,18 +250,24 @@
         for(var i in metrics) {
             var metorg = metrics[i].metorg;
             $('#tableContent' + metorg).html("");
+            var sensitive = false;
+            var edit = false;
+            if((metrics[i].category==1 && sEditP) || (metrics[i].category==2 && sEditF))
+                sensitive = true;
+            if((metrics[i].category==1 && editP) || (metrics[i].category==2 && editF))
+                edit = true;
             var cont = 0;
             for (var year in jArray[metorg]) {
                 if (year != $('#year').val())
                     continue;
                 cont++;
                 for (var xVal in jArray[metorg][year]) {
-                    var row = rowWithData(metorg, jArray[metorg][year][xVal]['id'], jArray[metorg][year][xVal]['valueY'], jArray[metorg][year][xVal]['valueX'], jArray[metorg][year][xVal]['target'], jArray[metorg][year][xVal]['expected'], metrics[i].x_name,false);
+                    var row = rowWithData(metorg, jArray[metorg][year][xVal]['id'], jArray[metorg][year][xVal]['valueY'], jArray[metorg][year][xVal]['valueX'], jArray[metorg][year][xVal]['target'], jArray[metorg][year][xVal]['expected'], metrics[i].x_name,false, edit,sensitive);
                     $('#tableContent' + metorg).append(row);
                 }
             }
-            if (cont==0){
-                var row = rowWithData(metorg, "", "", "", "", "", metrics[i].x_name, false);
+            if (cont==0 && edit){
+                var row = rowWithData(metorg, "", "", "", "", "", metrics[i].x_name, false, edit, sensitive);
                 $('#tableContent' + metorg).append(row);
             }
         }
@@ -252,13 +275,21 @@
 
     function addRow(metorg){
         var hasX="";
+        var cat = 0;
+        var sensitive = false;
+        var edit = false;
         for(var i in metrics) {
             if(metorg == metrics[i].metorg){
                 hasX = metrics[i].x_name;
+                cat = metrics[i].category;
+                if((metrics[i].category==1 && sEditP) || (metrics[i].category==2 && sEditF))
+                    sensitive = true;
+                if((metrics[i].category==1 && editP) || (metrics[i].category==2 && editF))
+                    edit = true;
                 break;
             }
         }
-        row = rowWithData(metorg, "", "", "", "", "", hasX, true);
+        row = rowWithData(metorg, "", "", "", "", "", hasX, true, edit, sensitive);
         $('#tableContent' + metorg).append(row);
     }
 

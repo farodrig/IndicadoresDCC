@@ -101,11 +101,6 @@
 					<!-- start: page -->
 					<div class="panel">
 						<?php echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));?>
-						<header class="panel-heading">
-
-							<h2 class="panel-title">Validar</h2>
-						</header>
-
 						<div class="panel-body">
 							<div class="panel-group" id="accordion">
 								<?php
@@ -125,7 +120,9 @@
 												<div class="panel-body">
 													<div class="panel-group"
 														 id="nested<?php echo($org['org']->getId()); ?>">
-														<?php foreach ($org['metorg'] as $metorg) { ?>
+														<?php foreach ($org['metorg'] as $metorg) { 
+																$permits = $metorg['permits'];
+															?>
 															<div class="panel panel-default">
 																<div class="panel-heading">
 																	<h4 class="panel-title">
@@ -147,12 +144,12 @@
 																					<td>Usuario</td>
 																					<td>Rol</td>
 																					<td>Año</td>
-																					<?php if ($metorg['metric']->x_name) { ?>
-																						<td><?php echo $metorg['metric']->x_name; ?> </td>
-																					<?php } ?>
-																					<td><?php echo($metorg['metric']->y_name); ?></td>
-																					<td>Esperado</td>
-																					<td>Meta</td>
+																						<?php if ($metorg['metric']->x_name) { ?>
+																								<td><?php echo $metorg['metric']->x_name; ?> </td>
+																						<?php } ?>
+																						<td><?php echo($metorg['metric']->y_name); ?></td>
+																						<td>Esperado</td>
+																						<td>Meta</td>
 																					<td>Seleccionar</td>
 																				</tr>
 																				</thead>
@@ -171,11 +168,11 @@
 																						<td></td>
 																						<td style="color: black !important;"><?php echo($value->year); ?></td>
 																						<?php if ($metorg['metric']->x_name) { ?>
-																							<td style="color: black !important;"><?php echo (!is_null($value->x_value) && $value->x_value) ? $value->x_value : '-'; ?></td>
+																								<td style="color: black !important;"><?php echo (!is_null($value->x_value) && $value->x_value) ? $value->x_value : '-'; ?></td>
 																						<?php } ?>
-																						<td style="color: black !important;"><?php echo (!is_null($value->value)) ? $value->value : '-'; ?></td>
-																						<td style="color: black !important;"><?php echo (!is_null($value->expected)) ? $value->expected : '-'; ?></td>
-																						<td style="color: black !important;"><?php echo (!is_null($value->target)) ? $value->target : '-'; ?></td>
+																							<td style="color: black !important;"><?php echo (!is_null($value->value)) ? $value->value : '-'; ?></td>
+																							<td style="color: black !important;"><?php echo (!is_null($value->expected)) ? $value->expected : '-'; ?></td>
+																							<td style="color: black !important;"><?php echo (!is_null($value->target)) ? $value->target : '-'; ?></td>
 																						<td></td>
 																					</tr>
 																					<?php } ?>
@@ -183,16 +180,26 @@
 																						<td><?php echo($users[$value->updater]); ?></td>
 																						<td><?php echo ($metorg['metric']->category == 2) ? "Asistente de finanzas" : "Asistente de unidad" ?></td>
 																						<td></td>
-																						<?php if ($metorg['metric']->x_name) { ?>
-																							<td><?php echo (!is_null($value->proposed_x_value) && $value->proposed_x_value && $value->state == 0) ? $value->proposed_x_value : '-'; ?></td>
-																						<?php } ?>
-																						<td><?php echo (!is_null($value->proposed_value) && $value->state == 0) ? '<b>' . $value->proposed_value . '</b>' : '-'; ?></td>
-																						<td><?php echo (!is_null($value->proposed_expected) && $value->state == 0) ? '<b>' . $value->proposed_expected . '</b>' : '-'; ?></td>
-																						<td><?php echo (!is_null($value->proposed_target) && $value->state == 0) ? '<b>' . $value->proposed_target . '</b>' : '-'; ?></td>
+																						<?php if ($permits['valor']){
+																								if ($metorg['metric']->x_name) { ?>
+																									<td><?php echo (!is_null($value->proposed_x_value) && $value->proposed_x_value && $value->state == 0) ? $value->proposed_x_value : '-'; ?></td>
+																								<?php } ?>
+																									<td><?php echo (!is_null($value->proposed_value) && $value->state == 0) ? '<b>' . $value->proposed_value . '</b>' : '-'; ?></td>
+																						<?php }
+																							else{
+																								if ($metorg['metric']->x_name) { echo '<td>-</td>';}
+																								echo '<td>-</td>';
+																							}
+																						if($permits['meta']){ ?>
+																							<td><?php echo (!is_null($value->proposed_expected) && $value->state == 0) ? '<b>' . $value->proposed_expected . '</b>' : '-'; ?></td>
+																							<td><?php echo (!is_null($value->proposed_target) && $value->state == 0) ? '<b>' . $value->proposed_target . '</b>' : '-'; ?></td>
+																						<?php }
+																						else{
+																							echo '<td>-</td>';
+																							echo '<td>-</td>';
+																						}?>
 																						<td>
-																							<input id="for-website"
-																								   value=<?php echo $value->id ?> type="checkbox"
-																								   name=<?php echo "check" . $value->id ?>/>
+																							<input id="for-website" value="<?php echo $value->id ?>" type="checkbox" name="ids[]" />
 																						</td>
 																					</tr>
 																				<?php } ?>

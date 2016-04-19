@@ -64,8 +64,8 @@ function getAllOrgsByDpto($model){
 
  function validation($permits, $model){
     if($permits['admin'])
-        return $model->getValidate(-1);
-    return $model->getValidate(array_merge($permits['foda']['validate'], $permits['metaP']['validate'], $permits['valorF']['validate'], $permits['metaF']['validate']));
+        return $model->getValidate(-1, $permits);
+    return $model->getValidate(array_merge($permits['foda']['validate'], $permits['metaP']['validate'], $permits['valorF']['validate'], $permits['metaF']['validate']), $permits);
 }
 
 function getRoute($controller, $id){
@@ -135,7 +135,7 @@ function seeFODAStrategy($permits){
     return (count($permits['foda']['view']) + count($permits['foda']['edit']) + count($permits['conf']['validate'])) > 0;
 }
 
-function array2csv($array, $title, $x_name, $y_name){
+function array2csv($array, $title, $x_name, $y_name, $all){
     if (count($array) == 0)
         return null;
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -148,10 +148,17 @@ function array2csv($array, $title, $x_name, $y_name){
     ob_start();
     $df = fopen("php://output", 'w');
     fwrite($df, "[" . $title . "]" . $eol);
-    if (property_exists($array[0], "year")) {
-        fwrite($df, "Métrica,Año" . $x_name . "," . $y_name . ",Esperado,Meta" . $eol);
+    if($all && $x_name==""){
+        fwrite($df, "Métrica,Año,". $y_name . ",Esperado,Meta" . $eol);
         foreach ($array as $row) {
-            $a = $row->metric . "," . $row->year . "," . $row->x_value . ',' . $row->value . ',' . $row->expected . ',' . $row->target . $eol;
+            $a = $row->metric . "," . $row->year . "," . $row->value . ',' . $row->expected . ',' . $row->target . $eol;
+            fwrite($df, $a);
+        }
+    }
+    elseif ($all && $x_name!=""){
+        fwrite($df, "Métrica,Año,". $x_name .",". $y_name . ",Esperado,Meta" . $eol);
+        foreach ($array as $row) {
+            $a = $row->metric . "," . $row->year . "," .$row->x_value.",". $row->value . ',' . $row->expected . ',' . $row->target . $eol;
             fwrite($df, $a);
         }
     }

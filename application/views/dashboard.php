@@ -43,7 +43,7 @@
         <!-- start: sidebar -->
         <?php
         $navData=[];
-        if($add_data==1)
+        if($add_data)
             $navData[] = ['url'=>'formAgregarDato?org='.$org, 'name'=>'Modificar Datos', 'icon'=>'fa fa-plus-square'];
 
         include 'partials/navigation.php';
@@ -145,7 +145,6 @@
 <script type="text/javascript">
     
     $('.exportAll').on('click', function () {
-        console.log("gola");
         $('.all').val("1");
     });
 
@@ -169,6 +168,8 @@
     function loadGraphic(graphic) {
         var data = createGraphicData(graphic.series, graphic.y_unit);
         var options = getGraphicOptions('', graphic.x_name, graphic.x_values, graphic.y_name, graphic.y_unit, data);
+        console.log(options);
+        console.log(data);
         $('#graphic' + graphic.id).highcharts(options);
     }
 

@@ -803,9 +803,9 @@
     function getItemById(id){
         if (typeof items == "undefined")
             return "";
-        year = $('#year').val();
-        org = $('#org').val();
-        for(i in items[org][year]){
+        var year = $('#year').val();
+        var org = $('#org').val();
+        for(var i in items[org][year]){
             if (items[org][year][i].id==id)
                 return items[org][year][i];
         }
@@ -881,7 +881,8 @@
         if(!$("#actionForm").valid()) {
             return;
         }
-        var data = {'goal': $('input[name=goal]').val(),
+        var data = {'org' : $('#org').val(),
+                    'goal': $('input[name=goal]').val(),
                     'action': $('input[name=action]').val(),
                     'title': $('#actionTitle').val(),
                     'status': $('#actionStatus').val(),
@@ -897,7 +898,7 @@
         var retVal = confirm("¿Esta seguro de eliminar este elemento? Se borrará toda la información asociada a este.");
         if(!retVal)
             return;
-        var data = {'type': type, 'id': id};
+        var data = {'type': type, 'id': id, 'org':$('#org').val()};
         ajaxCall("<?php echo base_url();?>fodaStrategy/delete", data);
     }
 
@@ -913,7 +914,7 @@
             else if(type=='strategy')
                 id = strategies[org][year].strategy.id;
         }
-        var data = {'type': type, 'id': id};
+        var data = {'type': type, 'id': id, 'org':org};
         ajaxCall("<?php echo base_url();?>fodaStrategy/validate", data);
     }
 
@@ -972,7 +973,8 @@
             $('#foda_valid').addClass('validated');
         }
         else{
-            $('#validateFoda').show();
+            if (fodas[org][year].validate)
+                $('#validateFoda').show();
             $('#foda_valid').html('(No validado)');
             $('#foda_valid').addClass('no-validated');
         }
@@ -980,9 +982,9 @@
     }
     
     function loadItems(){
-        html = "";
-        year = $('#year').val();
-        org = $('#org').val();
+        var html = "";
+        var year = $('#year').val();
+        var org = $('#org').val();
         if(items[org]===undefined || items[org][year]===undefined)
             return;
         for(i = 0; i<items[org][year].length; i++){
@@ -992,8 +994,15 @@
             cells += '<td class="itemTitle">' + items[org][year][i].title + '</td>';
             cells += '<td class="itemType">' + types[items[org][year][i].type-1].name + '</td>';
             cells += '<td class="itemPriority">' + priorities[items[org][year][i].priority-1].name + '</td>';
-            cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Item del FODA" data-target="#editItemModal" data-id="' + items[org][year][i].id + '"><i class="fa fa-pencil"></i></a>' +
-                        '<a class="btn icons" onclick="deleteElement(\'item\', ' + items[org][year][i].id + ')"><i class="fa fa-trash-o"></i></a></td>';
+            cells += '<td class="actions">';
+            if(fodas[org][year].edit) {
+                cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Item del FODA" data-target="#editItemModal" data-id="' + items[org][year][i].id + '"><i class="fa fa-pencil"></i></a>' +
+                    '<a class="btn icons" onclick="deleteElement(\'item\', ' + items[org][year][i].id + ')"><i class="fa fa-trash-o"></i></a>';
+            }
+            else{
+                cells += 'Sin permisos';
+            }
+            cells += '</td>';
             html += cells + "</tr>";
         }
         $('#itemTable').dataTable().fnDestroy();
@@ -1031,7 +1040,8 @@
             $('#strategy_valid').addClass('validated');
         }
         else{
-            $('#validateStrategy').show();
+            if (strategies[org][year].strategy.validate)
+                $('#validateStrategy').show();
             $('#strategy_valid').html('(No validado)');
             $('#strategy_valid').addClass('no-validated');
         }
@@ -1051,32 +1061,38 @@
     }
 
     function loadGoals() {
-        html = "";
-        year = $('#year').val();
-        org = $('#org').val();
+        var html = "";
+        var year = $('#year').val();
+        var org = $('#org').val();
         if(goals[org] === undefined || goals[org][year]===undefined)
             return;
-        for(i in goals[org][year]){
-            cells = '<tr id="goal' + i + '" >';
+        for(var i in goals[org][year]){
+            var cells = '<tr id="goal' + i + '" >';
             cells += '<td class="text-center checkDetails"><i onclick="showHideGoalDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
             cells += '<td>O' + i + '</td>';
+            var validate = "";
             if (goals[org][year][i].validated==1){
                 var valText = '<p class="validated">(Validado)</p>';
-                validate = "";
             }
             else{
                 var valText = '<p class="no-validated">(No Validado)</p>';
-                validate = '<a class="btn icons" onclick="validateElement(\'goal\', ' + i + ')" data-toggle="tooltip" title="Validar Objetivo"><i class="fa fa-check"></i></a>';
+                if (strategies[org][year].strategy.validate)
+                    validate = '<a class="btn icons" onclick="validateElement(\'goal\', ' + i + ')" data-toggle="tooltip" title="Validar Objetivo"><i class="fa fa-check"></i></a>';
             }
             cells += '<td class="goalTitle">' + goals[org][year][i].title + valText + '</td>';
             cells += '<td class="goalUser">' + users[goals[org][year][i].userInCharge].name + '</td>';
             cells += '<td class="goalDeadline">' + goals[org][year][i].deadline + '</td>';
             cells += '<td class="goalState">' + goals[org][year][i].status + '</td>';
 
-            cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Objetivo" data-target="#editGoalModal" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
-                '<a class="btn icons" onclick="deleteElement(\'goal\', ' + i + ')"><i class="fa fa-trash-o"></i></a>' +
-                '<a class="btn icons" data-toggle="modal" data-title="Añadir Acción" data-target="#editActionModal" data-goal="' + i + '" data-id="-1"><i class="fa fa-plus"></i></a>';
-
+            cells += '<td class="actions">';
+            if (strategies[org][year].strategy.edit) {
+                cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Objetivo" data-target="#editGoalModal" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
+                    '<a class="btn icons" onclick="deleteElement(\'goal\', ' + i + ')"><i class="fa fa-trash-o"></i></a>' +
+                    '<a class="btn icons" data-toggle="modal" data-title="Añadir Acción" data-target="#editActionModal" data-goal="' + i + '" data-id="-1"><i class="fa fa-plus"></i></a>';
+            }
+            else{
+                cells += "Sin Permisos";
+            }
             html += cells + validate + "</td></tr>";
         }
         $('#goalTable').dataTable().fnDestroy();
@@ -1101,9 +1117,9 @@
     }
 
     function loadActions(goal) {
-        html = "";
-        year = $('#year').val();
-        org = $('#org').val();
+        var html = "";
+        var year = $('#year').val();
+        var org = $('#org').val();
         if(actions[goal]===undefined)
             return;
         html = '<table id="actionTable' + goal + '" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid"> \
@@ -1116,14 +1132,20 @@
                             </tr> \
                         </thead> \
                         <tbody id="actionTableContent' + goal + '">';
-        for(i in actions[goal]){
-            action = actions[goal][i];
-            cells = '<tr id="action' + i + '" >';
+        for(var i in actions[goal]){
+            var action = actions[goal][i];
+            var cells = '<tr id="action' + i + '" >';
             cells += '<td class="actionTitle">' + action.title + '</td>';
             cells += '<td class="actionUser">' + users[action.userInCharge].name + '</td>';
             cells += '<td class="actionState">' + action.status + '</td>';
-            cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Acción" data-target="#editActionModal" data-goal="' + action.goal + '" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
-                '<a class="btn icons" onclick="deleteElement(\'action\', ' + i+ ')"><i class="fa fa-trash-o"></i></a></td>';
+            cells += '<td class="actions">';
+            if(strategies[org][year].strategy.edit) {
+                cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Acción" data-target="#editActionModal" data-goal="' + action.goal + '" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
+                    '<a class="btn icons" onclick="deleteElement(\'action\', ' + i + ')"><i class="fa fa-trash-o"></i></a></td>';
+            }
+            else{
+                cells += "Sin Permisos";
+            }
             cells += '</tr>';
             cells += '<tr class="details"><td colspan="5">' ;
             cells += '<label>Resultado Actual: </label><p class="actionCurrResult">' + action.current_result + '</p>';
@@ -1271,27 +1293,39 @@
     }
 
     $("#year").change(function(e){
-        org = $("#org").val();
+        var org = $("#org").val();
         cleanStrategy();
         cleanFoda();
         $('#itemButtons').hide();
         $('#itemSection').hide();
         $('#goalButtons').hide();
         $('#goalSection').hide();
+        $('#addItem').hide();
+        $('#addGoal').hide();
         if (!validate_year('year') || parseInt(org)<0 || isNaN(parseInt(org))) {
             return;
         }
-        $('a.editFoda').removeClass('hidden');
-        $('a.editStrategy').removeClass('hidden');
+        if(!(fodas[org] === undefined || fodas[org][this.value] === undefined) && fodas[org][this.value].edit) {
+            $('a.editFoda').removeClass('hidden');
+        }
+        if(!(strategies[org] === undefined || strategies[org][this.value] === undefined) && strategies[org][this.value].strategy.edit) {
+            $('a.editStrategy').removeClass('hidden');
+        }
         $('input[name=year]').val(this.value);
         $('input[name=org]').val(org);
         if(!(fodas[org] === undefined || fodas[org][this.value] === undefined)) {
             loadFoda();
             $('#itemButtons').show();
+            if(fodas[org][this.value].edit){
+                $('#addItem').show();
+            }
         }
         if(!(strategies[org] === undefined || strategies[org][this.value] === undefined)) {
             loadStrategy();
             $('#goalButtons').show();
+            if(strategies[org][this.value].strategy.edit){
+                $('#addGoal').show();
+            }
         }
         if (!(items[org]===undefined || items[org][this.value]===undefined)){
             $('#itemSection').show();

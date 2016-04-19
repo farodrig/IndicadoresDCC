@@ -47,7 +47,7 @@ function createGraphicData(series, yUnit){
             'point': {
                 'events': {
                     'click': function () {
-                        alert('Category: ' + this.category + ', value: ' + this.y);
+                        alert(this.category);
                     }
                 }
             }
@@ -66,6 +66,12 @@ function getGraphicOptions(title, xName, xValues, yName, yUnit, data, goBack) {
             enabled: false
         },
         chart: {
+            cursor: 'pointer',
+            events: {
+                click: function (e) {
+                    alert(e.xAxis[0].axis.categories[Math.round(e.xAxis[0].value)]);
+                }
+            },
             zoomType: 'xy'
         },
         title: {

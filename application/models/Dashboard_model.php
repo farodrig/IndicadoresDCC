@@ -65,9 +65,13 @@ class Dashboard_model extends CI_Model
             }
             $this->db->from($this->value);
             $this->db->where($this->value . '.metorg', $serie->metorg);
-            $this->db->where($this->value . '.state', 1);
             $this->db->where($this->value . '.year >=', $graphic->min_year);
             $this->db->where($this->value . '.year <=', $graphic->max_year);
+            $this->db->group_start();
+                $this->db->where($this->value . '.state', 1);
+                $this->db->or_where($this->value . '.state', -1);
+            $this->db->group_end();
+
             $this->db->order_by('x', 'ASC');
             $q = $this->db->get();
             $values = $q->result();
@@ -135,9 +139,12 @@ class Dashboard_model extends CI_Model
             $serie->type = $type->name;
             $this->db->from($this->value);
             $this->db->where($this->value . '.metorg', $serie->metorg);
-            $this->db->where($this->value . '.state', 1);
             $this->db->where($this->value . '.year >=', $graphic->min_year);
             $this->db->where($this->value . '.year <=', $graphic->max_year);
+            $this->db->group_start();
+                $this->db->where($this->value . '.state', 1);
+                $this->db->or_where($this->value . '.state', -1);
+            $this->db->group_end();
             $this->db->order_by('year', 'ASC');
             $q = $this->db->get();
             $values = $q->result();
@@ -180,32 +187,55 @@ class Dashboard_model extends CI_Model
         return getGeneric($this, $this->value, $data);
     }
 
-    function getValidate($id_metorg){
+    function getValidate($id_metorg, $permits){
         if ($id_metorg == -1) {
             $datos = getGeneric($this, $this->value, ['state' => [-1, 0]]);
             return (count($datos) > 0);
         }
         $this->load->library('session');
-        $encargado_unidad = $this->session->userdata('encargado_unidad');
-        $encargado_finanzas = $this->session->userdata("encargado_finanzas");
-        if (count($encargado_unidad) && count($encargado_finanzas)) {
+        $prod = count($permits['foda']['validate']) + count($permits['metaP']['validate']);
+        $fin = count($permits['valorF']['validate']) + count($permits['metaF']['validate']);
+        if ($prod && $fin) {
             //no restringir la categoria
-        } elseif (count($encargado_unidad)) {
+        } elseif ($prod) {
             $cat = 1;
-        } elseif (count($encargado_finanzas)) {
+        } elseif ($fin) {
             $cat = 2;
         }
+        $valor = (count($permits['foda']['validate']) + count($permits['valorF']['validate'])) > 0;
+        $meta = (count($permits['metaF']['validate']) + count($permits['metaP']['validate'])) > 0;
+
         foreach ($id_metorg as $id) {
             $this->db->from('Value');
             $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
             $this->db->join('Metric', 'Metric.id = MetOrg.metric');
             $this->db->where('MetOrg.org', $id);
             $this->db->group_start();
-            $this->db->where('Value.state', -1);
-            $this->db->or_where('Value.state', 0);
+                $this->db->where('Value.state', -1);
+                $this->db->or_where('Value.state', 0);
             $this->db->group_end();
             if (isset($cat)) {
                 $this->db->where('Metric.category', $cat);
+            }
+            if ($valor && $meta){
+                $this->db->group_start();
+                $this->db->where('Value.proposed_value !=', null);
+                $this->db->or_where('Value.proposed_x_value !=', null);
+                $this->db->or_where('Value.proposed_target !=', null);
+                $this->db->or_where('Value.proposed_expected !=', null);
+                $this->db->group_end();
+            }
+            elseif ($valor){
+                $this->db->group_start();
+                $this->db->where('Value.proposed_value !=', null);
+                $this->db->or_where('Value.proposed_x_value !=', null);
+                $this->db->group_end();
+            }
+            elseif ($meta){
+                $this->db->group_start();
+                $this->db->where('Value.proposed_target !=', null);
+                $this->db->or_where('Value.proposed_expected !=', null);
+                $this->db->group_end();
             }
             $q = $this->db->get();
             return ($q->num_rows() > 0);
@@ -244,32 +274,74 @@ class Dashboard_model extends CI_Model
         return false;
     }
 
-    function updateCreateBudgetValue($org, $year, $y_value, $expected, $target, $validation)
+    function updateCreateBudgetValue($org, $year, $val, $expected, $target, $validValue, $validMeta)
     {
         $this->load->model('Metorg_model');
         $q = $this->Metorg_model->getMetOrg(array('org' => [$org], 'metric' => [1]));
         if (count($q) != 1) {
-            return false;
+            $q[0] = $this->Metorg_model->addMetOrg(array('org' => $org, 'metric' => 1));
+            if(!$q)
+                return false;
+            $q = $this->Metorg_model->getMetOrg(array('org' => [$org], 'metric' => [1]));
         }
-        $id = $q[0]->id;
-        $old_value = getGeneric($this, $this->value, ['metorg' => [$id], 'year' => [$year], 'state' => [0]]);
-        if (!$validation && count($old_value)) {
+        $metorg = $q[0]->id;
+        $old_val = null;
+        $old_expected = null;
+        $old_target = null;
+        $old_value = getGeneric($this, $this->value, ['metorg' => [$metorg], 'year' => [$year], 'state' => [0]]);
+        if (!($validValue || $validMeta) && count($old_value)) {
             $old_value = $old_value[0];
-            if (strcmp($y_value, "") == 0 && !is_null($old_value->proposed_value))
-                $y_value = $old_value->proposed_value;
-            if (strcmp($expected, "") == 0 && !is_null($old_value->proposed_expected))
-                $expected = $old_value->proposed_expected;
-            if (strcmp($target, "") == 0 && !is_null($old_value->proposed_target))
-                $target = $old_value->proposed_target;
+            if ((strcmp($val, "") == 0 || is_null($val)) && !is_null($old_value->proposed_value) && !$validValue)
+                $old_val = $old_value->proposed_value;
+            if ((strcmp($expected, "") == 0 || is_null($expected)) && !is_null($old_value->proposed_expected) && !$validMeta)
+                $old_expected = $old_value->proposed_expected;
+            if ((strcmp($target, "") == 0 || is_null($target)) && !is_null($old_value->proposed_target) && !$validMeta)
+                $old_target = $old_value->proposed_target;
             //Si existe un valor previo no validado es eliminado antes de proponer el otro, de forma que solo exista un dato por validar
-            if (!$this->deleteData($old_value->id))
+            if (!$this->deleteData($old_value->id, true, true))
                 return false;
         }
-        $old_value = getGeneric($this, $this->value, ['metorg' => [$id], 'year' => [$year], 'state' => [1]]);
+        $old_value = getGeneric($this, $this->value, ['metorg' => [$metorg], 'year' => [$year], 'state' => [1]]);
         if (count($old_value)) {
-            return $this->updateData($id, $year, "", $y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
+            if ($validMeta && $validValue)
+                return $this->Dashboard_model->updateData($metorg, $year, "", $val, "", $target, $expected, $this->session->userdata("rut"), 1);
+            elseif ($validMeta){
+                $val = (is_null($val) ? $old_val : $val);
+                $done = $this->Dashboard_model->updateData($metorg, $year, "", null, "", $target, $expected, $this->session->userdata("rut"), 1);
+                return $done && $this->Dashboard_model->updateData($metorg, $year, "", $val, "", $old_target, $old_expected, $this->session->userdata("rut"), 0);
+            }
+            elseif ($validValue){
+                $target = (is_null($target) ? $old_target : $target);
+                $expected = (is_null($expected) ? $old_expected : $expected);
+                $done = $this->Dashboard_model->updateData($metorg, $year, "", $val, "", null, null, $this->session->userdata("rut"), 1);
+                return $done && $this->Dashboard_model->updateData($metorg, $year, "", $old_value, "", $target, $expected, $this->session->userdata("rut"), 0);
+            }
+            else {
+                $val = (is_null($val) ? $old_val : $val);
+                $target = (is_null($target) ? $old_target : $target);
+                $expected = (is_null($expected) ? $old_expected : $expected);
+                return $this->Dashboard_model->updateData($metorg, $year, "", $val, "", $target, $expected, $this->session->userdata("rut"), 0);
+            }
         }
-        return $this->insertData($id, $year, $y_value, "", $target, $expected, $this->session->userdata("rut"), $validation);
+        if ($validMeta && $validValue)
+            return $this->Dashboard_model->insertData($metorg, $year, $val, "", $target, $expected, $this->session->userdata("rut"), 1);
+        elseif ($validMeta){
+            $val = (is_null($val) ? $old_val : $val);
+            $done = $this->Dashboard_model->insertData($metorg, $year, null, "", $target, $expected, $this->session->userdata("rut"), 1);
+            return $done && $this->Dashboard_model->insertData($metorg, $year, $val, "", $old_target, $old_expected, $this->session->userdata("rut"), 0);
+        }
+        elseif ($validValue){
+            $target = (is_null($target) ? $old_target : $target);
+            $expected = (is_null($expected) ? $old_expected : $expected);
+            $done = $this->Dashboard_model->insertData($metorg, $year, $val, "", null, null, $this->session->userdata("rut"), 1);
+            return $done && $this->Dashboard_model->insertData($metorg, $year, $old_value, "", $target, $expected, $this->session->userdata("rut"), 0);
+        }
+        else {
+            $val = (is_null($val) ? $old_val : $val);
+            $target = (is_null($target) ? $old_target : $target);
+            $expected = (is_null($expected) ? $old_expected : $expected);
+            return $this->Dashboard_model->insertData($metorg, $year, $val, "", $target, $expected, $this->session->userdata("rut"), 0);
+        }
     }
 
     function getAllMetrics($id, $category, $all)
@@ -314,7 +386,10 @@ class Dashboard_model extends CI_Model
 
         $this->db->select('id, metorg AS org, value, x_value, target, expected, year');
         $this->db->from('Value');
-        $this->db->where('state', 1);
+        $this->db->group_start();
+            $this->db->where('state', 1);
+            $this->db->or_where('state', -1);
+        $this->db->group_end();
         $this->db->group_start();
         for ($i = 0; $i < $size; $i++) {
             $this->db->or_where('metorg', $rows[$i]->id);
@@ -358,10 +433,27 @@ class Dashboard_model extends CI_Model
         return $this->db->update($this->value, $data);
     }
 
-    function deleteData($id)
-    {
+    function deleteData($id, $validVal, $validMet){
         $this->db->where('id', $id);
-        return $this->db->delete($this->value);
+        if ($validVal && $validMet) {
+            return $this->db->delete($this->value);
+        }
+        elseif ($validVal){
+            $data['proposed_value'] = -1;
+            $data['proposed_x_value'] = -1;
+            $this->db->update($this->value, $data);
+        }
+        elseif ($validMet){
+            $data['proposed_target'] = -1;
+            $data['proposed_expected'] = -1;
+            $this->db->update($this->value, $data);
+        }
+        $this->db->reset_query();
+        $value = getGeneric($this, $this->value, ['id'=>[$id]])[0];
+        $this->db->reset_query();
+        if ($value->state==-1 && $value->proposed_value==-1 && $value->proposed_x_value==-1 && $value->proposed_target==-1 && $value->proposed_expected==-1)
+            return $this->db->delete($this->value, ['id' => $id]);
+        return false;
     }
 
     function insertData($id_met, $year, $valueY, $valueX, $target, $expected, $user, $validation)
@@ -384,6 +476,8 @@ class Dashboard_model extends CI_Model
             $data['proposed_x_value'] = $valueX;
             $data['proposed_target'] = $target;
             $data['proposed_expected'] = $expected;
+            if (is_null($valueY) && is_null($valueX) && is_null($target) && is_null($expected))
+                return true;
         }
         return ($this->db->insert($this->value, $data)) ? $this->db->insert_id() : false;
     }
@@ -407,26 +501,28 @@ class Dashboard_model extends CI_Model
             $data['expected'] = $row->expected;
             $data['state'] = 0;
             $data['modified'] = 1;
-            if (strcmp($row->value, $valueY) != 0)
+            if (!is_null($valueY) && $row->value != $valueY)
                 $data['proposed_value'] = $valueY;
-            if (strcmp($row->target, $target) != 0)
+            if (!is_null($target) && $row->target != $target)
                 $data['proposed_target'] = $target;
-            if (strcmp($row->expected, $expected) != 0)
+            if (!is_null($expected) && $row->expected != $expected)
                 $data['proposed_expected'] = $expected;
-            if (strcmp($row->x_value, $valueX) != 0)
+            if (!is_null($valueX) && strcmp($row->x_value, $valueX) != 0)
                 $data['proposed_x_value'] = $valueX;
+            if (!array_key_exists('proposed_value', $data) && !array_key_exists('proposed_target', $data) && !array_key_exists('proposed_expected', $data) && !array_key_exists('proposed_x_value', $data))
+                return true;
         } else {
-            $data['value'] = $valueY;
-            $data['x_value'] = $valueX;
-            $data['target'] = $target;
-            $data['expected'] = $expected;
+            $data['value'] = (is_null($valueY) ? $row->value : $valueY);
+            $data['x_value'] = (is_null($valueX) ? $row->x_value : $valueX);
+            $data['target'] = (is_null($target) ? $row->target : $target);
+            $data['expected'] = (is_null($expected) ? $row->expected : $expected);
             $data['state'] = 1;
             $data['validator'] = $user;
             $data['dateval'] = date('Y-m-d H:i:s');
         }
         if ($data['state'] == 0) {
             $result = (($this->db->insert($this->value, $data)) ? true : false);
-            if ($old_x_value != $valueX) {
+            if (!is_null($valueX) && $old_x_value != $valueX) {
                 $this->db->from($this->value);
                 $this->db->where('state', 1);
                 $this->db->where('id !=', $row->id);
@@ -474,55 +570,86 @@ class Dashboard_model extends CI_Model
         return $result;
     }
 
-    function validateData($id)
+    function validateData($id, $validVal, $validMet)
     {
         $this->load->library('session');
         $query = $this->db->get_where('Value', array('id' => $id));
         $value = $query->row();
+
         $old_x = $value->x_value;
         if ($value->state == -1)
-            return $this->deleteData($id);
+            return $this->deleteData($id, $validVal, $validMet);
+        $value2 = clone $value;
         $data = array(
             'state' => 1,
             'validator' => $this->session->userdata('rut'),
             'modified' => 0
         );
-        if (!is_null($value->proposed_value)) {
+        if ($validVal && !is_null($value->proposed_value)) {
             $data['value'] = $value->proposed_value;
             $data['proposed_value'] = null;
+            $value2->proposed_value = null;
         }
-        if (!is_null($value->proposed_target)) {
+        if ($validMet && !is_null($value->proposed_target)) {
             $data['target'] = $value->proposed_target;
             $data['proposed_target'] = null;
+            $value2->proposed_target = null;
         }
-        if (!is_null($value->proposed_expected)) {
+        if ($validMet && !is_null($value->proposed_expected)) {
             $data['expected'] = $value->proposed_expected;
             $data['proposed_expected'] = null;
+            $value2->proposed_expected = null;
         }
-        if (!is_null($value->proposed_x_value)) {
+        if ($validVal && !is_null($value->proposed_x_value)) {
             $data['x_value'] = $value->proposed_x_value;
             $data['proposed_x_value'] = null;
+            $value2->proposed_x_value = null;
         }
+        if(!is_null($value2->proposed_value) || !is_null($value2->proposed_target) || !is_null($value2->proposed_expected) || !is_null($value2->proposed_x_value)){
+            $data2 = array(
+                'metorg' => $value->metorg,
+                'year' => $value->year,
+                'updater' => $value->updater,
+                'dateup' => $value->dateup,
+                'value' => $value->value,
+                'x_value' => $value->x_value,
+                'target' => $value->target,
+                'expected' => $value->expected,
+                'state' => 0,
+                'modified' => 1,
+                'proposed_value' => $value2->proposed_value,
+                'proposed_target' => $value2->proposed_target,
+                'proposed_expected' => $value2->proposed_expected,
+                'proposed_x_value' => $value2->proposed_x_value
+            );
+            $data['proposed_value'] = null;
+            $data['proposed_target'] = null;
+            $data['proposed_expected'] = null;
+            $data['proposed_x_value'] = null;
+            $this->db->insert($this->value, $data2);
+        }
+        $data['dateval'] = date('Y-m-d H:i:s');
+        $this->db->reset_query();
         $this->db->where('id', $id);
-        $this->db->set('dateval', 'NOW()', FALSE);
         $q = $this->db->update($this->value, $data);
-        $this->_overrrideData($value->metorg, $value->year);
-        $query = $this->db->get_where('Value', array('id' => $id));
+        $id = $this->_overrideData($value->metorg, $value->year, $old_x);
+        $query = $this->db->get_where($this->value, array('id' => $id));
         $value = $query->row();
         $values = $this->getValue(array('metorg' => [$value->metorg], 'year' => [$value->year], 'x_value' => [$old_x], 'id !=' => [$id]));
         $this->updateValuesWith($values, array('value' => $value->value, 'expected' => $value->expected, 'target' => $value->target, 'x_value' => $value->x_value), 1);
         return $q;
     }
 
-    function _overrrideData($metorg, $year)
+    function _overrideData($metorg, $year, $xVal)
     {
         $this->db->order_by('dateval', 'DESC');
-        $q = $this->db->get_where('Value', array('metorg' => $metorg, 'year' => $year, 'state' => 1));
+        $q = $this->db->get_where($this->value, array('metorg' => $metorg, 'year' => $year, 'x_value' => $xVal, 'state' => 1));
         $newData = $q->row();
-        $q = $this->db->get_where('Value', array('id !=' => $newData->id, 'state' => 1, 'year' => $newData->year, 'metorg' => $newData->metorg));
+        $q = $this->db->get_where($this->value, array('id !=' => $newData->id, 'state' => 1, 'year' => $newData->year, 'x_value' => $xVal, 'metorg' => $newData->metorg));
         foreach ($q->result() as $olderData) {
-            $this->deleteData($olderData->id);
+            $this->deleteData($olderData->id, true, true);
         }
+        return $newData->id;
     }
 
     function checkIfValidate($id)

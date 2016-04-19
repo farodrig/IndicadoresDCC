@@ -77,7 +77,9 @@
                             </select>
                         </div>
                         <div class="col-sm-6">
+                            <?php if ($valAll){ ?>
                             <button id="validateAll" type="button" class="btn btn-success pull-right" onclick="validate(-1)"> Validar Presupuesto</button>
+                            <?php } ?>
                         </div>
                     </div>
                     <div class="row">
@@ -152,10 +154,12 @@
                                     <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable max-val-diff"></td>
                                     <td class="actions no-mutable">
+                                    <?php if (in_array($unidad->getId(), $editable)){ ?>
                                         <a class="on-editing save-row hidden" href="#"><i class="fa fa-save"></i></a>
                                         <a class="on-editing cancel-row hidden" href="#"><i class="fa fa-times"></i></a>
-                                        <a class="on-default edit-row" href="#"><i class="fa fa-pencil"></i></a>
-                                        <a class="on-default validate-row" href="#"><i class="fa fa-check"></i></a>
+                                        <a class="on-default edit-row hidden" href="#"><i class="fa fa-pencil"></i></a>
+                                    <?php  } ?>
+                                        <a class="on-default validate-row hidden" href="#"><i class="fa fa-check"></i></a>
                                     </td>
                                 </tr>
                             <?php
@@ -188,11 +192,11 @@
     $('[data-toggle="tooltip"]').tooltip();
     $('.tree').treegrid();
 
-    //cargar años
-    var datos = <?php echo json_encode($valid_data);?>;
     var valid_datos = <?php echo json_encode($valid_data);?>;
+    var datos = valid_datos;
     var no_valid_datos = <?php echo json_encode($no_valid_data);?>;
-    var orgs = <?php echo json_encode($departments);?>;
+    var editable = <?php echo json_encode($editable);?>;
+    //cargar años
     var years = <?php echo json_encode($years);?>;
     years.sort();
     for(year in years){
@@ -200,12 +204,7 @@
     }
 
     function changeData(valid) {
-        if (valid){
-            datos= valid_datos;
-        }
-        else{
-            datos = no_valid_datos;
-        }
+        datos = (valid ? valid_datos : no_valid_datos);
         reloadTable();
     }
 
@@ -219,7 +218,6 @@
     for (var selector in config) {
         $(selector).chosen(config[selector]);
     }
-
 
     $('#year').on('chosen:no_results', function(e,params) {
         var value = $('.chosen-search > input:nth-child(1)').val();
@@ -236,19 +234,7 @@
 
     function validate_year(id){
         var opt = document.getElementById(id).value;
-        return changeOnValidation(document.getElementById(id), ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4 && opt>=1980));
-    }
-
-    function changeOnValidation(elem, validator){
-        if(validator){
-            elem.style.borderColor="green";
-            return true;
-        }
-        else{
-            elem.style.borderColor="red";
-            elem.focus();
-            return false;
-        }
+        return ((!isNaN(parseFloat(opt)) && isFinite(opt)) && opt.length ==4 && opt>=1980);
     }
 
     function validate(org) {
@@ -315,19 +301,34 @@
         for(org in datos){
             row = $('.treegrid-'+org);
             restartRow(row);
+            var dato;
             if(!datos[org] || !(year in datos[org]))
                 continue;
             $('.treegrid-'+org+' > td').each(function(){
                 var $this = $( this );
+
+                dato = datos[org][year];
+                var valDato = null;
+                if(!(valid_datos[org]===undefined || valid_datos[org][year]===undefined)){
+                    valDato = valid_datos[org][year];
+                }
+
+                if($this.hasClass('actions') && $this.html()!=""){
+                    var permits = dato.permit;
+                    (editable.indexOf(org)!=-1 ? $this.children(".edit-row").removeClass('hidden') : $this.children(".edit-row").addClass('hidden'));
+
+                    if (!permits.validate || datos!=no_valid_datos || dato.id == valDato.id){
+                        $this.children(".validate-row").addClass('hidden');
+                    }
+                    if (permits.validate && datos==no_valid_datos && dato.id != valDato.id){
+                        $this.children(".validate-row").removeClass( 'hidden' );
+                    }
+                }
+
                 if($this.html()!=""){
                     return;
                 }
 
-                dato = datos[org][year];
-                valDato = null;
-                if(!(valid_datos[org]===undefined || valid_datos[org][year]===undefined)){
-                    valDato = valid_datos[org][year];
-                }
                 if($this.hasClass('org-id')){
                     $this.html(org);
                 }
@@ -590,7 +591,10 @@
                 data;
 
             data = this.datatable.row( $row.get(0) ).data();
-
+            var org = data[1];
+            var year = $('#year').val();
+            var value = datos[org][year];
+            var permits = (value===undefined ? {} : value.permit);
             $row.children( 'td' ).each(function( i ) {
                 var $this = $( this );
                 if ( $this.hasClass('actions') ) {
@@ -603,17 +607,14 @@
                 else if($this.hasClass('org-id')){
                     $this.html( '<input type="text" name="org" hidden class="form-control input-block" value="' + $this.html() + '"/>' );
                 }
-                else if($this.hasClass('current-val')){
+                else if($this.hasClass('current-val') && permits['value']){
                     $this.html( '<input type="text" name="val" class="form-control input-block" value="' + moneyToInt($this.html()) + '"/>' );
                 }
-                else if($this.hasClass('min-val')){
+                else if($this.hasClass('min-val') && permits['meta']){
                     $this.html( '<input type="text" name="min" class="form-control input-block" value="' + moneyToInt($this.html()) + '"/>' );
                 }
-                else if($this.hasClass('max-val')){
+                else if($this.hasClass('max-val') && permits['meta']){
                     $this.html( '<input type="text" name="max" class="form-control input-block" value="' + moneyToInt($this.html()) + '"/>' );
-                }
-                else {
-                    $this.html( '<input type="text" class="form-control input-block" value="' + $this.html() + '"/>' );
                 }
             });
         },
