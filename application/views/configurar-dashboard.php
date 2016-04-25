@@ -254,27 +254,25 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group aggregation">
                         <label for="serieAggregationYear" class="col-sm-3 control-label">Tipo de Agregación para los Años:</label>
                         <div class="col-sm-9">
                             <select class="form-control chosen-select no-search" id="serieAggregationYear" name="aggregation_year" data-placeholder="Seleccione la forma en la que se agregará la serie" required>
                                 <?php
                                 foreach ($aggregation as $id => $aggr){
-                                    $val = ($id=="0" ? "Ninguno" : $aggr->name);
-                                    echo('<option value="'.$id.'">'.$val.'</option>');
+                                    echo('<option value="'.$id.'">'.$aggr->name.'</option>');
                                 }
                                 ?>
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group aggregation">
                         <label for="serieAggregationX" class="col-sm-3 control-label">Tipo de Agregación para el eje X:</label>
                         <div class="col-sm-9">
                             <select class="form-control chosen-select no-search" id="serieAggregationX" name="aggregation_x" data-placeholder="Seleccione la forma en la que se agregará la serie" required>
                                 <?php
                                 foreach ($aggregation as $id => $aggr){
-                                    $val = ($id=="0" ? "Ninguno" : $aggr->name);
-                                    echo('<option value="'.$id.'">'.$val.'</option>');
+                                    echo('<option value="'.$id.'">'.$aggr->name.'</option>');
                                 }
                                 ?>
                             </select>
@@ -401,6 +399,8 @@
         var serieOrg = $(e.relatedTarget).data('org');
         $('#serieModalTitle').html(titulo);
         $('input[name=graphic]').val(graphic);
+        var aggreg = $('.aggregation');
+        aggreg.show();
         if (graphics[org] === undefined || graphics[org][graphic]===undefined || graphics[org][graphic].series[id]===undefined){
             $('input[name=serie]').val(-1);
             var type = "";
@@ -418,6 +418,11 @@
             var aggregX = serie.x_aggregation;
             var color = serie.color;
         }
+
+        if (!(graphics[org] === undefined || graphics[org][graphic]===undefined || graphics[org][graphic].series.length <=0) && getMetricById(graphics[org][graphic].series[0].metorg).x_name ==""){
+            aggreg.hide();
+        }
+
         org = (serieOrg!=-1 ? serieOrg : org);
         $('#serieOrg option[value="' + org + '"]').prop('selected', true);
         $('#serieOrg').trigger('chosen:updated');
@@ -519,36 +524,47 @@
         datatableInit();
     }
 
-    function loadMetrics(id) {
+    function loadSeries(id) {
         var html = "";
         var org = $('#org').val();
+        var aggre = "";
         html = '<table id="serieTable' + id + '" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid"> \
                     <thead> \
                         <tr > \
                             <th class="sorting_disabled">Organización</th>\
                             <th class="sorting_disabled">Métrica</th> \
-                            <th class="sorting_disabled">Tipo de Serie</th> \
-                            <th class="sorting_disabled">Agregación para Año</th> \
-                            <th class="sorting_disabled">Agregación para X</th> \
-                            <th class="sorting_disabled">Color</th> \
+                            <th class="sorting_disabled">Tipo de Serie</th>';
+        var next = '<th class="sorting_disabled">Color</th> \
                             <th class="sorting_disabled">Acciones</th> \
                         </tr> \
                     </thead> \
                     <tbody id="serieTableContent' + id + '">';
-
+        var first = true;
         for(var i in graphics[org][id].series){
             var serie = graphics[org][id].series[i];
             var metric = getMetricById(serie.metorg);
             if(metric===null)
                 continue;
 
+            var add = "";
+            var aggreg = "";
+            if (metric.x_name!=""){
+                add = '<th class="sorting_disabled">Agregación para Año</th><th class="sorting_disabled">Agregación para X</th>';
+                aggreg += '<td class="serieYear">' + (aggregation[serie.year_aggregation].name=="" ? 'No Agrega' : aggregation[serie.year_aggregation].name)+ '</td>';
+                aggreg += '<td class="serieX">' + (aggregation[serie.x_aggregation].name=="" ? 'No Agrega' : aggregation[serie.x_aggregation].name)+ '</td>';
+            }
+
+            if (first){
+                html += add + next;
+                first = false;
+            }
+
             var serieOrg = getOrgByMetric(serie.metorg);
             var cells = '<tr id="serie' + serie.id + '" >';
-            cells += '<td class="serieOrg">' + orgs[serieOrg].name + '</td>';
+            cells += '<td class="serieOrg">' + orgs[serieOrg] + '</td>';
             cells += '<td class="serieTitle">' + metric.name + '</td>';
             cells += '<td class="serieType">' + types[serie.type].name + '</td>';
-            cells += '<td class="serieYear">' + (aggregation[serie.year_aggregation].name=="" ? 'No Agrega' : aggregation[serie.year_aggregation].name)+ '</td>';
-            cells += '<td class="serieX">' + (aggregation[serie.x_aggregation].name=="" ? 'No Agrega' : aggregation[serie.x_aggregation].name)+ '</td>';
+            cells += aggreg;
             cells += '<td class="serieColor">' + (serie.color===null ? "Indefinido" : serie.color) + '</td>';
             cells += '<td class="actions"><a class="btn icons" data-toggle="modal" data-title="Editar Serie" data-target="#editSerieModal" data-graphic="' + id + '" data-org="' + serieOrg + '"  data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
                     '<a class="btn icons" onclick="deleteElement(\'serie\', ' + serie.id + ')"><i class="fa fa-trash-o"></i></a></td>';
@@ -561,8 +577,16 @@
 
     function loadSerieMetric(org){
         var html = '';
+        var graphic = $("input[name='graphic']").val();
+        var filtrate = false;
+        if (!(graphics[org] === undefined || graphics[org][graphic]===undefined || graphics[org][graphic].series.length <=0)){
+            var metric = getMetricById(graphics[org][graphic].series[0].metorg);
+            filtrate = (metric.x_name=="");
+        }
         for(var id in metrics[org]){
             var metric = metrics[org][id];
+            if (filtrate && (metric.x_name!=""))
+                continue;
             html += '<option value="' + id + '">' + metric.name + '</option>';
         }
         $('#serieMetric').html(html);
@@ -589,7 +613,7 @@
                 return;
             }
             row.after(html);
-            loadMetrics(id);
+            loadSeries(id);
         }
     }
 
@@ -638,6 +662,10 @@
 
     function editSerie() {
         if(!$("#serieForm").valid() || $('#serieType').val()=="" || $('#serieMetric').val()=="") {
+            return;
+        }
+        if(getMetricById($('#serieMetric').val()).x_name!="" && ($('#serieAggregationYear').val()==0 || $('#serieAggregationX').val()==0)){
+            alert("Debe agregar el tipo de agregación");
             return;
         }
         var data = {'graphic': $('input[name=graphic]').val(),

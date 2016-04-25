@@ -63,8 +63,17 @@
 			.panel-group .panel-body ol:last-child {
 				margin-bottom: 0;
 			}
-			.black td {
-				color: black !important;
+
+			td.black {
+				color: black;
+			}
+
+			label{
+				font-weight: normal !important;
+			}
+
+			div.checkbox-custom{
+				padding: 0 0 0 0;
 			}
 		</style>
 	</head>
@@ -100,12 +109,12 @@
 
 					<!-- start: page -->
 					<div class="panel">
-						<?php echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));?>
+						<?php
+						if(count($data)) {
+							echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));?>
 						<div class="panel-body">
 							<div class="panel-group" id="accordion">
-								<?php
-								if(count($data)) {
-									foreach ($data as $org) { ?>
+									<?php foreach ($data as $org) { ?>
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h4 class="panel-title">
@@ -141,16 +150,16 @@
 																				   role="grid">
 																				<thead>
 																				<tr>
-																					<td>Usuario</td>
-																					<td>Rol</td>
-																					<td>Año</td>
+																					<td class="text-center">Usuario</td>
+																					<td class="text-center">Rol</td>
+																					<td class="text-center">Año</td>
 																						<?php if ($metorg['metric']->x_name) { ?>
-																								<td><?php echo $metorg['metric']->x_name; ?> </td>
+																								<td class="text-center"><?php echo $metorg['metric']->x_name; ?> </td>
 																						<?php } ?>
-																						<td><?php echo($metorg['metric']->y_name); ?></td>
-																						<td>Esperado</td>
-																						<td>Meta</td>
-																					<td>Seleccionar</td>
+																					<td class="text-center"><?php echo($metorg['metric']->y_name); ?></td>
+																					<td class="text-center">Esperado</td>
+																					<td class="text-center">Meta</td>
+																					<td class="text-center col-sm-2">Seleccionar Propuestas</td>
 																				</tr>
 																				</thead>
 																				<tbody
@@ -198,8 +207,11 @@
 																							echo '<td>-</td>';
 																							echo '<td>-</td>';
 																						}?>
-																						<td>
-																							<input id="for-website" value="<?php echo $value->id ?>" type="checkbox" name="ids[]" />
+																						<td class="text-center">
+																							<div class="checkbox-custom checkbox-default col-sm-offset-1">
+																								<input type="checkbox" class="styled" name="ids[]" id="checkbox<?php echo $value->id ?>" value="<?php echo $value->id ?>">
+																								<label for="checkbox<?php echo $value->id ?>"><?php echo ($value->state == 0 ? "(Modificar)" : "(Eliminar)");?></label>
+																							</div>
 																						</td>
 																					</tr>
 																				<?php } ?>
@@ -214,22 +226,20 @@
 												</div>
 											</div>
 										</div>
-									<?php }
-								}
-								else{?>
-									<h5>No se encuentran datos para validar.</h5>
-								<?php } ?>
+									<?php } ?>
 							</div>
-						</div>
-						<div class="row">
-							<div class="col-sm-9">
+							<div class="row pull-right">
 								<div class="mb-md">
-									<input class="mb-xs mt-xs mr-xs btn btn-primary" type="submit" value="Validar" name="Validar" id="Validar">
-									<input class="mb-xs mt-xs mr-xs btn btn-danger" type="submit" value="Rechazar" name="Rechazar" id="Rechazar">
+									<input class="mb-xs mt-xs mr-xs btn btn-primary" type="submit" value="Validar Propuestas Seleccionadas" name="Validar" id="Validar">
+									<input class="mb-xs mt-xs mr-xs btn btn-danger" type="submit" value="Rechazar Propuestas Seleccionadas" name="Rechazar" id="Rechazar">
 								</div>
 							</div>
 						</div>
-						<?php echo form_close();?>
+						<?php echo form_close();
+							}
+						else{ ?>
+							<h5>No se encuentran datos para validar.</h5>
+						<?php } ?>
 					</div>
 				</section>
 
@@ -239,7 +249,6 @@
 		</section>
 
 		<?php include 'partials/footer.php'; ?>
-		<script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
 		<script type="text/javascript">
 
 		   var success = <?php echo ($success);?>;
@@ -254,7 +263,7 @@
 		   if (success==0){
 			   new PNotify({
 					title: 'Error!',
-					text: 'Intento validar un dato ya validado',
+					text: 'Ha ocurrido un error, intentelo nuevamente.',
 					type: 'error'
 				});
 		   }
@@ -273,11 +282,5 @@
 			   }
 		   });
 		</script>
-		<script src="assets/vendor/select2/select2.js"></script>
-		<script src="assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
-		<script src="assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
-
-		<!-- Examples -->
-		<script src="assets/javascripts/tables/examples.datatables.editable.js"></script>
 	</body>
 </html>

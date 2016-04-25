@@ -13,10 +13,10 @@
 				<ul class="nav nav-main">
 					<?php
 						if(isset($foda) && $foda){
-                            array_unshift($navData, ['url'=>'fodaStrategy', 'name'=>'Ver FODAs y Objetivos Estratégicos', 'icon'=>'fa fa-book']);
+                            array_unshift($navData, ['url'=>'fodaStrategy', 'name'=>'FODAs y Objetivos Estratégicos', 'icon'=>'fa fa-book']);
 						}
 						if(isset($budget) && $budget){
-                            array_unshift($navData, ['url'=>'presupuesto', 'name'=>'Ver Presupuesto', 'icon'=>'fa fa-balance-scale']);
+                            array_unshift($navData, ['url'=>'presupuesto', 'name'=>'Presupuesto', 'icon'=>'fa fa-balance-scale']);
 						}
                         array_unshift($navData, ['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home']);
 						foreach ($navData as $navItem) {

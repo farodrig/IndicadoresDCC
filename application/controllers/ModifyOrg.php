@@ -3,17 +3,21 @@ class ModifyOrg extends CI_Controller {
 
 	function __construct() {
 		parent::__construct();
-		$this->load->model('Dashboard_model');
-		$this->load->model('Organization_model');
-		$this->load->library('form_validation');
 		$this->load->library('session');
 		if (is_null($this->session->rut))
 			redirect('salir');
+		
+		$this->load->library('form_validation');
+		$this->load->model('Dashboard_model');
+		$this->load->model('Organization_model');
+		$permits = $this->session->userdata();
+		$this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);
+
 	}
 
 	function modifyAreaUnidad() {
 		$permits = $this->session->userdata();
-		if (!$permits['admin']) {
+		if (!$this->access) {
 			redirect('inicio');
 		}
 
@@ -26,6 +30,9 @@ class ModifyOrg extends CI_Controller {
 	}
 
 	function addArea() {
+		if (!$this->access) {
+			redirect('inicio');
+		}
 		$this->form_validation->set_rules('type', 'Type', 'numeric|required');
 		$this->form_validation->set_rules('name', 'Name', 'trim|required|alphaSpace');
 
@@ -42,6 +49,9 @@ class ModifyOrg extends CI_Controller {
 	}
 
 	function addUni() {
+		if (!$this->access) {
+			redirect('inicio');
+		}
 		$this->form_validation->set_rules('area', 'Area', 'trim|required|integer');
 		$this->form_validation->set_rules('name', 'Name', 'trim|required|alphaSpace');
 
@@ -56,6 +66,9 @@ class ModifyOrg extends CI_Controller {
 	}
 
 	function delAreaUni() {
+		if (!$this->access) {
+			redirect('inicio');
+		}
 		$this->form_validation->set_rules('id', 'Id', 'trim|required|integer');
 
 		if (!$this->form_validation->run()) {

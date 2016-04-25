@@ -3,22 +3,26 @@
 
 class DashboardConfig extends CI_Controller {
 
+	private $access;
+	
 	function __construct() {
 		parent::__construct();
 		$this->load->library('session');
+		if (is_null($this->session->rut))
+			redirect('salir');
 		$this->load->library('form_validation');
 		$this->load->model('Organization_model');
 		$this->load->model('Dashboard_model');
 		$this->load->model('Dashboardconfig_model');
 		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
-		if (is_null($this->session->rut))
-			redirect('salir');
+		$permits = $this->session->userdata();
+		$this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);		
 	}
 	
 	function dashboardConfig(){
 		$permits = $this->session->userdata();
-		if (!$permits['admin']) {
+		if (!$this->access) {
 			redirect('inicio');
 		}
 
@@ -46,18 +50,12 @@ class DashboardConfig extends CI_Controller {
 	}
 	
 	function modifyGraphic(){
-		if (!$this->input->is_ajax_request()) {
+        //Revisión de permisos
+		if (!$this->input->is_ajax_request() || !$this->access) {
 			echo json_encode(array('success'=>0));
 			return;
 		}
-
-		//Revisión de permisos
-		$permits = $this->session->userdata();
-		if (!$permits['admin']) {
-			echo json_encode(array('success'=>0));
-			return;
-		}
-
+        
 		//Validación de entradas
 		$this->form_validation->set_rules('org', 'Organization', 'numeric|required|greater_than_equal_to[0]');
 		$this->form_validation->set_rules('graphic', 'Gráfico', 'numeric|required');
@@ -82,17 +80,13 @@ class DashboardConfig extends CI_Controller {
 		$pos = $this->input->post('position');
 		$x = ($this->input->post('byYear') ? 0 : 1);
 		$display = $this->input->post('display');
-
+        $dash = $this->Dashboardconfig_model->getOrCreateDashboard($org);
 		if ($this->input->post('graphic')!=-1){
-			$done = $done && $this->Dashboardconfig_model->modifyGraphic($id, $title, $max, $min, $pos, $x);
-			$dash = $this->Dashboardconfig_model->getOrCreateDashboard($org);
-			$done = (!$dash? false : $done && $this->Dashboardconfig_model->modifyGraphDash($id, $dash->id, $display));
+			$done = $done && $this->Dashboardconfig_model->modifyGraphic($id, $title, $max, $min, $pos, $x, $dash->id, $display);
 		}
 		else{
-			$id = $this->Dashboardconfig_model->addGraphic($title, $max, $min, $pos, $x);
+			$id = $this->Dashboardconfig_model->addGraphic($title, $max, $min, $pos, $x, $dash->id, $display);
 			$done = $done && ($id? true : false);
-			$dash = $this->Dashboardconfig_model->getOrCreateDashboard($org);
-			$done = (!$dash? false : $done && $this->Dashboardconfig_model->addGraphDash($id, $dash->id, $display));
 		}
 
 		$org_ids = $this->Organization_model->getAllIds();
@@ -102,17 +96,14 @@ class DashboardConfig extends CI_Controller {
 	}
 
 	function modifySerie(){
-		if (!$this->input->is_ajax_request()) {
-			echo json_encode(array('success'=>0));
-			return;
-		}
-
-		//Revisión de permisos
-		$permits = $this->session->userdata();
-		if (!$permits['admin']) {
-			echo json_encode(array('success'=>0));
-			return;
-		}
+		debug($_POST);
+		return;
+        //Revisión de permisos
+        if (!$this->input->is_ajax_request() || !$this->access) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        
 		//Validación de entradas
 		$this->form_validation->set_rules('graphic', 'Gráfico', 'numeric|required|greater_than_equal_to[0]');
 		$this->form_validation->set_rules('metorg', 'Métrica', 'numeric|required|greater_than_equal_to[0]');
@@ -150,17 +141,12 @@ class DashboardConfig extends CI_Controller {
 	}
 	
 	function graphicValues(){
-		if (!$this->input->is_ajax_request()) {
-			echo json_encode(array('success'=>0));
-			return;
-		}
-
-		//Revisión de permisos
-		$permits = $this->session->userdata();
-		if (!$permits['admin']) {
-			echo json_encode(array('success'=>0));
-			return;
-		}
+        //Revisión de permisos
+        if (!$this->input->is_ajax_request() || !$this->access) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
+        
 		//Validación de entradas
 		$this->form_validation->set_rules('graphic', 'Gráfico', 'numeric|required|greater_than_equal_to[0]');
 		if (!$this->form_validation->run()) {
@@ -175,16 +161,11 @@ class DashboardConfig extends CI_Controller {
 	}
 
 	function delete(){
-		if (!$this->input->is_ajax_request()) {
-			echo json_encode(array('success'=>0));
-			return;
-		}
-		//se chequean permisos
-		$permits = $this->session->userdata();
-		if (!$permits['admin']) {
-			echo json_encode(array('success'=>0));
-			return;
-		}
+        //Revisión de permisos
+        if (!$this->input->is_ajax_request() || !$this->access) {
+            echo json_encode(array('success'=>0));
+            return;
+        }
 
 		$this->form_validation->set_rules('type', 'Tipo de elemento', 'trim|required|alpha_dash');
 		$this->form_validation->set_rules('id', 'ID', 'numeric|required|greater_than_equal_to[0]');
@@ -217,24 +198,15 @@ class DashboardConfig extends CI_Controller {
 		$graphics = [];
 		foreach ($org_ids as $org_id){
 			$org = $this->Organization_model->getByID($org_id);
-			$all_childs = $this->Organization_model->getAllChilds($org_id);
-			$children = [];
-			foreach ($all_childs as $child){
-				$children[] = $child->getId();
-			}
-			$obj = (object) array('children' => $children, 'id'=>$org->getId(), 'name'=>$org->getName());
-			$orgs[$org->getId()] = $obj;
+			$orgs[$org->getId()] = $org->getName();
 			$metorgs = $this->Metorg_model->getMetOrg(['org'=>[$org_id]]);
 			foreach ($metorgs as $metorg){
 				$metric = $this->Metrics_model->getMetric(['id'=>[$metorg->metric]])[0];
 				$metrics[$org_id][$metorg->id] = $metric;
 			}
-			$dash = $this->Dashboardconfig_model->getOrCreateDashboard($org_id);
 			$graphs = $this->Dashboardconfig_model->getAllGraphicByOrg($org_id, true);
 			foreach ($graphs as $graph){
-				$gd = $this->Dashboardconfig_model->getGraphDash($graph->id, $dash->id);
 				$graph->series = $this->Dashboardconfig_model->getAllSeriesByGraph($graph->id);
-				$graph->display = $gd->display;
 				$graphics[$org_id][$graph->id] = $graph;
 			}
 		}

@@ -18,7 +18,6 @@ class MySession extends CI_Controller {
 			$this->session->set_userdata('rut', $user->id);
 			$this->session->set_userdata('name', $user->name);
 			$this->session->set_userdata('email', $user->email);
-			$this->session->set_userdata('admin', $user->isAdmin);
 			$permits       = $this->User_model->getPermitByUser($user->id);
 			$permits_array = getPermits($permits);
 			$permits_array['title'] = getTitle($user);
@@ -109,7 +108,7 @@ class MySession extends CI_Controller {
 		$permits = $this->session->userdata();
 		$prod = array_unique(array_merge($permits['foda']['validate'], $permits['metaP']['validate']));
 		$finan = array_unique(array_merge($permits['valorF']['validate'], $permits['metaF']['validate']));
-		if (!$permits['admin'] && !count($prod) && !count($finan)) {
+		if (!count($prod) && !count($finan)) {
 			redirect('inicio');
 		}
 		$this->load->model('Dashboard_model');
@@ -142,7 +141,9 @@ class MySession extends CI_Controller {
                 $data[$org]['metorg'][$metric->metorg]['values'] = $values;
                 for ($i = 0; $i<count($values); $i++){
                     $value = $values[$i];
-                    if (((is_null($value->proposed_x_value) || !$value->proposed_x_value) && is_null($value->proposed_value) && $perm['valor'] && !$perm['meta']) || (is_null($value->proposed_expected) && is_null($value->proposed_target) && !$perm['valor'] && $perm['meta'])){
+                    //quitar el valor si este se eliminara y no se tiene permiso para validar la eliminacion
+                    //o si el elemento se modificara y no se tienen los permisos para el valor
+                    if (($value->state==-1 && !$perm['meta']) || ($value->state==0 && ((!$value->proposed_x_value && !$value->proposed_value && $perm['valor'] && !$perm['meta']) || (!$value->proposed_expected && !$value->proposed_target && !$perm['valor'] && $perm['meta'])))){
                         unset($data[$org]['metorg'][$metric->metorg]['values'][$i]);
                     }
                 }
@@ -164,44 +165,44 @@ class MySession extends CI_Controller {
 	}
 
 	public function validate_reject() {
-		$this->load->model('Dashboard_model');
-        $this->load->model('Metorg_model');
-        $this->load->library('form_validation');
-
-        $success = 0;
         $permits = $this->session->userdata();
+		$prod = count($permits['foda']['validate']) + count($permits['metaP']['validate']);
+		$finan = count($permits['valorF']['validate']) + count($permits['metaF']['validate']);
+		if ($prod + $finan <=0 ) {
+			redirect('inicio');
+		}
+
+		$this->load->library('form_validation');
+
+        if ($this->input->post('Validar')) {
+            $func = 'validateData';
+        } elseif ($this->input->post('Rechazar')) {
+            $func = 'deleteData';
+        }
+
         //Validación de inputs
         $this->form_validation->set_rules('ids[]', 'ID', 'required|numeric|greater_than_equal_to[0]');
-        if (!$this->form_validation->run()) {
+        if (!$this->form_validation->run() || !isset($func) || count($this->input->post('ids')) == 0) {
             $this->session->set_flashdata('success', 0);
             redirect('validar');
         }
 
-		$data    = $this->input->post('ids');
-		$func    = NULL;
-		if ($this->input->post('Validar')) {
-			$func = 'validateData';
-		} elseif ($this->input->post('Rechazar')) {
-			$func = 'deleteData';
+        $data = $this->input->post('ids');
+
+        $this->load->model('Dashboard_model');
+        $this->load->model('Metorg_model');
+        $this->load->library('form_validation');
+		
+		$success = true;
+		foreach ($data as $data_id) {
+			if(!$this->Dashboard_model->checkIfValidate($data_id))
+				continue;
+			$metorg = $this->Metorg_model->getMetOrgDataByValue($data_id);
+			$validVal = ($metorg->category==1 ? in_array($metorg->org, $permits['foda']['validate']) : in_array($metorg->org, $permits['valorF']['validate']));
+			$validMet = ($metorg->category==1 ? in_array($metorg->org, $permits['metaP']['validate']) : in_array($metorg->org, $permits['metaF']['validate']));
+			$success = $success && $this->Dashboard_model->$func($data_id, $validVal, $validMet);
 		}
-		if (!is_null($func) && count($data) > 0) {
-			$success = true;
-			foreach ($data as $data_id) {
-				if($this->Dashboard_model->checkIfValidate($data_id)) {
-                    $metorg = $this->Metorg_model->getMetOrgDataByValue($data_id);
-                    if ($metorg->category==1){
-                        $validVal = in_array($metorg->org, $permits['foda']['validate']);
-                        $validMet = in_array($metorg->org, $permits['metaP']['validate']);
-                    }
-                    else{
-                        $validVal = in_array($metorg->org, $permits['foda']['validate']);
-                        $validMet = in_array($metorg->org, $permits['metaP']['validate']);
-                    }
-                    $success = $success && $this->Dashboard_model->$func($data_id, $validVal, $validMet);
-				}
-			}
-			$success = ($success) ? 1:0;
-		}
+		$success = ($success) ? 1:0;
 		$this->session->set_flashdata('success', $success);
 		redirect('validar');
 	}
@@ -211,7 +212,7 @@ class MySession extends CI_Controller {
 		$this->load->model('Dashboard_model');
 		$permits = $this->session->userdata();
 
-		if (!$permits['admin']) {
+		if ((count($permits['conf']['edit']) + count($permits['conf']['view'])) <= 0) {
 			redirect('inicio');
 		}
 		$result = defaultResult($permits, $this->Dashboard_model);
@@ -220,7 +221,7 @@ class MySession extends CI_Controller {
 
 	public function configurarMetricas() {
 		$permits = $this->session->userdata();
-		if (!$permits['admin']) {
+		if ((count($permits['conf']['edit']) + count($permits['conf']['view'])) <= 0) {
 			redirect('inicio');
 		}
 
@@ -242,6 +243,11 @@ class MySession extends CI_Controller {
 	}
 
 	public function agregarMetrica(){
+		$permits = $this->session->userdata();
+		if ((count($permits['conf']['edit']) + count($permits['conf']['view'])) <= 0) {
+			redirect('inicio');
+		}
+		
 		//carga de elementos
 		$this->load->library('form_validation');
 
@@ -302,6 +308,12 @@ class MySession extends CI_Controller {
 	}
 
 	public function eliminarMetrica() {
+
+		$permits = $this->session->userdata();
+		if ((count($permits['conf']['edit']) + count($permits['conf']['view'])) <= 0) {
+			redirect('inicio');
+		}
+		
 		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
 		$this->load->library('form_validation');

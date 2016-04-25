@@ -44,13 +44,13 @@ function createGraphicData(series, yUnit){
                 'valueSuffix': ' ' + yUnit
             },
             'cursor': 'pointer',
-            'point': {
+            /*'point': {
                 'events': {
                     'click': function () {
                         alert(this.category);
                     }
                 }
-            }
+            }*/
         };
         if(!(serie.color===null))
             dato.color = serie.color;
@@ -60,18 +60,18 @@ function createGraphicData(series, yUnit){
     return data;
 }
 
-function getGraphicOptions(title, xName, xValues, yName, yUnit, data, goBack) {
+function getGraphicOptions(title, xName, xValues, yName, yUnit, data) {
     var options = {
         credits: {
             enabled: false
         },
         chart: {
-            cursor: 'pointer',
+            /*cursor: 'pointer',
             events: {
                 click: function (e) {
                     alert(e.xAxis[0].axis.categories[Math.round(e.xAxis[0].value)]);
                 }
-            },
+            },*/
             zoomType: 'xy'
         },
         title: {
@@ -121,34 +121,5 @@ function getGraphicOptions(title, xName, xValues, yName, yUnit, data, goBack) {
             }
         }
     };
-    if(goBack!=null){
-        options.exporting = {
-            buttons: {
-                contextButton: {
-                    enabled: false
-
-                },
-                customButton: {
-                    text: 'Volver',
-                    x: 60,
-                    align: 'left',
-                    verticalAlign: 'top',
-                    onclick: function () {
-                        alert('Clicked');
-                    }
-                }
-            }
-        };
-        options.navigation = {
-            buttonOptions: {
-                y: -10,
-                theme: {
-                    style: {
-                        color: '#039'
-                    }
-                }
-            }
-        };
-    }
     return options;
 }

@@ -63,8 +63,6 @@ function getAllOrgsByDpto($model){
 }
 
  function validation($permits, $model){
-    if($permits['admin'])
-        return $model->getValidate(-1, $permits);
     return $model->getValidate(array_merge($permits['foda']['validate'], $permits['metaP']['validate'], $permits['valorF']['validate'], $permits['metaF']['validate']), $permits);
 }
 

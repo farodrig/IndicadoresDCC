@@ -3,7 +3,6 @@ class Dashboard_model extends CI_Model
 {
 
     public $title;
-    public $GD;
     public $value;
     public $graphic;
     public $aggregation;
@@ -13,11 +12,27 @@ class Dashboard_model extends CI_Model
     {
         parent::__construct();
         $this->title = "Dashboard";
-        $this->GD = "GraphDash";
         $this->graphic = "Graphic";
         $this->value = "Value";
         $this->aggregation = "Aggregation_Type";
         $this->type = "Serie_Type";
+    }
+
+    function getAllXValuesByMetorg($metorg){
+        $this->db->select('x_value');
+        $this->db->from('Value');
+        $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
+        $this->db->where('MetOrg.id', $metorg);
+        $this->db->where('state !=', -1);
+        $this->db->order_by('x_value ASC');
+        $this->db->distinct();
+        $q = $this->db->get();
+        $values = $q->result();
+        $result = [];
+        foreach ($values as $value){
+            $result[] = $value->x_value;
+        }
+        return $result;
     }
 
     function getGraphicData($id){
@@ -58,6 +73,7 @@ class Dashboard_model extends CI_Model
                 $this->db->select("year as x");
                 $this->db->group_by("year");
             }
+
             if ($select) {
                 $this->db->$select('value');
                 $this->db->$select('expected');
@@ -67,10 +83,7 @@ class Dashboard_model extends CI_Model
             $this->db->where($this->value . '.metorg', $serie->metorg);
             $this->db->where($this->value . '.year >=', $graphic->min_year);
             $this->db->where($this->value . '.year <=', $graphic->max_year);
-            $this->db->group_start();
-                $this->db->where($this->value . '.state', 1);
-                $this->db->or_where($this->value . '.state', -1);
-            $this->db->group_end();
+            $this->db->where($this->value . '.state', 1);
 
             $this->db->order_by('x', 'ASC');
             $q = $this->db->get();
@@ -122,7 +135,6 @@ class Dashboard_model extends CI_Model
         $this->load->model('Metrics_model');
         $series = $this->Dashboardconfig_model->getAllSeriesByGraph($graphic->id);
         $aux_series = [];
-        $x_values = [];
         foreach ($series as $serie) {
             $metorg = $this->Metorg_model->getMetOrg(['id' => [$serie->metorg]])[0];
             $org = $this->Organization_model->getByID($metorg->org);
@@ -141,10 +153,7 @@ class Dashboard_model extends CI_Model
             $this->db->where($this->value . '.metorg', $serie->metorg);
             $this->db->where($this->value . '.year >=', $graphic->min_year);
             $this->db->where($this->value . '.year <=', $graphic->max_year);
-            $this->db->group_start();
-                $this->db->where($this->value . '.state', 1);
-                $this->db->or_where($this->value . '.state', -1);
-            $this->db->group_end();
+            $this->db->where($this->value . '.state', 1);
             $this->db->order_by('year', 'ASC');
             $q = $this->db->get();
             $values = $q->result();
@@ -175,9 +184,9 @@ class Dashboard_model extends CI_Model
 
     //Si hay más graficos por mostrar que los mostrados por defecto entrega true, para poner un boton y permitir mostrar los restantes.
     function showButton($id){
-        $this->db->from($this->GD);
-        $this->db->join($this->title, $this->title.'.id = '.$this->GD.'.dashboard');
-        $this->db->where($this->GD.'.display', 0);
+        $this->db->from($this->graphic);
+        $this->db->join($this->title, $this->title.'.id = '.$this->graphic.'.dashboard');
+        $this->db->where($this->graphic.'.display', 0);
         $this->db->where($this->title.'.org', $id);
         $q = $this->db->get();
         return count($q->result())>0;
@@ -188,11 +197,11 @@ class Dashboard_model extends CI_Model
     }
 
     function getValidate($id_metorg, $permits){
-        if ($id_metorg == -1) {
-            $datos = getGeneric($this, $this->value, ['state' => [-1, 0]]);
-            return (count($datos) > 0);
-        }
-        $this->load->library('session');
+        $valor = (count($permits['foda']['validate']) + count($permits['valorF']['validate'])) > 0;
+        $meta = (count($permits['metaF']['validate']) + count($permits['metaP']['validate'])) > 0;
+        if (!$valor && !$meta)
+            return false;
+
         $prod = count($permits['foda']['validate']) + count($permits['metaP']['validate']);
         $fin = count($permits['valorF']['validate']) + count($permits['metaF']['validate']);
         if ($prod && $fin) {
@@ -202,8 +211,6 @@ class Dashboard_model extends CI_Model
         } elseif ($fin) {
             $cat = 2;
         }
-        $valor = (count($permits['foda']['validate']) + count($permits['valorF']['validate'])) > 0;
-        $meta = (count($permits['metaF']['validate']) + count($permits['metaP']['validate'])) > 0;
 
         foreach ($id_metorg as $id) {
             $this->db->from('Value');
@@ -211,34 +218,28 @@ class Dashboard_model extends CI_Model
             $this->db->join('Metric', 'Metric.id = MetOrg.metric');
             $this->db->where('MetOrg.org', $id);
             $this->db->group_start();
-                $this->db->where('Value.state', -1);
+            if ($meta) {
+                $this->db->or_where('Value.state', -1);
+            }
                 $this->db->or_where('Value.state', 0);
             $this->db->group_end();
             if (isset($cat)) {
                 $this->db->where('Metric.category', $cat);
             }
-            if ($valor && $meta){
-                $this->db->group_start();
-                $this->db->where('Value.proposed_value !=', null);
+            $this->db->group_start();
+            if ($valor){
+                $this->db->or_where('Value.proposed_value !=', null);
+            }
+            if ($meta){
+                $this->db->or_where('Value.state', -1);
                 $this->db->or_where('Value.proposed_x_value !=', null);
                 $this->db->or_where('Value.proposed_target !=', null);
                 $this->db->or_where('Value.proposed_expected !=', null);
-                $this->db->group_end();
             }
-            elseif ($valor){
-                $this->db->group_start();
-                $this->db->where('Value.proposed_value !=', null);
-                $this->db->or_where('Value.proposed_x_value !=', null);
-                $this->db->group_end();
-            }
-            elseif ($meta){
-                $this->db->group_start();
-                $this->db->where('Value.proposed_target !=', null);
-                $this->db->or_where('Value.proposed_expected !=', null);
-                $this->db->group_end();
-            }
+            $this->db->group_end();
             $q = $this->db->get();
-            return ($q->num_rows() > 0);
+            if ($q->num_rows() > 0)
+                return true;
         }
         return false;
     }
@@ -269,9 +270,7 @@ class Dashboard_model extends CI_Model
         $this->db->where('year', $year);
         $this->db->order_by('state', $order);
         $q = $this->db->get();
-        if ($q->num_rows() > 0)
-            return $q->row();
-        return false;
+        return ($q->num_rows() > 0 ? $q->row() : false);
     }
 
     function updateCreateBudgetValue($org, $year, $val, $expected, $target, $validValue, $validMeta)
@@ -279,7 +278,7 @@ class Dashboard_model extends CI_Model
         $this->load->model('Metorg_model');
         $q = $this->Metorg_model->getMetOrg(array('org' => [$org], 'metric' => [1]));
         if (count($q) != 1) {
-            $q[0] = $this->Metorg_model->addMetOrg(array('org' => $org, 'metric' => 1));
+            $q = $this->Metorg_model->addMetOrg(array('org' => $org, 'metric' => 1));
             if(!$q)
                 return false;
             $q = $this->Metorg_model->getMetOrg(array('org' => [$org], 'metric' => [1]));
@@ -344,7 +343,7 @@ class Dashboard_model extends CI_Model
         }
     }
 
-    function getAllMetrics($id, $category, $all)
+    function getAllMetrics($org, $category, $all)
     {
         $this->db->select('MetOrg.id as metorg, Metric.y_name, Metric.x_name, X.name as x_unit, Y.name as y_unit, Metric.name, Metric.category');
         $this->db->from('Metric');
@@ -352,7 +351,7 @@ class Dashboard_model extends CI_Model
         $this->db->join('Unit as X', 'X.id = Metric.x_unit');
         $this->db->join('Unit as Y', 'Y.id = Metric.y_unit');
         $this->db->join('Organization', 'Organization.id = MetOrg.org');
-        $this->db->where('Organization.id', $id);
+        $this->db->where('Organization.id', $org);
         if(!$all)
             $this->db->where('Metric.id !=', 1);
 
@@ -360,9 +359,7 @@ class Dashboard_model extends CI_Model
             $this->db->where('Metric.category', $category);
 
         $q = $this->db->get();
-        if ($q->num_rows() > 0)
-            return $q->result();
-        return false;
+        return ($q->num_rows() > 0 ? $q->result() : false);
     }
 
     function getAllMeasurements($id, $category)
@@ -386,10 +383,7 @@ class Dashboard_model extends CI_Model
 
         $this->db->select('id, metorg AS org, value, x_value, target, expected, year');
         $this->db->from('Value');
-        $this->db->group_start();
-            $this->db->where('state', 1);
-            $this->db->or_where('state', -1);
-        $this->db->group_end();
+        $this->db->where('state', 1);
         $this->db->group_start();
         for ($i = 0; $i < $size; $i++) {
             $this->db->or_where('metorg', $rows[$i]->id);
@@ -397,13 +391,10 @@ class Dashboard_model extends CI_Model
         $this->db->group_end();
         $this->db->order_by('year ASC');
         $q = $this->db->get();
-        if ($q->num_rows() > 0)
-            return $this->buildAllMeasuresments($q->result());
-        return false;
+        return ($q->num_rows() > 0 ? $this->buildAllMeasuresments($q->result()) : false);
     }
 
-    function buildAllMeasuresments($rows)
-    {
+    function buildAllMeasuresments($rows){
         $this->load->library('Dashboard_library');
         foreach ($rows as $row) {
             $parameters = array(
@@ -422,37 +413,32 @@ class Dashboard_model extends CI_Model
     }
 
     function deleteValue($valId, $user, $validation){
+        $values = getGeneric($this, $this->value, ['id'=>[$valId]]);
+        if (!count($values))
+            return false;
+        $value = $values[0];
         if ($validation) {
-            return $this->db->delete($this->value, array('id' => $valId));
+            $values = getGeneric($this, $this->value, ['metorg'=>[$value->metorg], 'year'=>[$value->year], 'x_value'=>[$value->x_value], 'id !='=>[$value->id], 'order'=>[['state', "ASC"]]]);
+            $done = $this->db->delete($this->value, array('id' => $valId));
+            foreach ($values as $v){
+                $done = $done && $this->db->delete($this->value, array('id' => $v->id));
+            }
+            return $done;
         }
-        $data = array('state' => -1,
-            'updater' => $user,
-            'dateup' => date('Y-m-d H:i:s'),
-            'modified' => 1);
-        $this->db->where('id', $valId);
-        return $this->db->update($this->value, $data);
+
+        $value->state = -1;
+        $value->updater = $user;
+        $value->dateup = date('Y-m-d H:i:s');
+        $value->modified = 1;
+        unset($value->id, $value->validator, $value->dateval);
+        return $this->db->insert($this->value, $value);
     }
 
     function deleteData($id, $validVal, $validMet){
-        $this->db->where('id', $id);
-        if ($validVal && $validMet) {
+        if ($validMet) {
+            $this->db->where('id', $id);
             return $this->db->delete($this->value);
         }
-        elseif ($validVal){
-            $data['proposed_value'] = -1;
-            $data['proposed_x_value'] = -1;
-            $this->db->update($this->value, $data);
-        }
-        elseif ($validMet){
-            $data['proposed_target'] = -1;
-            $data['proposed_expected'] = -1;
-            $this->db->update($this->value, $data);
-        }
-        $this->db->reset_query();
-        $value = getGeneric($this, $this->value, ['id'=>[$id]])[0];
-        $this->db->reset_query();
-        if ($value->state==-1 && $value->proposed_value==-1 && $value->proposed_x_value==-1 && $value->proposed_target==-1 && $value->proposed_expected==-1)
-            return $this->db->delete($this->value, ['id' => $id]);
         return false;
     }
 
@@ -577,8 +563,14 @@ class Dashboard_model extends CI_Model
         $value = $query->row();
 
         $old_x = $value->x_value;
-        if ($value->state == -1)
-            return $this->deleteData($id, $validVal, $validMet);
+        if ($value->state == -1) {
+            $values = getGeneric($this, $this->value, ['metorg'=>[$value->metorg], 'year'=>[$value->year], 'x_value'=>[$value->x_value], 'id !='=>[$value->id], 'order'=>[['state', "ASC"]]]);
+            $done = $this->deleteData($value->id, $validVal, $validMet);
+            foreach ($values as $v){
+                $done = $done && $this->deleteData($v->id, $validVal, $validMet);
+            }
+            return $done;
+        }
         $value2 = clone $value;
         $data = array(
             'state' => 1,
@@ -656,7 +648,7 @@ class Dashboard_model extends CI_Model
     {
         $q = $this->db->get_where('Value', array('id' => $id));
         if ($q->num_rows() > 0) {
-            $row = $q->row();;
+            $row = $q->row();
             return ($row->state == 1) ? false : true;
         }
         return false;
@@ -677,8 +669,8 @@ class Dashboard_model extends CI_Model
         $this->db->join('Unit as Y', 'Y.id = Metric.y_unit');
         $this->db->join('Category', 'Metric.category = Category.id');
         $this->db->group_start();
-        $this->db->where('Value.state', 0);
-        $this->db->or_where('Value.state', -1);
+            $this->db->where('Value.state', 0);
+            $this->db->or_where('Value.state', -1);
         $this->db->group_end();
         if (!is_null($type))
             $this->db->where('Category.id', $type);

@@ -10,6 +10,10 @@
         section label{
             text-align: center;
         }
+        .table-responsive {
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+        }
     </style>
     <script type="text/javascript">
         var success = <?php echo ($success);?>;
@@ -17,8 +21,8 @@
         var metrics = <?php echo json_encode($metrics);?>;
         var editP = <?php echo json_encode($editP);?>;
         var editF = <?php echo json_encode($editF);?>;
-        var sEditP = <?php echo json_encode($superEditP);?>;
-        var sEditF = <?php echo json_encode($superEditF);?>;
+        var editMetaP = <?php echo json_encode($editMetaP);?>;
+        var editMetaF = <?php echo json_encode($editMetaF);?>;
         var years = [];
         var xValues = [];
         for(metorg in jArray){
@@ -111,7 +115,7 @@
                                         <label class="text-left"><?php echo (ucwords($metric->name));?></label >
                                         <div id="content<?php echo ($metric->metorg);?>" class="toggle-content" style = "display: block;" >
                                             <div class="table-responsive">
-                                                <table id="datatable-details" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid">
+                                                <table id="datatable-details" class="table table-bordered table-striped" role="grid">
                                                     <thead>
                                                         <tr role="row">
                                                             <?php if ($metric->x_name){ ?>
@@ -127,7 +131,7 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <?php if($metric->x_name && (($metric->category==1 && $editP) || ($metric->category==2 && $editF))){?>
+                                            <?php if($metric->x_name && (($metric->category==1 && $editMetaP) || ($metric->category==2 && $editMetaF))){?>
                                                 <button type="button" onclick="addRow(<?php echo ($metric->metorg);?>)" class="btn btn-success pull-right fa fa-plus" style="margin-bottom: 1%"></button>
                                             <?php } ?>
                                         </div >
@@ -153,12 +157,16 @@
 
 <?php include 'partials/footer.php';?>
 
+<script src="<?php echo base_url();?>assets/vendor/select2/select2.js"></script>
 <script src="<?php echo base_url();?>chosen/chosen.jquery.js" type="text/javascript"></script>
 
 <script type="text/javascript">
     //cargar años
+
+    var yearElement = $('#year');
+
     for(var i = 0; i<years.length; i++){
-        $('#year').append('<option>' + years[i] + '</option>');
+        yearElement.append('<option>' + years[i] + '</option>');
     }
 
     if (success==1){
@@ -182,21 +190,21 @@
         '.chosen-select-no-single' : {disable_search_threshold:10},
         '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
         '.chosen-select-width'     : {width:"95%"}
-    }
+    };
     for (var selector in config) {
         $(selector).chosen(config[selector]);
     }
 
 
-    $('#year').on('chosen:no_results', function(e,params) {
-        var value = $('.chosen-search > input:nth-child(1)').val();
+    yearElement.on('chosen:no_results', function(e,params) {
+        var value = $('.chosen-search > input:nth-child(1)')[0].value;
         if(value.length==4 && (!isNaN(parseFloat(value)) && isFinite(value))){
-            $('#year').append($("<option>" , {
+            yearElement.append($("<option>" , {
                 text: value,
                 value: value
             }));
             $('#year option[value="'.concat(value,'"]')).attr("selected", "selected");
-            $('#year').trigger('chosen:updated');
+            yearElement.trigger('chosen:updated');
             selectYear();
         }
     });
@@ -212,6 +220,7 @@
         var del = "";
         var tdX = "";
         var tdV = "";
+        var tdM = "";
         if(eliminable) {
             delButton = '<a class="btn cancel-row row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a>';
             del = 'hidden';
@@ -220,39 +229,40 @@
             delButton = '<input type="checkbox" value=' + valId + ' name="delete[]" class="form-control">';
         }
         if (edit){
-            tdX = '<td><input type="text" name="valueX[]" value="' + valueX + '" class="form-control" onkeyup ="validateX(this)" onfocus ="validateX(this)"></td>';
             tdV = '<td><input type="text" name="valueY[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>';
         }
         else{
-            tdX = '<td>' + valueX + '<input type="hidden" name="valueX[]" value="' + null + '"></td>';
             tdV = '<td>' + valueY + '<input type="hidden" name="valueY[]" value="' + null + '"></td>';
+        }
+
+        var row = '<tr> \
+                    <input type="hidden" name="valId[]" value="' + valId + '"> \
+                    <input type="hidden" name="metorg[]" value="' + metorg + '">';
+        if(editSensitive){
+            tdX = '<td><select name="valueX[]" class="chosen-select valueX" style="width:200px;" data-placeholder="Indique el valor..." tabindex="4"><option value=""></option>' + optionHTML(metrics[metorg].x_values, valueX) + '</select></td>';
+            tdM = '<td><input type="text" name="expected[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td> \
+                    <td><input type="text" name="target[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>';
+        }
+        else{
+            tdX = '<td>' + valueX + '<input type="hidden" name="valueX[]" value="' + null + '"></td>';
+            tdM = '<td>' + expected + '<input type="hidden" name="expected[]" value="' + null + '"></td> \ ' +
+                '<td>' + target + '<input type="hidden" name="target[]" value="' + null + '"></td>';
         }
         if(!hasX)
             tdX = '<input type="hidden" name="valueX[]" value="" class="form-control">';
 
-        var row = '<tr> \
-                    <input type="hidden" name="valId[]" value="' + valId + '"> \
-                    <input type="hidden" name="metorg[]" value="' + metorg + '">' + tdX + tdV;
-
-        if(editSensitive){
-            row += '<td><input type="text" name="expected[]" value="' + expected + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td> \
-                    <td><input type="text" name="target[]" value="' + target + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>';
-        }
-        else{
-            row += '<td>' + expected + '<input type="hidden" name="expected[]" value="' + null + '"></td> \ ' +
-                '<td>' + target + '<input type="hidden" name="target[]" value="' + null + '"></td>';
-        }
-        row += '<td class="text-center">' + delButton + '</td></tr>';
+        row += tdX + tdV + tdM + '<td class="text-center">' + delButton + '</td></tr>';
         return row;
     }
 
     function loadMetrics(){
         for(var i in metrics) {
             var metorg = metrics[i].metorg;
-            $('#tableContent' + metorg).html("");
+            var table = $('#tableContent' + metorg);
+            table.html("");
             var sensitive = false;
             var edit = false;
-            if((metrics[i].category==1 && sEditP) || (metrics[i].category==2 && sEditF))
+            if((metrics[i].category==1 && editMetaP) || (metrics[i].category==2 && editMetaF))
                 sensitive = true;
             if((metrics[i].category==1 && editP) || (metrics[i].category==2 && editF))
                 edit = true;
@@ -263,13 +273,40 @@
                 cont++;
                 for (var xVal in jArray[metorg][year]) {
                     var row = rowWithData(metorg, jArray[metorg][year][xVal]['id'], jArray[metorg][year][xVal]['valueY'], jArray[metorg][year][xVal]['valueX'], jArray[metorg][year][xVal]['target'], jArray[metorg][year][xVal]['expected'], metrics[i].x_name,false, edit,sensitive);
-                    $('#tableContent' + metorg).append(row);
+                    table.append(row);
                 }
             }
             if (cont==0 && edit){
                 var row = rowWithData(metorg, "", "", "", "", "", metrics[i].x_name, false, edit, sensitive);
-                $('#tableContent' + metorg).append(row);
+                table.append(row);
             }
+            var xElem = $('.valueX');
+            xElem.each(function () {
+                var $this = $(this);
+                $this.chosen();
+                $this.on('chosen:no_results', function(e) {
+                    var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*$");
+                    $this.next().find(".chosen-search > input:nth-child(1)").keyup(function (event) {
+                        if (event.which !== 13 || event.keyCode !== 13) {
+                            return;
+                        }
+                        var value = $(this).val();
+                        if (value.match(re)){
+                            $this.append($("<option>" , {
+                                text: value,
+                                value: value
+                            }));
+                            $this.children('[value="'.concat(value,'"]')).attr("selected", "selected");
+                            $this.trigger('chosen:updated');
+                        }
+                    });
+                });
+                $this.on('chosen:open', function(e) {
+                    console.log("abrip");
+                    table.css('overflow-y', 'auto');
+                });
+                $this.trigger('chosen:updated');
+            });
         }
     }
 
@@ -282,7 +319,7 @@
             if(metorg == metrics[i].metorg){
                 hasX = metrics[i].x_name;
                 cat = metrics[i].category;
-                if((metrics[i].category==1 && sEditP) || (metrics[i].category==2 && sEditF))
+                if((metrics[i].category==1 && editMetaP) || (metrics[i].category==2 && editMetaF))
                     sensitive = true;
                 if((metrics[i].category==1 && editP) || (metrics[i].category==2 && editF))
                     edit = true;
@@ -291,6 +328,33 @@
         }
         row = rowWithData(metorg, "", "", "", "", "", hasX, true, edit, sensitive);
         $('#tableContent' + metorg).append(row);
+        var xElem = $('.valueX');
+        xElem.each(function () {
+            var $this = $(this);
+            $this.chosen();
+            $this.on('chosen:no_results', function(e) {
+                var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*$");
+                $this.next().find(".chosen-search > input:nth-child(1)").keyup(function (event) {
+                    if (event.which !== 13 || event.keyCode !== 13) {
+                        return;
+                    }
+                    var value = $(this).val();
+                    if (value.match(re)){
+                        $this.append($("<option>" , {
+                            text: value,
+                            value: value
+                        }));
+                        $this.children('[value="'.concat(value,'"]')).attr("selected", "selected");
+                        $this.trigger('chosen:updated');
+                    }
+                });
+            });
+            $this.on('chosen:open', function(e) {
+                console.log("abrip");
+                table.css('overflow-y', 'auto');
+            });
+            $this.trigger('chosen:updated');
+        });
     }
 
     function selectYear(){
@@ -340,20 +404,16 @@
         return false;
     }
 
-    function pageValidate(){
-        return true;
-    }
-
     $('form').on('submit', function(e){
         year = $('#year').val();
         var result = true;
         var x_aux = xValues;
         var newX = [];
         for(metorg in jArray){
-            $('#tableContent'+metorg + ' input[name="valueX[]"]:visible').each(function () {
+            $('#tableContent'+metorg + ' select[name="valueX[]"]').each(function () {
                 var $this = $(this);
-                id = $this.closest('tr').children('input[name="valId[]"]').val();
-                value = getValueById(id);
+                var id = $this.closest('tr').children('input[name="valId[]"]').val();
+                var value = getValueById(id);
                 if(value && value.valueX != this.value && x_aux.indexOf(this.value) != -1){
                     alert("El valor de X ya se encuentra en algún otro año. Añada un nuevo elemento y elimine este para obtener el mismo resultado.");
                     result = false;
@@ -372,6 +432,17 @@
         }
         return result;
     });
+
+    function optionHTML(optionArray, selected){
+        var optHTML = "";
+        for(var i = 0; i<optionArray.length; i++){
+            var select = "";
+            if (selected==optionArray[i])
+                select = "selected";
+            optHTML += '<option value="'+ optionArray[i] +'" ' + select + '>' + optionArray[i] + '</option>';
+        }
+        return optHTML;
+    }
 </script>
 </body>
 </html>

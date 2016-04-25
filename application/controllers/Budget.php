@@ -54,11 +54,7 @@ class Budget extends CI_Controller {
             return;
         }
         $this->load->library('Dashboard_library');
-
         
-        $validValue = in_array($org, $permits['valorF']['validate']);
-        $validMeta = in_array($org, $permits['metaF']['validate']);
-
         $value =  $this->input->post("value");
         $expected =  $this->input->post("expected");
         $target =  $this->input->post("target");
@@ -76,8 +72,6 @@ class Budget extends CI_Controller {
         
         $validValue = in_array($org, $permits['valorF']['validate']);
         $validMeta = in_array($org, $permits['metaF']['validate']);
-        debug($validMeta);
-        debug($validValue);
         $year =  $this->input->post("year");
         $org = $this->Organization_model->getById($org);
         $oldValidVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year, "DESC");
@@ -92,62 +86,56 @@ class Budget extends CI_Controller {
                 $oldVal = (object)[
                     'value' => 0,
                     'expected' => 0,
-                    'target' => 0,
-                    'state' => 1
+                    'target' => 0
                 ];
             }
-            if ($oldValidVal && $validValue){
-                $oldVal->value = (is_null($oldValidVal->value) ? $oldVal->value : $oldValidVal->value);
-            }
-            elseif (!$validValue){
-                $oldVal->value = (is_null($oldVal->p_v) ? $oldVal->value : $oldVal->p_v);
-            }
-            if ($oldValidVal && $validMeta){
-                $oldVal->expected = (is_null($oldValidVal->expected) ? $oldVal->expected : $oldValidVal->expected);
-                $oldVal->target = (is_null($oldValidVal->target) ? $oldVal->target : $oldValidVal->target);
-            }
-            elseif (!$validMeta){
-                $oldVal->expected = (is_null($oldVal->p_e) ? $oldVal->expected : $oldVal->p_e);
-                $oldVal->target = (is_null($oldVal->p_t) ? $oldVal->target : $oldVal->p_t);
-            }
-
+            
             $parentVal = $this->Dashboard_model->getBudgetMeasure($parent->getId(), $year, "ASC");
             $parentValidVal = $this->Dashboard_model->getBudgetMeasure($parent->getId(), $year, "DESC");
             if(!$parentVal){
                 $parentVal = (object) [
                     'value' => 0,
                     'expected' => 0,
-                    'target' => 0,
-                    'state' => 1
+                    'target' => 0
                 ];
             }
-            if ($parentValidVal && $validValue){
-                $parentVal->value = (is_null($parentValidVal->value) ? $parentVal->value : $parentValidVal->value);
+            
+            if ($validValue){
+                if ($oldValidVal)
+                    $oldVal->value = (is_null($oldValidVal->value) ? $oldVal->value : $oldValidVal->value);
+
+                if ($parentValidVal)
+                    $parentVal->value = (is_null($parentValidVal->value) ? $parentVal->value : $parentValidVal->value);
+
+                if ($currentValidVal)
+                    $currentVal->value = (is_null($currentValidVal->value) ? $currentVal->value : $currentValidVal->value);
+
             }
-            elseif (!$validValue){
+            else{
+                $oldVal->value = (is_null($oldVal->p_v) ? $oldVal->value : $oldVal->p_v);
                 $parentVal->value = (is_null($parentVal->p_v) ? $parentVal->value : $parentVal->p_v);
-            }
-
-            if ($parentValidVal && $validMeta){
-                $parentVal->expected = (is_null($parentValidVal->expected) ? $parentVal->expected : $parentValidVal->expected);
-                $parentVal->target = (is_null($parentValidVal->target) ? $parentVal->target : $parentValidVal->target);
-            }
-            elseif (!$validMeta){
-                $parentVal->expected = (is_null($parentVal->p_e) ? $parentVal->expected : $parentVal->p_e);
-                $parentVal->target = (is_null($parentVal->p_t) ? $parentVal->target : $parentVal->p_t);
-            }
-
-            if ($currentValidVal && $validValue){
-                $currentVal->value = (is_null($currentValidVal->value) ? $currentVal->value : $currentValidVal->value);
-            }
-            elseif (!$validValue){
                 $currentVal->value = (is_null($currentVal->p_v) ? $currentVal->value : $currentVal->p_v);
             }
-            if ($currentValidVal && $validMeta){
-                $currentVal->expected = (is_null($currentValidVal->expected) ? $currentVal->expected : $currentValidVal->expected);
-                $currentVal->target = (is_null($currentValidVal->target) ? $currentVal->target : $currentValidVal->target);
+            
+            if ($validMeta){
+                if ($oldValidVal){
+                    $oldVal->expected = (is_null($oldValidVal->expected) ? $oldVal->expected : $oldValidVal->expected);
+                    $oldVal->target = (is_null($oldValidVal->target) ? $oldVal->target : $oldValidVal->target);
+                }
+                if ($parentValidVal){
+                    $parentVal->expected = (is_null($parentValidVal->expected) ? $parentVal->expected : $parentValidVal->expected);
+                    $parentVal->target = (is_null($parentValidVal->target) ? $parentVal->target : $parentValidVal->target);
+                }
+                if ($currentValidVal){
+                    $currentVal->expected = (is_null($currentValidVal->expected) ? $currentVal->expected : $currentValidVal->expected);
+                    $currentVal->target = (is_null($currentValidVal->target) ? $currentVal->target : $currentValidVal->target);
+                }
             }
-            elseif (!$validMeta){
+            else{
+                $oldVal->expected = (is_null($oldVal->p_e) ? $oldVal->expected : $oldVal->p_e);
+                $oldVal->target = (is_null($oldVal->p_t) ? $oldVal->target : $oldVal->p_t);
+                $parentVal->expected = (is_null($parentVal->p_e) ? $parentVal->expected : $parentVal->p_e);
+                $parentVal->target = (is_null($parentVal->p_t) ? $parentVal->target : $parentVal->p_t);
                 $currentVal->expected = (is_null($currentVal->p_e) ? $currentVal->expected : $currentVal->p_e);
                 $currentVal->target = (is_null($currentVal->p_t) ? $currentVal->target : $currentVal->p_t);
             }
@@ -242,8 +230,6 @@ class Budget extends CI_Controller {
                 continue;
             $orgs[] = $this->Organization_model->getByID($org);
         }
-        if ($permits['admin'])
-            $orgs = $this->Organization_model->getAllOrgsIds();
         $org_ids = [];
         $valid_data = [];
         $no_valid_data = [];
