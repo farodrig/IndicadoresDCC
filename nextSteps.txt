@@ -3,3 +3,5 @@ Next Steps:
  - Poder mostrar los valores en miles, millones, etc
  - Valor mínimo y máximo para el eje Y.
  - poder cambiar rango de años por el usuario en el dashboard
+ - Pop up con la data desagregada al seleccionar un elemento del eje X (mostrar data filtrada para ese elemento, por ejemplo, los tesistas por año de Sergio)
+ - Ver caso de Promedio/Mínimo/máximo para los años sin dato (Actualmente se sacan con los datos q hay, no se asume valor 0 para los otros años)
