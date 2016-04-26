@@ -120,10 +120,10 @@ class Dashboard extends CI_Controller {
             $metorg = $this->Metorg_model->getMetOrg(array('id'=>[$id_metorg]))[0];
             $metric = $this->Metrics_model->getMetric(array('id'=>[$metorg->metric]))[0];
             $valId = $this->input->post('valId')[$i];
-            $valueY = (strcmp($this->input->post('valueY')[$i], "null")==0 ? null : $this->input->post('valueY')[$i]);
+            $valueY = (strcmp($this->input->post('valueY')[$i], "null")==0 || strcmp($this->input->post('valueY')[$i], "")==0 ? null : $this->input->post('valueY')[$i]);
             $valueX = (strcmp($this->input->post('valueX')[$i], "null")==0 ? null : $this->input->post('valueX')[$i]);
-            $target = (strcmp($this->input->post('target')[$i], "null")==0 ? null : $this->input->post('target')[$i]);
-            $expected = (strcmp($this->input->post('expected')[$i], "null")==0 ? null : $this->input->post('expected')[$i]);
+            $target = (strcmp($this->input->post('target')[$i], "null")==0 || strcmp($this->input->post('target')[$i], "")==0 ? null : $this->input->post('target')[$i]);
+            $expected = (strcmp($this->input->post('expected')[$i], "null")==0 || strcmp($this->input->post('expected')[$i], "")==0 ? null : $this->input->post('expected')[$i]);
 
             if($metric->category==1){
                 $validValue = in_array($org, $permits['foda']['validate']);
@@ -150,6 +150,7 @@ class Dashboard extends CI_Controller {
                 }
             }
             if((!is_null($valueY) && !is_numeric($valueY)) || (!is_null($target) && !is_numeric($target)) || (!is_null($expected) && !is_numeric($expected))){
+                $success = false;
                 continue;
             }
 			//si no hay valores saltamos los datos
@@ -163,6 +164,7 @@ class Dashboard extends CI_Controller {
                 if (strcmp($metric->x_name, "")==0)
                     $valueX = "";
                 elseif (is_null($valueX)){
+                    $success = false;
                     continue;
                 }
 				$oldVal = $this->Dashboard_model->getValue(array('metorg'=>[$id_metorg], 'year'=>[$year], 'x_value'=>[$valueX], 'state'=>[1]));
@@ -240,7 +242,7 @@ class Dashboard extends CI_Controller {
 		}
 
         $permits = $this->session->userdata();
-        $prod = count($permits['foda']['view'], $permits['metaP']['view']);
+        $prod  = array_merge($permits['foda']['view'], $permits['metaP']['view']);
         $finan = array_merge($permits['valorF']['view'], $permits['metaF']['view']);
         if ((count($prod) + count($finan)) <= 0)
             redirect('inicio');
@@ -273,9 +275,7 @@ class Dashboard extends CI_Controller {
 		$graphic->x_name = ($all ? $metric->x_name : $graphic->x_name);
 		$title = $graphic->title." Periodo (".$graphic->min_year." - ".$graphic->max_year.")";
 		usort($data, build_sorter($key));
-
 		download_send_headers(str_replace(" ", "_", $title)."_".date("d-m-Y").".csv");
-
 		echo(array2csv($data,$title, $graphic->x_name, $graphic->y_name, $all));
 		return;
 	}

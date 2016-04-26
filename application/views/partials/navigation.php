@@ -16,7 +16,7 @@
                             array_unshift($navData, ['url'=>'fodaStrategy', 'name'=>'FODAs y Objetivos Estratégicos', 'icon'=>'fa fa-book']);
 						}
 						if(isset($budget) && $budget){
-                            array_unshift($navData, ['url'=>'presupuesto', 'name'=>'Presupuesto', 'icon'=>'fa fa-balance-scale']);
+                            array_unshift($navData, ['url'=>'presupuesto', 'name'=>'Presupuesto', 'icon'=>'fa fa-money']);
 						}
                         array_unshift($navData, ['url'=>'inicio', 'name'=>'U-Dashboard', 'icon'=>'fa fa-home']);
 						foreach ($navData as $navItem) {

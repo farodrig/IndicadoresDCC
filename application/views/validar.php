@@ -189,21 +189,19 @@
 																						<td><?php echo($users[$value->updater]); ?></td>
 																						<td><?php echo ($metorg['metric']->category == 2) ? "Asistente de finanzas" : "Asistente de unidad" ?></td>
 																						<td></td>
-																						<?php if ($permits['valor']){
-																								if ($metorg['metric']->x_name) { ?>
-																									<td><?php echo (!is_null($value->proposed_x_value) && $value->proposed_x_value && $value->state == 0) ? $value->proposed_x_value : '-'; ?></td>
-																								<?php } ?>
-																									<td><?php echo (!is_null($value->proposed_value) && $value->state == 0) ? '<b>' . $value->proposed_value . '</b>' : '-'; ?></td>
-																						<?php }
-																							else{
-																								if ($metorg['metric']->x_name) { echo '<td>-</td>';}
-																								echo '<td>-</td>';
-																							}
-																						if($permits['meta']){ ?>
+																						<?php
+																						$valor = '<td>'.(($permits['valor'] && !is_null($value->proposed_value) && $value->state == 0) ? '<b>'.$value->proposed_value.'</b>' : '-').'</td>';
+																						if($permits['meta']){
+																							if ($metorg['metric']->x_name) { ?>
+																								<td><?php echo (!is_null($value->proposed_x_value) && $value->proposed_x_value && $value->state == 0) ? $value->proposed_x_value : '-'; ?></td>
+																							<?php }
+																							echo $valor;?>
 																							<td><?php echo (!is_null($value->proposed_expected) && $value->state == 0) ? '<b>' . $value->proposed_expected . '</b>' : '-'; ?></td>
 																							<td><?php echo (!is_null($value->proposed_target) && $value->state == 0) ? '<b>' . $value->proposed_target . '</b>' : '-'; ?></td>
 																						<?php }
 																						else{
+																							if ($metorg['metric']->x_name) { echo '<td>-</td>';}
+																							echo $valor;
 																							echo '<td>-</td>';
 																							echo '<td>-</td>';
 																						}?>

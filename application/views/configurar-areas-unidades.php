@@ -12,6 +12,10 @@
             padding-bottom: 20px;
             padding-top: 10px;
         }
+
+			.btn{
+				padding: 6px 8px;
+			}
         </style>
 
         <script type="text/javascript">

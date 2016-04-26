@@ -330,6 +330,15 @@
 <script type="text/javascript">
     $(function() { $('#serieColor').colorpicker(); });
 
+    $('#serieMetric').on('change', function () {
+        var metric = getMetricById(this.value);
+        var aggreg = $('.aggregation');
+        aggreg.show();
+        if (metric.x_name==""){
+            aggreg.hide();
+        }
+    });
+
     $('.no-search').chosen({"disable_search": true});
 
     $('#expand-collapse-graphics').on('click', function () {
@@ -429,6 +438,7 @@
         $('#serieOrg').change();
         $('#serieMetric option[value="' + metorg + '"]').prop('selected', true);
         $('#serieMetric').trigger('chosen:updated');
+        $('#serieMetric').change();
         $('#serieType option[value="' + type + '"]').prop('selected', true);
         $('#serieType').trigger('chosen:updated');
         $('#serieAggregationX option[value="' + aggregX + '"]').prop('selected', true);

@@ -154,12 +154,14 @@
                                     <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
                                     <td class="no-editable max-val-diff"></td>
                                     <td class="actions no-mutable">
-                                    <?php if (in_array($unidad->getId(), $editable)){ ?>
+                                    <?php if ($permits[$unidad->getId()]['value'] || $permits[$unidad->getId()]['meta']){ ?>
                                         <a class="on-editing save-row hidden" href="#"><i class="fa fa-save"></i></a>
                                         <a class="on-editing cancel-row hidden" href="#"><i class="fa fa-times"></i></a>
-                                        <a class="on-default edit-row hidden" href="#"><i class="fa fa-pencil"></i></a>
+                                        <a class="on-default edit-row" href="#"><i class="fa fa-pencil"></i></a>
                                     <?php  } ?>
+                                    <?php if ($permits[$unidad->getId()]['validateValue'] || $permits[$unidad->getId()]['validateMeta']){ ?>
                                         <a class="on-default validate-row hidden" href="#"><i class="fa fa-check"></i></a>
+                                    <?php  } ?>
                                     </td>
                                 </tr>
                             <?php
@@ -196,6 +198,7 @@
     var datos = valid_datos;
     var no_valid_datos = <?php echo json_encode($no_valid_data);?>;
     var editable = <?php echo json_encode($editable);?>;
+    var permits = <?php echo json_encode($permits);?>;
     //cargar años
     var years = <?php echo json_encode($years);?>;
     years.sort();
@@ -282,6 +285,9 @@
         item.children('td').each(function(){
             var $this = $( this );
             $this.removeClass('no_valid');
+            if($this.hasClass('actions')){
+                $this.find('.validate-row').addClass( 'hidden' );
+            }
             if($this.hasClass('no-mutable'))
                 return;
             else if($this.hasClass('org-id')){
@@ -298,29 +304,25 @@
         if (!validate_year('year'))
             return;
         var year = $('#year').val();
-        for(org in datos){
-            row = $('.treegrid-'+org);
+        for(var org in permits){
+            var row = $('.treegrid-'+org);
             restartRow(row);
             var dato;
             if(!datos[org] || !(year in datos[org]))
                 continue;
+            dato = datos[org][year];
+            var valDato = null;
+            if(!(valid_datos[org]===undefined || valid_datos[org][year]===undefined)){
+                valDato = valid_datos[org][year];
+            }
             $('.treegrid-'+org+' > td').each(function(){
                 var $this = $( this );
 
-                dato = datos[org][year];
-                var valDato = null;
-                if(!(valid_datos[org]===undefined || valid_datos[org][year]===undefined)){
-                    valDato = valid_datos[org][year];
-                }
-
                 if($this.hasClass('actions') && $this.html()!=""){
-                    var permits = dato.permit;
+                    var permit = permits[org];
                     (editable.indexOf(org)!=-1 ? $this.children(".edit-row").removeClass('hidden') : $this.children(".edit-row").addClass('hidden'));
 
-                    if (!permits.validate || datos!=no_valid_datos || dato.id == valDato.id){
-                        $this.children(".validate-row").addClass('hidden');
-                    }
-                    if (permits.validate && datos==no_valid_datos && dato.id != valDato.id){
+                    if (datos==no_valid_datos && (valDato===null || (permit.validateValue && dato.value != valDato.value) || (permit.validateMeta && (dato.target != valDato.target || dato.expected != valDato.expected)))){
                         $this.children(".validate-row").removeClass( 'hidden' );
                     }
                 }
@@ -408,6 +410,10 @@
     }
 
     function getRowClass(val, min, max){
+        val = isNaN(val) ? 0 : val;
+        min = isNaN(min) ? 0 : min;
+        max = isNaN(max) ? 0 : max;
+
         if(val > max)
             return "danger";
         else if(val >min)
@@ -581,7 +587,8 @@
             }
             $actions = $row.find('td.actions');
             if ( $actions.get(0) ) {
-                this.rowSetActionsDefault( $row );
+                $row.find( '.on-editing' ).addClass( 'hidden' );
+                $row.find( '.edit-row' ).removeClass( 'hidden' );
             }
             reloadTable();
         },
@@ -593,8 +600,7 @@
             data = this.datatable.row( $row.get(0) ).data();
             var org = data[1];
             var year = $('#year').val();
-            var value = datos[org][year];
-            var permits = (value===undefined ? {} : value.permit);
+            var permit = permits[org];
             $row.children( 'td' ).each(function( i ) {
                 var $this = $( this );
                 if ( $this.hasClass('actions') ) {
@@ -607,13 +613,13 @@
                 else if($this.hasClass('org-id')){
                     $this.html( '<input type="text" name="org" hidden class="form-control input-block" value="' + $this.html() + '"/>' );
                 }
-                else if($this.hasClass('current-val') && permits['value']){
+                else if($this.hasClass('current-val') && permit['value']){
                     $this.html( '<input type="text" name="val" class="form-control input-block" value="' + moneyToInt($this.html()) + '"/>' );
                 }
-                else if($this.hasClass('min-val') && permits['meta']){
+                else if($this.hasClass('min-val') && permit['meta']){
                     $this.html( '<input type="text" name="min" class="form-control input-block" value="' + moneyToInt($this.html()) + '"/>' );
                 }
-                else if($this.hasClass('max-val') && permits['meta']){
+                else if($this.hasClass('max-val') && permit['meta']){
                     $this.html( '<input type="text" name="max" class="form-control input-block" value="' + moneyToInt($this.html()) + '"/>' );
                 }
             });

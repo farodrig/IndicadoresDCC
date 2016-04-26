@@ -66,6 +66,7 @@
         var priorities = <?php echo json_encode($priorities); ?>;
         var users = <?php echo json_encode($users); ?>;
         var estados = <?php echo json_encode($status); ?>;
+        var permits = <?php echo json_encode($permits); ?>;
     </script>
 </head>
 <body>
@@ -192,14 +193,14 @@
                         </div>
                         <div class="row margin-top">
                             <div id ="itemData" class="col-md-5">
-                                <div id="itemSection" class="panel-body col-md-12" style="display: none;">
+                                <div id="itemSection" class="panel-body col-md-12">
                                     <div id="itemTable_wrapper" class="dataTables_wrapper no-footer">
                                         <div id="itemButtons" class="row" style="display: none;">
                                             <button id="addItem" data-toggle="modal" data-target="#editItemModal" data-id="-1" data-title="Añadir Item al FODA" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Item</button>
                                             <button id="expand-collapse-items" class="expanded pull-right" type="button">Expandir Todos</button>
                                         </div>
                                         <div class="row table-responsive">
-                                            <table id="itemTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
+                                            <table id="itemTable" style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
                                                 <thead>
                                                 <tr>
                                                     <th class="sorting_disabled"></th>
@@ -218,14 +219,14 @@
                                 </div>
                             </div>
                             <div id ="goalData" class="col-md-7">
-                                <div id="goalSection" class="panel-body col-md-12" style="display: none;">
+                                <div id="goalSection" class="panel-body col-md-12">
                                     <div id="goalTable_wrapper" class="dataTables_wrapper no-footer">
                                         <div id="goalButtons" class="row" style="display: none">
                                             <button id="addGoal" data-toggle="modal" data-target="#editGoalModal" data-id="-1" data-title="Añadir Objetivo" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Objetivo</button>
                                             <button id="expand-collapse-goals" class="expanded pull-right" type="button">Expandir Todos</button>
                                         </div>
-                                        <div class="row table-responsive">
-                                            <table id="goalTable" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
+                                        <div class="row table-responsive" >
+                                            <table id="goalTable"  style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
                                                 <thead>
                                                 <tr>
                                                     <th class="sorting_disabled"></th>
@@ -580,9 +581,11 @@
         language: "es",
     });
     $('.no-search').chosen({"disable_search": true});
-    $('#strategyDeadline').datepicker().on('show.bs.modal', function(event) {
+    $('.datepicker').datepicker().on('show.bs.modal', function(event) {
         event.stopPropagation();
     });
+
+
 
     $('#editFodaModal').on('show.bs.modal', function (e) {
         year = $('#year').val();
@@ -637,6 +640,7 @@
         org = $('#org').val();
         if (strategies[org] === undefined || strategies[org][year] === undefined){
             $('#strategyDeadline').datepicker('update', new Date());
+            return;
         }
         deadline = strategies[org][year].strategy.deadline.split('-');
         $('#strategyDeadline').datepicker('update', new Date(deadline[2], deadline[1] - 1, deadline[0]));
@@ -801,10 +805,10 @@
     }
 
     function getItemById(id){
-        if (typeof items == "undefined")
-            return "";
         var year = $('#year').val();
         var org = $('#org').val();
+        if (items === undefined || items[org] === undefined || items[org][year] === undefined)
+            return "";
         for(var i in items[org][year]){
             if (items[org][year][i].id==id)
                 return items[org][year][i];
@@ -973,7 +977,7 @@
             $('#foda_valid').addClass('validated');
         }
         else{
-            if (fodas[org][year].validate)
+            if (permits[org].validate)
                 $('#validateFoda').show();
             $('#foda_valid').html('(No validado)');
             $('#foda_valid').addClass('no-validated');
@@ -995,7 +999,7 @@
             cells += '<td class="itemType">' + types[items[org][year][i].type-1].name + '</td>';
             cells += '<td class="itemPriority">' + priorities[items[org][year][i].priority-1].name + '</td>';
             cells += '<td class="actions">';
-            if(fodas[org][year].edit) {
+            if(permits[org].edit) {
                 cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Item del FODA" data-target="#editItemModal" data-id="' + items[org][year][i].id + '"><i class="fa fa-pencil"></i></a>' +
                     '<a class="btn icons" onclick="deleteElement(\'item\', ' + items[org][year][i].id + ')"><i class="fa fa-trash-o"></i></a>';
             }
@@ -1040,7 +1044,7 @@
             $('#strategy_valid').addClass('validated');
         }
         else{
-            if (strategies[org][year].strategy.validate)
+            if (permits[org].validate)
                 $('#validateStrategy').show();
             $('#strategy_valid').html('(No validado)');
             $('#strategy_valid').addClass('no-validated');
@@ -1076,7 +1080,7 @@
             }
             else{
                 var valText = '<p class="no-validated">(No Validado)</p>';
-                if (strategies[org][year].strategy.validate)
+                if (permits[org].validate)
                     validate = '<a class="btn icons" onclick="validateElement(\'goal\', ' + i + ')" data-toggle="tooltip" title="Validar Objetivo"><i class="fa fa-check"></i></a>';
             }
             cells += '<td class="goalTitle">' + goals[org][year][i].title + valText + '</td>';
@@ -1085,7 +1089,7 @@
             cells += '<td class="goalState">' + goals[org][year][i].status + '</td>';
 
             cells += '<td class="actions">';
-            if (strategies[org][year].strategy.edit) {
+            if (permits[org].edit) {
                 cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Objetivo" data-target="#editGoalModal" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
                     '<a class="btn icons" onclick="deleteElement(\'goal\', ' + i + ')"><i class="fa fa-trash-o"></i></a>' +
                     '<a class="btn icons" data-toggle="modal" data-title="Añadir Acción" data-target="#editActionModal" data-goal="' + i + '" data-id="-1"><i class="fa fa-plus"></i></a>';
@@ -1139,7 +1143,7 @@
             cells += '<td class="actionUser">' + users[action.userInCharge].name + '</td>';
             cells += '<td class="actionState">' + action.status + '</td>';
             cells += '<td class="actions">';
-            if(strategies[org][year].strategy.edit) {
+            if(permits[org].edit) {
                 cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Acción" data-target="#editActionModal" data-goal="' + action.goal + '" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
                     '<a class="btn icons" onclick="deleteElement(\'action\', ' + i + ')"><i class="fa fa-trash-o"></i></a></td>';
             }
@@ -1168,6 +1172,10 @@
         $('#strategy_status').html('');
         $('#strategy_collaborators').html('');
         $('#goalTableContent').html("");
+        $('#goalButtons').hide();
+        $('#goalSection').hide();
+        $('#addGoal').hide();
+        $('#goalTable').hide();
     }
 
     function cleanFoda() {
@@ -1177,6 +1185,10 @@
         $('a.editFoda').addClass('hidden');
         $('#foda_valid').html('');
         $('#itemTableContent').html("");
+        $('#itemButtons').hide();
+        $('#itemSection').hide();
+        $('#itemTable').hide();
+        $('#addItem').hide();
     }
 
     function showHideItemDetails(element){
@@ -1189,7 +1201,7 @@
         } else {
             $this.removeClass( 'fa-plus-square-o' ).addClass( 'fa-minus-square-o');
             item = getItemById(row.attr('id').substring(4));
-            html = '<tr class="details"><td colspan="4"><label>Descripción: </label><p class="itemDescription">' + item.description + '</p></td>'
+            html = '<tr class="details"><td colspan="4"><label>Descripción: </label><p class="itemDescription">' + item.description + '</p></td>';
             html += '<td colspan="2"><label>Objetivos: </label><p class="itemGoals">';
             if (item.goals.length==0){
                 html += 'No hay Objetivos Estratégicos asociados.'
@@ -1296,42 +1308,37 @@
         var org = $("#org").val();
         cleanStrategy();
         cleanFoda();
-        $('#itemButtons').hide();
-        $('#itemSection').hide();
-        $('#goalButtons').hide();
-        $('#goalSection').hide();
-        $('#addItem').hide();
-        $('#addGoal').hide();
+
         if (!validate_year('year') || parseInt(org)<0 || isNaN(parseInt(org))) {
             return;
         }
-        if(!(fodas[org] === undefined || fodas[org][this.value] === undefined) && fodas[org][this.value].edit) {
+        if(permits[org].edit) {
             $('a.editFoda').removeClass('hidden');
-        }
-        if(!(strategies[org] === undefined || strategies[org][this.value] === undefined) && strategies[org][this.value].strategy.edit) {
             $('a.editStrategy').removeClass('hidden');
         }
         $('input[name=year]').val(this.value);
         $('input[name=org]').val(org);
         if(!(fodas[org] === undefined || fodas[org][this.value] === undefined)) {
             loadFoda();
+            $('#itemSection').show();
             $('#itemButtons').show();
-            if(fodas[org][this.value].edit){
+            if(permits[org].edit){
                 $('#addItem').show();
             }
         }
         if(!(strategies[org] === undefined || strategies[org][this.value] === undefined)) {
             loadStrategy();
+            $('#goalSection').show();
             $('#goalButtons').show();
-            if(strategies[org][this.value].strategy.edit){
+            if(permits[org].edit){
                 $('#addGoal').show();
             }
         }
         if (!(items[org]===undefined || items[org][this.value]===undefined)){
-            $('#itemSection').show();
+            $('#itemTable').show();
         }
         if (!(goals[org] === undefined || goals[org][this.value]===undefined)){
-            $('#goalSection').show();
+            $('#goalTable').show();
         }
     });
 

@@ -429,7 +429,6 @@ class Dashboard_model extends CI_Model
         $value->state = -1;
         $value->updater = $user;
         $value->dateup = date('Y-m-d H:i:s');
-        $value->modified = 1;
         unset($value->id, $value->validator, $value->dateval);
         return $this->db->insert($this->value, $value);
     }
@@ -486,7 +485,6 @@ class Dashboard_model extends CI_Model
             $data['target'] = $row->target;
             $data['expected'] = $row->expected;
             $data['state'] = 0;
-            $data['modified'] = 1;
             if (!is_null($valueY) && $row->value != $valueY)
                 $data['proposed_value'] = $valueY;
             if (!is_null($target) && $row->target != $target)
@@ -549,7 +547,6 @@ class Dashboard_model extends CI_Model
                 $data['target'] = $value->target;
                 $data['expected'] = $value->expected;
                 $data['state'] = 0;
-                $data['modified'] = 1;
                 $result = $result && (($this->db->insert($this->value, $data)) ? true : false);
             }
         }
@@ -562,7 +559,7 @@ class Dashboard_model extends CI_Model
         $query = $this->db->get_where('Value', array('id' => $id));
         $value = $query->row();
 
-        $old_x = $value->x_value;
+        $old_x = (is_null($value->x_value) ? $value->proposed_x_value : $value->x_value);
         if ($value->state == -1) {
             $values = getGeneric($this, $this->value, ['metorg'=>[$value->metorg], 'year'=>[$value->year], 'x_value'=>[$value->x_value], 'id !='=>[$value->id], 'order'=>[['state', "ASC"]]]);
             $done = $this->deleteData($value->id, $validVal, $validMet);
@@ -574,9 +571,15 @@ class Dashboard_model extends CI_Model
         $value2 = clone $value;
         $data = array(
             'state' => 1,
-            'validator' => $this->session->userdata('rut'),
-            'modified' => 0
+            'validator' => $this->session->userdata('rut')
         );
+        $this->load->model('Metorg_model');
+        $metorg = $this->Metorg_model->getMetOrgDataByValue($value->id);
+        if ($metorg->x_name==""){
+            $data['x_value'] = "";
+            $data['proposed_x_value'] = null;
+            $value2->proposed_x_value = null;
+        }
         if ($validVal && !is_null($value->proposed_value)) {
             $data['value'] = $value->proposed_value;
             $data['proposed_value'] = null;
@@ -592,11 +595,13 @@ class Dashboard_model extends CI_Model
             $data['proposed_expected'] = null;
             $value2->proposed_expected = null;
         }
-        if ($validVal && !is_null($value->proposed_x_value)) {
+        if ($validMet && !is_null($value->proposed_x_value)) {
             $data['x_value'] = $value->proposed_x_value;
             $data['proposed_x_value'] = null;
             $value2->proposed_x_value = null;
         }
+        if((!array_key_exists('x_value', $data) || is_null($data['x_value'])) && (!array_key_exists('value', $data) || is_null($data['value'])) && (!array_key_exists('expected', $data) || is_null($data['expected'])) && (!array_key_exists('target', $data) || is_null($data['target'])))
+            return false;
         if(!is_null($value2->proposed_value) || !is_null($value2->proposed_target) || !is_null($value2->proposed_expected) || !is_null($value2->proposed_x_value)){
             $data2 = array(
                 'metorg' => $value->metorg,
@@ -608,7 +613,6 @@ class Dashboard_model extends CI_Model
                 'target' => $value->target,
                 'expected' => $value->expected,
                 'state' => 0,
-                'modified' => 1,
                 'proposed_value' => $value2->proposed_value,
                 'proposed_target' => $value2->proposed_target,
                 'proposed_expected' => $value2->proposed_expected,
@@ -627,7 +631,7 @@ class Dashboard_model extends CI_Model
         $id = $this->_overrideData($value->metorg, $value->year, $old_x);
         $query = $this->db->get_where($this->value, array('id' => $id));
         $value = $query->row();
-        $values = $this->getValue(array('metorg' => [$value->metorg], 'year' => [$value->year], 'x_value' => [$old_x], 'id !=' => [$id]));
+        $values = $this->getValue(array('metorg' => [$value->metorg], 'year' => [$value->year], 'x_value' => [$old_x, null], 'id !=' => [$id]));
         $this->updateValuesWith($values, array('value' => $value->value, 'expected' => $value->expected, 'target' => $value->target, 'x_value' => $value->x_value), 1);
         return $q;
     }
@@ -658,7 +662,7 @@ class Dashboard_model extends CI_Model
     function getAllNonValidatedData($orgs, $type)
     {
         $orgs = (is_null($orgs)) ? [] : $orgs;
-        $this->db->select('Value.id as data_id, Value.metorg, Value.state AS s, Value.value, Value.x_value, Value.target, Value.expected, Value.proposed_value as p_v, Value.proposed_target as p_t, Value.proposed_expected as p_e, Value.proposed_x_value as p_x, Value.modified, Value.year');
+        $this->db->select('Value.id as data_id, Value.metorg, Value.state AS s, Value.value, Value.x_value, Value.target, Value.expected, Value.proposed_value as p_v, Value.proposed_target as p_t, Value.proposed_expected as p_e, Value.proposed_x_value as p_x, Value.year');
         $this->db->select('User.name, Organization.name as org_name, Metric.y_name, Metric.x_name, Y.name as type_y, X.name as type_x, Category.name as category');
         $this->db->from('Value');
         $this->db->join('User', 'User.id = Value.updater');

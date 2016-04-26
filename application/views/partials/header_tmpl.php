@@ -23,20 +23,10 @@
                         </a>
                         <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
                     </li>
-                    <li>
-                        <label>Validar Métricas</label>
-                        <a href="<?php echo base_url();?>validar" class="notification-icon">
-                            <i class="fa fa-check-circle" style="color:green"></i>
-                            <?php
-                            if($validate)
-                              echo('<span class="badge">!</span>');
-                            ?>
-                		</a>
-                	</li>
                 </ul>
         <?php
             }
-            else if($validator){ ?>
+            if($validator){ ?>
                 <ul class="notifications">
                     <li>
                         <label>Validar Métricas</label>

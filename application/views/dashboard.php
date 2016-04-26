@@ -168,8 +168,6 @@
     function loadGraphic(graphic) {
         var data = createGraphicData(graphic.series, graphic.y_unit);
         var options = getGraphicOptions('', graphic.x_name, graphic.x_values, graphic.y_name, graphic.y_unit, data);
-        console.log(options);
-        console.log(data);
         $('#graphic' + graphic.id).highcharts(options);
     }
 
@@ -194,9 +192,9 @@
                     cells += '<td class="text-center"><i class="fa fa-square-o fa-lg" aria-hidden="true" style="background: ' + graphSerie.color + ';"></i></td>';
                 }
                 cells += '<td>' + value.x + '</td>';
-                cells += '<td>' + value.value + '</td>';
-                cells += '<td>' + value.expected + '</td>';
-                cells += '<td>' + value.target + '</td>';
+                cells += '<td>' + (value.value === null ? "" : value.value) + '</td>';
+                cells += '<td>' + (value.expected === null ? "" : value.expected) + '</td>';
+                cells += '<td>' + (value.target === null ? "" : value.target) + '</td>';
                 html += cells + "</tr>";
             }
         }

@@ -23,11 +23,12 @@ class Budget extends CI_Controller {
         $result =  array('title'  => 'Presupuesto',
             'editable'    => array_unique(array_merge($permits['valorF']['edit'], $permits['metaF']['edit'])),
             'years'       => $years,
+            'permits'     => $data[4],
             'orgs'        => $aux_org,
             'valid_data'  => $valid_data,
             'no_valid_data'  => $no_valid_data,
             'valAll'      => count(array_diff($aux_org, array_unique(array_merge($permits['valorF']['validate'], $permits['metaF']['validate']))))==0,
-            'departments' => $this->Organization_model->getTree(-1)//Notar que funcion esta en helpers
+            'departments' => $this->Organization_model->getTree($aux_org)//Notar que funcion esta en helpers
         );
         $this->load->view('budget', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
     }
@@ -112,8 +113,8 @@ class Budget extends CI_Controller {
 
             }
             else{
-                $oldVal->value = (is_null($oldVal->p_v) ? $oldVal->value : $oldVal->p_v);
-                $parentVal->value = (is_null($parentVal->p_v) ? $parentVal->value : $parentVal->p_v);
+                $oldVal->value = (!property_exists($oldVal, 'p_v') || is_null($oldVal->p_v) ? $oldVal->value : $oldVal->p_v);
+                $parentVal->value = (!property_exists($parentVal, 'p_v') || is_null($parentVal->p_v) ? $parentVal->value : $parentVal->p_v);
                 $currentVal->value = (is_null($currentVal->p_v) ? $currentVal->value : $currentVal->p_v);
             }
             
@@ -132,10 +133,10 @@ class Budget extends CI_Controller {
                 }
             }
             else{
-                $oldVal->expected = (is_null($oldVal->p_e) ? $oldVal->expected : $oldVal->p_e);
-                $oldVal->target = (is_null($oldVal->p_t) ? $oldVal->target : $oldVal->p_t);
-                $parentVal->expected = (is_null($parentVal->p_e) ? $parentVal->expected : $parentVal->p_e);
-                $parentVal->target = (is_null($parentVal->p_t) ? $parentVal->target : $parentVal->p_t);
+                $oldVal->expected = (!property_exists($oldVal, 'p_e') || is_null($oldVal->p_e) ? $oldVal->expected : $oldVal->p_e);
+                $oldVal->target = (!property_exists($oldVal, 'p_t') || is_null($oldVal->p_t) ? $oldVal->target : $oldVal->p_t);
+                $parentVal->expected = (!property_exists($parentVal, 'p_e') || is_null($parentVal->p_e) ? $parentVal->expected : $parentVal->p_e);
+                $parentVal->target = (!property_exists($parentVal, 'p_t') || is_null($parentVal->p_t) ? $parentVal->target : $parentVal->p_t);
                 $currentVal->expected = (is_null($currentVal->p_e) ? $currentVal->expected : $currentVal->p_e);
                 $currentVal->target = (is_null($currentVal->p_t) ? $currentVal->target : $currentVal->p_t);
             }
@@ -178,7 +179,7 @@ class Budget extends CI_Controller {
         $year =  $this->input->post("year");
         $permits = $this->session->userdata();
         //Validación de Permisos
-        if (!in_array($org, $permits['valorF']['validate']) && !in_array($org, $permits['metaF']['validate']) ) {
+        if ($org!=-1 && !in_array($org, $permits['valorF']['validate']) && !in_array($org, $permits['metaF']['validate']) ) {
             echo json_encode(array('success'=>0));
             return;
         }
@@ -187,7 +188,13 @@ class Budget extends CI_Controller {
         $data = $this->budgetData($permits);
         $done = true;
         if($org==-1) {
+            $first = true;
             foreach ($data[2] as $org_id => $dataByYear) {
+                if ($first) {
+                    $valValue = in_array($org_id, $permits['valorF']['validate']);
+                    $valMeta = in_array($org_id, $permits['metaF']['validate']);
+                    $first = false;
+                }
                 if (array_key_exists($year, $dataByYear)) {
                     $value = $dataByYear[$year];
                     if ($value->state != 0)
@@ -234,18 +241,18 @@ class Budget extends CI_Controller {
         $valid_data = [];
         $no_valid_data = [];
         $years = [];
-        $validate = array_unique(array_merge($permits['valorF']['validate'], $permits['metaF']['validate']));
+        $permit = [];
         foreach($orgs as $org){
-            $permit['validate'] = in_array($org->getId(), $validate);
-            $permit['value'] = in_array($org->getId(), $permits['valorF']['edit']);
-            $permit['meta'] = in_array($org->getId(), $permits['metaF']['edit']);
+            $permit[$org->getId()]['validateValue'] = in_array($org->getId(), $permits['valorF']['validate']);
+            $permit[$org->getId()]['validateMeta'] = in_array($org->getId(), $permits['metaF']['validate']);
+            $permit[$org->getId()]['value'] = in_array($org->getId(), $permits['valorF']['edit']);
+            $permit[$org->getId()]['meta'] = in_array($org->getId(), $permits['metaF']['edit']);
             $org_ids[] = $org->getId();
             $datos = $this->Dashboard_model->getBudgetMeasures($org->getId());
             if(!$datos)
                 continue;
             foreach ($datos as $dato){
                 $years[] = $dato->year;
-                $dato->permit = $permit;
                 if($dato->state==0){
                     $dato->value = is_null($dato->p_v) ? $dato->value : $dato->p_v;
                     $dato->expected = is_null($dato->p_e) ? $dato->expected : $dato->p_e;
@@ -259,6 +266,6 @@ class Budget extends CI_Controller {
                 }
             }
         }
-        return [$org_ids, $valid_data, $no_valid_data, array_values(array_unique($years))];
+        return [$org_ids, $valid_data, $no_valid_data, array_values(array_unique($years)), $permit];
     }
 }

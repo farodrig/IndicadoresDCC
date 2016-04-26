@@ -20,6 +20,11 @@ class FodaStrategy extends CI_Controller {
         if (!count($orgs)) {
             redirect('inicio');
         }
+        $permit = [];
+        foreach ($orgs as $org){
+            $permit[$org]['edit'] = in_array($org, $permits['foda']['edit']);
+            $permit[$org]['validate'] = in_array($org, $permits['foda']['validate']);
+        }
 
         $fData = $this->getAllFodaData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']);
         $years = $fData['years'];
@@ -27,6 +32,7 @@ class FodaStrategy extends CI_Controller {
         $sData = $this->getAllStrategyData($permits['foda']['view'], $permits['foda']['edit'], $permits['foda']['validate']);
         $years = array_merge($years, $sData['years']);
         $result = array('title'     => 'Visualización de FODAs',
+            'permits'     => $permit,
             'strategies'  => $sData['strategies'],
             'goals'       => $sData['goals'],
             'actions'     => $sData['actions'],
@@ -150,6 +156,7 @@ class FodaStrategy extends CI_Controller {
             $done = $done && ($item ? true : false);
         }
 
+        $data = [];
         if(!$validated && $foda->validated){
             $data['id'] = $foda->id;
             $data['validated'] = $validated;
@@ -320,6 +327,7 @@ class FodaStrategy extends CI_Controller {
             $done = $done && ($goal ? true : false);
         }
 
+        $data = [];
         if(!$validated && $strategic->validated){
             $data['id'] = $strategic->id;
             $data['validated'] = $validated;
@@ -398,11 +406,12 @@ class FodaStrategy extends CI_Controller {
         }
 
         $goal = $this->Strategy_model->getGoal(['id' => [$data['goal']]])[0];
+        $data = [];
         if(!$validated && $goal->validated){
             $data['id'] = $goal->id;
             $data['validated'] = $validated;
             $done = $done && $this->Strategy_model->modifyGoal($data);
-            $strategic = $this->Strategy_model->getStrategicPlan($data);
+            $strategic = $this->Strategy_model->getStrategicPlan(array('id'=>[$goal->strategy]))[0];
             if($strategic->validated){
                 $data['id'] = $strategic->id;
                 $data['validated'] = $validated;
@@ -537,16 +546,12 @@ class FodaStrategy extends CI_Controller {
         foreach ($aux_stra as $strategy){
             if(!in_array($strategy->year, $years))
                 $years[] = $strategy->year;
-            $strategy->view = in_array($strategy->org, $view);
-            $strategy->edit = in_array($strategy->org, $edit);
-            $strategy->validate = in_array($strategy->org, $validate);
             $strategy->status = $status[$strategy->status];
             $strategy->deadline = date("d-m-Y", strtotime($strategy->deadline));
             $collaborators = $this->Strategy_model->getAllCollaborators($strategy->id);
             $strategies[$strategy->org][$strategy->year]['collaborators'] = [];
             foreach ($collaborators as $collaborator){
                 $strategies[$strategy->org][$strategy->year]['collaborators'][$collaborator->user]['name'] = $users[$collaborator->user]->name;
-                $strategies[$strategy->org][$strategy->year]['collaborators'][$collaborator->user]['description'] = $collaborator->description;
             }
             $strategies[$strategy->org][$strategy->year]['strategy'] = $strategy;
             $aux_goals = $this->Strategy_model->getGoal(array('strategy'=>[$strategy->id]));
@@ -582,9 +587,6 @@ class FodaStrategy extends CI_Controller {
                 $index = $foda->org;
                 $fodasByOrg[$index] = array();
             }
-            $foda->view = in_array($foda->org, $view);
-            $foda->edit = in_array($foda->org, $edit);
-            $foda->validate = in_array($foda->org, $validate);
             $data = array('foda' => [$foda->id], 'order'=>[['type', 'ASC'], ['priority', 'ASC']]);
             $items[$foda->org][$foda->year] = $this->Foda_model->getItem($data);
             foreach ($items[$foda->org][$foda->year] as $aux_item){

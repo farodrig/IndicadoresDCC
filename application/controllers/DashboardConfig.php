@@ -96,8 +96,6 @@ class DashboardConfig extends CI_Controller {
 	}
 
 	function modifySerie(){
-		debug($_POST);
-		return;
         //Revisión de permisos
         if (!$this->input->is_ajax_request() || !$this->access) {
             echo json_encode(array('success'=>0));

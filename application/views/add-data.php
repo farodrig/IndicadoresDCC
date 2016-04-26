@@ -111,7 +111,7 @@
                                 <input type="hidden" name="org" value="<?php echo ($org);?>">
                                 <?php
                                 foreach ($metrics as $metric) { ?>
-                                    <section class="toggle active" >
+                                    <section class="toggle active" id="section<?php echo ($metric->metorg);?>">
                                         <label class="text-left"><?php echo (ucwords($metric->name));?></label >
                                         <div id="content<?php echo ($metric->metorg);?>" class="toggle-content" style = "display: block;" >
                                             <div class="table-responsive">
@@ -221,6 +221,9 @@
         var tdX = "";
         var tdV = "";
         var tdM = "";
+        valueY = (valueY===null ? "" : valueY);
+        target = (target===null ? "" : target);
+        expected = (expected===null ? "" : expected);
         if(eliminable) {
             delButton = '<a class="btn cancel-row row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a>';
             del = 'hidden';
@@ -259,7 +262,9 @@
         for(var i in metrics) {
             var metorg = metrics[i].metorg;
             var table = $('#tableContent' + metorg);
+            var section = $('#section' + metorg);
             table.html("");
+            section.show();
             var sensitive = false;
             var edit = false;
             if((metrics[i].category==1 && editMetaP) || (metrics[i].category==2 && editMetaF))
@@ -277,6 +282,7 @@
                 }
             }
             if (cont==0 && edit){
+                (!sensitive ? section.hide() : false);
                 var row = rowWithData(metorg, "", "", "", "", "", metrics[i].x_name, false, edit, sensitive);
                 table.append(row);
             }
@@ -300,10 +306,6 @@
                             $this.trigger('chosen:updated');
                         }
                     });
-                });
-                $this.on('chosen:open', function(e) {
-                    console.log("abrip");
-                    table.css('overflow-y', 'auto');
                 });
                 $this.trigger('chosen:updated');
             });

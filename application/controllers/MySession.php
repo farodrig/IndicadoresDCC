@@ -25,6 +25,7 @@ class MySession extends CI_Controller {
 			redirect('inicio');
 		}
 		$users = $this->User_model->getAllUsers();
+		$result['users'] = [];
 		foreach($users as $user){
 			$result['users'][$user->id] = $user->name;
 		}
@@ -79,7 +80,6 @@ class MySession extends CI_Controller {
 		if ($au['area']->getType() == $type['id']) {
 			array_push($areaunit, $au);
 		}
-
 		$result = array('department' => $department,
 			'areaunit'                  => $areaunit,
 			'types'                     => $this->Organization_model->getTypes(),
@@ -132,6 +132,7 @@ class MySession extends CI_Controller {
 		foreach ($orgs as $org){
 			$data[$org]['org'] = $this->Organization_model->getByID($org);
 			$metrics = $this->Dashboard_model->getAllMetrics($org, $category, 1);
+            $metrics = (!$metrics) ? [] : $metrics;
 			foreach ($metrics as $metric){
                 $perm['valor'] = ($metric->category==1 ? in_array($org, $permits['foda']['validate']) : in_array($org, $permits['valorF']['validate']));
                 $perm['meta'] = ($metric->category==1 ? in_array($org, $permits['metaP']['validate']) : in_array($org, $permits['metaF']['validate']));
@@ -143,14 +144,14 @@ class MySession extends CI_Controller {
                     $value = $values[$i];
                     //quitar el valor si este se eliminara y no se tiene permiso para validar la eliminacion
                     //o si el elemento se modificara y no se tienen los permisos para el valor
-                    if (($value->state==-1 && !$perm['meta']) || ($value->state==0 && ((!$value->proposed_x_value && !$value->proposed_value && $perm['valor'] && !$perm['meta']) || (!$value->proposed_expected && !$value->proposed_target && !$perm['valor'] && $perm['meta'])))){
+                    if (($value->state==-1 && !$perm['meta']) || ($value->state==0 && ((!$value->proposed_value && $perm['valor'] && !$perm['meta']) || (!$value->proposed_expected && !$value->proposed_target && !$value->proposed_x_value && !$perm['valor'] && $perm['meta'])))){
                         unset($data[$org]['metorg'][$metric->metorg]['values'][$i]);
                     }
                 }
                 if (!count($data[$org]['metorg'][$metric->metorg]['values']))
 					unset($data[$org]['metorg'][$metric->metorg]);
 			}
-			if (!count($data[$org]['metorg']))
+			if (!key_exists('metorg', $data[$org]) || !count($data[$org]['metorg']))
 				unset($data[$org]);
 		}
 		$users = [];
