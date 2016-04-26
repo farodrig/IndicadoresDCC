@@ -261,7 +261,7 @@
 		   if (success==0){
 			   new PNotify({
 					title: 'Error!',
-					text: 'Ha ocurrido un error, intentelo nuevamente.',
+					text: 'Ha ocurrido un error, intentelo nuevamente.<br>Si el problema persiste comuníquese con el encargado.',
 					type: 'error'
 				});
 		   }
