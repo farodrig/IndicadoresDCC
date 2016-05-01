@@ -11,7 +11,7 @@ class MySession extends CI_Controller {
 	public function index() {
 		$result          = array();
 		$result['error'] = $this->session->flashdata('error');
-		//Comentar Desde Aqui
+		/* Descomentar Desde Aqui
 		$this->load->model('User_model');
 		if ($this->input->method() == "post" && $this->input->post('user')) {
 			$user = $this->User_model->getUserById($this->input->post('user'));
@@ -29,7 +29,7 @@ class MySession extends CI_Controller {
 		foreach($users as $user){
 			$result['users'][$user->id] = $user->name;
 		}
-		//Hasta Aqui para Pasar a PRODUCCION
+		//Hasta Aqui para Pasar a DESARROLLO */
 		$this->load->view('login', $result);
 	}
 
@@ -193,7 +193,7 @@ class MySession extends CI_Controller {
         $this->load->model('Dashboard_model');
         $this->load->model('Metorg_model');
         $this->load->library('form_validation');
-		
+
 		$success = true;
 		foreach ($data as $data_id) {
 			if(!$this->Dashboard_model->checkIfValidate($data_id))
@@ -248,7 +248,7 @@ class MySession extends CI_Controller {
 		if ((count($permits['conf']['edit']) + count($permits['conf']['view'])) <= 0) {
 			redirect('inicio');
 		}
-		
+
 		//carga de elementos
 		$this->load->library('form_validation');
 
@@ -314,7 +314,7 @@ class MySession extends CI_Controller {
 		if ((count($permits['conf']['edit']) + count($permits['conf']['view'])) <= 0) {
 			redirect('inicio');
 		}
-		
+
 		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
 		$this->load->library('form_validation');
