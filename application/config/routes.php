@@ -55,7 +55,7 @@ $route['inicio']           = 'MySession/inicio';
 $route['validar']          = 'MySession/validar';
 $route['configurar']       = 'MySession/menuConfigurar';
 $route['cmetrica']         = 'MySession/configurarMetricas';
-$route['contacto']         = 'MySession/contact';
+$route['contacto']         = 'SendEmail/contact';
 $route['salir']            = 'MySession/logout';
 
 $route['dashboard']        = 'Dashboard/showDashboard';

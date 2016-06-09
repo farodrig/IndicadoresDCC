@@ -38,26 +38,6 @@ class MySession extends CI_Controller {
 		redirect('');
 	}
 
-	public function contact() {
-		$work = true;
-		if ($this->input->method() == "post") {
-			$this->load->library('email');
-
-			$this->email->from($this->input->post('email'), $this->input->post('name'));
-			$this->email->to('NoMandaMail@gmail.com');
-
-			$this->email->subject($this->input->post('topic'));
-			$this->email->message($this->input->post('message'));
-
-			if (!$this->email->send()) {
-				$work = false;
-			} else {
-				redirect('inicio');
-			}
-		}
-		$this->load->view('contact', array('work' => $work));
-	}
-
 	public function inicio() {
 		$user = $this->session->rut;
 		if (is_null($user))
