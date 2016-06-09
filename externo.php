@@ -31,6 +31,4 @@ $_SESSION = array('rut' => $_POST['rut'].'-'.$_POST['dv'],
                   'valido' => TRUE,
 );
 
-$paths = explode("/", $_SERVER['REQUEST_URI']);
-
-exit( 'http://'.$_SERVER['SERVER_NAME'].'/'.$paths[1].'/verif_usuario?'.session_name().'='.session_id() );
+exit( 'http://'.$_SERVER['SERVER_NAME'].'/verif_usuario?'.session_name().'='.session_id() );

@@ -464,8 +464,6 @@
                 if(value && value.x_value != this.value && x_aux.indexOf(this.value) != -1){
                     alert("El valor de X ya se encuentra en algún otro año. Añada un nuevo elemento y elimine este para obtener el mismo resultado.");
                     result = false;
-                    $this.val( value.x_value);
-                    $this.trigger('chosen:updated');
                     return false;
                 }
                 else if(!value && newX.indexOf(this.value) != -1){
