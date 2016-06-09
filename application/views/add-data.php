@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html class="fixed sidebar-left-collapsed">
 <head>
     <?php
@@ -335,7 +335,7 @@
                 var $this = $(this);
                 $this.chosen();
                 $this.on('chosen:no_results', function(e) {
-                    var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-/\ ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-/\ ]*$");
+                    var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-\/\* ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-\/\* ]*$");
                     $this.next().find(".chosen-search > input:nth-child(1)").keyup(function (event) {
                         if (event.which !== 13 || event.keyCode !== 13) {
                             return;
@@ -380,7 +380,7 @@
             var $this = $(this);
             $this.chosen();
             $this.on('chosen:no_results', function(e) {
-                var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*$");
+                var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-\/\* ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-\/\* ]*$");
                 $this.next().find(".chosen-search > input:nth-child(1)").keyup(function (event) {
                     if (event.which !== 13 || event.keyCode !== 13) {
                         return;
@@ -412,7 +412,7 @@
 
     function validateX(elem) {
         var value = elem.value;
-        var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9 ]*$");
+        var re = new RegExp("^[A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-\/\* ]*[A-Za-zñáéíóúÁÉÍÓÚÑü][A-Za-zñáéíóúÁÉÍÓÚÑü0-9()-\/\* ]*$");
         return changeOnValidation(elem, (value.match(re)));
     }
 
