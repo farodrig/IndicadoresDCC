@@ -13,25 +13,30 @@ class Dashboard extends CI_Controller {
 			redirect('salir');
 	}
 
-    //Función que genera un arreglo de dos arreglos. El primero contiene todas las mediciones
-    //que se reciben en el argumento $m. Y el segundo contiene todos los años que presentan mediciones
-    function _parseMeasurements($measures) {
-        $result = array();
-        if($measures) {
-            foreach ($measures as $measure) {
-                $data['id'] = $measure->getIdMeasurement();
-                $data['metorg'] = $measure->getMetOrg();
-                $data['valueY'] = $measure->getValueY();
-                $data['valueX'] = $measure->getValueX();
-                $data['target'] = $measure->getTarget();
-                $data['expected'] = $measure->getExpected();
-                $data['year'] = $measure->getYear();
-
-                $result[$data['metorg']][$data['year']][] = $data;
-            }
-        }
-        return $result;
-    }
+	private function separeteValidData($datos){
+		$valid_data = [];
+		$no_valid_data = [];
+		if (!$datos)
+			return [[],[]];
+		foreach ($datos as $dato){
+			if (is_null($dato->x_value))
+				$dato->x_value = $dato->p_x;
+			if($dato->state==0){
+				$dato->value = is_null($dato->p_v) ? $dato->value : $dato->p_v;
+				$dato->expected = is_null($dato->p_e) ? $dato->expected : $dato->p_e;
+				$dato->target = is_null($dato->p_t) ? $dato->target : $dato->p_t;
+				$x_val = $dato->x_value;
+				$dato->x_value = is_null($dato->p_x) ? $dato->x_value : $dato->p_x;
+				$no_valid_data[$dato->metorg][$dato->year][$x_val] = (array) $dato;
+			}
+			elseif ($dato->state == 1){
+				$valid_data[$dato->metorg][$dato->year][$dato->x_value] = (array) $dato;
+				if(!array_key_exists($dato->metorg, $no_valid_data) || !array_key_exists($dato->year, $no_valid_data[$dato->metorg]) || !array_key_exists($dato->x_value, $no_valid_data[$dato->metorg][$dato->year]))
+					$no_valid_data[$dato->metorg][$dato->year][$dato->x_value] = (array) $dato;
+			}
+		}
+		return [$valid_data, $no_valid_data];
+	}
 
     // funcion que lista todas las metricas y las deja como objeto cada una por lo tanto se puede recorrer el arreglo
     // y llamar a cada valor del arreglo como liberia ejemplo mas abajo
@@ -62,13 +67,14 @@ class Dashboard extends CI_Controller {
 			$metric->x_values = $this->Dashboard_model->getAllXValuesByMetorg($metric->metorg);
             $metrics[$metric->metorg] = $metric;
 		}
-		$all_measurements = $this->Dashboard_model->getAllMeasurements($org, $cat);
+		$all_measurements = $this->separeteValidData($this->Dashboard_model->getAllMeasurementsByUser($org, $cat, $permits['rut']));
 		$res = defaultResult($permits, $this->Dashboard_model);
         $res['editP'] = in_array($org, $permits['foda']['edit']);
         $res['editF'] = in_array($org, $permits['valorF']['edit']);
         $res['editMetaP'] = in_array($org, $permits['metaP']['edit']);
         $res['editMetaF'] = in_array($org, $permits['metaF']['edit']);
-		$res['measurements'] = $this->_parseMeasurements($all_measurements);
+		$res['valid'] = $all_measurements[0];
+		$res['no_valid'] = $all_measurements[1];
 		$res['metrics']      = $metrics;
 		$res['route']        = getRoute($this, $org);
 		$res['org']  = $org;
@@ -149,13 +155,13 @@ class Dashboard extends CI_Controller {
                     $expected = null;
                 }
             }
+
             if((!is_null($valueY) && !is_numeric($valueY)) || (!is_null($target) && !is_numeric($target)) || (!is_null($expected) && !is_numeric($expected))){
                 $success = false;
                 continue;
             }
 			//si no hay valores saltamos los datos
 			if ((strcmp($valueY, "")==0 || (is_null($valueY))) && (strcmp($valueX, "")==0 || is_null($valueX)) && (strcmp($expected, "")==0 ||  is_null($expected)) && (strcmp($target, "")==0 || is_null($target))) {
-				$success = false;
 				continue;
 			}
 
@@ -209,6 +215,13 @@ class Dashboard extends CI_Controller {
 			//si se tiene valId, ya existia el valor por tanto se debe actualizar
 			else if($valId){
 				$oldVal = $this->Dashboard_model->getValue(array('id'=>[$valId]))[0];
+				if($oldVal->state == 0){
+					$oldVal->value = $oldVal->proposed_value != null ? $oldVal->proposed_value : $oldVal->value ;
+					$oldVal->expected = $oldVal->proposed_expected != null ? $oldVal->proposed_expected : $oldVal->expected ;
+					$oldVal->target = $oldVal->proposed_target != null ? $oldVal->proposed_target : $oldVal->target;
+					$oldVal->x_value = $oldVal->proposed_x_value !== null ? $oldVal->proposed_x_value : $oldVal->target;
+					$valueX = $valueX != null ? $valueX : "";
+				}
 				if ($valueY != $oldVal->value || strcmp($valueX, $oldVal->x_value)!=0 || $expected != $oldVal->expected || $target != $oldVal->target) {
 					if ($validMeta && $validValue)
 						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 1);
@@ -220,8 +233,9 @@ class Dashboard extends CI_Controller {
 						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 1);
 						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 0);
 					}
-					else
+					else {
 						$success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 0);
+					}
 				}
 			}
 			else{

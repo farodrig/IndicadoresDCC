@@ -19,18 +19,24 @@ class Dashboard_model extends CI_Model
     }
 
     function getAllXValuesByMetorg($metorg){
-        $this->db->select('x_value');
+        $this->db->select('x_value, proposed_x_value');
         $this->db->from('Value');
         $this->db->join('MetOrg', 'MetOrg.id = Value.metorg');
         $this->db->where('MetOrg.id', $metorg);
         $this->db->where('state !=', -1);
         $this->db->order_by('x_value ASC');
-        $this->db->distinct();
+        $this->db->order_by('proposed_x_value ASC');
         $q = $this->db->get();
         $values = $q->result();
         $result = [];
         foreach ($values as $value){
-            $result[] = $value->x_value;
+            $value->x_value = is_null($value->x_value) ? $value->proposed_x_value : $value->x_value;
+            if (is_null($value->x_value) && is_null($value->proposed_x_value))
+                continue;
+            if (!is_null($value->x_value) && !in_array($value->x_value, $result))
+                $result[] = $value->x_value;
+            if (!is_null($value->proposed_x_value) && !in_array($value->proposed_x_value, $result))
+                $result[] = $value->proposed_x_value;
         }
         return $result;
     }
@@ -362,7 +368,7 @@ class Dashboard_model extends CI_Model
         return ($q->num_rows() > 0 ? $q->result() : false);
     }
 
-    function getAllMeasurements($id, $category)
+    function getAllMeasurementsByUser($id, $category, $user)
     {
         $this->db->select('MetOrg.id');
         $this->db->from('Metric');
@@ -373,7 +379,6 @@ class Dashboard_model extends CI_Model
         
         if ($category != 0)
             $this->db->where('Metric.category', $category);
-
         $q = $this->db->get();
         $size = $q->num_rows();
         if ($size <= 0) {
@@ -381,35 +386,20 @@ class Dashboard_model extends CI_Model
         }
         $rows = $q->result();
 
-        $this->db->select('id, metorg AS org, value, x_value, target, expected, year');
+        $this->db->select('id, metorg, state, value, x_value, target, expected, year, proposed_value as p_v, proposed_target as p_t, proposed_expected as p_e, proposed_x_value as p_x');
         $this->db->from('Value');
-        $this->db->where('state', 1);
+        $this->db->group_start();
+            $this->db->or_where('state', 1);
+            $this->db->or_where('updater', $user);
+        $this->db->group_end();
         $this->db->group_start();
         for ($i = 0; $i < $size; $i++) {
             $this->db->or_where('metorg', $rows[$i]->id);
         }
         $this->db->group_end();
-        $this->db->order_by('year ASC');
+        $this->db->order_by('dateup ASC');
         $q = $this->db->get();
-        return ($q->num_rows() > 0 ? $this->buildAllMeasuresments($q->result()) : false);
-    }
-
-    function buildAllMeasuresments($rows){
-        $this->load->library('Dashboard_library');
-        foreach ($rows as $row) {
-            $parameters = array(
-                'id' => $row->id,
-                'metorg' => $row->org,
-                'valueY' => $row->value,
-                'valueX' => $row->x_value,
-                'target' => $row->target,
-                'expected' => $row->expected,
-                'year' => $row->year
-            );
-            $measurement = new Dashboard_library();
-            $measurement_array[] = $measurement->initializeMeasurement($parameters);
-        }
-        return $measurement_array;
+        return ($q->num_rows() > 0 ? $q->result() : false);
     }
 
     function deleteValue($valId, $user, $validation){
@@ -470,8 +460,10 @@ class Dashboard_model extends CI_Model
     function updateData($id_met, $year, $old_x_value, $valueY, $valueX, $target, $expected, $user, $validation)
     { //Aqui hay que guardar datos antiguos
         $values = $this->getValue(array('metorg' => [$id_met], 'year' => [$year], 'x_value' => [$old_x_value], 'state' => [1]));
-        if (count($values) <= 0)
-            return false;
+        if (count($values) <= 0) {
+            $valueX = $valueX==null ? $old_x_value : $valueX;
+            return $this->insertData($id_met, $year, $valueY, $valueX, $target, $expected, $user, $validation);
+        }
         $row = $values[0];
         $data = array(
             'metorg' => $id_met,
@@ -559,7 +551,7 @@ class Dashboard_model extends CI_Model
         $query = $this->db->get_where('Value', array('id' => $id));
         $value = $query->row();
 
-        $old_x = (is_null($value->x_value) ? $value->proposed_x_value : $value->x_value);
+        $old_x = $value->x_value;
         if ($value->state == -1) {
             $values = getGeneric($this, $this->value, ['metorg'=>[$value->metorg], 'year'=>[$value->year], 'x_value'=>[$value->x_value], 'id !='=>[$value->id], 'order'=>[['state', "ASC"]]]);
             $done = $this->deleteData($value->id, $validVal, $validMet);
@@ -628,7 +620,8 @@ class Dashboard_model extends CI_Model
         $this->db->reset_query();
         $this->db->where('id', $id);
         $q = $this->db->update($this->value, $data);
-        $id = $this->_overrideData($value->metorg, $value->year, $old_x);
+        if (!is_null($old_x))
+            $this->_overrideData($value->metorg, $value->year, $old_x);
         $query = $this->db->get_where($this->value, array('id' => $id));
         $value = $query->row();
         $values = $this->getValue(array('metorg' => [$value->metorg], 'year' => [$value->year], 'x_value' => [$old_x, null], 'id !=' => [$id]));
@@ -640,12 +633,10 @@ class Dashboard_model extends CI_Model
     {
         $this->db->order_by('dateval', 'DESC');
         $q = $this->db->get_where($this->value, array('metorg' => $metorg, 'year' => $year, 'x_value' => $xVal, 'state' => 1));
-        $newData = $q->row();
-        $q = $this->db->get_where($this->value, array('id !=' => $newData->id, 'state' => 1, 'year' => $newData->year, 'x_value' => $xVal, 'metorg' => $newData->metorg));
         foreach ($q->result() as $olderData) {
             $this->deleteData($olderData->id, true, true);
         }
-        return $newData->id;
+        return;
     }
 
     function checkIfValidate($id)

@@ -145,8 +145,8 @@
                 </div>
                 <div class="panel-body">
                     <div class="panel-body row">
-                        <div class="row">
-                            <div class="col-md-5 foda">
+                        <div class="row margin-bottom">
+                            <div class="foda">
                                 <h4 class="text-center">FODA
                                     <small id="foda_valid"></small>
                                     <a class="btn editFoda hidden" data-toggle="modal" data-target="#editFodaModal" ><i class="fa fa-pencil"></i></a>
@@ -157,49 +157,16 @@
                                     <label class="col-sm-10 text-left" id="foda_comment"></label>
                                 </div>
                             </div>
-                            <div class="col-md-1"></div>
-                            <div class="col-md-6 strategy">
-                                <h4 class="text-center">Plan Estratégico
-                                    <small id="strategy_valid"></small>
-                                    <a class="btn editStrategy hidden" data-toggle="modal" data-target="#editStrategyModal" ><i class="fa fa-pencil"></i></a>
-                                    <button type="button" id="validateStrategy" onclick="validateElement('strategy', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
-                                </h4>
-                                <div class="strategy-data">
-                                    <div class="row">
-                                        <div class="col-sm-10" id="strategy_descrip"></div>
-                                    </div>
-                                    <div class="row margin-top">
-                                        <div class="col-sm-2">Comentario:</div>
-                                        <div class="col-sm-10">
-                                            <p id="strategy_comment"></p>
-                                        </div>
-                                    </div>
-                                    <div class="row margin-top">
-                                        <div class="col-md-5 row">
-                                            <div class="col-sm-6">Fecha de Término:</div>
-                                            <div class="col-sm-6 row" id="strategy_deadline"></div>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="col-sm-6">Estado Actual:</div>
-                                            <div class="col-sm-6" id="strategy_status"></div>
-                                        </div>
-                                    </div>
-                                    <div class="row margin-top">
-                                        <div class="col-sm-2">Colaboradores:</div>
-                                        <div class="col-sm-10" id="strategy_collaborators"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row margin-top">
-                            <div id ="itemData" class="col-md-5">
+                            <div id ="itemData">
                                 <div id="itemSection" class="panel-body col-md-12">
                                     <div id="itemTable_wrapper" class="dataTables_wrapper no-footer">
                                         <div id="itemButtons" class="row" style="display: none;">
-                                            <button id="addItem" data-toggle="modal" data-target="#editItemModal" data-id="-1" data-title="Añadir Item al FODA" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Item</button>
-                                            <button id="expand-collapse-items" class="expanded pull-right" type="button">Expandir Todos</button>
+                                            <div class="col-md-12">
+                                                <button id="addItem" data-toggle="modal" data-target="#editItemModal" data-id="-1" data-title="Añadir Item al FODA" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Item</button>
+                                                <button id="expand-collapse-items" class="expanded pull-right" type="button">Expandir Todos</button>
+                                            </div>
                                         </div>
-                                        <div class="row table-responsive">
+                                        <div class="table-responsive">
                                             <table id="itemTable" style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
                                                 <thead>
                                                 <tr>
@@ -218,14 +185,46 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id ="goalData" class="col-md-7">
-                                <div id="goalSection" class="panel-body col-md-12">
+                        </div>
+                        <div class="row margin-top">
+                            <div class="strategy">
+                                <h4 class="text-center">Plan Estratégico
+                                    <small id="strategy_valid"></small>
+                                    <a class="btn editStrategy hidden" data-toggle="modal" data-target="#editStrategyModal" ><i class="fa fa-pencil"></i></a>
+                                    <button type="button" id="validateStrategy" onclick="validateElement('strategy', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
+                                </h4>
+                                <div class="strategy-data">
+                                    <div class="form-group">
+                                        <div class="col-sm-10" id="strategy_descrip"></div>
+                                    </div>
+                                    <div class="form-group margin-top">
+                                        <div class="col-sm-2">Comentario:</div>
+                                        <div class="col-sm-10">
+                                            <p id="strategy_comment"></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group margin-top">
+                                        <div class="col-sm-2">Fecha de Término:</div>
+                                        <div class="col-sm-4" id="strategy_deadline"></div>
+                                        <div class="col-sm-3">Estado Actual:</div>
+                                        <div class="col-sm-3" id="strategy_status"></div>
+                                    </div>
+                                    <div class="form-group margin-top">
+                                        <div class="col-sm-2">Colaboradores:</div>
+                                        <div class="col-sm-10" id="strategy_collaborators"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id ="goalData" class="margin-top">
+                                <div id="goalSection" class="col-md-12">
                                     <div id="goalTable_wrapper" class="dataTables_wrapper no-footer">
                                         <div id="goalButtons" class="row" style="display: none">
-                                            <button id="addGoal" data-toggle="modal" data-target="#editGoalModal" data-id="-1" data-title="Añadir Objetivo" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Objetivo</button>
-                                            <button id="expand-collapse-goals" class="expanded pull-right" type="button">Expandir Todos</button>
+                                            <div class="col-md-12">
+                                                <button id="addGoal" data-toggle="modal" data-target="#editGoalModal" data-id="-1" data-title="Añadir Objetivo" class="pull-left" type="button"><i class="fa fa-plus"></i> Añadir Objetivo</button>
+                                                <button id="expand-collapse-goals" class="expanded pull-right" type="button">Expandir Todos</button>
+                                            </div>
                                         </div>
-                                        <div class="row table-responsive" >
+                                        <div class="table-responsive" >
                                             <table id="goalTable"  style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
                                                 <thead>
                                                 <tr>

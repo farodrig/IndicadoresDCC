@@ -87,6 +87,8 @@
 						                $color = $type['color'];
 						            }
 						        }
+								if ($counter % 2 == 0)
+									echo ('<div class="row">');
 							?>
 						        <div class="col-md-6">
 						        	<section class="panel panel-info">
@@ -107,6 +109,8 @@
 									</section>
 								</div>
 						    <?php
+								if ($counter % 2 != 0)
+									echo ('</div>');
 								$counter++;
 						    } ?>
 						</div>
