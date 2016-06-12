@@ -33,7 +33,7 @@ CREATE TABLE `Action` (
   `goal` int(11) NOT NULL,
   `userInCharge` varchar(15) CHARACTER SET utf8 NOT NULL,
   `status` int(11) NOT NULL,
-  `title` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `expected_result` text COLLATE utf8_unicode_ci NOT NULL,
   `current_result` text COLLATE utf8_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -46,7 +46,7 @@ CREATE TABLE `Action` (
 
 CREATE TABLE `Aggregation_Type` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -68,7 +68,7 @@ INSERT INTO `Aggregation_Type` (`id`, `name`) VALUES
 
 CREATE TABLE `Category` (
   `id` int(11) NOT NULL COMMENT 'Categorías en las que se agrupan las métricas',
-  `name` varchar(45) CHARACTER SET utf8 DEFAULT NULL
+  `name` varchar(100) CHARACTER SET utf8 DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -98,7 +98,7 @@ CREATE TABLE `Collaborator` (
 
 CREATE TABLE `Completion_Status` (
   `id` int(11) NOT NULL,
-  `status` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
+  `status` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -119,7 +119,7 @@ INSERT INTO `Completion_Status` (`id`, `status`) VALUES
 CREATE TABLE `Dashboard` (
   `id` int(11) NOT NULL,
   `org` int(11) NOT NULL,
-  `title` varchar(45) CHARACTER SET utf8 DEFAULT NULL
+  `title` varchar(250) CHARACTER SET utf8 DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -144,7 +144,7 @@ CREATE TABLE `FODA` (
 
 CREATE TABLE `FODA_Type` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -166,7 +166,7 @@ INSERT INTO `FODA_Type` (`id`, `name`) VALUES
 CREATE TABLE `Function` (
   `id` int(11) NOT NULL,
   `position` int(11) NOT NULL,
-  `short_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `short_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `description` text COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -181,7 +181,7 @@ CREATE TABLE `Goal` (
   `strategy` int(11) NOT NULL,
   `status` int(11) NOT NULL,
   `userInCharge` varchar(15) CHARACTER SET utf8 NOT NULL,
-  `title` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `validated` tinyint(1) NOT NULL DEFAULT '0',
   `timestamp` timestamp NULL DEFAULT NULL,
   `deadline` date DEFAULT NULL,
@@ -209,7 +209,7 @@ CREATE TABLE `Goal_Item` (
 CREATE TABLE `Graphic` (
   `id` int(11) NOT NULL,
   `dashboard` int(11) NOT NULL,
-  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `ver_x` tinyint(1) NOT NULL DEFAULT '0',
   `min_year` int(11) NOT NULL,
   `max_year` int(11) NOT NULL,
@@ -228,7 +228,7 @@ CREATE TABLE `Item` (
   `foda` int(11) NOT NULL,
   `priority` int(11) NOT NULL,
   `type` int(11) NOT NULL,
-  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `description` text COLLATE utf8_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -253,11 +253,11 @@ CREATE TABLE `MetOrg` (
 CREATE TABLE `Metric` (
   `id` int(11) NOT NULL COMMENT 'Métricas que son creadas con sus respectivas unidades y cotas, para luego poder asociarlas a una  organización en el árbol e ingresar las mediciones.',
   `category` int(11) NOT NULL,
-  `name` varchar(100) COLLATE utf8_turkish_ci NOT NULL DEFAULT '',
+  `name` varchar(150) COLLATE utf8_turkish_ci NOT NULL DEFAULT '',
   `y_unit` int(11) NOT NULL,
-  `y_name` varchar(45) CHARACTER SET utf8 DEFAULT NULL,
+  `y_name` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
   `x_unit` int(11) NOT NULL,
-  `x_name` varchar(45) COLLATE utf8_turkish_ci DEFAULT NULL
+  `x_name` varchar(100) COLLATE utf8_turkish_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;
 
 --
@@ -277,7 +277,7 @@ CREATE TABLE `Organization` (
   `id` int(11) NOT NULL COMMENT 'Organización tipo árbol de DCC/áreas/unidades',
   `parent` int(11) NOT NULL DEFAULT '0',
   `type` int(11) NOT NULL,
-  `name` varchar(45) CHARACTER SET utf8 DEFAULT NULL
+  `name` varchar(150) CHARACTER SET utf8 DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -324,7 +324,7 @@ INSERT INTO `Organization` (`id`, `parent`, `type`, `name`) VALUES
 
 CREATE TABLE `OrgType` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) CHARACTER SET utf8 NOT NULL
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -360,7 +360,7 @@ CREATE TABLE `Permit` (
 CREATE TABLE `Position` (
   `id` int(11) NOT NULL,
   `org` int(11) NOT NULL,
-  `short_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `short_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `description` text COLLATE utf8_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -372,7 +372,7 @@ CREATE TABLE `Position` (
 
 CREATE TABLE `Priority` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='High, Medium, Low';
 
 --
@@ -445,7 +445,7 @@ CREATE TABLE `Serie` (
 
 CREATE TABLE `Serie_Type` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -464,7 +464,7 @@ INSERT INTO `Serie_Type` (`id`, `name`) VALUES
 
 CREATE TABLE `State` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) CHARACTER SET utf8 DEFAULT NULL
+  `name` varchar(100) CHARACTER SET utf8 DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -501,7 +501,7 @@ CREATE TABLE `Strategic_Plan` (
 
 CREATE TABLE `Unit` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) CHARACTER SET utf8 DEFAULT NULL COMMENT 'tipos de unidades.\nej: nº de papers, $, nº alumnos, cursos, etc…'
+  `name` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT 'tipos de unidades.\nej: nº de papers, $, nº alumnos, cursos, etc…'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -520,8 +520,8 @@ INSERT INTO `Unit` (`id`, `name`) VALUES
 
 CREATE TABLE `User` (
   `id` varchar(15) CHARACTER SET utf8 NOT NULL COMMENT 'RUT usuario',
-  `name` varchar(45) CHARACTER SET utf8 DEFAULT NULL,
-  `email` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
+  `name` varchar(250) CHARACTER SET utf8 DEFAULT NULL,
+  `email` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -537,7 +537,7 @@ CREATE TABLE `Value` (
   `updater` varchar(15) CHARACTER SET utf8 NOT NULL,
   `validator` varchar(15) CHARACTER SET utf8 DEFAULT NULL,
   `value` double DEFAULT NULL,
-  `x_value` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `x_value` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `target` double DEFAULT NULL,
   `expected` double DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
@@ -546,7 +546,7 @@ CREATE TABLE `Value` (
   `proposed_value` double DEFAULT NULL,
   `proposed_target` double DEFAULT NULL,
   `proposed_expected` double DEFAULT NULL,
-  `proposed_x_value` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL
+  `proposed_x_value` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -776,7 +776,7 @@ ALTER TABLE `Value`
 -- AUTO_INCREMENT for table `Action`
 --
 ALTER TABLE `Action`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `Aggregation_Type`
 --
@@ -851,12 +851,12 @@ ALTER TABLE `OrgType`
 -- AUTO_INCREMENT for table `Permit`
 --
 ALTER TABLE `Permit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `Position`
 --
 ALTER TABLE `Position`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `Priority`
 --
@@ -871,7 +871,7 @@ ALTER TABLE `Resource`
 -- AUTO_INCREMENT for table `Serie`
 --
 ALTER TABLE `Serie`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `Serie_Type`
 --
@@ -896,7 +896,7 @@ ALTER TABLE `Unit`
 -- AUTO_INCREMENT for table `Value`
 --
 ALTER TABLE `Value`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- Constraints for dumped tables
 --
