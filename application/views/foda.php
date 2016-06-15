@@ -205,9 +205,9 @@
                                     </div>
                                     <div class="form-group margin-top">
                                         <div class="col-sm-2">Fecha de Término:</div>
-                                        <div class="col-sm-4" id="strategy_deadline"></div>
-                                        <div class="col-sm-3">Estado Actual:</div>
-                                        <div class="col-sm-3" id="strategy_status"></div>
+                                        <div class="col-sm-1" id="strategy_deadline"></div>
+                                        <div class="col-sm-2 text-right">Estado Actual:</div>
+                                        <div class="col-sm-1" id="strategy_status"></div>
                                     </div>
                                     <div class="form-group margin-top">
                                         <div class="col-sm-2">Colaboradores:</div>
@@ -354,7 +354,7 @@
                     <div class="form-group">
                         <label for="itemTitle" class="col-sm-3 control-label">Título:</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="itemTitle" name="title" required>
+                            <input type="text" maxlength="250" class="form-control" id="itemTitle" name="title" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -427,7 +427,7 @@
                     <div class="form-group">
                         <label for="goalTitle" class="col-sm-3 control-label">Título:</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="goalTitle" name="title" required>
+                            <input type="text" maxlength="250" class="form-control" id="goalTitle" name="title" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -453,6 +453,7 @@
                                 }
                                 ?>
                             </select>
+                            <label id="errorGoalUser" style="display: none" class="error" for="goalUser">This field is required.</label>
                         </div>
                     </div>
                     <div class="form-group">
@@ -514,7 +515,7 @@
                     <div class="form-group">
                         <label for="actionTitle" class="col-sm-3 control-label">Título:</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="actionTitle" name="title" required >
+                            <input type="text" maxlength="250" class="form-control" id="actionTitle" name="title" required >
                         </div>
                     </div>
                     <div class="form-group">
@@ -540,6 +541,7 @@
                                 }
                                 ?>
                             </select>
+                            <label id="errorActionUser" style="display: none" class="error" for="actionUser">This field is required.</label>
                         </div>
                     </div>
                     <div class="form-group">
@@ -673,17 +675,20 @@
             title = goal.title;
             elementos = goal.items;
         }
-        for(org in items){
-            for (year in items[org]){
-                for(id in items[org][year]){
-                    option = $('#goalItems option[value="' + items[org][year][id].id + '"]');
-                    if(elementos.indexOf(items[org][year][id].id) == -1)
-                        option.prop('selected', false);
-                    else
-                        option.prop('selected', true);
+        $("#goalItems option").show();
+        for(orgId in items){
+            for (yearItem in items[orgId]){
+                for(id in items[orgId][yearItem]){
+                    if (orgId!=org || yearItem!=year){
+                        $('#goalItems option[value="' + items[orgId][yearItem][id].id + '"]').hide().prop('selected', false);
+                        continue;
+                    }
+                    option = $('#goalItems option[value="' + items[orgId][yearItem][id].id + '"]');
+                    option.prop('selected', elementos.indexOf(items[orgId][yearItem][id].id) != -1);
                 }
             }
         }
+        $('#errorGoalUser').hide();
         $('#goalItems').trigger('chosen:updated');
         $('#goalUser option[value="' + user + '"]').prop('selected', true);
         $('#goalUser').trigger('chosen:updated');
@@ -728,14 +733,16 @@
             priority = item.priority;
             objetivos = item.goals;
         }
-        for(org in goals){
-            for (year in goals[org]){
-                for(id in goals[org][year]){
+        $("#itemGoals option").show();
+        for(orgId in goals){
+            for (yearGoal in goals[orgId]){
+                for(id in goals[orgId][yearGoal]){
+                    if (orgId!=org || yearGoal!=year){
+                        $('#itemGoals option[value="' + id + '"]').hide().prop('selected', false);
+                        continue;
+                    }
                     option = $('#itemGoals option[value="' + id + '"]');
-                    if(objetivos.indexOf(id) == -1)
-                        option.prop('selected', false);
-                    else
-                        option.prop('selected', true);
+                    option.prop('selected', objetivos.indexOf(id) != -1);
                 }
             }
         }
@@ -772,6 +779,7 @@
             user = action.userInCharge;
             title = action.title;
         }
+        $('#errorActionUser').hide();
         $('#actionUser option[value="' + user + '"]').prop('selected', true);
         $('#actionUser').trigger('chosen:updated');
         $('#actionStatus option:contains("' + status + '")').prop('selected', true);
@@ -829,7 +837,7 @@
     }
 
     function editItem() {
-        if(!$("#actionForm").valid()) {
+        if(!$("#itemForm").valid()) {
             return;
         }
         var data = {'org': $('#org').val(),
@@ -865,6 +873,11 @@
             return;
         }
 
+        if($('#goalUser').val() == ""){
+            $('#errorGoalUser').show();
+            return;
+        }
+
         var data = {'org': $('#org').val(),
             'year': $('#year').val(),
             'goal': $('#modalGoalId').val(),
@@ -884,6 +897,12 @@
         if(!$("#actionForm").valid()) {
             return;
         }
+
+        if($('#actionUser').val() == ""){
+            $('#errorActionUser').show();
+            return;
+        }
+
         var data = {'org' : $('#org').val(),
                     'goal': $('input[name=goal]').val(),
                     'action': $('input[name=action]').val(),

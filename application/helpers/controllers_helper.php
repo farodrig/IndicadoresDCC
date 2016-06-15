@@ -102,8 +102,8 @@ function alphaSpace($str){
     return false;
 }
 
-function alphaNumericSpace($str){
-    if (preg_match("^([a-zA-Z0-9ñáéíóúÁÉÍÓÚÑü]\s?)+^", $str, $data) && $data[0]==$str){
+function alphaNumericSpaceSymbol($str){
+    if (preg_match("^([-a-zA-Z0-9ñáéíóúÁÉÍÓÚÑü.:,;(){}<>\[\]!¡?¿|°&%*+=$/]\s?)+^", $str, $data) && $data[0]==$str){
         return true;
     }
     return false;

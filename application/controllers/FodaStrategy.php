@@ -59,7 +59,7 @@ class FodaStrategy extends CI_Controller {
         $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('year', 'Año', 'numeric|required');
         $this->form_validation->set_rules('foda', 'Foda', 'numeric|required');
-        $this->form_validation->set_rules('comment', 'Comentario', 'trim|alphaNumericSpace');
+        $this->form_validation->set_rules('comment', 'Comentario', 'trim|alphaNumericSpaceSymbol');
 
         if (!$this->form_validation->run()) {
             echo json_encode(array('success'=>0));
@@ -107,8 +107,8 @@ class FodaStrategy extends CI_Controller {
         $this->form_validation->set_rules('item', 'Item', 'numeric|required');
         $this->form_validation->set_rules('type', 'Tipos', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('priority', 'Prioridades', 'numeric|required|greater_than_equal_to[0]');
-        $this->form_validation->set_rules('description', 'Descripción', 'trim|alphaNumericSpace');
-        $this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpace');
+        $this->form_validation->set_rules('description', 'Descripción', 'trim|alphaNumericSpaceSymbol');
+        $this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpaceSymbol');
         $this->form_validation->set_rules('goals[]', 'Objetivo', 'numeric|greater_than_equal_to[0]');
 
         if (!$this->form_validation->run()) {
@@ -196,10 +196,9 @@ class FodaStrategy extends CI_Controller {
         $this->form_validation->set_rules('year', 'Año', 'numeric|required');
         $this->form_validation->set_rules('strategy', 'Plan Estratégico', 'numeric|required');
         $this->form_validation->set_rules('deadline', 'Fecha Límite', 'date_validator');
-        $this->form_validation->set_rules('comment', 'Comentario', 'trim|alphaNumericSpace');
-        $this->form_validation->set_rules('description', 'Descripción', 'trim|required|alphaNumericSpace');
+        $this->form_validation->set_rules('comment', 'Comentario', 'trim|alphaNumericSpaceSymbol');
+        $this->form_validation->set_rules('description', 'Descripción', 'trim|required|alphaNumericSpaceSymbol');
         $this->form_validation->set_rules('status', 'Estado', 'numeric|required|greater_than_equal_to[0]');
-        $this->form_validation->set_rules('collaborators[]', 'Colaboradores', 'numeric');
 
         if (!$this->form_validation->run()) {
             echo json_encode(array('success'=>0));
@@ -271,11 +270,11 @@ class FodaStrategy extends CI_Controller {
         $this->form_validation->set_rules('year', 'Año', 'numeric|required');
         $this->form_validation->set_rules('goal', 'Objetivo', 'numeric|required');
         $this->form_validation->set_rules('deadline', 'Fecha Límite', 'date_validator');
-        $this->form_validation->set_rules('comment', 'Comentario', 'trim|alphaNumericSpace');
+        $this->form_validation->set_rules('comment', 'Comentario', 'trim|alphaNumericSpaceSymbol');
         $this->form_validation->set_rules('status', 'Estado', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('goalUser', 'Encargado', 'required');
-        $this->form_validation->set_rules('description', 'Descripción', 'trim|alphaNumericSpace');
-        $this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpace');
+        $this->form_validation->set_rules('description', 'Descripción', 'trim|alphaNumericSpaceSymbol');
+        $this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpaceSymbol');
         $this->form_validation->set_rules('items[]', 'Objetivo', 'numeric|greater_than_equal_to[0]');
 
         if (!$this->form_validation->run()) {
@@ -369,11 +368,11 @@ class FodaStrategy extends CI_Controller {
         $this->form_validation->set_rules('org', 'Organización', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('goal', 'Objetivo', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('action', 'Acción', 'numeric|required');
-        $this->form_validation->set_rules('current', 'Resultado Actual', 'trim|alphaNumericSpace');
-        $this->form_validation->set_rules('expected', 'Resultado Esperado', 'trim|required|alphaNumericSpace');
+        $this->form_validation->set_rules('current', 'Resultado Actual', 'trim|alphaNumericSpaceSymbol');
+        $this->form_validation->set_rules('expected', 'Resultado Esperado', 'trim|required|alphaNumericSpaceSymbol');
         $this->form_validation->set_rules('status', 'Estado', 'numeric|required|greater_than_equal_to[0]');
         $this->form_validation->set_rules('actionUser', 'Encargado', 'required');
-        $this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpace');
+        $this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpaceSymbol');
 
         if (!$this->form_validation->run()) {
             echo json_encode(array('success'=>0));
