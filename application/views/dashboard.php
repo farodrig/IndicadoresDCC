@@ -28,6 +28,10 @@
             height: 0.7em;
             width: 0.75em;
         }
+
+        .highcharts-container {
+            overflow: visible !important;
+        }
     </style>
     <script type="text/javascript">
         var graphics = <?php echo json_encode($graphics); ?>;
@@ -102,7 +106,7 @@
                         </h2>
                     </div>
                     <div class='panel-body'>
-                        <div id="graphic<?php echo $graphic->id;?>" class="col-md-6"></div>
+                        <div id="graphic<?php echo $graphic->id;?>" class="col-md-6" style="z-index:1;"></div>
                         <div id="graphicTable_wrapper" class="dataTables_wrapper no-footer col-md-6">
                             <div class="table-responsive">
                                 <table id="graphicTable<?php echo $graphic->id;?>" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="graphicTable_info">

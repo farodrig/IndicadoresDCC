@@ -61,6 +61,7 @@ function createGraphicData(series, yUnit){
 }
 
 function getGraphicOptions(title, xName, xValues, yName, yUnit, data) {
+    console.log(data);
     var options = {
         credits: {
             enabled: false
@@ -72,7 +73,8 @@ function getGraphicOptions(title, xName, xValues, yName, yUnit, data) {
                     alert(e.xAxis[0].axis.categories[Math.round(e.xAxis[0].value)]);
                 }
             },*/
-            zoomType: 'xy'
+            zoomType: 'xy',
+            marginBottom: 13 * data.length + 75
         },
         title: {
             text: title
@@ -102,14 +104,32 @@ function getGraphicOptions(title, xName, xValues, yName, yUnit, data) {
             }
         }],
         tooltip: {
-            shared: true
+            shared: true,
+            useHTML: true,
+            borderRadius: 0,
+            borderWidth: 0,
+            shadow: false,
+            enabled: true,
+            backgroundColor: 'none',
+            formatter: function() {
+                var s = "<div style='border-style: solid; border-width: 1px; box-shadow: 1px 1px 1px 1px #7cb5ec; border-color: #7cb5ec; background-color: #f5f6f6; opacity: 0.92; padding: 15px 15px 15px 15px;'>";
+                s += '<b>'+ this.x +'</b><br/>';
+                $.each(this.points, function(i, point) {
+                    console.log(point);
+                    s += '<span><i style="color:'+ point.series.color +'">\u25CF</i> '+ point.series.name +' : <b>'+ point.y +" "+point.series.tooltipOptions.valueSuffix +'</b></span><br>';
+                });
+
+                return s + "</div>";
+            }
         },
         legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'top',
-            y: -15,
+            enabled: true,
             floating: true,
+            verticalAlign: 'bottom',
+            align:'left',
+            y:0,
+            x: 20,
+            layout: 'vertical',
             backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
         },
         series: data,
