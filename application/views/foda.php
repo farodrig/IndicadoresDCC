@@ -167,15 +167,15 @@
                                             </div>
                                         </div>
                                         <div class="table-responsive">
-                                            <table id="itemTable" style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="itemTable_info">
+                                            <table id="itemTable" style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer text-center" role="grid" aria-describedby="itemTable_info">
                                                 <thead>
                                                 <tr>
-                                                    <th class="sorting_disabled"></th>
-                                                    <th class="sorting">ID</th>
-                                                    <th class="sorting" aria-controls="itemTable">Item</th>
-                                                    <th class="sorting" aria-controls="itemTable">Tipo</th>
-                                                    <th class="sorting" aria-controls="itemTable">Prioridad</th>
-                                                    <th class="sorting_disabled" aria-controls="itemTable">Editar</th>
+                                                    <th class="sorting_disabled text-center"></th>
+                                                    <th class="sorting text-center">ID</th>
+                                                    <th class="sorting text-center" aria-controls="itemTable">Item</th>
+                                                    <th class="sorting text-center" aria-controls="itemTable">Tipo</th>
+                                                    <th class="sorting text-center" aria-controls="itemTable">Prioridad</th>
+                                                    <th class="sorting_disabled text-center" aria-controls="itemTable">Editar</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody id="itemTableContent">
@@ -225,16 +225,16 @@
                                             </div>
                                         </div>
                                         <div class="table-responsive" >
-                                            <table id="goalTable"  style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid" aria-describedby="goalTable_info">
+                                            <table id="goalTable"  style="display: none;" class="table table-bordered table-striped mb-none dataTable no-footer text-center" role="grid" aria-describedby="goalTable_info">
                                                 <thead>
                                                 <tr>
-                                                    <th class="sorting_disabled"></th>
-                                                    <th class="sorting">ID</th>
-                                                    <th class="sorting" aria-controls="goalTable">Objetivo</th>
-                                                    <th class="sorting" aria-controls="goalTable">Encargado</th>
-                                                    <th class="sorting" aria-controls="goalTable">Término</th>
-                                                    <th class="sorting" aria-controls="goalTable">Estado</th>
-                                                    <th class="sorting_disabled" aria-controls="goalTable">Editar</th>
+                                                    <th class="sorting_disabled text-center"></th>
+                                                    <th class="sorting text-center">ID</th>
+                                                    <th class="sorting text-center" aria-controls="goalTable">Objetivo</th>
+                                                    <th class="sorting text-center" aria-controls="goalTable">Encargado</th>
+                                                    <th class="sorting text-center" aria-controls="goalTable">Término</th>
+                                                    <th class="sorting text-center" aria-controls="goalTable">Estado</th>
+                                                    <th class="sorting_disabled text-center" aria-controls="goalTable">Editar</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody id="goalTableContent">
