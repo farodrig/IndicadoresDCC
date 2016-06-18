@@ -6,22 +6,7 @@
         include 'partials/head.php';
         ?>
 		<link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap/css/bootstrap.min.css" />
-
 		<style>
-			.panel-group .panel-heading + .panel-collapse > .panel-body {
-				border: 1px solid #ddd;
-			}
-			.panel-group,
-			.panel-group .panel,
-			.panel-group .panel-heading,
-			.panel-group .panel-heading a,
-			.panel-group .panel-title,
-			.panel-group .panel-title a,
-			.panel-group .panel-body,
-			.panel-group .panel-group .panel-heading + .panel-collapse > .panel-body {
-				border-radius: 2px;
-				border: 0;
-			}
 			.panel-group .panel-heading {
 				padding: 0;
 			}
@@ -48,32 +33,16 @@
 				content: '+';
 				margin-top: 0.5%;
 			}
-			.panel-group .panel-collapse {
-				margin-top: 5px !important;
-			}
-			.panel-group .panel-body {
-				background: #ffffff;
-				padding: 15px;
-			}
-			.panel-group .panel {
-				background-color: transparent;
-			}
-			.panel-group .panel-body p:last-child,
-			.panel-group .panel-body ul:last-child,
-			.panel-group .panel-body ol:last-child {
-				margin-bottom: 0;
-			}
-
-			td.black {
-				color: black;
-			}
 
 			label{
 				font-weight: normal !important;
 			}
 
-			div.checkbox-custom{
-				padding: 0 0 0 0;
+			.mBottom{
+				margin-bottom: 1%;
+			}
+			.mRight{
+				margin-right: 1%;
 			}
 		</style>
 	</head>
@@ -111,59 +80,69 @@
 					<div class="panel">
 						<?php
 						if(count($data)) {
-							echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));?>
+							echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));
+						?>
 						<div class="panel-body">
+							<div class="row mBottom mRight">
+								<button type="button" id="expand-collapse-org" class="btn btn-default pull-right expandir">Expandir Todos</button>
+							</div>
 							<div class="panel-group" id="accordion">
 									<?php foreach ($data as $org) { ?>
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h4 class="panel-title">
-													<a class="" data-toggle="collapse" data-parent="#accordion"
-													   href="#org<?php echo($org['org']->getId()); ?>">
+													<a class="collapsed org" data-toggle="collapse" data-parent="#accordion" href="#org<?php echo($org['org']->getId()); ?>">
 														<?php echo(ucwords($org['org']->getName())); ?>
 													</a>
 												</h4>
 											</div>
-											<div id="org<?php echo($org['org']->getId()); ?>"
-												 class="panel-collapse collapse in">
+											<div id="org<?php echo($org['org']->getId()); ?>" class="panel-collapse collapse">
 												<div class="panel-body">
-													<div class="panel-group"
-														 id="nested<?php echo($org['org']->getId()); ?>">
+													<div class="row mBottom mRight">
+														<button type="button" class="btn btn-default pull-right expandir" onclick="expandCollapseMetrics(this, <?php echo($org['org']->getId()); ?>)">Expandir Métricas</button>
+													</div>
+													<div class="panel-group" id="nested<?php echo($org['org']->getId()); ?>">
 														<?php foreach ($org['metorg'] as $metorg) { 
 																$permits = $metorg['permits'];
 															?>
 															<div class="panel panel-default">
 																<div class="panel-heading">
 																	<h4 class="panel-title">
-																		<a data-toggle="collapse"
+																		<a class="collapsed metric" data-toggle="collapse"
 																		   data-parent="#nested<?php echo($org['org']->getId()); ?>"
 																		   href="#metorg<?php echo($metorg['metric']->metorg); ?>">
 																			<?php echo(ucwords($metorg['metric']->name)); ?> - <?php echo ($metorg['metric']->category == 2) ? "Finanzas" : "Productividad" ?>
 																		</a>
 																	</h4>
 																</div><!--/.panel-heading -->
-																<div id="metorg<?php echo($metorg['metric']->metorg); ?>" class="panel-collapse collapse in">
+																<div id="metorg<?php echo($metorg['metric']->metorg); ?>" class="panel-collapse collapse">
 																	<div class="panel-body">
 																		<div class="table-responsive">
-																			<table id="datatable-details"
-																				   class="table table-bordered table-striped mb-none dataTable no-footer"
-																				   role="grid">
+																			<table id="datatable-details" class="table table-bordered table-striped mb-none dataTable no-footer" role="grid">
 																				<thead>
-																				<tr>
-																					<td class="text-center">Usuario</td>
-																					<td class="text-center">Rol</td>
-																					<td class="text-center">Año</td>
+																					<tr>
+																						<td class="text-center">Usuario</td>
+																						<td class="text-center">Rol</td>
+																						<td class="text-center">Año</td>
+																						<td class="text-center">Fecha</td>
+																						<td class="text-center">Hora</td>
 																						<?php if ($metorg['metric']->x_name) { ?>
 																								<td class="text-center"><?php echo $metorg['metric']->x_name; ?> </td>
 																						<?php } ?>
-																					<td class="text-center"><?php echo($metorg['metric']->y_name); ?></td>
-																					<td class="text-center">Esperado</td>
-																					<td class="text-center">Meta</td>
-																					<td class="text-center col-sm-2">Seleccionar Propuestas</td>
-																				</tr>
+																						<td class="text-center"><?php echo($metorg['metric']->y_name); ?></td>
+																						<td class="text-center">Esperado</td>
+																						<td class="text-center">Meta</td>
+																						<td class="text-center">Propuesta</td>
+																						<td class="text-center">
+																							<div class="checkbox-custom checkbox-default text-center">
+																								<input id="select<?php echo($metorg['metric']->metorg); ?>" type="checkbox" class="styled" onclick="selectAll(this, <?php echo($metorg['metric']->metorg); ?>)">
+																								<label for="select<?php echo($metorg['metric']->metorg); ?>"></label>
+																							</div>
+
+																						</td>
+																					</tr>
 																				</thead>
-																				<tbody
-																					id="tableContent<?php echo($metorg['metric']->metorg); ?>">
+																				<tbody id="tableContent<?php echo($metorg['metric']->metorg); ?>">
 																				<?php
 																				$xVal = "";
 																				$year = "";
@@ -171,24 +150,42 @@
 																					if($xVal!= $value->x_value || $year != $value->year){
 																						$xVal = $value->x_value;
 																						$year = $value->year;
+																						if ($value->dateval) {
+																							$d = new DateTime($value->dateval);
+																							$date = $d->format('d-m-Y');
+																							$time = $d->format('H:i:s');
+																						}
+																						else{
+																							$date = "";
+																							$time = "";
+																						}
 																				?>
-																					<tr class="success">
+																					<tr class="success text-center">
 																						<td></td>
 																						<td></td>
 																						<td style="color: black !important;"><?php echo($value->year); ?></td>
+																						<td style="color: black !important;"><?php echo($date); ?></td>
+																						<td style="color: black !important;"><?php echo($time); ?></td>
 																						<?php if ($metorg['metric']->x_name) { ?>
 																								<td style="color: black !important;"><?php echo (!is_null($value->x_value) && $value->x_value) ? $value->x_value : '-'; ?></td>
 																						<?php } ?>
-																							<td style="color: black !important;"><?php echo (!is_null($value->value)) ? $value->value : '-'; ?></td>
-																							<td style="color: black !important;"><?php echo (!is_null($value->expected)) ? $value->expected : '-'; ?></td>
-																							<td style="color: black !important;"><?php echo (!is_null($value->target)) ? $value->target : '-'; ?></td>
+																						<td style="color: black !important;"><?php echo (!is_null($value->value)) ? $value->value : '-'; ?></td>
+																						<td style="color: black !important;"><?php echo (!is_null($value->expected)) ? $value->expected : '-'; ?></td>
+																						<td style="color: black !important;"><?php echo (!is_null($value->target)) ? $value->target : '-'; ?></td>
+																						<td style="color: black !important;"></td>
 																						<td></td>
 																					</tr>
-																					<?php } ?>
-																					<tr>
+																					<?php }
+																					$d = new DateTime($value->dateup);
+																					$date = $d->format('d-m-Y');
+																					$time = $d->format('H:i:s');
+																					?>
+																					<tr class="text-center">
 																						<td><?php echo($users[$value->updater]); ?></td>
 																						<td><?php echo ($metorg['metric']->category == 2) ? "Asistente de finanzas" : "Asistente de unidad" ?></td>
 																						<td></td>
+																						<td style="color: black !important;"><?php echo($date); ?></td>
+																						<td style="color: black !important;"><?php echo($time); ?></td>
 																						<?php
 																						$valor = '<td>'.(($permits['valor'] && !is_null($value->proposed_value) && $value->state == 0) ? '<b>'.$value->proposed_value.'</b>' : '-').'</td>';
 																						if($permits['meta']){
@@ -205,10 +202,11 @@
 																							echo '<td>-</td>';
 																							echo '<td>-</td>';
 																						}?>
+																						<td class="text-center"><?php echo ($value->state == 0 ? "Modificación" : "Eliminación");?></td>
 																						<td class="text-center">
-																							<div class="checkbox-custom checkbox-default col-sm-offset-1">
+																							<div class="checkbox-custom checkbox-default text-center">
 																								<input type="checkbox" class="styled" name="ids[]" id="checkbox<?php echo $value->id ?>" value="<?php echo $value->id ?>">
-																								<label for="checkbox<?php echo $value->id ?>"><?php echo ($value->state == 0 ? "(Modificar)" : "(Eliminar)");?></label>
+																								<label for="checkbox<?php echo $value->id ?>"></label>
 																							</div>
 																						</td>
 																					</tr>
@@ -267,18 +265,69 @@
 		   }
 
 		   $('a[data-toggle="collapse"]').on('click',function(){
-
 			   var objectID=$(this).attr('href');
 
 			   if($(objectID).hasClass('in'))
-			   {
 				   $(objectID).collapse('hide');
-			   }
-
-			   else{
+			   else
 				   $(objectID).collapse('show');
-			   }
 		   });
+
+		   $('#expand-collapse-org').on('click', function (e) {
+			   expandCollapse(this, "Colapsar Todos", "Expandir Todos", "a.org");
+		   });
+
+		   function expandCollapseMetrics(element, orgId) {
+			   expandCollapse(element, "Colapsar Métricas", "Expandir Métricas", 'a[data-parent="#nested' + orgId + '"].metric');
+		   }
+
+		   function expandCollapse(element, collapseText, expandText, selector) {
+			   var $this = $(element);
+			   if ($this.hasClass('expandir')){
+				   $this.removeClass('expandir');
+				   $this.addClass('colapsar');
+				   $this.html(collapseText);
+				   selector += '.collapsed';
+			   }
+			   else{
+				   $this.removeClass('colapsar');
+				   $this.addClass('expandir');
+				   $this.html(expandText);
+				   selector += ':not(.collapsed)';
+			   }
+			   $(selector).click();
+		   }
+
+		   function selectAll(element, metricId) {
+			   var $this = $(element);
+			   var prev = null;
+			   var modify = [];
+			   $('#tableContent' + metricId).children().each(function () {
+				   var row = $(this);
+				   if (row.hasClass('success')){
+					   prev = row;
+					   return;
+				   }
+				   if (prev == null){
+					   return;
+				   }
+				   else if (prev.hasClass('success')){
+					   modify.push(row);
+					   prev = row;
+					   return;
+				   }
+				   else{
+					   modify.pop();
+					   prev = null;
+				   }
+			   });
+			   for(var i in modify){
+				   var row = modify[i];
+				   var checkbox = row.find('input[type="checkbox"]');
+				   checkbox.prop('checked', $this.prop('checked'));
+			   }
+		   }
+
 		</script>
 	</body>
 </html>
