@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="<?php echo base_url();?>chosen/chosen.css">
     <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/bootstrap-colorpicker/css/bootstrap-colorpicker.css">
+    <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/jquery-datatables-bs3/assets/css/datatables.css">
 
     <style type="text/css">
         .title{
@@ -118,7 +119,7 @@
                                             <div class="table-responsive">
                                                 <table id="graphicTable" class="table table-bordered table-striped mb-none dataTable no-footer text-center" role="grid" aria-describedby="graphicTable_info">
                                                     <thead>
-                                                    <tr role="row">
+                                                    <tr>
                                                         <th class="sorting_disabled"></th>
                                                         <th class="sorting text-center" aria-controls="itemTable">Gráfico</th>
                                                         <th class="sorting text-center" aria-controls="itemTable">Año mínimo</th>
@@ -521,10 +522,10 @@
             var datatable = $table.dataTable({
                 destroy: true,
                 aoColumnDefs: [
-                    { 'bSortable': false, 'aTargets': [ 0, 6 ] }
+                    { 'bSortable': false, 'aTargets': [ 0, 7 ] }
                 ],
                 aaSorting: [
-                    [1, 'asc']
+                    [6, 'asc']
                 ],
                 bFilter: false,
                 paging: false,
