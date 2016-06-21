@@ -109,26 +109,26 @@ class MySession extends CI_Controller {
 			$category = 2;
 		}
 		$data = array();
-		foreach ($orgs as $org){
+		foreach ($orgs as $org) {
 			$data[$org]['org'] = $this->Organization_model->getByID($org);
 			$metrics = $this->Dashboard_model->getAllMetrics($org, $category, 1);
-            $metrics = (!$metrics) ? [] : $metrics;
-			foreach ($metrics as $metric){
-                $perm['valor'] = ($metric->category==1 ? in_array($org, $permits['foda']['validate']) : in_array($org, $permits['valorF']['validate']));
-                $perm['meta'] = ($metric->category==1 ? in_array($org, $permits['metaP']['validate']) : in_array($org, $permits['metaF']['validate']));
-                $data[$org]['metorg'][$metric->metorg]['permits'] = $perm;
+			$metrics = (!$metrics) ? [] : $metrics;
+			foreach ($metrics as $metric) {
+				$perm['valor'] = ($metric->category == 1 ? in_array($org, $permits['foda']['validate']) : in_array($org, $permits['valorF']['validate']));
+				$perm['meta'] = ($metric->category == 1 ? in_array($org, $permits['metaP']['validate']) : in_array($org, $permits['metaF']['validate']));
+				$data[$org]['metorg'][$metric->metorg]['permits'] = $perm;
 				$data[$org]['metorg'][$metric->metorg]['metric'] = $metric;
-				$values = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg'=>[$metric->metorg], 'state'=>[0,-1], 'order'=>[['year', 'ASC'], ['x_value', 'ASC']]));
-                $data[$org]['metorg'][$metric->metorg]['values'] = $values;
-                for ($i = 0; $i<count($values); $i++){
-                    $value = $values[$i];
-                    //quitar el valor si este se eliminara y no se tiene permiso para validar la eliminacion
-                    //o si el elemento se modificara y no se tienen los permisos para el valor
-                    if (($value->state==-1 && !$perm['meta']) || ($value->state==0 && ((!$value->proposed_value && $perm['valor'] && !$perm['meta']) || (!$value->proposed_expected && !$value->proposed_target && !$value->proposed_x_value && !$perm['valor'] && $perm['meta'])))){
-                        unset($data[$org]['metorg'][$metric->metorg]['values'][$i]);
-                    }
-                }
-                if (!count($data[$org]['metorg'][$metric->metorg]['values']))
+				$values = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg' => [$metric->metorg], 'state' => [0, -1], 'order' => [['year', 'ASC'], ['x_value', 'ASC']]));
+				$data[$org]['metorg'][$metric->metorg]['values'] = $values;
+				for ($i = 0; $i < count($values); $i++) {
+					$value = $values[$i];
+					//quitar el valor si este se eliminara y no se tiene permiso para validar la eliminacion
+					//o si el elemento se modificara y no se tienen los permisos para el valor
+					if (($value->state == -1 && !$perm['meta']) || ($value->state == 0 && ((!$value->proposed_value && $perm['valor'] && !$perm['meta']) || (!$value->proposed_expected && !$value->proposed_target && !$value->proposed_x_value && !$perm['valor'] && $perm['meta'])))) {
+						unset($data[$org]['metorg'][$metric->metorg]['values'][$i]);
+					}
+				}
+				if (!count($data[$org]['metorg'][$metric->metorg]['values']))
 					unset($data[$org]['metorg'][$metric->metorg]);
 			}
 			if (!key_exists('metorg', $data[$org]) || !count($data[$org]['metorg']))
