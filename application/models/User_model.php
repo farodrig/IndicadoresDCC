@@ -40,6 +40,25 @@ class User_model extends CI_Model{
         return getGeneric($this, $this->permit, $data);
     }
 
+    function getUsersByPositionName($positionName){
+        $this->db->from($this->role);
+        $this->db->join($this->position, $this->position.'.id = '.$this->role.'.position');
+        $this->db->join($this->title, $this->title.'.id = '.$this->role.'.user');
+        $this->db->like($this->position.'.short_name', $positionName);
+        $this->db->group_start();
+            $this->db->group_start();
+                $this->db->where($this->role.'.final_date = ', null);
+                $this->db->where($this->role.'.initial_date <= ', date('Y-m-d H:i:s'));
+            $this->db->group_end();
+            $this->db->or_group_start();
+                $this->db->where($this->role.'.final_date >= ', date('Y-m-d H:i:s'));
+                $this->db->where($this->role.'.initial_date <= ', date('Y-m-d H:i:s'));
+            $this->db->group_end();
+        $this->db->group_end();
+        $q = $this->db->get();
+        return $q->result();
+    }
+
     function getPermitByUser($user){
         $this->db->select($this->permit.'.id, '.$this->permit.'.org, '.$this->permit.'.position, resource, view, edit, validate');
         $this->db->from($this->position);

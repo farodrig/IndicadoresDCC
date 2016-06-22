@@ -7,8 +7,7 @@ function defaultResult($permits, $model){
                  'foda'		 => seeFODAStrategy($permits),
                  'budget'    => seeBudget($permits),
                  'role'      => $permits['title']
-    );
-    
+    );    
 }
 
 function getPermits($permits){
