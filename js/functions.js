@@ -97,7 +97,9 @@ function getGraphicOptions(title, xName, xValues, yName, yUnit, data) {
                 }
             },
             title: {
-                text: yName + " [" + yUnit + "]",
+                text: yName + "<br> [" + yUnit + "]",
+                offset: 40,
+                x:-15,
                 style: {
                     color: Highcharts.getOptions().colors[1]
                 }
@@ -127,8 +129,8 @@ function getGraphicOptions(title, xName, xValues, yName, yUnit, data) {
             floating: true,
             verticalAlign: 'bottom',
             align:'left',
-            y:0,
-            x: 20,
+            y: 0,
+            x: 35,
             layout: 'vertical',
             backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
         },
