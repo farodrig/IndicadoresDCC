@@ -447,6 +447,7 @@ class Dashboard_model extends CI_Model
             $data['target'] = $target;
             $data['expected'] = $expected;
         } else {
+            $data['x_value'] = $valueX;
             $data['proposed_value'] = $valueY;
             $data['proposed_x_value'] = $valueX;
             $data['proposed_target'] = $target;
@@ -545,8 +546,7 @@ class Dashboard_model extends CI_Model
         return $result;
     }
 
-    function validateData($id, $validVal, $validMet)
-    {
+    function validateData($id, $validVal, $validMet){
         $this->load->library('session');
         $query = $this->db->get_where('Value', array('id' => $id));
         $value = $query->row();
@@ -621,7 +621,7 @@ class Dashboard_model extends CI_Model
         $this->db->where('id', $id);
         $q = $this->db->update($this->value, $data);
         if (!is_null($old_x))
-            $this->_overrideData($value->metorg, $value->year, $old_x);
+            $this->_overrideData($value->metorg, $value->year, $old_x, $id);
         $query = $this->db->get_where($this->value, array('id' => $id));
         $value = $query->row();
         $values = $this->getValue(array('metorg' => [$value->metorg], 'year' => [$value->year], 'x_value' => [$old_x, null], 'id !=' => [$id]));
@@ -629,14 +629,13 @@ class Dashboard_model extends CI_Model
         return $q;
     }
 
-    function _overrideData($metorg, $year, $xVal)
+    function _overrideData($metorg, $year, $xVal, $valID)
     {
         $this->db->order_by('dateval', 'DESC');
-        $q = $this->db->get_where($this->value, array('metorg' => $metorg, 'year' => $year, 'x_value' => $xVal, 'state' => 1));
+        $q = $this->db->get_where($this->value, array('metorg' => $metorg, 'year' => $year, 'x_value' => $xVal, 'state' => 1, 'id!=' => $valID));
         foreach ($q->result() as $olderData) {
             $this->deleteData($olderData->id, true, true);
         }
-        return;
     }
 
     function checkIfValidate($id)

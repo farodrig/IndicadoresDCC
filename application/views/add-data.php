@@ -260,17 +260,18 @@
         var toolE = (Eclass!="" && validE!=null && validE!="" ? tool + ' title="' + validE + '"' : '');
         var toolX = (Xclass!="" && validX!=null && validX!="" ? tool + ' title="' + validX + '"' : '');
 
-        valueY = (valueY===null ? (validV == null ? "" : validV ) : valueY);
-        target = (target===null ? (validT == null ? "" : validT ) : target);
-        expected = (expected===null ? (validE == null ? "" : validE ) : expected);
-
         if(eliminable) {
             delButton = '<a class="btn cancel-row row" onclick="deleteRow(this)"><i class="fa fa-times"></i></a>';
             del = 'hidden';
         }
-        else{
+        else if ((validX!=null && validX!=valueX) || (validV!=null && validV!="") || (validE!=null && validE!="") || (validT!=null && validT!="")){
             delButton = '<input type="checkbox" value=' + valId + ' name="delete[]" class="form-control">';
         }
+
+        valueY = (valueY===null ? (validV == null ? "" : validV ) : valueY);
+        target = (target===null ? (validT == null ? "" : validT ) : target);
+        expected = (expected===null ? (validE == null ? "" : validE ) : expected);
+
         if (edit){
             tdV = '<td class="' + Vclass +'" ' + toolV + '><input type="text" name="valueY[]" value="' + valueY + '" class="form-control" onkeyup ="validate(this)" onfocus ="validate(this)"></td>';
         }
