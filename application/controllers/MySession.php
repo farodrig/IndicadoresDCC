@@ -118,7 +118,7 @@ class MySession extends CI_Controller {
 				$perm['meta'] = ($metric->category == 1 ? in_array($org, $permits['metaP']['validate']) : in_array($org, $permits['metaF']['validate']));
 				$data[$org]['metorg'][$metric->metorg]['permits'] = $perm;
 				$data[$org]['metorg'][$metric->metorg]['metric'] = $metric;
-				$values = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg' => [$metric->metorg], 'state' => [0, -1], 'order' => [['year', 'ASC'], ['x_value', 'ASC']]));
+				$values = getGeneric($this->Dashboard_model, $this->Dashboard_model->value, array('metorg' => [$metric->metorg], 'state' => [0, -1], 'order' => [['year', 'ASC'], ['x_value', 'ASC'], ['proposed_x_value', 'ASC']]));
 				$data[$org]['metorg'][$metric->metorg]['values'] = $values;
 				for ($i = 0; $i < count($values); $i++) {
 					$value = $values[$i];

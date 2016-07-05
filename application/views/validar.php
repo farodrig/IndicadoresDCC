@@ -190,14 +190,14 @@
 																						$valor = '<td>'.(($permits['valor'] && !is_null($value->proposed_value) && $value->state == 0) ? '<b>'.$value->proposed_value.'</b>' : '-').'</td>';
 																						if($permits['meta']){
 																							if ($metorg['metric']->x_name) { ?>
-																								<td><?php echo (!is_null($value->proposed_x_value) && $value->proposed_x_value && $value->state == 0) ? $value->proposed_x_value : '-'; ?></td>
+																								<td class="xValue"><?php echo (!is_null($value->proposed_x_value) && $value->proposed_x_value && $value->state == 0) ? $value->proposed_x_value : '-'; ?></td>
 																							<?php }
 																							echo $valor;?>
 																							<td><?php echo (!is_null($value->proposed_expected) && $value->state == 0) ? '<b>' . $value->proposed_expected . '</b>' : '-'; ?></td>
 																							<td><?php echo (!is_null($value->proposed_target) && $value->state == 0) ? '<b>' . $value->proposed_target . '</b>' : '-'; ?></td>
 																						<?php }
 																						else{
-																							if ($metorg['metric']->x_name) { echo '<td>-</td>';}
+																							if ($metorg['metric']->x_name) { echo '<td class="xValue">-</td>';}
 																							echo $valor;
 																							echo '<td>-</td>';
 																							echo '<td>-</td>';
@@ -277,6 +277,11 @@
 			   expandCollapse(this, "Colapsar Todos", "Expandir Todos", "a.org");
 		   });
 
+		   $('input[type="checkbox"]').each(function () {
+			   var checkbox = $(this);
+			   checkbox.prop('checked', false);
+		   });
+
 		   function expandCollapseMetrics(element, orgId) {
 			   expandCollapse(element, "Colapsar Métricas", "Expandir Métricas", 'a[data-parent="#nested' + orgId + '"].metric');
 		   }
@@ -300,25 +305,27 @@
 
 		   function selectAll(element, metricId) {
 			   var $this = $(element);
-			   var prev = null;
 			   var modify = [];
+			   var xValues = [];
+			   var avoid = [];
 			   $('#tableContent' + metricId).children().each(function () {
 				   var row = $(this);
 				   if (row.hasClass('success')){
-					   prev = row;
+					   xValues = [];
+					   avoid = [];
 					   return;
 				   }
-				   if (prev == null){
-					   return;
-				   }
-				   else if (prev.hasClass('success')){
+				   var x = row.find('td.xValue').html();
+				   x = (x === undefined ? "" : x);
+				   if (xValues.indexOf(x)==-1){
+					   if (avoid.indexOf(x)!=-1)
+						   return;
 					   modify.push(row);
-					   prev = row;
-					   return;
+					   xValues.push(x);
 				   }
 				   else{
 					   modify.pop();
-					   prev = null;
+					   avoid.push(x);
 				   }
 			   });
 			   for(var i in modify){
