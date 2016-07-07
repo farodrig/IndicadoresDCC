@@ -58,6 +58,8 @@ $route['cmetrica']         = 'MySession/configurarMetricas';
 $route['contacto']         = 'SendEmail/contact';
 $route['salir']            = 'MySession/logout';
 
+$route['testmail/(:any)']        = 'SendEmail/testEmail/$1'; #Borrar despues de terminar las pruebas de configuracion
+
 $route['dashboard']        = 'Dashboard/showDashboard';
 $route['formAgregarDato']  = 'Dashboard/formAddData';
 $route['agregarDato']      = 'Dashboard/addData';

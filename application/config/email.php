@@ -1,9 +1,9 @@
 <?php
 
-$config['protocol'] = 'smtp'; // puede ser mail, sendmail, or smtp
+$config['protocol'] = 'mail'; // puede ser mail, sendmail, or smtp
 $config['mailpath'] = '/usr/sbin/sendmail'; // The server path to Sendmail
-$config['smtp_host'] = 'ssl://smtp.gmail.com'; //change this
-$config['smtp_port'] = '465';
+$config['smtp_host'] = ''; //change this
+$config['smtp_port'] = '';
 $config['smtp_user'] = ''; //change this
 $config['smtp_pass'] = ''; //change this
 $config['mailtype'] = 'html';
