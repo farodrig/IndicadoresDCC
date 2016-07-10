@@ -279,6 +279,32 @@ class Dashboard_model extends CI_Model
         return ($q->num_rows() > 0 ? $q->row() : false);
     }
 
+    function validateBudgetValue($valueId, $valValue, $valMeta, $left_value){
+        $old_value = $this->Dashboard_model->getValue(['id' => [$valueId]]);
+        if (!count($old_value))
+            return false;
+
+        $old_value = $old_value[0];
+        $old_value->value = (is_null($old_value->value) ? 0 : $old_value->value);
+        $old_value->target = (is_null($old_value->target) ? 0 : $old_value->target);
+        $old_value->expected = (is_null($old_value->expected) ? 0 : $old_value->expected);
+
+        $e = $old_value->expected;
+        $t = $old_value->target;
+        $v = $old_value->value;
+
+        if ($valMeta && !is_null($left_value->proposed_expected)) {
+            $e = $old_value->expected - $left_value->expected + $left_value->proposed_expected;
+        }
+        if ($valMeta && !is_null($left_value->proposed_target)) {
+            $t = $old_value->target - $left_value->target + $left_value->proposed_target;
+        }
+        if ($valValue && !is_null($left_value->proposed_value)){
+            $v = $old_value->value - $left_value->value + $left_value->proposed_value;
+        }
+        return $this->Dashboard_model->updateData($old_value->metorg, $old_value->year, "", $v, "", $t, $e, $this->session->userdata("rut"), 1);
+    }
+
     function updateCreateBudgetValue($org, $year, $val, $expected, $target, $validValue, $validMeta)
     {
         $this->load->model('Metorg_model');

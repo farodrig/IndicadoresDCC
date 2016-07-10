@@ -183,8 +183,6 @@ class Budget extends CI_Controller {
             echo json_encode(array('success'=>0));
             return;
         }
-        $valValue = in_array($org, $permits['valorF']['validate']);
-        $valMeta = in_array($org, $permits['metaF']['validate']);
         $data = $this->budgetData($permits);
         $done = true;
         if($org==-1) {
@@ -209,11 +207,38 @@ class Budget extends CI_Controller {
                 echo json_encode(array('success'=>0));
                 return;
             }
+            $valValue = in_array($org, $permits['valorF']['validate']);
+            $valMeta = in_array($org, $permits['metaF']['validate']);
+            if(!($valValue || $valMeta)){
+                echo json_encode(array('success'=>0));
+                return;
+            }
+            $first = true;
+            $val = null;
             while ($done){
                 if (array_key_exists($year, $data[2][$organization->getId()])) {
                     $value = $data[2][$organization->getId()][$year];
-                    if ($value->state == 0)
+                    if ($first) {
+                        $val = $this->Dashboard_model->getValue(['id' => [$value->id]]);
+                        if (!count($val)){
+                            $done = false;
+                            break;
+                        }
+                        $val = $val[0];
+                        $val->value = (is_null($val->value) ? 0 : $val->value);
+                        $val->target = (is_null($val->target) ? 0 : $val->target);
+                        $val->expected = (is_null($val->expected) ? 0 : $val->expected);
+                        
                         $done = $done && $this->Dashboard_model->validateData($value->id, $valValue, $valMeta);
+                        $first = false;                        
+                    }
+                    else if(!is_null($val)){
+                        if ($this->notValidChildren($this->Organization_model->getAllChilds($organization->getId()), $year, $data[1], $data[2])!=1)
+                            $done = $done && $this->Dashboard_model->validateBudgetValue($value->id, $valValue, $valMeta, $val);
+                        else
+                            $done = $done && $this->Dashboard_model->validateData($value->id, $valValue, $valMeta);
+                    }
+                    
                 }
                 if($organization->getParent() == $organization->getId())
                     break;
@@ -227,6 +252,17 @@ class Budget extends CI_Controller {
             $result['no_valid_data'] = $data[2];
         }
         echo json_encode($result);
+    }
+    
+    private function notValidChildren($children, $year, $valid_data, $no_valid_data){
+        $count = 0;
+        foreach ($children as $child){
+            if (!array_key_exists($child->getId(), $valid_data) || !array_key_exists($year, $valid_data[$child->getId()]) || !array_key_exists($child->getId(), $no_valid_data) || !array_key_exists($year, $no_valid_data[$child->getId()]))
+                continue;
+            if ($valid_data[$child->getId()][$year] != $no_valid_data[$child->getId()][$year])
+                $count++;
+        }
+        return $count;
     }
 
     private function budgetData($permits){

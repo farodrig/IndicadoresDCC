@@ -67,7 +67,7 @@
             <section class="panel panel-transparent">
                 <div class="panel-body">
                     <div class="panel-body">
-                    <div class="form-group col-md-offset-5">
+                    <div class="form-group col-md-offset-4">
                         <div class="col-md-2 text-center">
                             <label class="control-label title">Año:</label>
                         </div>
@@ -94,26 +94,26 @@
                         <table id="datatable-editable" class="table table-bordered table-hover mb-none dataTable tree" role="grid" aria-describedby="datatable-editable_info">
                             <thead>
                                 <tr role="row">
-                                    <th>Organizacion</th>
+                                    <th class="text-center">Organizacion</th>
                                     <th hidden>Id</th>
-                                    <th aria-controls="datatable-editable">Gasto Actual</th>
-                                    <th aria-controls="datatable-editable">Gasto Esperado</th>
-                                    <th>Diferencia Esperado</th>
-                                    <th aria-controls="datatable-editable">Gasto Maximo</th>
-                                    <th>Diferencia Maximo</th>
-                                    <th aria-label="Actions">Editar</th>
+                                    <th class="text-center" aria-controls="datatable-editable">Gasto Actual</th>
+                                    <th class="text-center" aria-controls="datatable-editable">Gasto Esperado</th>
+                                    <th class="text-center">Diferencia Esperado</th>
+                                    <th class="text-center" aria-controls="datatable-editable">Gasto Maximo</th>
+                                    <th class="text-center">Diferencia Maximo</th>
+                                    <th class="text-center" aria-label="Actions">Editar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr role="row" class="treegrid-root treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span>DCC</td>
                                     <td class="org-id" hidden></td>
-                                    <td class="current-val"></td>
-                                    <td class="min-val"></td>
-                                    <td class="no-editable min-val-diff"></td>
-                                    <td class="max-val"></td>
-                                    <td class="no-editable max-val-diff"></td>
-                                    <td class="actions no-mutable"></td>
+                                    <td class="text-center current-val"></td>
+                                    <td class="text-center min-val"></td>
+                                    <td class="text-center no-editable min-val-diff"></td>
+                                    <td class="text-center max-val"></td>
+                                    <td class="text-center no-editable max-val-diff"></td>
+                                    <td class="text-center actions no-mutable"></td>
                                 </tr>
                             <?php
 
@@ -122,12 +122,12 @@
                                 <tr role="row" class="treegrid-<?php echo ($data_type['department']->getId())?> treegrid-parent-root treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($data_type['type']['name'])?></td>
                                     <td class="org-id" hidden><?php echo ($data_type['department']->getId())?></td>
-                                    <td class="current-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="min-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="no-editable min-val-diff"></td>
-                                    <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="no-editable max-val-diff"></td>
-                                    <td class="actions no-mutable"></td>
+                                    <td class="text-center current-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center min-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center no-editable min-val-diff"></td>
+                                    <td class="text-center max-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center no-editable max-val-diff"></td>
+                                    <td class="text-center actions no-mutable"></td>
                                 </tr>
                             <?php
                                     foreach($data_type['areas'] as $data_area){
@@ -135,12 +135,12 @@
                                 <tr role="row" class="treegrid-<?php echo ($data_area['area']->getId())?> treegrid-parent-<?php echo ($data_area['area']->getParent())?> treegrid-expanded black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($data_area['area']->getName())?></td>
                                     <td class="org-id" hidden><?php echo ($data_area['area']->getId())?></td>
-                                    <td class="current-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="min-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="no-editable min-val-diff"></td>
-                                    <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="no-editable max-val-diff"></td>
-                                    <td class="actions no-mutable"></td>
+                                    <td class="text-center current-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center min-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center no-editable min-val-diff"></td>
+                                    <td class="text-center max-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center no-editable max-val-diff"></td>
+                                    <td class="text-center actions no-mutable"></td>
                                 </tr>
                             <?php
                                         foreach($data_area['unidades'] as $unidad){
@@ -148,12 +148,12 @@
                                 <tr role="row" class="treegrid-<?php echo ($unidad->getId())?> treegrid-parent-<?php echo ($unidad->getParent())?> black">
                                     <td class="no-editable no-mutable"><span class="treegrid-expander glyphicon glyphicon-chevron-down"></span><?php echo ($unidad->getName())?></td>
                                     <td class="org-id" hidden><?php echo ($unidad->getId())?></td>
-                                    <td class="current-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="min-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="no-editable min-val-diff"></td>
-                                    <td class="max-val" data-toggle="tooltip" data-placement="top"></td>
-                                    <td class="no-editable max-val-diff"></td>
-                                    <td class="actions no-mutable">
+                                    <td class="text-center current-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center min-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center no-editable min-val-diff"></td>
+                                    <td class="text-center max-val" data-toggle="tooltip" data-placement="top"></td>
+                                    <td class="text-center no-editable max-val-diff"></td>
+                                    <td class="text-center actions no-mutable">
                                     <?php if ($permits[$unidad->getId()]['value'] || $permits[$unidad->getId()]['meta']){ ?>
                                         <a class="on-editing save-row hidden" href="#"><i class="fa fa-save"></i></a>
                                         <a class="on-editing cancel-row hidden" href="#"><i class="fa fa-times"></i></a>
@@ -388,38 +388,25 @@
         difMaxVal = getChildrenSumValue('root', 'max-val-diff');
         root.children( 'td' ).each(function() {
             var $this = $( this );
-            if($this.hasClass('current-val') && !(val===null) ){
+            if($this.hasClass('current-val')){
                 $this.html(intToMoney(val));
             }
-            else if($this.hasClass('min-val') && !(min===null)){
+            else if($this.hasClass('min-val')){
                 $this.html(intToMoney(min));
             }
-            else if($this.hasClass('max-val') && !(max===null)){
+            else if($this.hasClass('max-val')){
                 $this.html(intToMoney(max));
             }
-            else if($this.hasClass('min-val-diff') && !(difMinVal===null)){
+            else if($this.hasClass('min-val-diff')){
                 $this.html(intToMoney(difMinVal));
             }
-            else if($this.hasClass('max-val-diff') && !(difMaxVal===null)){
+            else if($this.hasClass('max-val-diff')){
                 $this.html(intToMoney(difMaxVal));
             }
         });
         if(val===null || min===null || max ===null)
             return;
         root.addClass(getRowClass(val, min, max));
-    }
-
-    function getRowClass(val, min, max){
-        val = isNaN(val) ? 0 : val;
-        min = isNaN(min) ? 0 : min;
-        max = isNaN(max) ? 0 : max;
-
-        if(val > max)
-            return "danger";
-        else if(val >min)
-            return "warning";
-        else
-            return "success";
     }
 
     function getChildrenSumValue(id, column) {
@@ -438,6 +425,19 @@
         if(!hasVal)
             return null;
         return sum;
+    }
+
+    function getRowClass(val, min, max){
+        val = isNaN(val) ? 0 : val;
+        min = isNaN(min) ? 0 : min;
+        max = isNaN(max) ? 0 : max;
+
+        if(val > max)
+            return "danger";
+        else if(val >min)
+            return "warning";
+        else
+            return "success";
     }
 
     function ajaxPostBudgetData(org, value, min, max){
