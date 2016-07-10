@@ -147,7 +147,7 @@
                     <div class="panel-body row">
                         <div class="row margin-bottom">
                             <div class="foda">
-                                <h4 class="text-center">FODA
+                                <h4 class="text-center col-md-12">FODA
                                     <small id="foda_valid"></small>
                                     <a class="btn editFoda hidden" data-toggle="modal" data-target="#editFodaModal" ><i class="fa fa-pencil"></i></a>
                                     <button type="button" id="validateFoda" onclick="validateElement('foda', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>
@@ -188,7 +188,7 @@
                         </div>
                         <div class="row margin-top">
                             <div class="strategy">
-                                <h4 class="text-center">Plan Estratégico
+                                <h4 class="text-center col-md-12">Plan Estratégico
                                     <small id="strategy_valid"></small>
                                     <a class="btn editStrategy hidden" data-toggle="modal" data-target="#editStrategyModal" ><i class="fa fa-pencil"></i></a>
                                     <button type="button" id="validateStrategy" onclick="validateElement('strategy', null)" class="btn btn-success pull-right" style="display: none;">Validar</button>

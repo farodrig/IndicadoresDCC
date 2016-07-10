@@ -43,7 +43,7 @@ function createGraphicData(series, yUnit){
             'tooltip': {
                 'valueSuffix': ' ' + yUnit
             },
-            'cursor': 'pointer',
+            'cursor': 'pointer'
             /*'point': {
                 'events': {
                     'click': function () {
@@ -61,7 +61,6 @@ function createGraphicData(series, yUnit){
 }
 
 function getGraphicOptions(title, xName, xValues, yName, yUnit, data) {
-    console.log(data);
     var options = {
         credits: {
             enabled: false
