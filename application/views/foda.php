@@ -1014,8 +1014,8 @@
             cells += '<td class="text-center checkDetails"><i onclick="showHideItemDetails(this)" data-toggle class="fa fa-plus-square-o text-primary h5 m-none" style="cursor: pointer;"></i></td>';
             cells += '<td>I' + items[org][year][i].id + '</td>';
             cells += '<td class="itemTitle">' + items[org][year][i].title + '</td>';
-            cells += '<td class="itemType">' + types[items[org][year][i].type-1].name + '</td>';
-            cells += '<td class="itemPriority">' + priorities[items[org][year][i].priority-1].name + '</td>';
+            cells += '<td class="itemType text-center">' + types[items[org][year][i].type-1].name + '</td>';
+            cells += '<td class="itemPriority text-center">' + priorities[items[org][year][i].priority-1].name + '</td>';
             cells += '<td class="actions">';
             if(permits[org].edit) {
                 cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Item del FODA" data-target="#editItemModal" data-id="' + items[org][year][i].id + '"><i class="fa fa-pencil"></i></a>' +
@@ -1102,9 +1102,9 @@
                     validate = '<a class="btn icons" onclick="validateElement(\'goal\', ' + i + ')" data-toggle="tooltip" title="Validar Objetivo"><i class="fa fa-check"></i></a>';
             }
             cells += '<td class="goalTitle">' + goals[org][year][i].title + valText + '</td>';
-            cells += '<td class="goalUser">' + users[goals[org][year][i].userInCharge].name + '</td>';
-            cells += '<td class="goalDeadline">' + goals[org][year][i].deadline + '</td>';
-            cells += '<td class="goalState">' + goals[org][year][i].status + '</td>';
+            cells += '<td class="goalUser text-center">' + users[goals[org][year][i].userInCharge].name + '</td>';
+            cells += '<td class="goalDeadline text-center">' + goals[org][year][i].deadline + '</td>';
+            cells += '<td class="goalState text-center">' + goals[org][year][i].status + '</td>';
 
             cells += '<td class="actions">';
             if (permits[org].edit) {
@@ -1158,8 +1158,8 @@
             var action = actions[goal][i];
             var cells = '<tr id="action' + i + '" >';
             cells += '<td class="actionTitle">' + action.title + '</td>';
-            cells += '<td class="actionUser">' + users[action.userInCharge].name + '</td>';
-            cells += '<td class="actionState">' + action.status + '</td>';
+            cells += '<td class="actionUser text-center">' + users[action.userInCharge].name + '</td>';
+            cells += '<td class="actionState text-center">' + action.status + '</td>';
             cells += '<td class="actions">';
             if(permits[org].edit) {
                 cells += '<a class="btn icons" data-toggle="modal" data-title="Editar Acción" data-target="#editActionModal" data-goal="' + action.goal + '" data-id="' + i + '"><i class="fa fa-pencil"></i></a>' +
