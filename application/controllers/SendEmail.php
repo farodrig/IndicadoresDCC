@@ -29,7 +29,7 @@ class SendEmail extends CI_Controller{
     }
 
     public function testEmail($to = null){
-        if (is_null($to))
+        if (!is_cli() || is_null($to))
             return;
         $this->load->helper('email');
         if (!valid_email($to)){

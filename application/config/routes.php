@@ -58,7 +58,7 @@ $route['cmetrica']         = 'MySession/configurarMetricas';
 $route['contacto']         = 'SendEmail/contact';
 $route['salir']            = 'MySession/logout';
 
-$route['testmail/(:any)']        = 'SendEmail/testEmail/$1'; #Borrar despues de terminar las pruebas de configuracion
+#$route['testmail/(:any)']        = 'SendEmail/testEmail/$1'; #Habilitar para pruebas externas de configuracion de email
 
 $route['dashboard']        = 'Dashboard/showDashboard';
 $route['formAgregarDato']  = 'Dashboard/formAddData';
