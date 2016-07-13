@@ -545,12 +545,13 @@
                             <th class="sorting_disabled">Organización</th>\
                             <th class="sorting_disabled">Métrica</th> \
                             <th class="sorting_disabled">Tipo de Serie</th>';
-        var next = '<th class="sorting_disabled">Color</th> \
+        var next =         '<th class="sorting_disabled">Color</th> \
                             <th class="sorting_disabled">Acciones</th> \
                         </tr> \
                     </thead> \
                     <tbody id="serieTableContent' + id + '">';
         var first = true;
+        var hasX = seriesHasX(graphics[org][id].series);
         for(var i in graphics[org][id].series){
             var serie = graphics[org][id].series[i];
             var metric = getMetricById(serie.metorg);
@@ -559,7 +560,7 @@
 
             var add = "";
             var aggreg = "";
-            if (metric.x_name!=""){
+            if (hasX){
                 add = '<th class="sorting_disabled">Agregación para Año</th><th class="sorting_disabled">Agregación para X</th>';
                 aggreg += '<td class="serieYear">' + (aggregation[serie.year_aggregation].name=="" ? 'No Agrega' : aggregation[serie.year_aggregation].name)+ '</td>';
                 aggreg += '<td class="serieX">' + (aggregation[serie.x_aggregation].name=="" ? 'No Agrega' : aggregation[serie.x_aggregation].name)+ '</td>';
@@ -644,6 +645,17 @@
             }
         }
         return null;
+    }
+
+    function seriesHasX(series) {
+        for(var i in series){
+            var serie = series[i];
+            var metric = getMetricById(serie.metorg);
+            if(metric == null || metric.x_name == "")
+                continue;
+            return true;
+        }
+        return false;
     }
 
     function deleteElement(type, id) {
