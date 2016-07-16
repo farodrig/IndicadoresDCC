@@ -3,8 +3,6 @@
 
 class DashboardConfig extends CI_Controller {
 
-	private $access;
-	
 	function __construct() {
 		parent::__construct();
 		$this->load->library('session');
@@ -17,7 +15,8 @@ class DashboardConfig extends CI_Controller {
 		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
 		$permits = $this->session->userdata();
-		$this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);		
+        $this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);
+        $this->edit = (count($permits['conf']['edit']) > 0);
 	}
 	
 	function dashboardConfig(){
@@ -51,7 +50,7 @@ class DashboardConfig extends CI_Controller {
 	
 	function modifyGraphic(){
         //Revisión de permisos
-		if (!$this->input->is_ajax_request() || !$this->access) {
+		if (!$this->input->is_ajax_request() || !$this->edit) {
 			echo json_encode(array('success'=>0));
 			return;
 		}
@@ -59,7 +58,7 @@ class DashboardConfig extends CI_Controller {
 		//Validación de entradas
 		$this->form_validation->set_rules('org', 'Organization', 'numeric|required|greater_than_equal_to[0]');
 		$this->form_validation->set_rules('graphic', 'Gráfico', 'numeric|required');
-		$this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpace');
+		$this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpaceSymbol');
 		$this->form_validation->set_rules('minYear', 'Año Mínimo', 'numeric|required|greater_than_equal_to[1950]');
 		$this->form_validation->set_rules('maxYear', 'Año Máximo', 'numeric|required|greater_than_equal_to[1950]');
 		$this->form_validation->set_rules('position', 'Posición', 'numeric|required|greater_than_equal_to[0]');
@@ -97,7 +96,7 @@ class DashboardConfig extends CI_Controller {
 
 	function modifySerie(){
         //Revisión de permisos
-        if (!$this->input->is_ajax_request() || !$this->access) {
+        if (!$this->input->is_ajax_request() || !$this->edit) {
             echo json_encode(array('success'=>0));
             return;
         }
@@ -160,7 +159,7 @@ class DashboardConfig extends CI_Controller {
 
 	function delete(){
         //Revisión de permisos
-        if (!$this->input->is_ajax_request() || !$this->access) {
+        if (!$this->input->is_ajax_request() || !$this->edit) {
             echo json_encode(array('success'=>0));
             return;
         }

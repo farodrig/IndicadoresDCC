@@ -50,8 +50,8 @@
     <div class="inner-wrapper">
         <!-- start: sidebar -->
         <?php
-        $navData=[['url'=>'careaunidad', 'name'=>'Configurar áreas y unidades', 'icon'=>'fa fa-th-large'],
-            ['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server']];
+        $navData=[['url'=>'config/organizacion', 'name'=>'Configurar áreas y unidades', 'icon'=>'fa fa-th-large'],
+            ['url'=>'config/metricas', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server']];
         include 'partials/navigation.php';
         ?>
         <!-- end: sidebar -->
@@ -451,7 +451,7 @@
 
     $('#previewModal').on('shown.bs.modal', function (e) {
         var graphic = $(e.relatedTarget).data('graphic');
-        $.ajax({url: "<?php echo base_url();?>cdashboard/values",
+        $.ajax({url: "<?php echo base_url();?>config/dashboard/values",
                 type: "POST",
                 async: false,
                 dataType: "json",
@@ -663,7 +663,7 @@
         if(!retVal)
             return;
         var data = {'type': type, 'id': id};
-        ajaxCall("<?php echo base_url();?>cdashboard/delete", data);
+        ajaxCall("<?php echo base_url();?>config/dashboard/delete", data);
     }
     
     function editGraphic() {
@@ -679,7 +679,7 @@
                     'byYear': ($("#graphicByYear").is(':checked') ? 1 : 0),
                     'display': ($("#graphicDisplay").is(':checked') ? 1 : 0)
         };
-        ajaxCall("<?php echo base_url();?>cdashboard/modify/graphic", data);
+        ajaxCall("<?php echo base_url();?>config/dashboard/modify/graphic", data);
         $('#editGraphicModal').modal('hide');
     }
 
@@ -699,7 +699,7 @@
                     'aggregX': $('#serieAggregationX').val(),
                     'color': $('#serieColor').val()
         };
-        ajaxCall("<?php echo base_url();?>cdashboard/modify/serie", data);
+        ajaxCall("<?php echo base_url();?>config/dashboard/modify/serie", data);
         $('#editSerieModal').modal('hide');
     }
 

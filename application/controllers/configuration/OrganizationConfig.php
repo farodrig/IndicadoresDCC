@@ -1,5 +1,5 @@
 <?php
-class ModifyOrg extends CI_Controller {
+class OrganizationConfig extends CI_Controller {
 
 	function __construct() {
 		parent::__construct();
@@ -11,8 +11,8 @@ class ModifyOrg extends CI_Controller {
 		$this->load->model('Dashboard_model');
 		$this->load->model('Organization_model');
 		$permits = $this->session->userdata();
-		$this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);
-
+        $this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);
+        $this->edit = (count($permits['conf']['edit']) > 0);
 	}
 
 	function modifyAreaUnidad() {
@@ -30,7 +30,7 @@ class ModifyOrg extends CI_Controller {
 	}
 
 	function addArea() {
-		if (!$this->access) {
+		if (!$this->edit) {
 			redirect('inicio');
 		}
 		$this->form_validation->set_rules('type', 'Type', 'numeric|required');
@@ -38,18 +38,18 @@ class ModifyOrg extends CI_Controller {
 
 		if (!$this->form_validation->run()) {
 			$this->session->set_flashdata('success', 0);
-			redirect('careaunidad');
+			redirect('config/organizacion');
 		}
 
 		$data = array('type' => $this->input->post('type'),
 			          'name' => ucwords($this->input->post('name')));
 		$result = $this->Organization_model->addArea($data);
 		$this->session->set_flashdata('success', $result);
-		redirect('careaunidad');
+		redirect('config/organizacion');
 	}
 
 	function addUni() {
-		if (!$this->access) {
+		if (!$this->edit) {
 			redirect('inicio');
 		}
 		$this->form_validation->set_rules('area', 'Area', 'trim|required|integer');
@@ -57,28 +57,27 @@ class ModifyOrg extends CI_Controller {
 
 		if (!$this->form_validation->run()) {
 			$this->session->set_flashdata('success', 0);
-			redirect('careaunidad');
+			redirect('config/organizacion');
 		}
 		$data   = array('name' => ucwords($this->input->post('name')));
 		$result = $this->Organization_model->addUnidad($this->input->post('area'), $data);
 		$this->session->set_flashdata('success', $result);
-		redirect('careaunidad');
+		redirect('config/organizacion');
 	}
 
 	function delAreaUni() {
-		if (!$this->access) {
+		if (!$this->edit) {
 			redirect('inicio');
 		}
 		$this->form_validation->set_rules('id', 'Id', 'trim|required|integer');
 
 		if (!$this->form_validation->run()) {
 			$this->session->set_flashdata('success', 0);
-			redirect('careaunidad');
+			redirect('config/organizacion');
 		}
 
 		$result = $this->Organization_model->delById($this->input->post('id'));
 		$this->session->set_flashdata('success', $result);
-		redirect('careaunidad');
+		redirect('config/organizacion');
 	}
-
 }

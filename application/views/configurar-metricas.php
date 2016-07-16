@@ -22,8 +22,8 @@
 
 				<!-- start: sidebar -->
 				<?php
-				$navData=[['url'=>'careaunidad', 'name'=>'Configurar Áreas y Unidades', 'icon'=>'fa fa-th-large'],
-						  ['url'=>'cdashboard', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
+				$navData=[['url'=>'config/organizacion', 'name'=>'Configurar Áreas y Unidades', 'icon'=>'fa fa-th-large'],
+						  ['url'=>'config/dashboard', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
 				include 'partials/navigation.php';
 				?>
 				<!-- end: sidebar -->
@@ -136,7 +136,7 @@
 				    ?>
 
 							<div id="modalForm" class="modal-block modal-block-primary mfp-hide">
-									<?php echo form_open('MySession/agregarMetrica', array('onsubmit' => "return checkInput();"));?>
+									<?php echo form_open('config/metricas/add', array('onsubmit' => "return checkInput();"));?>
 									<section class="panel">
 										<form>
 										<header class="panel-heading">
@@ -199,7 +199,7 @@
 								</div>
 
 								<div id="deleteMetrica" class="modal-block modal-block-lg modal-block-primary mfp-hide bigModal">
-								<?php echo form_open('MySession/eliminarMetrica', array('id' => 'modificarMetrica')); ?>
+								<?php echo form_open('config/metricas/delmod', array('id' => 'modificarMetrica')); ?>
 									<section class="panel">
 										<header class="panel-heading">
 											<h2 class="panel-title">Modificar métricas</h2>
@@ -237,7 +237,7 @@
 		</section>
 
 		<div id="dialog" class="modal-block mfp-hide">
-		<?php echo form_open('MySession/eliminarMetrica', array('id' => 'eliminarMetrica'));?>
+		<?php echo form_open('config/metricas/delmod', array('id' => 'eliminarMetrica'));?>
 			<section class="panel">
 				<header class="panel-heading">
 					<h2 class="panel-title">Eliminar métrica</h2>

@@ -80,7 +80,7 @@
 					<div class="panel">
 						<?php
 						if(count($data)) {
-							echo form_open('MySession/validate_reject', array('id' => 'validar/rechazar'));
+							echo form_open('validar/update', array('id' => 'validar/rechazar'));
 						?>
 						<div class="panel-body">
 							<div class="row mBottom mRight">
