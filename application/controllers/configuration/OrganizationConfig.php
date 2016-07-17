@@ -8,7 +8,6 @@ class OrganizationConfig extends CI_Controller {
 			redirect('salir');
 		
 		$this->load->library('form_validation');
-		$this->load->model('Dashboard_model');
 		$this->load->model('Organization_model');
 		$permits = $this->session->userdata();
         $this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);
@@ -20,13 +19,13 @@ class OrganizationConfig extends CI_Controller {
 		if (!$this->access) {
 			redirect('inicio');
 		}
-
+        $this->load->model('Values_model');
 		$val = (is_null($this->session->flashdata('success')) ? 2 : $this->session->flashdata('success'));
 		$result = array('title'  	  => 'Configuración de Areas y Unidades',
 						'success'     => $val,
 						'departments' => getAllOrgsByDpto($this->Organization_model)//Notar que funcion esta en helpers
 		);
-		$this->load->view('configurar-areas-unidades', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
+		$this->load->view('configurar-areas-unidades', array_merge($result, defaultResult($permits, $this->Values_model)));
 	}
 
 	function addArea() {

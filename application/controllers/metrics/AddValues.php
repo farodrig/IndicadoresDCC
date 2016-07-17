@@ -6,14 +6,14 @@
  * Date: 16-07-16
  * Time: 16:20
  */
-class AddMetrics extends CI_Controller{
+class AddValues extends CI_Controller{
 
     function __construct() {
         parent::__construct();
         $this->load->library('session');
         $this->load->library('form_validation');
         $this->load->model('Dashboard_model');
-        $this->load->model('Dashboardconfig_model');
+        $this->load->model('Values_model');
         $this->load->model('Metorg_model');
         $this->load->model('Metrics_model');
         if (is_null($this->session->rut))
@@ -42,15 +42,15 @@ class AddMetrics extends CI_Controller{
         } else {
             redirect('inicio');
         }
-        $all_metrics      = $this->Dashboard_model->getAllMetrics($org, $cat, 0);
+        $all_metrics      = $this->Metrics_model->getAllMetricsByOrg($org, $cat, 0);
         $all_metrics = !$all_metrics ? [] : $all_metrics;
         $metrics = [];
         foreach ($all_metrics as $metric){
             $metric->x_values = $this->Dashboard_model->getAllXValuesByMetorg($metric->metorg);
             $metrics[$metric->metorg] = $metric;
         }
-        $all_measurements = $this->separeteValidData($this->Dashboard_model->getAllMeasurementsByUser($org, $cat, $permits['rut']));
-        $res = defaultResult($permits, $this->Dashboard_model);
+        $all_measurements = $this->separeteValidData($this->Values_model->getAllValuesByUserByOrg($org, $cat, $permits['rut']));
+        $res = defaultResult($permits, $this->Values_model);
         $res['editP'] = in_array($org, $permits['foda']['edit']);
         $res['editF'] = in_array($org, $permits['valorF']['edit']);
         $res['editMetaP'] = in_array($org, $permits['metaP']['edit']);
@@ -97,7 +97,7 @@ class AddMetrics extends CI_Controller{
                     continue;
                 $metorg = $this->Metorg_model->getMetOrgDataByValue($valId);
                 $validation = ($metorg->category==1 ? in_array($org, $permits['metaP']['validate']) : in_array($org, $permits['metaF']['validate']));
-                $success = $success && $this->Dashboard_model->deleteValue($valId, $user, $validation);
+                $success = $success && $this->Values_model->deleteValue($valId, $user, $validation);
             }
             $success = ($success) ? 1:0;
             $this->session->set_flashdata('success', $success);
@@ -155,38 +155,38 @@ class AddMetrics extends CI_Controller{
                     $success = false;
                     continue;
                 }
-                $oldVal = $this->Dashboard_model->getValue(array('metorg'=>[$id_metorg], 'year'=>[$year], 'x_value'=>[$valueX], 'state'=>[1]));
+                $oldVal = $this->Values_model->getValue(array('metorg'=>[$id_metorg], 'year'=>[$year], 'x_value'=>[$valueX], 'state'=>[1]));
                 //Si existia un valor previo, se debe hacer un update de la data, sino, simplemente se inserta.
                 if (count($oldVal)==1){
                     $oldVal = $oldVal[0];
                     if ($valueY != $oldVal->value || $expected != $oldVal->expected || $target != $oldVal->target) {
                         if ($validMeta && $validValue)
-                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 1);
+                            $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 1);
                         elseif ($validMeta){
-                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 1);
-                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 0);
+                            $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 1);
+                            $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 0);
                         }
                         elseif ($validValue){
-                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 1);
-                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 0);
+                            $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 1);
+                            $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 0);
                         }
                         else
-                            $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 0);
+                            $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 0);
                     }
                 }
                 else if (count($oldVal)==0){
                     if ($validMeta && $validValue)
-                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, 1);
+                        $success = $success && $this->Values_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, 1);
                     elseif ($validMeta){
-                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, null, $valueX, $target, $expected, $user, 1);
-                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, null, null, null, $user, 0);
+                        $success = $success && $this->Values_model->insertData($id_metorg, $year, null, $valueX, $target, $expected, $user, 1);
+                        $success = $success && $this->Values_model->insertData($id_metorg, $year, $valueY, null, null, null, $user, 0);
                     }
                     elseif ($validValue){
-                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, null, null, null, $user, 1);
-                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, null, $valueX, $target, $expected, $user, 0);
+                        $success = $success && $this->Values_model->insertData($id_metorg, $year, $valueY, null, null, null, $user, 1);
+                        $success = $success && $this->Values_model->insertData($id_metorg, $year, null, $valueX, $target, $expected, $user, 0);
                     }
                     else
-                        $success = $success && $this->Dashboard_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, 0);
+                        $success = $success && $this->Values_model->insertData($id_metorg, $year, $valueY, $valueX, $target, $expected, $user, 0);
                 }
                 //hubo un error, nunca debería haber más de 1 validado.
                 else{
@@ -196,7 +196,7 @@ class AddMetrics extends CI_Controller{
             }
             //si se tiene valId, ya existia el valor por tanto se debe actualizar
             else if($valId){
-                $oldVal = $this->Dashboard_model->getValue(array('id'=>[$valId]))[0];
+                $oldVal = $this->Values_model->getValue(array('id'=>[$valId]))[0];
                 if($oldVal->state == 0){
                     $oldVal->value = $oldVal->proposed_value != null ? $oldVal->proposed_value : $oldVal->value ;
                     $oldVal->expected = $oldVal->proposed_expected != null ? $oldVal->proposed_expected : $oldVal->expected ;
@@ -206,17 +206,17 @@ class AddMetrics extends CI_Controller{
                 }
                 if ($valueY != $oldVal->value || strcmp($valueX, $oldVal->x_value)!=0 || $expected != $oldVal->expected || $target != $oldVal->target) {
                     if ($validMeta && $validValue)
-                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 1);
+                        $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 1);
                     elseif ($validMeta){
-                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 1);
-                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 0);
+                        $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 1);
+                        $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 0);
                     }
                     elseif ($validValue){
-                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 1);
-                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 0);
+                        $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, null, null, null, $user, 1);
+                        $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, null, $valueX, $target, $expected, $user, 0);
                     }
                     else {
-                        $success = $success && $this->Dashboard_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 0);
+                        $success = $success && $this->Values_model->updateData($id_metorg, $year, $oldVal->x_value, $valueY, $valueX, $target, $expected, $user, 0);
                     }
                 }
             }

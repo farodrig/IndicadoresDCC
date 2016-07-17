@@ -120,7 +120,7 @@ class SendEmail extends CI_Controller{
     }
 
     private function areMetricsToValidate($orgs, $data){
-        $this->load->model('Dashboard_model');
+        $this->load->model('Values_model');
         $this->load->model('Metorg_model');
         foreach ($orgs as $org) {
             $m = [];
@@ -133,8 +133,8 @@ class SendEmail extends CI_Controller{
                 $filter[$key] = $dato;
                 $filter['metorg'] = $m;
                 $filter['state'] = [0, -1];
-                print_r($this->Dashboard_model->getValue($filter));
-                if (count($this->Dashboard_model->getValue($filter)))
+                print_r($this->Values_model->getValue($filter));
+                if (count($this->Values_model->getValue($filter)))
                     return true;
             }
         }

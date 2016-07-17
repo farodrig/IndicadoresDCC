@@ -4,6 +4,7 @@ class FodaStrategy extends CI_Controller {
     function __construct() {
         parent::__construct();
         $this->load->model('Dashboard_model');
+        $this->load->model('Values_model');
         $this->load->model('Foda_model');
         $this->load->model('Strategy_model');
         $this->load->model('Organization_model');
@@ -46,7 +47,7 @@ class FodaStrategy extends CI_Controller {
             'success'     => is_null($this->session->flashdata('success')) ? 2 : $this->session->flashdata('success'),
             'departments' => $this->Organization_model->getTree($orgs)
         );
-        $this->load->view('foda', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
+        $this->load->view('foda', array_merge($result, defaultResult($permits, $this->Values_model)));
     }
 
     function modifyFoda(){

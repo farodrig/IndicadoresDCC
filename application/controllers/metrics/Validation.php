@@ -6,6 +6,8 @@ class Validation extends CI_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->library('session');
+		$this->load->model('Dashboard_model');
+		$this->load->model('Values_model');
 	}
 
 	public function index() {
@@ -17,7 +19,7 @@ class Validation extends CI_Controller {
 		if (!count($prod) && !count($finan)) {
 			redirect('inicio');
 		}
-		$this->load->model('Dashboard_model');
+		$this->load->model('Metrics_model');
 		$this->load->model('Organization_model');
 		$this->load->model('User_model');
 		$success = $this->session->flashdata('success');
@@ -37,7 +39,7 @@ class Validation extends CI_Controller {
 		$data = array();
 		foreach ($orgs as $org) {
 			$data[$org]['org'] = $this->Organization_model->getByID($org);
-			$metrics = $this->Dashboard_model->getAllMetrics($org, $category, 1);
+			$metrics = $this->Metrics_model->getAllMetricsByOrg($org, $category, 1);
 			$metrics = (!$metrics) ? [] : $metrics;
 			foreach ($metrics as $metric) {
 				$perm['valor'] = ($metric->category == 1 ? in_array($org, $permits['foda']['validate']) : in_array($org, $permits['valorF']['validate']));
@@ -64,7 +66,7 @@ class Validation extends CI_Controller {
 		foreach ($this->User_model->getAllUsers() as $user){
 			$users[$user->id] = $user->name;
 		}
-		$result = defaultResult($permits, $this->Dashboard_model);
+		$result = defaultResult($permits, $this->Values_model);
 		$result['success'] = $success;
 		$result['users'] = $users;
 		$result['data'] = $data;
@@ -79,6 +81,7 @@ class Validation extends CI_Controller {
 			redirect('inicio');
 		}
 
+		$this->load->model('Metorg_model');
 		$this->load->library('form_validation');
 
         if ($this->input->post('Validar')) {
@@ -96,18 +99,16 @@ class Validation extends CI_Controller {
 
         $data = $this->input->post('ids');
 
-        $this->load->model('Dashboard_model');
-        $this->load->model('Metorg_model');
         $this->load->library('form_validation');
 
 		$success = true;
 		foreach ($data as $data_id) {
-			if(!$this->Dashboard_model->checkIfValidate($data_id))
+			if(!$this->Values_model->checkIfValidate($data_id))
 				continue;
 			$metorg = $this->Metorg_model->getMetOrgDataByValue($data_id);
 			$validVal = ($metorg->category==1 ? in_array($metorg->org, $permits['foda']['validate']) : in_array($metorg->org, $permits['valorF']['validate']));
 			$validMet = ($metorg->category==1 ? in_array($metorg->org, $permits['metaP']['validate']) : in_array($metorg->org, $permits['metaF']['validate']));
-			$success = $success && $this->Dashboard_model->$func($data_id, $validVal, $validMet);
+			$success = $success && $this->Values_model->$func($data_id, $validVal, $validMet);
 		}
 		$success = ($success) ? 1:0;
 		$this->session->set_flashdata('success', $success);

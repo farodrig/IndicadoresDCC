@@ -19,12 +19,12 @@ class MainConfig extends CI_Controller{
     }
 
     public function configMenu() {
-        $this->load->model('Dashboard_model');
+        $this->load->model('Values_model');
         if (!$this->access) {
             redirect('inicio');
         }
         $permits = $this->session->userdata();
-        $result = defaultResult($permits, $this->Dashboard_model);
+        $result = defaultResult($permits, $this->Values_model);
         $this->load->view('menu-configurar', $result);
     }
 }

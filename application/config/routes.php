@@ -60,8 +60,8 @@ $route['contacto']         = 'SendEmail/contact';
 #metricas del sistema
 $route['dashboard']        = 'metrics/Dashboard';
 $route['export']           = 'metrics/Dashboard/exportData';
-$route['formAgregarDato']  = 'metrics/AddMetrics';
-$route['agregarDato']      = 'metrics/AddMetrics/addData';
+$route['formAgregarDato']  = 'metrics/AddValues';
+$route['agregarDato']      = 'metrics/AddValues/addData';
 $route['validar']          = 'metrics/Validation';
 $route['validar/update']   = 'metrics/Validation/validate_reject';
 

@@ -5,8 +5,8 @@ class Dashboard extends CI_Controller {
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->library('form_validation');
-		$this->load->model('Dashboard_model');
-		$this->load->model('Dashboardconfig_model');
+        $this->load->model('Dashboard_model');
+		$this->load->model('Values_model');
 		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
 		if (is_null($this->session->rut))
@@ -34,10 +34,10 @@ class Dashboard extends CI_Controller {
         $graphics = $this->getAllDashboardData($org, $show_all);
         $show_button = ($show_all) ? true : $this->Dashboard_model->showButton($org);
         $aggregation = [];
-        foreach ($this->Dashboardconfig_model->getAggregationType([]) as $type){
+        foreach ($this->Dashboard_model->getAggregationType([]) as $type){
             $aggregation[$type->id] = $type;
         }
-        $result = defaultResult($permits, $this->Dashboard_model);
+        $result = defaultResult($permits, $this->Values_model);
         $result['add_data'] = $add;
         $result['show_all'] = $show_all;
         $result['show_button'] = $show_button;
@@ -49,7 +49,7 @@ class Dashboard extends CI_Controller {
     }
 
     private function getAllDashboardData($org, $all){
-        $graphics = $this->Dashboardconfig_model->getAllGraphicByOrg($org, $all);
+        $graphics = $this->Dashboard_model->getAllGraphicByOrg($org, $all);
         $aux_graphs = [];
         foreach ($graphics as $graphic){
             $aux_graphs[] = $this->Dashboard_model->getGraphicData($graphic->id);

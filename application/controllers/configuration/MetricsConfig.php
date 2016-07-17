@@ -31,7 +31,7 @@ class MetricsConfig extends CI_Controller {
         }
 
         $this->load->model('Organization_model');
-        $this->load->model('Dashboard_model');
+        $this->load->model('Values_model');
         $this->load->model('Metrics_model');
         $metrics = $this->Metrics_model->getAllMetrics();
         $result = array(
@@ -39,7 +39,7 @@ class MetricsConfig extends CI_Controller {
             'metrics'	=> $metrics,
             'success'   => $success
         );
-        $this->load->view('configurar-metricas', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
+        $this->load->view('configurar-metricas', array_merge($result, defaultResult($permits, $this->Values_model)));
     }
 
     public function addMetric(){

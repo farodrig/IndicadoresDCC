@@ -48,7 +48,7 @@ class Main  extends CI_Controller{
         if (is_null($user))
             redirect('salir');
 
-        $this->load->model('Dashboard_model');
+        $this->load->model('Values_model');
         $this->load->model('Organization_model');
 
         $permits    = $this->session->userdata();
@@ -71,7 +71,7 @@ class Main  extends CI_Controller{
             'name'                      => $name,
             'user'                      => $user
         );
-        $this->load->view('index', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
+        $this->load->view('index', array_merge($result, defaultResult($permits, $this->Values_model)));
     }
 
     private function showAreaUnit() {
