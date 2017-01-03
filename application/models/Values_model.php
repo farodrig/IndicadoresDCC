@@ -243,7 +243,7 @@ class Values_model extends CI_Model{
         $value->updater = $user;
         $value->dateup = date('Y-m-d H:i:s');
         unset($value->id, $value->validator, $value->dateval);
-        return $this->db->insert($this->value, $value);
+        return $this->db->insert($this->title, $value);
     }
 
     function deleteData($id, $validVal, $validMet){

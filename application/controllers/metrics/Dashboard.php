@@ -52,7 +52,10 @@ class Dashboard extends CI_Controller {
         $graphics = $this->Dashboard_model->getAllGraphicByOrg($org, $all);
         $aux_graphs = [];
         foreach ($graphics as $graphic){
-            $aux_graphs[] = $this->Dashboard_model->getGraphicData($graphic->id);
+            $graph = $this->Dashboard_model->getGraphicData($graphic->id);
+            if (!count($graph->series))
+            	continue;
+            $aux_graphs[] = $graph;
         }
         return $aux_graphs;
     }
