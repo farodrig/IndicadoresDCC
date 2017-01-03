@@ -4,6 +4,8 @@ class Budget extends CI_Controller {
     function __construct() {
         parent::__construct();
         $this->load->model('Dashboard_model');
+        $this->load->model('Values_model');
+        $this->load->model('Budget_model');
         $this->load->model('Organization_model');
         $this->load->library('form_validation');
         $this->load->library('session');
@@ -30,7 +32,7 @@ class Budget extends CI_Controller {
             'valAll'      => count(array_diff($aux_org, array_unique(array_merge($permits['valorF']['validate'], $permits['metaF']['validate']))))==0,
             'departments' => $this->Organization_model->getTree($aux_org)//Notar que funcion esta en helpers
         );
-        $this->load->view('budget', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
+        $this->load->view('budget', array_merge($result, defaultResult($permits, $this->Values_model)));
     }
 
     function modify(){
@@ -75,11 +77,11 @@ class Budget extends CI_Controller {
         $validMeta = in_array($org, $permits['metaF']['validate']);
         $year =  $this->input->post("year");
         $org = $this->Organization_model->getById($org);
-        $oldValidVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year, "DESC");
-        $oldVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year, "ASC");
-        $success = $this->Dashboard_model->updateCreateBudgetValue($org->getId(), $year, $value, $expected, $target, $validValue, $validMeta);
-        $currentValidVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year, "DESC");
-        $currentVal = $this->Dashboard_model->getBudgetMeasure($org->getId(), $year, "ASC");
+        $oldValidVal = $this->Budget_model->getMeasure($org->getId(), $year, "DESC");
+        $oldVal = $this->Budget_model->getMeasure($org->getId(), $year, "ASC");
+        $success = $this->Budget_model->updateCreateValue($org->getId(), $year, $value, $expected, $target, $validValue, $validMeta);
+        $currentValidVal = $this->Budget_model->getMeasure($org->getId(), $year, "DESC");
+        $currentVal = $this->Budget_model->getMeasure($org->getId(), $year, "ASC");
         $currentOrg = $org;
         $parent = $this->Organization_model->getById($org->getParent());
         while($currentOrg->getId()!=$parent->getId()){
@@ -91,8 +93,8 @@ class Budget extends CI_Controller {
                 ];
             }
             
-            $parentVal = $this->Dashboard_model->getBudgetMeasure($parent->getId(), $year, "ASC");
-            $parentValidVal = $this->Dashboard_model->getBudgetMeasure($parent->getId(), $year, "DESC");
+            $parentVal = $this->Budget_model->getMeasure($parent->getId(), $year, "ASC");
+            $parentValidVal = $this->Budget_model->getMeasure($parent->getId(), $year, "DESC");
             if(!$parentVal){
                 $parentVal = (object) [
                     'value' => 0,
@@ -145,14 +147,14 @@ class Budget extends CI_Controller {
             $newExpected = $parentVal->expected + $currentVal->expected - $oldVal->expected;
             $newTarget = $parentVal->target + $currentVal->target - $oldVal->target;
 
-            $success = $success && $this->Dashboard_model->updateCreateBudgetValue($parent->getId(), $year, $newVal, $newExpected, $newTarget, $validValue, $validMeta);
+            $success = $success && $this->Budget_model->updateCreateValue($parent->getId(), $year, $newVal, $newExpected, $newTarget, $validValue, $validMeta);
             
             $currentOrg = $parent;
             $parent = $this->Organization_model->getById($parent->getParent());
             $oldVal = $parentVal;
             $oldValidVal = false;
-            $currentVal = $this->Dashboard_model->getBudgetMeasure($currentOrg->getId(), $year, "ASC");
-            $currentValidVal = $this->Dashboard_model->getBudgetMeasure($currentOrg->getId(), $year, "DESC");
+            $currentVal = $this->Budget_model->getMeasure($currentOrg->getId(), $year, "ASC");
+            $currentValidVal = $this->Budget_model->getMeasure($currentOrg->getId(), $year, "DESC");
         }
         $result['success'] = $success;
         if($success){
@@ -197,7 +199,7 @@ class Budget extends CI_Controller {
                     $value = $dataByYear[$year];
                     if ($value->state != 0)
                         continue;
-                    $done = $done && $this->Dashboard_model->validateData($value->id, $valValue, $valMeta);
+                    $done = $done && $this->Values_model->validateData($value->id, $valValue, $valMeta);
                 }
             }
         }
@@ -219,7 +221,7 @@ class Budget extends CI_Controller {
                 if (array_key_exists($year, $data[2][$organization->getId()])) {
                     $value = $data[2][$organization->getId()][$year];
                     if ($first) {
-                        $val = $this->Dashboard_model->getValue(['id' => [$value->id]]);
+                        $val = $this->Values_model->getValue(['id' => [$value->id]]);
                         if (!count($val)){
                             $done = false;
                             break;
@@ -229,14 +231,14 @@ class Budget extends CI_Controller {
                         $val->target = (is_null($val->target) ? 0 : $val->target);
                         $val->expected = (is_null($val->expected) ? 0 : $val->expected);
                         
-                        $done = $done && $this->Dashboard_model->validateData($value->id, $valValue, $valMeta);
+                        $done = $done && $this->Values_model->validateData($value->id, $valValue, $valMeta);
                         $first = false;                        
                     }
                     else if(!is_null($val)){
                         if ($this->notValidChildren($this->Organization_model->getAllChilds($organization->getId()), $year, $data[1], $data[2])!=1)
-                            $done = $done && $this->Dashboard_model->validateBudgetValue($value->id, $valValue, $valMeta, $val);
+                            $done = $done && $this->Budget_model->validateValue($value->id, $valValue, $valMeta, $val);
                         else
-                            $done = $done && $this->Dashboard_model->validateData($value->id, $valValue, $valMeta);
+                            $done = $done && $this->Values_model->validateData($value->id, $valValue, $valMeta);
                     }
                     
                 }
@@ -284,7 +286,7 @@ class Budget extends CI_Controller {
             $permit[$org->getId()]['value'] = in_array($org->getId(), $permits['valorF']['edit']);
             $permit[$org->getId()]['meta'] = in_array($org->getId(), $permits['metaF']['edit']);
             $org_ids[] = $org->getId();
-            $datos = $this->Dashboard_model->getBudgetMeasures($org->getId());
+            $datos = $this->Budget_model->getMeasures($org->getId());
             if(!$datos)
                 continue;
             foreach ($datos as $dato){

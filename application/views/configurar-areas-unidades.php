@@ -71,13 +71,13 @@
 			   		alert("Debe ingresar un nombre para el área");
 			   	}
 			   	else{
-			    	redirectPost('<?php echo base_url();?>ModifyOrg/addArea', {'name': n, 'type': segment});
+			    	redirectPost('<?php echo base_url();?>config/organizacion/addArea', {'name': n, 'type': segment});
 			    }
 		   }
 
 		   function postDelArea(){
 			   var n = $("#delAreaId").html();
-			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'id': n});
+			   redirectPost('<?php echo base_url();?>config/organizacion/delete', {'id': n});
 		   }
 
 		   function postAddUni(){
@@ -87,13 +87,13 @@
 			   		alert("Debe ingresar un nombre para la unidad");
 			   }
 			   else{
-			   		redirectPost('<?php echo base_url();?>ModifyOrg/addUni', {'area': area, 'name': name});
+			   		redirectPost('<?php echo base_url();?>config/organizacion/addUni', {'area': area, 'name': name});
 			   	}
 		   }
 
 		   function postDelUni(){
 			   var n = $("#delUniId").html();
-			   redirectPost('<?php echo base_url();?>ModifyOrg/delAreaUni', {'id': n});
+			   redirectPost('<?php echo base_url();?>config/organizacion/delete', {'id': n});
 		   }
 		</script>
 	</head>
@@ -107,8 +107,8 @@
 			<div class="inner-wrapper">
 				<!-- start: sidebar -->
 				<?php
-				$navData=[['url'=>'cmetrica', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
-						  ['url'=>'cdashboard', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
+				$navData=[['url'=>'config/metricas', 'name'=>'Configurar Métricas', 'icon'=>'fa fa-server'],
+						  ['url'=>'config/dashboard', 'name'=>'Configurar Dashboard', 'icon'=>'fa fa-bar-chart']];
 				include 'partials/navigation.php';
 				?>
 				<!-- end: sidebar -->

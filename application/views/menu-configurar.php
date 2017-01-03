@@ -43,15 +43,15 @@
 								</header>
 								<div class="panel-body">
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-primary btn-lg btn-block"
-										onclick="changePage('<?php echo base_url();?>cdashboard')">Configurar Dashboard</button>
+										onclick="changePage('<?php echo base_url();?>config/dashboard')">Configurar Dashboard</button>
 								</div>
 								<div class="panel-body">
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-success btn-lg btn-block"
-										onclick="changePage('<?php echo base_url();?>cmetrica/')">Añadir y Borrar Métricas</button>
+										onclick="changePage('<?php echo base_url();?>config/metricas/')">Añadir y Borrar Métricas</button>
 								</div>
 								<div class="panel-body">
 									<button type="button" class="mb-xs mt-xs mr-xs btn btn-warning btn-lg btn-block"
-										onclick="changePage('<?php echo base_url();?>careaunidad')">Configurar Áreas y Unidades</button>
+										onclick="changePage('<?php echo base_url();?>config/organizacion')">Configurar Áreas y Unidades</button>
 								</div>
 							</section>
 					</div>

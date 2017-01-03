@@ -49,33 +49,44 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
  */
-$route['default_controller'] = 'MySession';
+$route['default_controller'] = 'Main';
+$route['inicio']           = 'Main/inicio';
+$route['salir']            = 'Main/logout';
 
-$route['inicio']           = 'MySession/inicio';
-$route['validar']          = 'MySession/validar';
-$route['configurar']       = 'MySession/menuConfigurar';
-$route['cmetrica']         = 'MySession/configurarMetricas';
-$route['contacto']         = 'SendEmail/contact';
-$route['salir']            = 'MySession/logout';
-
+# Envio de correos electronicos
 #$route['testmail/(:any)']        = 'SendEmail/testEmail/$1'; #Habilitar para pruebas externas de configuracion de email
+$route['contacto']         = 'SendEmail/contact';
 
-$route['dashboard']        = 'Dashboard/showDashboard';
-$route['formAgregarDato']  = 'Dashboard/formAddData';
-$route['agregarDato']      = 'Dashboard/addData';
-$route['export']           = 'Dashboard/exportData';
+#metricas del sistema
+$route['dashboard']        = 'metrics/Dashboard';
+$route['export']           = 'metrics/Dashboard/exportData';
+$route['formAgregarDato']  = 'metrics/AddValues';
+$route['agregarDato']      = 'metrics/AddValues/addData';
+$route['validar']          = 'metrics/Validation';
+$route['validar/update']   = 'metrics/Validation/validate_reject';
 
-$route['careaunidad']      = 'ModifyOrg/modifyAreaUnidad';
-
+#Comunicación con ADI
 $route['verif_usuario']    = 'ADI/user_verify';
 
-$route['cdashboard'] = 'DashboardConfig/dashboardConfig';
-$route['cdashboard/modify/graphic'] = 'DashboardConfig/modifyGraphic';
-$route['cdashboard/modify/serie'] = 'DashboardConfig/modifySerie';
-$route['cdashboard/delete'] = 'DashboardConfig/delete';
+# Interfaces de configuracion
+$route['configurar']       = 'configuration/MainConfig/configMenu';
 
-$route['cdashboard/values'] = 'DashboardConfig/graphicValues';
+$route['config/metricas']        = 'configuration/MetricsConfig/metricsConfig';
+$route['config/metricas/add']    = 'configuration/MetricsConfig/addMetric';
+$route['config/metricas/delmod'] = 'configuration/MetricsConfig/delModMetric';
 
+$route['config/dashboard']                = 'configuration/DashboardConfig/dashboardConfig';
+$route['config/dashboard/modify/graphic'] = 'configuration/DashboardConfig/modifyGraphic';
+$route['config/dashboard/modify/serie']   = 'configuration/DashboardConfig/modifySerie';
+$route['config/dashboard/delete']         = 'configuration/DashboardConfig/delete';
+$route['config/dashboard/values']         = 'configuration/DashboardConfig/graphicValues';
+
+$route['config/organizacion']         = 'configuration/OrganizationConfig/modifyAreaUnidad';
+$route['config/organizacion/addArea'] = 'configuration/OrganizationConfig/addArea';
+$route['config/organizacion/addUni']  = 'configuration/OrganizationConfig/addUni';
+$route['config/organizacion/delete']  = 'configuration/OrganizationConfig/delAreaUni';
+
+#Interfaces de FODA y Plan Estrategico
 $route['fodaStrategy'] = 'FodaStrategy/fodaIndex';
 $route['fodaStrategy/validate'] = 'FodaStrategy/validate';
 
@@ -88,9 +99,11 @@ $route['fodaStrategy/add/action'] = 'FodaStrategy/modifyAction';
 
 $route['fodaStrategy/delete'] = 'FodaStrategy/delete';
 
+#Presupuesto de la organizacion
 $route['presupuesto'] = 'Budget/index';
 $route['presupuesto/modify'] = 'Budget/modify';
 $route['presupuesto/validate'] = 'Budget/validate';
 
+#Otros
 $route['404_override']         = '';
 $route['translate_uri_dashes'] = FALSE;

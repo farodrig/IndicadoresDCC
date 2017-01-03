@@ -72,6 +72,25 @@ class Metrics_model extends CI_Model{
 		return $data;
 	}
 
+    function getAllMetricsByOrg($org, $category, $all){
+        $this->db->select('MetOrg.id as metorg, Metric.y_name, Metric.x_name, X.name as x_unit, Y.name as y_unit, Metric.name, Metric.category');
+        $this->db->from('Metric');
+        $this->db->join('MetOrg', 'MetOrg.metric = Metric.id');
+        $this->db->join('Unit as X', 'X.id = Metric.x_unit');
+        $this->db->join('Unit as Y', 'Y.id = Metric.y_unit');
+        $this->db->join('Organization', 'Organization.id = MetOrg.org');
+        $this->db->where('Organization.id', $org);
+        if(!$all)
+            $this->db->where('Metric.id !=', 1);
+
+        if (!is_null($category) && $category != 0)
+            $this->db->where('Metric.category', $category);
+
+        $q = $this->db->get();
+        return ($q->num_rows() > 0 ? $q->result() : false);
+    }
+
+
     function buildAllMetric($q){
         $me = array();
         foreach ($q->result() as $row){

@@ -3,8 +3,6 @@
 
 class DashboardConfig extends CI_Controller {
 
-	private $access;
-	
 	function __construct() {
 		parent::__construct();
 		$this->load->library('session');
@@ -12,12 +10,13 @@ class DashboardConfig extends CI_Controller {
 			redirect('salir');
 		$this->load->library('form_validation');
 		$this->load->model('Organization_model');
-		$this->load->model('Dashboard_model');
-		$this->load->model('Dashboardconfig_model');
+        $this->load->model('Dashboard_model');
+		$this->load->model('Values_model');
 		$this->load->model('Metorg_model');
 		$this->load->model('Metrics_model');
 		$permits = $this->session->userdata();
-		$this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);		
+        $this->access = ((count($permits['conf']['edit']) + count($permits['conf']['view'])) > 0);
+        $this->edit = (count($permits['conf']['edit']) > 0);
 	}
 	
 	function dashboardConfig(){
@@ -30,11 +29,11 @@ class DashboardConfig extends CI_Controller {
 		$data = $this->getDashboardConfigData($org_ids);
 
 		$types = [];
-		foreach ($this->Dashboardconfig_model->getSerieType([]) as $type) {
+		foreach ($this->Dashboard_model->getSerieType([]) as $type) {
 			$types[$type->id] = $type;
 		}
 		$aggregation = [];
-		foreach ($this->Dashboardconfig_model->getAggregationType([]) as $type) {
+		foreach ($this->Dashboard_model->getAggregationType([]) as $type) {
 			$aggregation[$type->id] = $type;
 		}
 		$result = array('orgs' => $data['orgs'],
@@ -46,12 +45,12 @@ class DashboardConfig extends CI_Controller {
 			'success' => is_null($this->session->flashdata('success')) ? 2 : $this->session->flashdata('success'),
 			'departments' => $this->Organization_model->getTree(-1)
 		);
-		$this->load->view('configurar-dashboard', array_merge($result, defaultResult($permits, $this->Dashboard_model)));
+		$this->load->view('configurar-dashboard', array_merge($result, defaultResult($permits, $this->Values_model)));
 	}
 	
 	function modifyGraphic(){
         //Revisión de permisos
-		if (!$this->input->is_ajax_request() || !$this->access) {
+		if (!$this->input->is_ajax_request() || !$this->edit) {
 			echo json_encode(array('success'=>0));
 			return;
 		}
@@ -59,7 +58,7 @@ class DashboardConfig extends CI_Controller {
 		//Validación de entradas
 		$this->form_validation->set_rules('org', 'Organization', 'numeric|required|greater_than_equal_to[0]');
 		$this->form_validation->set_rules('graphic', 'Gráfico', 'numeric|required');
-		$this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpace');
+		$this->form_validation->set_rules('title', 'Titulo', 'trim|required|alphaNumericSpaceSymbol');
 		$this->form_validation->set_rules('minYear', 'Año Mínimo', 'numeric|required|greater_than_equal_to[1950]');
 		$this->form_validation->set_rules('maxYear', 'Año Máximo', 'numeric|required|greater_than_equal_to[1950]');
 		$this->form_validation->set_rules('position', 'Posición', 'numeric|required|greater_than_equal_to[0]');
@@ -80,12 +79,12 @@ class DashboardConfig extends CI_Controller {
 		$pos = $this->input->post('position');
 		$x = ($this->input->post('byYear') ? 0 : 1);
 		$display = $this->input->post('display');
-        $dash = $this->Dashboardconfig_model->getOrCreateDashboard($org);
+        $dash = $this->Dashboard_model->getOrCreateDashboard($org);
 		if ($this->input->post('graphic')!=-1){
-			$done = $done && $this->Dashboardconfig_model->modifyGraphic($id, $title, $max, $min, $pos, $x, $dash->id, $display);
+			$done = $done && $this->Dashboard_model->modifyGraphic($id, $title, $max, $min, $pos, $x, $dash->id, $display);
 		}
 		else{
-			$id = $this->Dashboardconfig_model->addGraphic($title, $max, $min, $pos, $x, $dash->id, $display);
+			$id = $this->Dashboard_model->addGraphic($title, $max, $min, $pos, $x, $dash->id, $display);
 			$done = $done && ($id? true : false);
 		}
 
@@ -97,7 +96,7 @@ class DashboardConfig extends CI_Controller {
 
 	function modifySerie(){
         //Revisión de permisos
-        if (!$this->input->is_ajax_request() || !$this->access) {
+        if (!$this->input->is_ajax_request() || !$this->edit) {
             echo json_encode(array('success'=>0));
             return;
         }
@@ -126,10 +125,10 @@ class DashboardConfig extends CI_Controller {
 		$color = (!$this->input->post('color') ? null : $this->input->post('color'));
 		
 		if ($this->input->post('serie')!=-1){
-			$done = $done && $this->Dashboardconfig_model->modifySerie($id, $graphic, $metorg, $type, $aggregX, $aggregYear, $color);
+			$done = $done && $this->Dashboard_model->modifySerie($id, $graphic, $metorg, $type, $aggregX, $aggregYear, $color);
 		}
 		else{
-			$done = $done && ($this->Dashboardconfig_model->addSerie($graphic, $metorg, $type, $aggregX, $aggregYear, $color)? true : false);
+			$done = $done && ($this->Dashboard_model->addSerie($graphic, $metorg, $type, $aggregX, $aggregYear, $color)? true : false);
 		}
 
 		$org_ids = $this->Organization_model->getAllIds();
@@ -160,7 +159,7 @@ class DashboardConfig extends CI_Controller {
 
 	function delete(){
         //Revisión de permisos
-        if (!$this->input->is_ajax_request() || !$this->access) {
+        if (!$this->input->is_ajax_request() || !$this->edit) {
             echo json_encode(array('success'=>0));
             return;
         }
@@ -182,10 +181,10 @@ class DashboardConfig extends CI_Controller {
 	private function deleteElement($type, $id){
 		$result = false;
 		if(strcmp($type, "graphic")==0){
-			$result = $this->Dashboardconfig_model->deleteGraphic($id);
+			$result = $this->Dashboard_model->deleteGraphic($id);
 		}
 		elseif (strcmp($type, "serie")==0){
-			$result = $this->Dashboardconfig_model->deleteSerie($id);
+			$result = $this->Dashboard_model->deleteSerie($id);
 		}
 		return $result;
 	}
@@ -202,9 +201,9 @@ class DashboardConfig extends CI_Controller {
 				$metric = $this->Metrics_model->getMetric(['id'=>[$metorg->metric]])[0];
 				$metrics[$org_id][$metorg->id] = $metric;
 			}
-			$graphs = $this->Dashboardconfig_model->getAllGraphicByOrg($org_id, true);
+			$graphs = $this->Dashboard_model->getAllGraphicByOrg($org_id, true);
 			foreach ($graphs as $graph){
-				$graph->series = $this->Dashboardconfig_model->getAllSeriesByGraph($graph->id);
+				$graph->series = $this->Dashboard_model->getAllSeriesByGraph($graph->id);
 				$graphics[$org_id][$graph->id] = $graph;
 			}
 		}
