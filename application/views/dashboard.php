@@ -92,7 +92,7 @@
 
             <?php foreach ($graphics as $graphic):
                 $title = $graphic->title;
-                if($graphic->ver_x){
+                if($graphic->see_x){
                     $title .= " Periodo (".$graphic->min_year." - ".$graphic->max_year.")";
                 }?>
                 <div class='panel margin-top'>

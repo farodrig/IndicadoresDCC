@@ -21,7 +21,7 @@ class Dashboard_model extends CI_Model{
     }
 
     function getAllGraphicByOrg($org, $all){
-        $this->db->select($this->graphic.'.id, '.$this->graphic.'.title, ver_x, min_year, max_year, position, display');
+        $this->db->select($this->graphic.'.id, '.$this->graphic.'.title, see_x, min_year, max_year, position, display');
         $this->db->from($this->graphic);
         $this->db->join($this->title, $this->graphic.'.dashboard = '.$this->title.'.id');
         $this->db->where($this->title.'.org', $org);
@@ -54,13 +54,13 @@ class Dashboard_model extends CI_Model{
     }
 
     function addGraphic($title, $max, $min, $pos, $x, $dashboard, $display){
-        $data = ['title'=>$title, 'max_year'=>$max, 'min_year'=>$min, 'position'=>$pos, 'ver_x'=>$x, 'dashboard'=>$dashboard, 'display'=>$display];
+        $data = ['title'=>$title, 'max_year'=>$max, 'min_year'=>$min, 'position'=>$pos, 'see_x'=>$x, 'dashboard'=>$dashboard, 'display'=>$display];
         return ($this->db->insert($this->graphic, $data)) ? $this->db->insert_id() : false;
     }
 
     function modifyGraphic($id, $title, $max, $min, $pos, $x, $dashboard, $display){
         $this->db->where('id', $id);
-        $data = ['title'=>$title, 'max_year'=>$max, 'min_year'=>$min, 'position'=>$pos, 'ver_x'=>$x, 'dashboard'=>$dashboard, 'display'=>$display];
+        $data = ['title'=>$title, 'max_year'=>$max, 'min_year'=>$min, 'position'=>$pos, 'see_x'=>$x, 'dashboard'=>$dashboard, 'display'=>$display];
         return $this->db->update($this->graphic, $data);
     }
 
@@ -123,14 +123,14 @@ class Dashboard_model extends CI_Model{
             if (!property_exists($graphic, 'y_name')) {
                 $graphic->y_name = $metric->y_name;
                 $graphic->y_unit = getGeneric($this, 'Unit', ['id' => [$metric->y_unit]])[0]->name;
-                $graphic->x_name = ($graphic->ver_x ? $metric->x_name : "Año");
+                $graphic->x_name = ($graphic->see_x ? $metric->x_name : "Año");
             }
 
             $serie->name = $metric->name;
             $serie->org = $org->getName();
             $type = getGeneric($this, $this->type, ['id' => [$serie->type]])[0];
             $serie->type = $type->name;
-            if ($graphic->ver_x) {
+            if ($graphic->see_x) {
                 $serie->aggregation = getGeneric($this, $this->aggregation, ['id' => [$serie->year_aggregation]])[0]->name;
                 $select = $this->getSelectFunction($serie->year_aggregation);
                 $this->db->reset_query();
@@ -159,7 +159,7 @@ class Dashboard_model extends CI_Model{
             $q = $this->db->get();
             $values = $q->result();
 
-            if (!$graphic->ver_x) {
+            if (!$graphic->see_x) {
                 for ($i = $graphic->min_year; $i <= $graphic->max_year; $i++) {
                     if (!in_array($i, $x_values))
                         $x_values[] = $i . "";
@@ -211,7 +211,7 @@ class Dashboard_model extends CI_Model{
             if (!property_exists($graphic, 'y_name')) {
                 $graphic->y_name = $metric->y_name;
                 $graphic->y_unit = getGeneric($this, 'Unit', ['id' => [$metric->y_unit]])[0]->name;
-                $graphic->x_name = ($graphic->ver_x ? $metric->x_name : "Año");
+                $graphic->x_name = ($graphic->see_x ? $metric->x_name : "Año");
             }
 
             $serie->name = $metric->name;

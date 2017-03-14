@@ -373,17 +373,17 @@
             var min_year = new Date().getFullYear();
             var max_year = min_year;
             var position = 0;
-            var ver_x = false;
+            var see_x = false;
             var display = false;
             $('#graphByYear').hide();
         }
         else {
             var graphic = graphics[org][id];
-            var ver_x = graphic.ver_x=="1";
+            var see_x = graphic.see_x=="1";
             if(!(graphic.series[0]===undefined)){
                 var metric = getMetricById(graphic.series[0].metorg);
                 if(!(metric===null) && !metric.x_name){
-                    ver_x = false;
+                    see_x = false;
                     $('#graphicByYear').prop("disabled", true);
                 }
             }
@@ -398,7 +398,7 @@
         $('#graphicMaxYear').val(max_year);
         $('#graphicPosition').val(position);
         $('#graphicDisplay').prop('checked', display);
-        $('#graphicByYear').prop('checked', !ver_x);
+        $('#graphicByYear').prop('checked', !see_x);
     });
 
     $('#editSerieModal').on('show.bs.modal', function (e) {
@@ -465,7 +465,7 @@
                 }
         });
         var title = values.title;
-        if(values.ver_x){
+        if(values.see_x){
             title += " Periodo (" + values.min_year + " - " + values.max_year + ")";
         }
         $('#previewModalTitle').html(title);
@@ -502,7 +502,7 @@
             cells += '<td class="graphicTitle">' + graphics[org][i].title + '</td>';
             cells += '<td class="graphicMinYear">' + graphics[org][i].min_year + '</td>';
             cells += '<td class="graphicMaxYear">' + graphics[org][i].max_year + '</td>';
-            var bin = (graphics[org][i].ver_x=="1" ? 'No' : 'Si');
+            var bin = (graphics[org][i].see_x=="1" ? 'No' : 'Si');
             cells += '<td class="graphicState">' + bin + '</td>';
             bin = (graphics[org][i].display=="1" ? 'Si' : 'No');
             cells += '<td class="graphicDisplay">' + bin + '</td>';

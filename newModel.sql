@@ -81,8 +81,8 @@ CREATE TABLE IF NOT EXISTS `UDashboard`.`Dashboard` (
   CONSTRAINT `fk_Dashboard_Organization1`
     FOREIGN KEY (`org`)
     REFERENCES `UDashboard`.`Organization` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = utf8
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `UDashboard`.`Graphic` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `dashboard` INT(11) NOT NULL,
   `title` VARCHAR(100) NOT NULL,
-  `ver_x` TINYINT(1) NOT NULL DEFAULT 0,
+  `see_x` TINYINT(1) NOT NULL DEFAULT 0,
   `min_year` INT(11) NOT NULL,
   `max_year` INT(11) NOT NULL,
   `position` INT(11) NOT NULL,

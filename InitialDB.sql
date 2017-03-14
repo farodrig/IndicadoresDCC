@@ -210,7 +210,7 @@ CREATE TABLE `Graphic` (
   `id` int(11) NOT NULL,
   `dashboard` int(11) NOT NULL,
   `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `ver_x` tinyint(1) NOT NULL DEFAULT '0',
+  `see_x` tinyint(1) NOT NULL DEFAULT '0',
   `min_year` int(11) NOT NULL,
   `max_year` int(11) NOT NULL,
   `position` int(11) NOT NULL,
@@ -892,7 +892,7 @@ ALTER TABLE `Collaborator`
 -- Constraints for table `Dashboard`
 --
 ALTER TABLE `Dashboard`
-  ADD CONSTRAINT `fk_Dashboard_Organization1` FOREIGN KEY (`org`) REFERENCES `Organization` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_Dashboard_Organization1` FOREIGN KEY (`org`) REFERENCES `Organization` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `FODA`
